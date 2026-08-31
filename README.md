@@ -139,5 +139,3 @@ Thursday 2026-11-05, 23:59.
 - **The merge bot.** `.github/workflows/automerge.yml`. It runs on `pull_request_target`
   and never checks out or executes pull-request contents; it only reads the file list
   through the API and merges. Do not add a checkout of the pull request head to it.
-
-<!-- unauthorized edit -->
