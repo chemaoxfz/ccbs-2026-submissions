@@ -4,8 +4,8 @@ name_zh: 闫润梓
 student_id: 20261201161
 email: yanrunzi@westlake.edu.cn
 github: YanRunzi
-lecture: 15
-teammates: Siheng Wang, Name B
+lecture: 12
+teammates: Siheng Wang
 ---
 
 Copy this file to `signup/lectureNN-yourname.md` (lowercase, no spaces), for example
