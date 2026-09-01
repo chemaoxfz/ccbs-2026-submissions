@@ -1,5 +1,5 @@
 ---
-name: Your Name
+name: Shunkang Xue
 name_zh: 薛顺康
 student_id: 20261201159
 email: xueshunkang@westlake.edu.cn
