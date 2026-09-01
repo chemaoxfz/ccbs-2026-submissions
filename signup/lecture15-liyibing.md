@@ -1,11 +1,11 @@
 ---
-name:liyibing
-name_zh:李艺冰
-student_id:20261101018
-email:liyibing@westlake.edu.cn
-github:jli816433-Li
-lecture:15
-teammates:liyibing,zhutao
+name: liyibing
+name_zh: 李艺冰
+student_id: 20261101018
+email: liyibing@westlake.edu.cn
+github: jli816433-Li
+lecture: 15
+teammates: zhutao
 ---
 
 Copy this file to `signup/lectureNN-yourname.md` (lowercase, no spaces), for example
