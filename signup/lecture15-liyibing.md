@@ -1,9 +1,9 @@
 ---
-name: LiYibing
-name_zh:李艺冰
-student_id:20261101018
-email:liyibing@westlake.edu.cn
-github:jli816433-Li
+name: zhutao
+name_zh:朱韬
+student_id:20261201191
+email:zhutao60@westlake.edu.cn
+github:taozhu2026
 lecture:15
 teammates:LiYibing,ZhuTao
 ---
