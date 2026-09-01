@@ -9,7 +9,7 @@
 |---|---|---|---|---|
 | 3 | 2026-09-08 | Reaction networks, with the central dogma as the worked example | _open_ | **3 places, none yet** |
 | 4 | 2026-09-10 | Dynamics: local stability, phase portraits, bifurcations | Álvaro Bátrez (@alvarobatrez) | **2, needs 1 more** |
-| 5 | 2026-09-15 | Stochastic dynamics: the master equation and Gillespie | _open_ | **3 places, none yet** |
+| 5 | 2026-09-15 | Stochastic dynamics: the master equation and Gillespie |Leo Sin(施延庆) | Kehan Lang(郎可函) |
 | 6 | 2026-09-17 | Timescale separation: singular perturbation, QSSA, telegraph model | _open_ | **3 places, none yet** |
 | 7 | 2026-09-22 | Equilibrium parts driven out of equilibrium | _open_ | **3 places, none yet** |
 | 8 | 2026-09-24 | The cell as a biomachine: binding and catalysis | _open_ | **3 places, none yet** |
