@@ -1,6 +1,6 @@
 ---
 name: Your test
-name_zh: 周文沁
+name_zh: 测试
 student_id: 20251201211
 email: test@westlake.edu.cn
 github: emilyzzz233
