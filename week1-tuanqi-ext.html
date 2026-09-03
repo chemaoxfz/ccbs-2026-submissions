@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 1 — Extension: Your body weight in ATP, every day</title>
+<meta name="author" content="Tuanqi">
+<meta name="week" content="week1">
+<style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px;
+    border-bottom:1px solid var(--line); padding-bottom:5px; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:14px 18px; margin:14px 0; }
+  .fig { width:100%; border:1px solid var(--line); border-radius:6px; margin:14px 0; }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; }
+  pre { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:12px 16px; overflow-x:auto; font-size:.78rem; line-height:1.45; }
+  code { font-family:"SF Mono",Menlo,Consolas,monospace; }
+  details { margin:14px 0; }
+  summary { cursor:pointer; color:var(--accent); font-size:.9rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Week 1 — Extension: Your body weight in ATP, every day</h1>
+<p class="meta">Author: Tuanqi · Week 1 (lectures 1–2, 2026-09-01/03) · CCBS 2026</p>
+
+<p class="card"><strong>One sentence:</strong> Lecture 2's pool-over-flux ledger does
+not stop at <em>E. coli</em> — run on a human, it derives the folk claim "you recycle
+your body weight in ATP every day" (≈150&nbsp;mol/day ≈ 77&nbsp;kg/day through a pool
+of only ≈43&nbsp;g), and the one-minute turnover it implies is barely a hundred times
+slower than a bacterium's half-second, because ATP concentration is a constant of
+cells while power per volume is not.</p>
+
+<h2>The point I am adding</h2>
+<p>Lecture 2's Table 6 computes, for five metabolites in <em>E. coli</em>, the time it
+would take the current flux to empty the pool, and uses it to argue that metabolism
+cannot wait for gene expression. The table stops at the bacterium. But nothing in the
+recipe — τ&nbsp;=&nbsp;pool/flux — is specific to bacteria, and the two inputs for a
+human are things everyone in the room knows personally: how much you eat, and roughly
+how much of you is water. Running the same division on ourselves does two things the
+lecture left undone. First, it turns a claim everyone has heard ("the human body turns
+over its own weight in ATP each day", e.g. [4]) from folklore into a two-line estimate
+whose inputs we control. Second — and this is the part that surprised me — the answer
+lands within a factor of ~100 of the bacterium's, across 10<sup>17</sup>-fold more
+body mass, and the reason is already in the lecture's own concentration ladder.</p>
+
+<h2>Work it</h2>
+<p><strong>Step 1, the flux (what you eat, in ATP units).</strong> A resting human
+burns ≈2,000&nbsp;kcal/day&nbsp;= 8.4&nbsp;MJ/day — a 100&nbsp;W light bulb. Inside a
+cell, hydrolysing one mole of ATP releases ≈55&nbsp;kJ, not the standard-state
+30.5&nbsp;kJ/mol, because the cell holds the ATP/ADP/P<sub>i</sub> ratio about ten
+orders of magnitude away from equilibrium and the concentration term is worth the
+difference [4]. So the flux is 8.4&nbsp;MJ&nbsp;÷&nbsp;55&nbsp;kJ/mol ≈
+<strong>150&nbsp;mol of ATP per day</strong>, and at 507&nbsp;g/mol that is ≈77&nbsp;kg —
+one body weight, derived rather than quoted. The circulating claim (≈50&nbsp;kg/day,
+≈100&nbsp;mol [4]) sits comfortably inside this bracket.</p>
+
+<p><strong>Step 2, the pool (the water in you, times mM).</strong> A 70&nbsp;kg body is
+≈60% water, and about two thirds of that is inside cells, so ≈28&nbsp;L of cytosol.
+ATP concentration in eukaryotic tissue is a few mM — 1–10&nbsp;µmol/g in muscle [4],
+and 9.6&nbsp;mM measured in <em>E. coli</em> [2] — so take 3&nbsp;mM: the pool is
+≈0.08&nbsp;mol ≈ <strong>43&nbsp;g, about a golf ball of ATP</strong>. That is all you
+own at any instant.</p>
+
+<p><strong>Step 3, divide.</strong> τ = 0.08&nbsp;mol ÷ 150&nbsp;mol/day ≈
+5×10<sup>−4</sup>&nbsp;day ≈ <strong>48 seconds — about one minute</strong>. Following
+lecture 1's potato habit, take the corners of anything defensible ([ATP] 1–8&nbsp;mM,
+cytosol 25–30&nbsp;L, ΔG 45–60&nbsp;kJ/mol) and τ runs from 12&nbsp;s to 2.5&nbsp;min:
+the answer "about a minute" survives every input being wrong by a factor of two.</p>
+
+<figure>
+  <svg class="fig" viewBox="0 0 640 240" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Roboto,Arial,sans-serif">
+    <defs><marker id="ar" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#566"/></marker></defs>
+    <rect x="20" y="24" width="185" height="56" rx="6" fill="#f6f8fa" stroke="#1f4e79"/>
+    <text x="112" y="48" font-size="12" text-anchor="middle" fill="#1a1a1a">what you eat</text>
+    <text x="112" y="66" font-size="12" text-anchor="middle" fill="#1a1a1a">≈ 2,000 kcal/day = 8.4 MJ/day</text>
+    <line x1="112" y1="80" x2="112" y2="152" stroke="#566" stroke-width="1" marker-end="url(#ar)"/>
+    <text x="122" y="120" font-size="11" fill="#566">÷ ΔG ≈ 55 kJ/mol</text>
+    <rect x="20" y="156" width="185" height="64" rx="6" fill="#f6f8fa" stroke="#1f4e79"/>
+    <text x="112" y="180" font-size="12" text-anchor="middle" fill="#1a1a1a">the flux</text>
+    <text x="112" y="198" font-size="12" text-anchor="middle" fill="#1a1a1a">≈ 150 mol/day ≈ 77 kg/day</text>
+    <rect x="435" y="24" width="185" height="64" rx="6" fill="#f6f8fa" stroke="#1f4e79"/>
+    <text x="527" y="48" font-size="12" text-anchor="middle" fill="#1a1a1a">the pool: 28 L cytosol × 3 mM</text>
+    <text x="527" y="66" font-size="12" text-anchor="middle" fill="#1a1a1a">≈ 0.08 mol ≈ 43 g (golf ball)</text>
+    <rect x="232" y="96" width="176" height="68" rx="6" fill="#f6f8fa" stroke="#b33030" stroke-width="1.5"/>
+    <text x="320" y="120" font-size="13" text-anchor="middle" fill="#b33030">τ = pool ÷ flux ≈ 48 s</text>
+    <text x="320" y="139" font-size="12" text-anchor="middle" fill="#b33030">≈ one minute</text>
+    <text x="320" y="156" font-size="10" text-anchor="middle" fill="#566">(E. coli: 0.43 s, lecture 2 Table 6)</text>
+    <line x1="205" y1="188" x2="232" y2="150" stroke="#566" stroke-width="1" marker-end="url(#ar)"/>
+    <line x1="527" y1="88" x2="408" y2="120" stroke="#566" stroke-width="1" marker-end="url(#ar)"/>
+  </svg>
+  <figcaption><strong>Figure 1.</strong> The ledger. Two numbers anyone knows about
+  themselves (what they eat, how much of them is water) fix the flux and the pool, and
+  their ratio is a time. Drawn by hand; every number in it is computed by the script
+  beside Figure 2.</figcaption>
+</figure>
+
+<p>Now the observation that makes this an extension rather than trivia.
+<em>E. coli</em>'s ATP pool turns over in 0.43&nbsp;s (lecture 2, Table 6); yours takes
+≈48&nbsp;s — a factor of ~100, across 10<sup>17</sup>-fold more body mass. Decompose
+why: τ = [ATP]·V ÷ (power/ΔG), so the turnover time is a concentration divided by a
+power per volume. The concentration barely moves (9.6&nbsp;mM in the bacterium, a few
+mM in you — a factor of 3), because ATP must saturate enzymes whose K<sub>M</sub>
+values cluster near 100&nbsp;µM (lecture 2, Table 4): the concentration is chemistry,
+not choice. What does move is power per volume — a fast-growing bacterium burns
+~300× more per litre than a resting human — and the turnover inherits the quotient,
+300÷3 ≈ 100.</p>
+
+<p>And the lecture's §12 conclusion survives the trip. The fastest way to change a
+stable protein's concentration is dilution by growth, so the "gene-expression floor"
+is one doubling: 40&nbsp;min for <em>E. coli</em>, about a day for a dividing human
+cell. The ATP buffer sits 3–4 decades below that floor in <em>both</em> organisms
+(×5,600 and ×1,800). The ratio is nearly invariant, and it predicts that ATP
+homeostasis in us, exactly as in bacteria, must run on allostery and covalent
+modification rather than transcription — which is what is found: the eukaryotic fuel
+gauge is AMPK, a kinase that reads the AMP:ATP ratio and re-tunes metabolism within
+minutes [6]. The ledger tells you to look for something like AMPK before you know it
+exists.</p>
+
+<figure>
+<svg class="fig" viewBox="0 0 640 340" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Roboto,Arial,sans-serif">
+<line x1="60" y1="250" x2="620" y2="250" stroke="#1a1a1a" stroke-width="1"/>
+<line x1="70" y1="250" x2="70" y2="256" stroke="#1a1a1a"/>
+<text x="70" y="270" font-size="11" fill="#566" text-anchor="middle">0.1 s</text>
+<line x1="152" y1="250" x2="152" y2="256" stroke="#1a1a1a"/>
+<text x="152" y="270" font-size="11" fill="#566" text-anchor="middle">1 s</text>
+<line x1="234" y1="250" x2="234" y2="256" stroke="#1a1a1a"/>
+<text x="234" y="270" font-size="11" fill="#566" text-anchor="middle">10 s</text>
+<line x1="297" y1="250" x2="297" y2="256" stroke="#1a1a1a"/>
+<text x="297" y="270" font-size="11" fill="#566" text-anchor="middle">1 min</text>
+<line x1="443" y1="250" x2="443" y2="256" stroke="#1a1a1a"/>
+<text x="443" y="270" font-size="11" fill="#566" text-anchor="middle">1 h</text>
+<line x1="556" y1="250" x2="556" y2="256" stroke="#1a1a1a"/>
+<text x="556" y="270" font-size="11" fill="#566" text-anchor="middle">1 day</text>
+<text x="60" y="288" font-size="10" fill="#566">pool turnover time (seconds, log scale)</text>
+<line x1="76" y1="250" x2="76" y2="309" stroke="#1f4e79" stroke-width="0.7"/>
+<circle cx="76" cy="250" r="4.5" fill="#1f4e79"/>
+<text x="76" y="321" font-size="11" fill="#1f4e79" text-anchor="middle">PEP pool, E. coli (0.12 s)</text>
+<line x1="122" y1="250" x2="122" y2="205" stroke="#1f4e79" stroke-width="0.7"/>
+<circle cx="122" cy="250" r="4.5" fill="#1f4e79"/>
+<text x="122" y="198" font-size="11" fill="#1f4e79" text-anchor="middle">ATP pool, E. coli (0.43 s)</text>
+<line x1="258" y1="250" x2="258" y2="309" stroke="#1f4e79" stroke-width="0.7"/>
+<circle cx="258" cy="250" r="4.5" fill="#1f4e79"/>
+<text x="258" y="321" font-size="11" fill="#1f4e79" text-anchor="middle">FBP pool, E. coli (20 s)</text>
+<line x1="239" y1="250" x2="329" y2="250" stroke="#b33030" stroke-width="7" stroke-opacity="0.35" stroke-linecap="round"/>
+<circle cx="289" cy="250" r="5" fill="#b33030"/>
+<line x1="289" y1="250" x2="289" y2="175" stroke="#b33030" stroke-width="0.7"/>
+<text x="289" y="168" font-size="11" fill="#b33030" text-anchor="middle">ATP pool, resting human (~48 s, bracket 12&#8211;149 s) &#8212; this essay</text>
+<line x1="428" y1="250" x2="428" y2="205" stroke="#566" stroke-width="0.7"/>
+<circle cx="428" cy="250" r="4.5" fill="#566"/>
+<text x="428" y="198" font-size="11" fill="#566" text-anchor="middle">fastest protein change, E. coli (= doubling, 40 min)</text>
+<line x1="556" y1="250" x2="556" y2="309" stroke="#566" stroke-width="0.7"/>
+<circle cx="556" cy="250" r="4.5" fill="#566"/>
+<text x="556" y="321" font-size="11" fill="#566" text-anchor="middle">same, human cell (~1 day)</text>
+<defs><marker id="ah" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#566"/></marker></defs>
+<line x1="122" y1="118" x2="428" y2="118" stroke="#566" stroke-width="0.8" marker-start="url(#ah)" marker-end="url(#ah)"/>
+<text x="275" y="113" font-size="11" fill="#566" text-anchor="middle">×5,581</text>
+<line x1="289" y1="88" x2="556" y2="88" stroke="#566" stroke-width="0.8" marker-start="url(#ah)" marker-end="url(#ah)"/>
+<text x="422" y="83" font-size="11" fill="#566" text-anchor="middle">×1,811</text>
+</svg>
+  <figcaption><strong>Figure 2.</strong> Turnover times of metabolite pools (blue:
+  <em>E. coli</em>, lecture 2 Table 6; red: the human ATP pool computed here, with the
+  12–149&nbsp;s bracket band), and the fastest possible protein-concentration change in
+  each organism (grey, lecture 2 eq. 22). In both, the energy buffer sits ~10<sup>3.5</sup>
+  below the gene-expression floor. Computed and drawn by <code>week1/atp_turnover.py</code>
+  (below); nothing is fitted.</figcaption>
+</figure>
+
+<details>
+<summary>atp_turnover.py — the computational core (full script, which also draws Figure 2, is in the same folder)</summary>
+<pre><code># inputs, each traceable (see Sources)
+M_BODY, F_WATER, F_IC = 70.0, 0.60, 2/3   # kg; body water fraction; intracellular share
+C_ATP  = 3e-3                              # mol/L, typical [ATP]; bracket 1-8 mM
+E_FOOD = 2000 * 4184                       # J/day, resting metabolic energy
+DG_ATP = 55e3                              # J/mol, cellular (not standard-state 30.5)
+MM_ATP = 507.18                            # g/mol
+
+V_ic     = M_BODY * F_WATER * F_IC         # = 28 L of cytosol
+pool     = V_ic * C_ATP                    # = 0.084 mol  = 43 g
+flux_mol = E_FOOD / DG_ATP                 # = 152 mol ATP/day  = 77 kg/day
+tau      = pool / flux_mol * 86400         # = 48 s  (~one minute)
+
+# bracket over defensible corners: 12 s to 149 s
+tau_fast = (25 * 1e-3) / (E_FOOD / 45e3) * 86400
+tau_slow = (30 * 8e-3) / (E_FOOD / 60e3) * 86400
+
+# why the turnover barely moves: tau = concentration / power-per-volume
+flux_ecoli = 30 * 0.73e-3                  # mol/L/s ATP-equivalents (lecture 2, Tbl 6)
+ratio_power = flux_ecoli / (flux_mol / V_ic / 86400)   # = 348x
+ratio_conc  = 9.6e-3 / C_ATP                           # = 3.2x
+# turnover ratio = 348 / 3.2 = 111x  (observed: 48 s / 0.43 s)
+
+# buffer vs gene-expression floor (lecture 2, eq. 22: response = ln2/mu = doubling)
+buffer_ec = (40 * 60) / 0.43               # = x5,581
+buffer_hu = (24 * 3600) / tau              # = x1,811
+
+# sprint + phosphocreatine (see "where this breaks")
+tau_sprint = tau / 10                      # = 4.8 s at 10x whole-body flux
+pcr_mol    = 120 * 0.60 / 211.11           # = 0.34 mol PCr (120 g creatine, 60% phosphorylated)</code></pre>
+</details>
+
+<h2>What I would argue against / where this breaks</h2>
+<p><strong>The softest input is the average [ATP].</strong> A single 3&nbsp;mM hides
+real anatomy: red blood cells have no mitochondria, resting muscle sits at the top of
+the range (~8&nbsp;mM), brain and liver differ again. The pool could plausibly be
+twice my central value, which is exactly what the bracket is for — but a grader
+should know the muscle-heavy pool pushes τ toward the high end, not the low one.</p>
+<p><strong>The steady state is the real assumption, and breaking it is informative.</strong>
+During a maximal sprint, whole-body metabolic rate rises roughly tenfold and the flux
+concentrates in leg muscle, so the <em>local</em> pool would drain in a few seconds
+(τ ≈ 5&nbsp;s even spread over the whole body pool). The one-minute number is an
+average that hides this. And that is the lecture's own lesson — the gap is where the
+biology is: muscle carries a phosphocreatine reserve (≈0.34&nbsp;mol, about four times
+the ATP it guards [5]) that stretches those seconds to ~10&nbsp;s, which is why a
+100&nbsp;m sprint never needs to wait for mitochondria, let alone for transcription.</p>
+<p><strong>The comparison is loaded.</strong> A resting human against a maximally
+growing <em>E. coli</em> is the extreme case; an exercising human turns over several
+times faster, narrowing the 100× to ~10×. And ΔG<sub>ATP</sub> is treated as a
+constant when it is itself a regulated quantity. None of this moves the conclusion
+by an order of magnitude, but the honest statement is "one minute, up to a factor of
+a few", not "48 seconds".</p>
+
+<h2>Sources</h2>
+<ul class="src">
+  <li>CCBS 2026, <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture02-core.html">lecture
+  2 core</a> — Table 6 (the pool/flux recipe and the <em>E. coli</em> ATP turnover
+  0.43&nbsp;s), eq. 22 (response half-time = doubling time), Table 4 (median
+  K<sub>M</sub> ≈ 100&nbsp;µM), §12 (glucose uptake 0.73&nbsp;mM/s, ~30 ATP per glucose).</li>
+  <li>B. D. Bennett et al., "Absolute metabolite concentrations and implied enzyme
+  active site occupancy in <em>Escherichia coli</em>", <em>Nat. Chem. Biol.</em>
+  <strong>5</strong>, 593–599 (2009) — the measured [<em>E. coli</em> ATP] = 9.6&nbsp;mM.
+  Read via the lecture's citation, not the full text.</li>
+  <li>CCBS 2026, <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture01-core.html">lecture
+  1 core</a>, §7 — the bracket-and-check habit (the potato box) applied here in Step 3.</li>
+  <li>Wikipedia, <a href="https://en.wikipedia.org/wiki/Adenosine_triphosphate">"Adenosine
+  triphosphate"</a> (retrieved 2026-09-03) — the folk claim under test ("≈50&nbsp;kg,
+  ≈100&nbsp;mol of ATP recycled per day"), muscle [ATP] 1–10&nbsp;µmol/g, and cellular
+  ΔG ≈ −57&nbsp;kJ/mol, the last cited there to Nicholls &amp; Ferguson,
+  <em>Bioenergetics</em>. Used as the claim to reproduce and for ranges; cross-checked
+  against my derivation, not trusted on its own. (My derivation gives 77&nbsp;kg/day;
+  the folk figure presumably uses a lower metabolic rate or higher ΔG.)</li>
+  <li>Wikipedia, <a href="https://en.wikipedia.org/wiki/Phosphocreatine">"Phosphocreatine"</a>
+  (retrieved 2026-09-03) — ~120&nbsp;g total creatine per 70&nbsp;kg person, ~60%
+  phosphorylated (→ 0.34&nbsp;mol PCr, computed by my script); PCr buffers the first
+  seconds of maximal effort. One sentence on that page is flagged
+  <em>citation needed</em>, so I treat it as orientation only.</li>
+  <li>D. G. Hardie, "AMP-activated protein kinase: an energy sensor that regulates all
+  aspects of cell function", <em>Genes Dev.</em> <strong>25</strong>, 1895–1908 (2011) —
+  AMPK as the fast eukaryotic energy sensor. Read at review level.</li>
+  <li><code>week1/atp_turnover.py</code> — every number in this essay; runs with no
+  arguments, prints the ledger, and draws Figure 2.</li>
+</ul>
+
+</div>
+</body>
+</html>
