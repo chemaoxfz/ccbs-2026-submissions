@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 1 — Extension: The space and the weight of genetic information</title>
+<meta name="author" content="Álvaro Bátrez">
+<meta name="week" content="week1">
+<style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px;
+    border-bottom:1px solid var(--line); padding-bottom:5px; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:14px 18px; margin:14px 0; }
+  .fig { width:100%; border:1px solid var(--line); border-radius:6px; margin:14px 0; }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; }
+  pre { overflow-x:auto; background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:14px 16px; font-size:.78rem; line-height:1.45; }
+  details { margin:14px 0; }
+  summary { cursor:pointer; color:var(--accent); font-size:.9rem; }
+  table { border-collapse:collapse; width:100%; font-size:.92rem; margin:10px 0; }
+  th, td { border:1px solid var(--line); padding:5px 9px; text-align:left; }
+  th { background:var(--soft); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Week 1 — Extension: The space and the weight of genetic information</h1>
+<p class="meta">Author: Álvaro Bátrez · Week 1 (lectures 1–2, 2026-09-01/03) · CCBS 2026</p>
+
+<p class="card"><strong>One sentence:</strong> lecture 2 left two numbers open — how much
+space the genome fills, and whether a messenger RNA is bigger than the protein it
+describes — and both answers say the same thing: genetic information takes little
+<em>space</em> but is heavy to <em>copy</em>, so the cell reuses every copy about 150 times
+to make it cheap.</p>
+
+<h2>The point I am adding</h2>
+<p>Lecture 2 mentioned, almost in passing, that the DNA of an <em>E.&nbsp;coli</em> bacterium
+fills only 0.5% of the cell, and its first exercise asked: which is bigger, an mRNA or the
+protein it encodes? I answer both questions here. Neither answer needs any deep biology —
+just the size of a DNA thread, the weight of the code's letters, and division. And the two
+answers turn out to make one point together: the cell's information is cheap in space,
+expensive in weight, and the cell fixes that by reuse.</p>
+
+<h2>Work it</h2>
+
+<p><strong>Question 1 — how much space does the genome take?</strong> DNA is a thread
+2&nbsp;nanometres (millionths of a millimetre) thick; each "letter" — one base pair —
+advances the thread 0.34&nbsp;nm. So one letter occupies a tiny cylinder of
+π&nbsp;×&nbsp;1²&nbsp;×&nbsp;0.34&nbsp;≈&nbsp;1.07&nbsp;nm³. That single number answers the
+question for anything alive, once you know the genome size and the container. An
+<em>E.&nbsp;coli</em>: 4.6&nbsp;million letters → a thread 1.5&nbsp;mm long rolled into
+0.005&nbsp;µm³ of thread-volume, inside a cell of 1&nbsp;µm³ (a millionth of a cubic
+millimetre) → <strong>0.5%</strong>, exactly the lecture's number. Then I checked three
+more organisms, same arithmetic:</p>
+
+<table>
+<tr><th>Organism</th><th>Genome</th><th>Container</th><th>Space filled</th></tr>
+<tr><td><em>E. coli</em> bacterium</td><td>4.6 million letters</td><td>cell: 1 µm³</td><td>0.49%</td></tr>
+<tr><td>yeast</td><td>12.1 million</td><td>nucleus: 2.9 µm³ [3]</td><td>0.45%</td></tr>
+<tr><td>human</td><td>6.4 billion (two copies)</td><td>nucleus: ~300 µm³ [4]</td><td>2.3%</td></tr>
+<tr><td>salamander (<em>Amphiuma</em>)</td><td>~160 pg, 25× human</td><td>red-blood-cell nucleus: ~5,000 µm³ (estimated)</td><td>~3.3%</td></tr>
+</table>
+
+<figure>
+<svg class="fig" viewBox="0 0 760 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Log-log plot of container volume against genome size, with equal-percentage lines">
+<style>
+.grid { stroke:#e2e6ea; stroke-width:1; }
+.axis { stroke:#555; stroke-width:1.2; }
+.tick { fill:#666; font-size:11px; font-family:Segoe UI,Arial,sans-serif; }
+.label { fill:#444; font-size:12px; font-family:Segoe UI,Arial,sans-serif; }
+.iso { fill:#999; font-size:11px; font-family:Segoe UI,Arial,sans-serif; }
+.ink { font-size:11px; font-family:Segoe UI,Arial,sans-serif; fill:#1f4e79; }
+</style>
+<rect x="62" y="24" width="682" height="264" fill="none"/>
+<line x1="131.6" y1="24" x2="131.6" y2="288" class="grid"/><line x1="270.8" y1="24" x2="270.8" y2="288" class="grid"/><line x1="410.0" y1="24" x2="410.0" y2="288" class="grid"/><line x1="549.1" y1="24" x2="549.1" y2="288" class="grid"/><line x1="688.3" y1="24" x2="688.3" y2="288" class="grid"/>
+<line x1="62" y1="237.2" x2="744" y2="237.2" class="grid"/><line x1="62" y1="186.5" x2="744" y2="186.5" class="grid"/><line x1="62" y1="135.7" x2="744" y2="135.7" class="grid"/><line x1="62" y1="84.9" x2="744" y2="84.9" class="grid"/><line x1="62" y1="34.2" x2="744" y2="34.2" class="grid"/>
+<text x="131.6" y="302" text-anchor="middle" class="tick">10⁷</text><text x="270.8" y="302" text-anchor="middle" class="tick">10⁸</text><text x="410.0" y="302" text-anchor="middle" class="tick">10⁹</text><text x="549.1" y="302" text-anchor="middle" class="tick">10¹⁰</text><text x="688.3" y="302" text-anchor="middle" class="tick">10¹¹</text>
+<text x="54" y="241" text-anchor="end" class="tick">1</text><text x="54" y="190" text-anchor="end" class="tick">10</text><text x="54" y="140" text-anchor="end" class="tick">10²</text><text x="54" y="89" text-anchor="end" class="tick">10³</text><text x="54" y="38" text-anchor="end" class="tick">10⁴</text>
+<line x1="62" y1="288" x2="744" y2="288" class="axis"/><line x1="62" y1="24" x2="62" y2="288" class="axis"/>
+<line x1="62" y1="210.4" x2="573" y2="24" stroke="#bbb" stroke-width="1" stroke-dasharray="4 4"/>
+<line x1="62" y1="261.2" x2="712.2" y2="24" stroke="#bbb" stroke-width="1" stroke-dasharray="4 4"/>
+<line x1="127.6" y1="288" x2="744" y2="63.2" stroke="#bbb" stroke-width="1" stroke-dasharray="4 4"/>
+<text x="579" y="36" class="iso">0.1% of volume</text>
+<text x="658" y="58" class="iso" transform="rotate(-18.2 658 58)">1%</text>
+<text x="700" y="88" class="iso" transform="rotate(-18.2 700 88)">10%</text>
+<circle cx="84.7" cy="237.2" r="5" fill="#1f4e79"/><text x="95" y="245" class="ink">E. coli · 0.49% (whole cell)</text>
+<circle cx="143.1" cy="213.8" r="5" fill="#1f4e79"/><text x="153" y="209" class="ink">yeast · 0.45%</text>
+<circle cx="522.2" cy="111.5" r="5" fill="#b33030"/><text x="512" y="100" text-anchor="end" class="ink">human · 2.3%</text>
+<circle cx="715.4" cy="49.4" r="5" fill="#b33030"/><text x="705" y="45" text-anchor="end" class="ink">salamander · ~3%</text>
+<text x="403" y="324" text-anchor="middle" class="label">genome size (letters)</text>
+<text x="18" y="156" transform="rotate(-90 18 156)" text-anchor="middle" class="label">cell / nucleus volume (µm³)</text>
+</svg>
+<figcaption><strong>Figure 2.</strong> Each dashed line is the same percentage of space.
+All four organisms land between 0.5% and 3% — even though their genomes differ by a factor
+of 34,000. (The salamander's nucleus size is an estimate, good to a factor of two.) Drawn
+by the script below.</figcaption>
+</figure>
+
+<p>From a bacterium to a salamander the genome grows 34,000 times, but the space it fills
+stays under a few percent (Figure 2). Why so similar? Not because DNA packs better in big
+cells — because the container grows with the content: species with bigger genomes have
+proportionally bigger nuclei [5]. The salamander shows what that costs: it has 25 times
+more DNA than a human, roughly the same number of genes, and pays for it with bigger cells
+and slower development [6]. And one more thing the lecture mentioned without dwelling on:
+the proteins that wrap DNA (histones) weigh almost as much as the DNA itself — the shelf
+costs as much as the books.</p>
+
+<p><strong>Question 2 — which is bigger, the mRNA or the protein?</strong> A protein is a
+chain of small pieces (amino acids); the exercise's protein has 300 pieces. Weight scale
+for molecules: the dalton (Da); a water molecule is 18&nbsp;Da. One amino-acid piece is
+about 110&nbsp;Da, so the protein weighs 300&nbsp;×&nbsp;110&nbsp;≈&nbsp;<strong>33,000&nbsp;Da</strong>.
+To build it, the cell first makes a copy of the gene — the messenger RNA (mRNA) — which
+spells the recipe in letters of about 330&nbsp;Da each. The recipe needs three letters per
+piece: 3&nbsp;×&nbsp;330&nbsp;=&nbsp;990&nbsp;Da just to name one piece of 110&nbsp;Da.
+With the full message (900 coding letters plus ~100 extra at the ends), the copy weighs
+about <strong>330,000&nbsp;Da — ten times the protein it describes</strong>. That ratio is
+not a coincidence of this gene; it is the genetic code itself (three heavy letters per
+light piece), so no gene can escape it.</p>
+<p>In size the story is the same (Figure 1). The protein folds into a ball about 4&nbsp;nm
+wide. The mRNA is a thread 600&nbsp;nm long that coils loosely into a ball about 28&nbsp;nm
+across — some 300 times the protein's volume, though almost all of that is water;
+stripped of water, the RNA would fit in a ball just 8&nbsp;nm wide. The machine that reads
+the message, the ribosome, is bigger than both and 70 times heavier than the protein.</p>
+
+<figure>
+<svg class="fig" viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="To-scale drawing of a protein, an mRNA coil, and a ribosome">
+<style>
+.ink { fill:none; stroke-width:1; stroke:#d8dee4; }
+.lbl { font-size:12px; font-family:Segoe UI,Arial,sans-serif; fill:#444; }
+.sub { font-size:11px; font-family:Segoe UI,Arial,sans-serif; fill:#666; }
+</style>
+<rect x="14" y="14" width="612" height="272" fill="none" stroke="#d8dee4"/>
+<!-- scale bar: 6 px = 1 nm -->
+<line x1="24" y1="266" x2="84" y2="266" stroke="#1a1a1a" stroke-width="2"/>
+<text x="54" y="258" class="sub" text-anchor="middle">10 nm</text>
+<!-- protein: d 4.3 nm -->
+<circle cx="70" cy="150" r="12.8" fill="#1f4e79"/>
+<text x="70" y="196" class="lbl" text-anchor="middle">protein</text>
+<text x="70" y="211" class="sub" text-anchor="middle">33,000 Da · ⌀ 4.3 nm</text>
+<!-- mRNA: envelope d ~28 nm, thread coiled inside -->
+<circle cx="265" cy="150" r="84.6" fill="none" stroke="#b33030" stroke-dasharray="5 4" stroke-width="1.2"/>
+<path fill="none" stroke="#9a4d00" stroke-width="1.4" d="M327.2,184.0 L326.7,190.0 L300.9,173.6 L281.7,160.5 L282.9,161.3 L280.6,161.1 L269.0,153.8 L271.6,160.9 L274.2,197.7 L248.3,219.9 L226.4,196.4 L224.7,168.5 L220.6,151.8 L230.1,140.6 L258.4,146.7 L270.1,153.2 L249.7,139.9 L224.8,124.3 L221.3,122.8 L224.0,122.2 L218.2,109.0 L227.5,98.1 L255.2,118.1 L265.2,148.0 L267.8,145.6 L285.4,137.5 L292.0,146.1 L294.5,155.6 L315.4,172.3 L331.1,190.0 L316.9,184.3 L289.7,166.0 L280.7,159.8 L283.8,162.2 L275.2,158.2 L267.8,153.3 L275.4,174.7 L265.7,213.1 L235.5,213.6 L224.8,182.3 L223.2,160.7 L221.5,145.4 L241.9,141.2 L267.6,151.5 L264.2,149.5 L237.0,131.7 L220.6,122.2 L223.5,123.6 L221.7,117.9 L218.8,101.9 L239.5,102.6 L262.9,133.5 L264.7,150.9 L274.7,139.9 L290.8,140.2 L291.5,150.4 L301.9,161.5 L325.2,181.7 L328.5,190.7 L304.3,176.0 L282.7,161.2 L282.4,160.9 L281.7,161.7 L270.0,154.6 L270.5,158.3 L275.4,192.8 L252.2,219.9 L227.6,200.5 L224.8,171.0 L220.9,153.6 L227.5,141.1 L255.1,145.3 L270.5,153.4 L253.2,142.2 L226.8,125.5 L220.8,122.5 L224.3,122.9 L218.7,111.1 L224.9,98.1 L252.2,114.1 L265.2,145.8 L266.5,147.3 L283.3,137.4 L292.1,144.9 L293.3,154.4 L312.3,169.8 L330.7,188.8 L320.0,186.3 L292.4,167.8 L280.6,159.7 L283.8,162.1 L276.8,159.1 L267.7,153.0 L274.6,170.4 L268.6,209.6 L238.6,216.2 L225.0,185.9 L223.7,162.7 L220.8,147.0 L238.4,140.6 L265.6,150.3 L266.4,150.9 L240.3,133.8 L221.3,122.5 L222.9,123.5 L222.5,119.4 L218.1,103.7 L236.0,100.7 L261.4,129.4 L264.8,150.9 L272.5,141.3 L289.7,139.1 L291.5,149.3 L299.5,159.7 L322.8,179.3 L329.9,191.1 L307.8,178.3 L284.1,162.2 L281.8,160.5 L282.6,162.0 L271.2,155.5 L269.4,156.3 L276.0,187.7 L256.1,219.1 L229.1,204.4 L224.9,173.8 L221.5,155.5 L225.4,142.0 L251.6,143.9 L270.4,153.3 L256.5,144.4 L229.2,126.9"/>
+<text x="265" y="250" class="lbl" text-anchor="middle">mRNA (1,000 letters)</text>
+<text x="265" y="265" class="sub" text-anchor="middle">330,000 Da · coiled to ⌀ ≈ 28 nm</text>
+<!-- ribosome: d ~21 nm, two subunits -->
+<ellipse cx="455" cy="138" rx="63" ry="42" fill="#9aa" fill-opacity="0.85"/>
+<ellipse cx="455" cy="168" rx="63" ry="30" fill="#566" fill-opacity="0.85"/>
+<text x="455" y="228" class="lbl" text-anchor="middle">ribosome</text>
+<text x="455" y="243" class="sub" text-anchor="middle">2,300,000 Da · ⌀ ≈ 21 nm</text>
+<text x="320" y="286" class="sub" text-anchor="middle">all three drawn at one scale: 6 px = 1 nm; dashed circle = the coil's watery envelope</text>
+</svg>
+<figcaption><strong>Figure 1.</strong> The exercise's "draw to scale", drawn by the script
+below. The protein (blue) is a ball ~4&nbsp;nm wide. The mRNA is a 600&nbsp;nm thread
+coiled into a loose ball ~28&nbsp;nm wide — ten times heavier than the protein, and mostly
+water. The ribosome (grey), the machine that reads the message, is bigger than both.</figcaption>
+</figure>
+
+<p><strong>So why doesn't the heavy copy bankrupt the cell?</strong> Because it is reused.
+A messenger has to be read about <strong>10 times</strong> before it has produced its own
+weight in protein. In reality it is read far more: about ten ribosomes work on one message
+at the same time, each finishes a protein in 18&nbsp;seconds (16.5 pieces per second,
+lecture 2), and the message survives about 5&nbsp;minutes before decaying (also lecture 2).
+That comes to <strong>~150 proteins per messenger</strong>. The numbers close from another
+side too: the cell holds ~3.3&nbsp;million proteins and only ~3,000 messengers — about
+1,000 proteins per message, exactly what 150 readings predict once you account for
+proteins living longer than messages. So each protein carries only ~6% of extra weight
+from its recipe. That is the exercise's "cost of a message against a machine": the recipe
+is heavy, the copying is not — <strong>information is expensive to make and cheap to
+reuse, and the cell reuses everything: the archive every generation, each messenger ~150
+times, the reader for its whole life.</strong></p>
+
+<h2>What I would argue against / where this breaks</h2>
+<p><strong>The coil size is my roughest estimate.</strong> The 28&nbsp;nm ball assumes
+simple physics for a floppy thread; real mRNAs fold, so the honest range is 20–40&nbsp;nm.
+The weight ratio — the main claim — does not depend on it at all.</p>
+<p><strong>The "same few percent" is approximate, and one input is guessed.</strong> The
+salamander's nucleus size I estimated from its huge red blood cells (good to a factor of
+two), and I compared a bacterium's whole cell with eukaryotes' nuclei, which is not quite
+the same container.</p>
+<p><strong>150 readings is an average that hides the interesting part.</strong> Some
+messages are read only ~10 times — sitting right at break-even — and others thousands of
+times. That spread is how the cell regulates its genes, and it is exactly where lectures 4
+and 9 will pick up.</p>
+<p><strong>Weight is not what the cell really pays.</strong> It pays in energy and time.
+I used weight because it is the one any classmate can re-check with a calculator in one
+line.</p>
+
+<details>
+<summary><strong>The code behind every number and both figures</strong></summary>
+<pre><code>import math
+
+# ---- Question 1: space ----
+v_bp = math.pi * (1.0e-9)**2 * 0.34e-9      # volume of one base pair: cylinder, d = 2 nm
+for name, bp, vol in [("E. coli", 4.6e6, 1.0), ("yeast", 1.21e7, 2.9),
+                      ("human, 2 copies", 6.4e9, 300.0),
+                      ("salamander, 2 copies", 2*80*0.978e9, 5000.0)]:
+    print(f"{name:20s} {100*bp*v_bp*1e18/vol:5.2f}% of {vol} um^3")
+print("histones vs DNA on 200 letters:", 109e3 / (200*660))   # 0.83: shelf = books
+
+# ---- Question 2: weight and size ----
+prot_da = 300 * 110                          # the protein
+rna_nt  = 3*300 + 100                        # 3 letters per piece + ends
+rna_da  = rna_nt * 330                       # the messenger
+print("mRNA / protein =", rna_da/prot_da)    # 10.0
+Rg = math.sqrt((rna_nt*0.6)*1.0/3)           # floppy-thread coil radius, nm
+print("coil diameter ~", 2*Rg, "nm; protein ball ~ 4.3 nm")
+
+# ---- reuse: how many proteins per messenger ----
+trips = (10 / (300/16.5)) * (5*60)           # 10 ribosomes, 18 s each, 5 min lifetime
+print("readings per mRNA ~", trips)          # ~165 (break-even: 10)
+print("recipe overhead per protein =", 100*rna_da/trips/prot_da, "%")
+print("check: cell holds", 3.3e6, "proteins /", 3e3, "mRNAs =", 3.3e6/3e3,
+      "proteins per message")</code></pre>
+</details>
+
+<h2>Sources</h2>
+<ul class="src">
+<li>CCBS 2026, <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture02-core.html">lecture
+2 core</a> — the 0.5%-of-volume figure and the 13% for proteins (§2), the ribosome's
+2.3&nbsp;MDa and 16.5&nbsp;aa/s (§7), mRNA lifetimes of 3–8&nbsp;min (§12), and Exercise 1
+with its 300-residue and 330-Da-per-letter numbers. Opened and read in full.</li>
+<li>BioNumbers — <a href="https://book.bionumbers.org/how-many-proteins-are-made-per-mrna-molecule/">proteins
+and mRNAs per E. coli</a>; <a href="https://bionumbers.hms.harvard.edu/bionumber.aspx?id=100491">yeast
+nucleus volume 2.9&nbsp;±&nbsp;0.9&nbsp;µm³</a> (Jorgensen et al. 2007); mammalian nucleus
+5–10&nbsp;µm across. Entries opened, values read off.</li>
+<li><a href="https://genomesize.com/result_species.php?id=534">Animal Genome Size
+Database</a> — salamander (<em>Amphiuma means</em>) genome: 75–85&nbsp;pg. Entry read.</li>
+<li>Bigger genomes come with bigger nuclei and bigger, slower cells:
+<a href="https://elifesciences.org/articles/82490">eLife 2022</a>,
+<a href="https://academic.oup.com/evlett/article/5/4/306/6697655">Evolution Letters
+2021</a>, and Roth et al. 2015 (<a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC4563707/">Genome
+Biol Evol</a>). Read at abstract level.</li>
+<li>Plain chemistry constants: 110&nbsp;Da per amino-acid piece, 330&nbsp;Da per RNA
+letter, DNA thread 2&nbsp;nm wide and 0.34&nbsp;nm per letter. Standard textbook tables.</li>
+</ul>
+
+</div>
+</body>
+</html>

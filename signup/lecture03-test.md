@@ -1,11 +1,11 @@
 ---
-name: Your Name
-name_zh: 你的姓名
-student_id: 20261234567
-email: yourname@westlake.edu.cn
-github: your-github-handle
-lecture: 9
-teammates: Name A, Name B
+name: Your test
+name_zh: 测试
+student_id: 20251201211
+email: test@westlake.edu.cn
+github: emilyzzz233
+lecture: 3
+teammates: 
 ---
 
 Copy this file to `signup/lectureNN-yourname.md` (lowercase, no spaces), for example
