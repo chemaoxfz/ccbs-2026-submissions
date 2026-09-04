@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 1 — Extension: When does E. coli stop being well mixed?</title>
+<meta name="author" content="Li Changkai">
+<meta name="week" content="week1">
+<style>
+:root {
+  --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4;
+  --bg:#fff; --soft:#f6f8fa; --warn:#b33030;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652;
+    --bg:#15191d; --soft:#1e242a; --warn:#ff8a80;
+  }
+}
+* { box-sizing:border-box; }
+body {
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  line-height:1.62;
+}
+.wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+.meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+h2 {
+  font-size:1.05rem; color:var(--accent); margin:34px 0 8px;
+  border-bottom:1px solid var(--line); padding-bottom:5px;
+}
+.card {
+  background:var(--soft); border:1px solid var(--line); border-radius:6px;
+  padding:14px 18px; margin:14px 0;
+}
+.eq {
+  text-align:center; font-family:"Cambria Math","Times New Roman",serif;
+  font-size:1.02rem; margin:13px 0;
+}
+.fig { width:100%; border:1px solid var(--line); border-radius:6px; margin:14px 0; }
+figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+a { color:var(--accent); }
+.src { font-size:.9rem; }
+pre {
+  background:var(--soft); border:1px solid var(--line); border-radius:6px;
+  padding:12px 16px; overflow-x:auto; font-size:.78rem; line-height:1.45;
+}
+code { font-family:"SF Mono",Menlo,Consolas,monospace; }
+details { margin:14px 0; }
+summary { cursor:pointer; color:var(--accent); font-size:.9rem; }
+.num { color:var(--warn); font-weight:700; }
+.small { color:var(--muted); font-size:.9rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Week 1 — Extension: When does <em>E. coli</em> stop being well mixed?</h1>
+<p class="meta">Author: <strong>Li Changkai</strong> · Week 1 (lectures 1–2, 2026-09) · CCBS 2026</p>
+
+<p class="card"><strong>One sentence:</strong> Lecture 2 licenses a well-mixed model for a
+1-µm bacterium from its short diffusion time; comparing that time directly with a
+diffusion-limited binding time gives a sharper condition, and for two ~2-nm proteins
+the boundary is only <span class="num">≈33 nM</span> — inside the concentration range
+of low-copy regulatory proteins — although real binding is usually slower than this worst-case ceiling.</p>
+
+<h2>The point I am adding</h2>
+
+<p>Lecture 2 makes two statements that are individually clear: a protein crosses a
+1-µm <em>E. coli</em> in roughly a tenth of a second, so the cell is often treated as
+well mixed; and mass action requires independent encounter partners, which can fail if
+they are not well mixed [1]. I want to connect those statements quantitatively.
+“Mixing is fast” is not an absolute claim: it should mean <em>mixing is faster than
+the reaction whose rate law assumes mixing</em>.</p>
+
+<p>For a binding step A + B → C, let the partner B have concentration <em>C</em>. I define
+a cell-scale reaction–diffusion ratio</p>
+
+<div class="eq">
+Da<sub>cell</sub> = τ<sub>mix</sub> / τ<sub>bind</sub>
+= (L²/D<sub>rel</sub>) · (k<sub>on</sub>C).
+</div>
+
+<p>If Da<sub>cell</sub> ≪ 1, relative positions randomize before binding and the
+well-mixed approximation is comfortable. If Da<sub>cell</sub> ≳ 1, a molecule can be
+captured before it has explored the cell, so spatial organization has a chance to matter.
+This is a deliberately crude Damköhler-like test, not a theorem.</p>
+
+<h2>Work it</h2>
+
+<p><strong>Step 1, use the same diffusion physics for both times.</strong> Elowitz
+<em>et al.</em> measured GFP diffusion in <em>E. coli</em> as
+7.7 ± 2.5 µm²/s [2], the value also used in Lecture 2. For two similar freely diffusing
+proteins the relative coordinate diffuses with
+D<sub>rel</sub> = D<sub>A</sub> + D<sub>B</sub> ≈ 15.4 µm²/s. Across L = 1 µm,</p>
+
+<div class="eq">
+τ<sub>mix</sub> ≈ L²/D<sub>rel</sub>
+= 1/15.4 s ≈ <strong>65 ms</strong>.
+</div>
+
+<p><strong>Step 2, push binding all the way to the diffusion limit.</strong> Lecture 2
+derives the Smoluchowski encounter rate
+k<sub>on</sub> = 4πD<sub>rel</sub>a [1]. For two proteins with radius ≈2 nm each,
+the contact distance is a ≈4 nm. Converting the swept volume to molar units gives</p>
+
+<div class="eq">
+k<sub>on</sub> ≈ <strong>4.7e+08 M<sup>−1</sup>s<sup>−1</sup></strong>.
+</div>
+
+<p>At 10 nM partner concentration, τ<sub>bind</sub> ≈
+<strong>215 ms</strong>, so Da<sub>cell</sub> ≈
+<strong>0.30</strong>. At 100 nM, τ<sub>bind</sub> falls to
+<strong>21 ms</strong>, so Da<sub>cell</sub> ≈
+<strong>3.0</strong>. The ordering has reversed: the encounter can be
+faster than cell-scale mixing.</p>
+
+<p><strong>Step 3, solve for the boundary.</strong> Substituting the diffusion-limited
+rate into the ratio makes D<sub>rel</sub> cancel:</p>
+
+<div class="eq">
+Da<sub>cell</sub>
+= 4πaL²N<sub>A</sub>(1000)C.
+</div>
+
+<p>That cancellation is the result I did not expect. If crowding slows local encounters
+and cell-scale diffusion by the same factor, it does <em>not</em> move this particular
+boundary. Setting Da<sub>cell</sub> = 1 gives</p>
+
+<div class="eq">
+C* = 1 / [4πaL²N<sub>A</sub>(1000)]
+≈ <span class="num">33 nM</span>
+&nbsp;&nbsp;(a = 4 nm, L = 1 µm).
+</div>
+
+<p>Lecture 2 places transcription factors around 10–100 nM [1], so the boundary is not
+at an absurd concentration: it cuts through a biologically familiar regime. The cell-size
+dependence is even stronger, C* ∝ L<sup>−2</sup>: the same calculation gives about
+132 nM at 0.5 µm but only 8.3 nM at 2 µm.</p>
+
+<figure>
+<svg class="fig" viewBox="0 0 680 390" xmlns="http://www.w3.org/2000/svg"
+     font-family="Segoe UI,Roboto,Arial,sans-serif" role="img"
+     aria-label="Log-log plot of cell-scale reaction diffusion ratio versus partner concentration">
+  <rect x="0" y="0" width="680" height="390" fill="var(--bg)"/>
+  <line x1="78" y1="320" x2="652" y2="320" stroke="var(--ink)" stroke-width="1"/>
+  <line x1="78" y1="28" x2="78" y2="320" stroke="var(--ink)" stroke-width="1"/>
+<line x1="78.0" y1="320" x2="78.0" y2="326" stroke="var(--ink)"/><text x="78.0" y="343" font-size="11" text-anchor="middle" fill="var(--muted)">1</text><line x1="269.3" y1="320" x2="269.3" y2="326" stroke="var(--ink)"/><text x="269.3" y="343" font-size="11" text-anchor="middle" fill="var(--muted)">10</text><line x1="460.7" y1="320" x2="460.7" y2="326" stroke="var(--ink)"/><text x="460.7" y="343" font-size="11" text-anchor="middle" fill="var(--muted)">100</text><line x1="652.0" y1="320" x2="652.0" y2="326" stroke="var(--ink)"/><text x="652.0" y="343" font-size="11" text-anchor="middle" fill="var(--muted)">1000</text><line x1="72" y1="301.0" x2="78" y2="301.0" stroke="var(--ink)"/><line x1="78" y1="301.0" x2="652" y2="301.0" stroke="var(--line)" stroke-width="0.7"/><text x="67" y="305.0" font-size="11" text-anchor="end" fill="var(--muted)">0.01</text><line x1="72" y1="237.5" x2="78" y2="237.5" stroke="var(--ink)"/><line x1="78" y1="237.5" x2="652" y2="237.5" stroke="var(--line)" stroke-width="0.7"/><text x="67" y="241.5" font-size="11" text-anchor="end" fill="var(--muted)">0.1</text><line x1="72" y1="174.0" x2="78" y2="174.0" stroke="var(--ink)"/><line x1="78" y1="174.0" x2="652" y2="174.0" stroke="var(--line)" stroke-width="0.7"/><text x="67" y="178.0" font-size="11" text-anchor="end" fill="var(--muted)">1</text><line x1="72" y1="110.5" x2="78" y2="110.5" stroke="var(--ink)"/><line x1="78" y1="110.5" x2="652" y2="110.5" stroke="var(--line)" stroke-width="0.7"/><text x="67" y="114.5" font-size="11" text-anchor="end" fill="var(--muted)">10</text><line x1="72" y1="47.0" x2="78" y2="47.0" stroke="var(--ink)"/><line x1="78" y1="47.0" x2="652" y2="47.0" stroke="var(--line)" stroke-width="0.7"/><text x="67" y="51.0" font-size="11" text-anchor="end" fill="var(--muted)">100</text><line x1="78" y1="174.0" x2="652" y2="174.0" stroke="#b33030" stroke-width="1.4" stroke-dasharray="7 5"/><text x="648" y="167.0" font-size="11" text-anchor="end" fill="#b33030">Da = 1</text><path d="M 78.0,308.6 L 652.0,118.2" fill="none" stroke="#6b7280" stroke-width="2.2"/><path d="M 78.0,270.4 L 652.0,80.0" fill="none" stroke="#1f4e79" stroke-width="2.2"/><path d="M 78.0,232.2 L 652.0,41.8" fill="none" stroke="#7a4b16" stroke-width="2.2"/><circle cx="483.8" cy="174.0" r="4.2" fill="#6b7280"/><circle cx="368.6" cy="174.0" r="4.2" fill="#1f4e79"/><circle cx="253.4" cy="174.0" r="4.2" fill="#7a4b16"/>
+  <text x="365.0" y="368" font-size="12" text-anchor="middle" fill="var(--ink)">
+    partner concentration C (nM, log scale)
+  </text>
+  <text x="19" y="174.0" font-size="12" text-anchor="middle" fill="var(--ink)"
+        transform="rotate(-90 19 174.0)">Da_cell = τ_mix / τ_bind (log scale)</text>
+
+  <line x1="455" y1="42" x2="482" y2="42" stroke="#6b7280" stroke-width="2.2"/>
+  <text x="490" y="46" font-size="11" fill="var(--muted)">L = 0.5 µm, C* ≈ 132 nM</text>
+  <line x1="455" y1="61" x2="482" y2="61" stroke="#1f4e79" stroke-width="2.2"/>
+  <text x="490" y="65" font-size="11" fill="var(--muted)">L = 1 µm, C* ≈ 33 nM</text>
+  <line x1="455" y1="80" x2="482" y2="80" stroke="#7a4b16" stroke-width="2.2"/>
+  <text x="490" y="84" font-size="11" fill="var(--muted)">L = 2 µm, C* ≈ 8.3 nM</text>
+</svg>
+<figcaption><strong>Figure 1.</strong> A cell-scale reaction–diffusion test for a
+diffusion-limited encounter between two ~2-nm-radius proteins. Above the dashed line,
+the estimated binding time is shorter than the time for the relative separation to explore
+the cell. The 1-µm curve crosses Da<sub>cell</sub> = 1 at ≈33 nM.
+Computed from the equations above; the complete plotting script is below. Nothing is fitted.</figcaption>
+</figure>
+
+<h2>What the number means</h2>
+
+<p>The result does <strong>not</strong> overturn Lecture 2's “<em>E. coli</em> is well
+mixed” rule. It puts a condition on it. The calculation intentionally uses the
+<em>fastest physically allowed</em> unguided association. Lecture 2 immediately notes
+why real molecular recognition is usually slower: only a small surface patch may be
+reactive, orientation matters, and conformational steps can intervene [1]. Reducing
+k<sub>on</sub> by even 100-fold reduces Da<sub>cell</sub> by 100-fold; then a 100 nM
+partner gives Da<sub>cell</sub> ≈ 0.03 and the well-mixed model is safe again.</p>
+
+<p>So I would phrase the extension this way: <strong>small size licenses well-mixed
+models only relative to a reaction timescale.</strong> For ordinary reaction-limited
+binding in a bacterium, diffusion wins easily. But a fast, high-concentration,
+near-diffusion-limited capture process can approach the spatial boundary even in a
+1-µm cell. That is exactly where localization, tethering, membranes or source–sink
+geometry should stop being decorative details and enter the model.</p>
+
+<details>
+<summary>reproduce.py — full calculation and Figure 1</summary>
+<pre><code>import numpy as np
+import matplotlib.pyplot as plt
+
+NA = 6.02214076e23        # mol^-1
+a = 4e-9                  # m; contact distance of two ~2-nm-radius proteins
+D_single = 7.7            # um^2/s; Elowitz et al. (1999)
+D_rel = 2 * D_single      # relative diffusion of two similar proteins
+
+# 1-um cell: numerical check using the measured in-cell diffusion coefficient
+tau_mix = 1.0**2 / D_rel
+D_rel_m2s = D_rel * 1e-12
+kon = 4*np.pi*D_rel_m2s*a*NA*1000  # M^-1 s^-1
+
+for C_nM in [10, 100]:
+    tau_bind = 1/(kon*C_nM*1e-9)
+    print(C_nM, &quot;nM:&quot;,
+          &quot;tau_mix =&quot;, tau_mix,
+          &quot;tau_bind =&quot;, tau_bind,
+          &quot;Da =&quot;, tau_mix/tau_bind)
+
+# At the diffusion limit, D_rel cancels:
+# Da = (L^2/D_rel) * (4*pi*D_rel*a*NA*1000*C)
+#    = 4*pi*a*L^2*NA*1000*C
+C_nM = np.logspace(0, 3, 300)
+
+for L_um in [0.5, 1.0, 2.0]:
+    L = L_um * 1e-6
+    C_M = C_nM * 1e-9
+    Da = 4*np.pi*a*L**2*NA*1000*C_M
+    plt.plot(C_nM, Da, label=f&quot;L = {L_um:g} µm&quot;)
+
+plt.axhline(1, ls=&quot;--&quot;, label=&quot;Da = 1&quot;)
+plt.xscale(&quot;log&quot;)
+plt.yscale(&quot;log&quot;)
+plt.xlabel(&quot;Partner concentration (nM)&quot;)
+plt.ylabel(&quot;Da_cell = tau_mix / tau_bind&quot;)
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+L = 1e-6
+Ccrit = 1/(4*np.pi*a*L**2*NA*1000)
+print(&quot;critical concentration =&quot;, Ccrit*1e9, &quot;nM&quot;)</code></pre>
+</details>
+
+<h2>What I would argue against / where this breaks</h2>
+
+<p><strong>“Da ≳ 1 means mass action is wrong” is too strong.</strong> My ratio compares
+a global exploration time with a mean capture time. A spatially uniform population can
+still obey a useful mass-action law even when an individual encounter happens before one
+molecule literally visits every part of the cell. The ratio is therefore a warning light,
+not a proof of spatial failure.</p>
+
+<p><strong>The cancellation of D is conditional.</strong> It works because I used the
+same normal-diffusion coefficient for local encounter and cell-scale mixing and assumed a
+perfectly absorbing contact. Elowitz <em>et al.</em> themselves found that mobility depends
+on protein size, concentration and even small tags [2]. If the cytoplasm is anomalous on
+one scale, or if molecules bind transient obstacles, local and global mobility need not
+slow by the same factor and D will no longer cancel.</p>
+
+<p><strong>Localization can break the null model earlier.</strong> A membrane-bound
+partner, a tethered complex, or production from one pole violates the independence
+assumption directly. Lecture 2 already flags tethering, membrane confinement and poor
+mixing as reasons the [A][B] product can fail [1]. My calculation concerns the cleaner
+case: two freely diffusing soluble proteins.</p>
+
+<h2>Sources</h2>
+<ul class="src">
+  <li>[1] CCBS 2026, <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture02-core.html">
+  Lecture 2 core: From order of magnitude in biology to binding and catalysis</a>
+  (retrieved 2026-09-04). Used for the 1-µm mixing argument, the measured in-cell
+  protein diffusion value, the ~2-nm protein-radius estimate, the 10–100 nM
+  transcription-factor range, the mass-action independence condition, and the
+  derivation k<sub>on</sub> = 4πDa.</li>
+
+  <li>[2] M. B. Elowitz, M. G. Surette, P.-E. Wolf, J. B. Stock &amp; S. Leibler,
+  “Protein Mobility in the Cytoplasm of <em>Escherichia coli</em>,”
+  <em>Journal of Bacteriology</em> <strong>181</strong>, 197–203 (1999).
+  <a href="https://doi.org/10.1128/JB.181.1.197-203.1999">doi:10.1128/JB.181.1.197-203.1999</a>.
+  Reports D = 7.7 ± 2.5 µm²/s for GFP in <em>E. coli</em> DH5α and slower motion for
+  larger or modified GFP constructs.</li>
+
+</ul>
+
+</div>
+</body>
+</html>
