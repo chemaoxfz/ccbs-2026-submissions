@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>[WEEK] — Extension: [one-line title of what you are adding]</title>
+<meta name="author" content="Your Name">
+<meta name="week" content="week1">
+<style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px;
+    border-bottom:1px solid var(--line); padding-bottom:5px; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:14px 18px; margin:14px 0; }
+  .fig { width:100%; border:1px solid var(--line); border-radius:6px; margin:14px 0; }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>[WEEK N] — Extension: [one-line title of what you are adding]</h1>
+<p class="meta">Author: Your name · Week N (2026-MM-DD) · CCBS 2026</p>
+
+<p class="card"><strong>One sentence:</strong> [the single claim or perspective this
+mini-essay adds — if it cannot be said in one sentence, it is two ideas, pick one.]</p>
+
+<h2>The point I am adding</h2>
+<p>… <em>One example / scenario / opinion / perspective / argument. Short: a few
+paragraphs. Not a recap of the lecture. If you disagree with the lecturer or with
+someone else's weekend submission — great, that is the point.</em></p>
+
+<h2>Work it</h2>
+<p>… <em>Make at least one number or one figure yourself (a tiny simulation, an
+estimate, a re-drawn plot — run from code or a documented reference; say where it
+comes from).</em></p>
+
+<figure>
+  <svg class="fig" viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0" y="0" width="640" height="220" fill="none"/>
+    <text x="20" y="30" font-size="13" fill="#888">figure placeholder — replace with your own svg or img</text>
+    <line x1="20" y1="180" x2="620" y2="180" stroke="#999"/>
+    <line x1="40" y1="20" x2="40" y2="200" stroke="#999"/>
+  </svg>
+  <figcaption>Figure 1: [caption that states what the figure shows and how it was
+  produced]</figcaption>
+</figure>
+
+<h2>What I would argue against / where this breaks</h2>
+<p>… <em>Necessary. An extension that cannot be argued with is vapor.</em></p>
+
+<h2>Sources</h2>
+<ul class="src">
+  <li>[full reference — title, authors, venue, year, link] — and why it carries this
+      claim.</li>
+</ul>
+
+</div>
+</body>
+</html>

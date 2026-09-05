@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 1 — Extension: Same Overall Reaction, Different Kinetics</title>
+<meta name="author" content="Sirui Cheng">
+<meta name="week" content="week1">
+<style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px;
+    border-bottom:1px solid var(--line); padding-bottom:5px; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:14px 18px; margin:14px 0; }
+  .fig { width:100%; border:1px solid var(--line); border-radius:6px; margin:14px 0; }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; }
+  .eq { display:block; text-align:center; font-size:1.05rem; margin:14px 0; }
+  pre { overflow-x:auto; background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:14px 16px; font-size:.78rem; line-height:1.45; }
+  .note { color:var(--muted); font-size:.9rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Week 1 — Extension: Same Overall Reaction, Different Kinetics</h1>
+<p class="meta">Author: Sirui Cheng · Week 1 (2026-09-03) · CCBS 2026</p>
+
+<p class="card"><strong>One sentence:</strong> The overall chemical equation tells us what changes, but for a complex reaction it does not by itself tell us how fast the change occurs—the mechanism matters.</p>
+
+<h2>The point I am adding</h2>
+
+<p>The lectures distinguish an elementary reaction from a complex reaction built from multiple elementary steps. I want to push this distinction one step further: <strong>can two reactions have the same overall equation but different rates?</strong> Yes. The reason is that the overall equation hides the intermediate steps.</p>
+
+<p>Consider the overall reaction <strong>A + B → P</strong>. If it is a single elementary bimolecular step, its rate law can be written directly as <span class="eq">rate = k[A][B].</span> But suppose the same overall change happens through an intermediate:</p>
+
+<p class="eq"><strong>A + B → I &nbsp;&nbsp;&nbsp; and &nbsp;&nbsp;&nbsp; I → P.</strong></p>
+
+<p>Here <strong>I</strong> is produced and then consumed, so it disappears when the two steps are added together. The net equation is still A + B → P, but product formation is now controlled by two successive processes. The rate of P formation initially starts at zero because no intermediate I exists yet. Thus, the same net equation does not uniquely determine the instantaneous rate law. This is why reaction mechanisms have to be checked against kinetic evidence rather than inferred from the balanced overall equation alone. [1–3]</p>
+
+<h2>Work it</h2>
+
+<p>I made a small numerical experiment. I started both systems with [A] = [B] = 1 and [I] = [P] = 0. For the elementary reference I used k = 1. For the two-step mechanism I used k<sub>1</sub> = 1 and k<sub>2</sub> = 0.2. The graph shows that the elementary model produces P immediately, whereas the two-step model first accumulates I and produces P more slowly.</p>
+
+<figure>
+
+<svg class="fig" viewBox="0 0 760 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Simulation comparing product concentration for an elementary reaction and a two-step mechanism">
+<style>
+.grid { stroke:#e2e6ea; stroke-width:1; }
+.axis { stroke:#555; stroke-width:1.2; }
+.tick { fill:#666; font-size:12px; font-family:Segoe UI,Arial,sans-serif; }
+.label { fill:#444; font-size:13px; font-family:Segoe UI,Arial,sans-serif; }
+.legend { fill:#333; font-size:12px; font-family:Segoe UI,Arial,sans-serif; }
+.curve1 { fill:none; stroke:#1f4e79; stroke-width:2.5; }
+.curve2 { fill:none; stroke:#777; stroke-width:2.5; }
+.curve3 { fill:none; stroke:#9a4d00; stroke-width:2.2; stroke-dasharray:6 4; }
+</style>
+<line x1="70" y1="305.0" x2="730" y2="305.0" class="grid"/><text x="60" y="309.0" text-anchor="end" class="tick">0.0</text><line x1="70" y1="251.0" x2="730" y2="251.0" class="grid"/><text x="60" y="255.0" text-anchor="end" class="tick">0.2</text><line x1="70" y1="197.0" x2="730" y2="197.0" class="grid"/><text x="60" y="201.0" text-anchor="end" class="tick">0.4</text><line x1="70" y1="143.0" x2="730" y2="143.0" class="grid"/><text x="60" y="147.0" text-anchor="end" class="tick">0.6</text><line x1="70" y1="89.0" x2="730" y2="89.0" class="grid"/><text x="60" y="93.0" text-anchor="end" class="tick">0.8</text><line x1="70" y1="35.0" x2="730" y2="35.0" class="grid"/><text x="60" y="39.0" text-anchor="end" class="tick">1.0</text><line x1="70.0" y1="35" x2="70.0" y2="305" class="grid"/><text x="70.0" y="327" text-anchor="middle" class="tick">0</text><line x1="202.0" y1="35" x2="202.0" y2="305" class="grid"/><text x="202.0" y="327" text-anchor="middle" class="tick">2</text><line x1="334.0" y1="35" x2="334.0" y2="305" class="grid"/><text x="334.0" y="327" text-anchor="middle" class="tick">4</text><line x1="466.0" y1="35" x2="466.0" y2="305" class="grid"/><text x="466.0" y="327" text-anchor="middle" class="tick">6</text><line x1="598.0" y1="35" x2="598.0" y2="305" class="grid"/><text x="598.0" y="327" text-anchor="middle" class="tick">8</text><line x1="730.0" y1="35" x2="730.0" y2="305" class="grid"/><text x="730.0" y="327" text-anchor="middle" class="tick">10</text>
+<line x1="70" y1="305" x2="730" y2="305" class="axis"/>
+<line x1="70" y1="35" x2="70" y2="305" class="axis"/>
+<path d="M70.0,305.0 L83.2,259.9 L96.4,227.8 L109.6,203.7 L122.8,184.9 L136.0,169.9 L149.2,157.6 L162.4,147.4 L175.6,138.8 L188.8,131.4 L202.0,124.9 L215.2,119.3 L228.4,114.4 L241.6,109.9 L254.8,106.0 L268.0,102.5 L281.2,99.2 L294.4,96.3 L307.6,93.7 L320.8,91.2 L334.0,89.0 L347.2,86.9 L360.4,85.0 L373.6,83.2 L386.8,81.5 L400.0,80.0 L413.2,78.5 L426.4,77.2 L439.6,75.9 L452.8,74.7 L466.0,73.5 L479.2,72.5 L492.4,71.5 L505.6,70.5 L518.8,69.6 L532.0,68.7 L545.2,67.9 L558.4,67.1 L571.6,66.4 L584.8,65.7 L598.0,65.0 L611.2,64.3 L624.4,63.7 L637.6,63.1 L650.8,62.5 L664.0,62.0 L677.2,61.5 L690.4,60.9 L703.6,60.5 L716.8,60.0 L730.0,59.5" class="curve1"/>
+<path d="M70.0,305.0 L83.2,304.1 L96.4,301.7 L109.6,298.3 L122.8,294.2 L136.0,289.6 L149.2,284.7 L162.4,279.5 L175.6,274.1 L188.8,268.7 L202.0,263.1 L215.2,257.6 L228.4,252.1 L241.6,246.6 L254.8,241.2 L268.0,235.8 L281.2,230.5 L294.4,225.3 L307.6,220.2 L320.8,215.2 L334.0,210.3 L347.2,205.5 L360.4,200.8 L373.6,196.2 L386.8,191.7 L400.0,187.4 L413.2,183.1 L426.4,179.0 L439.6,175.0 L452.8,171.1 L466.0,167.3 L479.2,163.6 L492.4,160.0 L505.6,156.5 L518.8,153.1 L532.0,149.8 L545.2,146.6 L558.4,143.5 L571.6,140.5 L584.8,137.6 L598.0,134.8 L611.2,132.0 L624.4,129.3 L637.6,126.8 L650.8,124.2 L664.0,121.8 L677.2,119.5 L690.4,117.2 L703.6,115.0 L716.8,112.8 L730.0,110.7" class="curve2"/>
+<path d="M70.0,305.0 L83.2,260.9 L96.4,231.1 L109.6,210.4 L122.8,195.7 L136.0,185.3 L149.2,178.0 L162.4,172.9 L175.6,169.7 L188.8,167.7 L202.0,166.8 L215.2,166.7 L228.4,167.3 L241.6,168.3 L254.8,169.8 L268.0,171.7 L281.2,173.7 L294.4,176.0 L307.6,178.5 L320.8,181.0 L334.0,183.7 L347.2,186.4 L360.4,189.2 L373.6,192.0 L386.8,194.8 L400.0,197.6 L413.2,200.4 L426.4,203.1 L439.6,205.9 L452.8,208.6 L466.0,211.3 L479.2,213.9 L492.4,216.5 L505.6,219.0 L518.8,221.5 L532.0,223.9 L545.2,226.3 L558.4,228.6 L571.6,230.9 L584.8,233.1 L598.0,235.2 L611.2,237.3 L624.4,239.4 L637.6,241.4 L650.8,243.3 L664.0,245.2 L677.2,247.0 L690.4,248.8 L703.6,250.5 L716.8,252.2 L730.0,253.8" class="curve3"/>
+<text x="380.0" y="352" text-anchor="middle" class="label">time</text>
+<text x="16" y="180.0" transform="rotate(-90 16 180.0)" text-anchor="middle" class="label">concentration</text>
+<line x1="500" y1="24" x2="530" y2="24" class="curve1"/><text x="537" y="28" class="legend">elementary: P</text>
+<line x1="500" y1="43" x2="530" y2="43" class="curve2"/><text x="537" y="47" class="legend">two-step: P</text>
+<line x1="500" y1="62" x2="530" y2="62" class="curve3"/><text x="537" y="66" class="legend">two-step: I</text>
+</svg>
+
+<figcaption>Figure 1: Numerical Euler simulation of the same overall reaction, A + B → P. The elementary model (blue) has immediate product formation; the two-step model (gray) temporarily stores material in the intermediate I (dashed), delaying P formation. Parameters and plotting code are shown below.</figcaption>
+</figure>
+
+<details>
+<summary><strong>Code used to make the figure</strong></summary>
+<pre><code>import numpy as np
+import matplotlib.pyplot as plt
+
+dt, t_end = 0.002, 10
+k1, k2 = 1.0, 0.2
+
+# Two-step mechanism: A + B -&gt; I -&gt; P
+t = np.arange(0, t_end + dt, dt)
+A = np.zeros_like(t); B = A.copy()
+I = A.copy(); P = A.copy()
+A[0] = B[0] = 1.0
+
+for n in range(len(t) - 1):
+    r1 = k1*A[n]*B[n]
+    r2 = k2*I[n]
+    A[n+1] = A[n] - dt*r1
+    B[n+1] = B[n] - dt*r1
+    I[n+1] = I[n] + dt*(r1-r2)
+    P[n+1] = P[n] + dt*r2
+
+# Elementary reference: A + B -&gt; P
+Ae = np.zeros_like(t); Be = np.zeros_like(t)
+Pe = np.zeros_like(t)
+Ae[0] = Be[0] = 1.0
+
+for n in range(len(t) - 1):
+    r = k1*Ae[n]*Be[n]
+    Ae[n+1] = Ae[n] - dt*r
+    Be[n+1] = Be[n] - dt*r
+    Pe[n+1] = Pe[n] + dt*r
+
+plt.plot(t, Pe, label="elementary: P")
+plt.plot(t, P, label="two-step: P")
+plt.plot(t, I, "--", label="two-step: I")
+plt.xlabel("time"); plt.ylabel("concentration")
+plt.legend(); plt.tight_layout()
+plt.show()
+</code></pre>
+</details>
+
+<p class="note">The simulation is an illustrative comparison, not a fit to a particular chemical system. Its purpose is to make the mechanistic point visible.</p>
+
+<h2>What I would argue against / where this breaks</h2>
+
+<p>It would be too strong to conclude that a complex reaction can never have a simple rate law. Under special conditions, such as a fast pre-equilibrium or a clearly rate-limiting step, a multistep mechanism can reduce to a compact expression. In fact, deriving such an expression is one way to test whether a proposed mechanism is consistent with experiment. [1] The safer rule is therefore: <strong>do not derive an overall rate law from the net stoichiometric equation unless the reaction is known to be elementary.</strong></p>
+
+<h2>Sources</h2>
+<ul class="src">
+  <li><strong>[1] OpenStax, <em>Chemistry 2e</em>, §12.6 “Reaction Mechanisms”</strong> (2019). Explains the distinction between overall reactions and elementary steps, intermediates, and deriving rate laws from mechanisms. <a href="https://openstax.org/books/chemistry-2e/pages/12-6-reaction-mechanisms" target="_blank" rel="noopener">https://openstax.org/books/chemistry-2e/pages/12-6-reaction-mechanisms</a></li>
+  <li><strong>[2] IUPAC Gold Book, “elementary reaction,” E02035</strong> (5th ed., 2025). Defines an elementary reaction as a single-step molecular process and distinguishes it from stepwise reactions. <a href="https://goldbook.iupac.org/terms/view/E02035" target="_blank" rel="noopener">https://goldbook.iupac.org/terms/view/E02035</a></li>
+  <li><strong>[3] IUPAC Gold Book, “reaction step,” R05178</strong> (5th ed., 2025). Defines a reaction step as an elementary reaction within a stepwise sequence involving intermediates. <a href="https://goldbook.iupac.org/terms/view/R05178" target="_blank" rel="noopener">https://goldbook.iupac.org/terms/view/R05178</a></li>
+  <li><strong>[4] CCBS 2026 Fall, Lectures 1–2.</strong> Course material motivating the distinction between elementary and complex reactions.</li>
+</ul>
+
+</div>
+</body>
+</html>
