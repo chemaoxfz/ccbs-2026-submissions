@@ -6,7 +6,6 @@
 <title>Week 1 Extension: What Is the Radius of a DNA Target?</title>
 <meta name="author" content="Chengwei Jin">
 <meta name="week" content="week1">
-<meta name="description" content="A numerical and geometric audit of the diffusion benchmark used for LacI target search.">
 <style>
   :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --second:#a84632;
     --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; --warn:#fff4e8; --grid:#d7dde3; }
@@ -14,30 +13,14 @@
     :root { --ink:#e8e8e8; --muted:#aab5b5; --accent:#8ab4e8; --second:#f09a83;
       --line:#3a4652; --bg:#15191d; --soft:#1e242a; --warn:#32291f; --grid:#39434c; }
   }
-  :root[data-theme="dark"] { --ink:#e8e8e8; --muted:#aab5b5; --accent:#8ab4e8;
-    --second:#f09a83; --line:#3a4652; --bg:#15191d; --soft:#1e242a;
-    --warn:#32291f; --grid:#39434c; }
-  :root[data-theme="light"] { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79;
-    --second:#a84632; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa;
-    --warn:#fff4e8; --grid:#d7dde3; }
   * { box-sizing:border-box; }
   body { margin:0; background:var(--bg); color:var(--ink);
-    font-family:Georgia,"Times New Roman",serif; font-size:17px; line-height:1.68; }
-  .layout { max-width:1080px; margin:0 auto; padding:0 22px; display:grid;
-    grid-template-columns:180px minmax(0,780px); gap:42px; justify-content:center; }
-  .wrap { min-width:0; padding:40px 0 80px; }
-  .toc { position:sticky; top:0; align-self:start; max-height:100vh; overflow:auto;
-    padding:42px 0; font-family:"Segoe UI",Roboto,Arial,sans-serif; font-size:.78rem; }
-  .toc .brand { color:var(--second); font-size:.68rem; font-weight:700;
-    letter-spacing:.12em; text-transform:uppercase; margin-bottom:14px; }
-  .toc a { display:block; padding:5px 8px; border-left:2px solid transparent;
-    text-decoration:none; color:var(--muted); }
-  .toc a:hover { color:var(--ink); border-left-color:var(--second); }
-  h1 { font-size:1.65rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
   .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
-  h2 { font-size:1.08rem; color:var(--accent); margin:34px 0 8px;
-    border-bottom:1px solid var(--line); padding-bottom:5px;
-    font-family:"Segoe UI",Roboto,Arial,sans-serif; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px;
+    border-bottom:1px solid var(--line); padding-bottom:5px; }
   h3 { font-size:.98rem; margin:24px 0 7px; }
   .card { background:var(--soft); border:1px solid var(--line); border-radius:6px;
     padding:14px 18px; margin:14px 0; }
@@ -45,9 +28,9 @@
   .eq { overflow-x:auto; text-align:center; font-family:Consolas,"Courier New",monospace;
     background:var(--soft); border:1px solid var(--line); border-radius:6px;
     padding:11px 14px; margin:14px 0; }
-  figure { margin:22px 0; }
+  figure { margin:14px 0; }
   .fig { display:block; width:100%; height:auto; border:1px solid var(--line);
-    border-radius:6px; background:var(--soft); }
+    border-radius:6px; margin:14px 0; background:var(--soft); }
   canvas.fig { aspect-ratio: 16 / 8; }
   figcaption { font-size:.85rem; color:var(--muted); margin-top:7px; }
   a { color:var(--accent); }
@@ -57,30 +40,10 @@
   code { font-family:Consolas,"Courier New",monospace; }
   .small { color:var(--muted); font-size:.88rem; }
   .key { color:var(--second); font-weight:700; }
-  #tt { position:fixed; right:16px; bottom:16px; z-index:10; width:40px; height:40px;
-    border-radius:50%; border:1px solid var(--line); background:var(--soft);
-    color:var(--ink); cursor:pointer; font-size:18px; }
-  @media (max-width:900px) {
-    .layout { display:block; }
-    .toc { position:static; max-height:none; padding:24px 0 0; border-bottom:1px solid var(--line); }
-    .toc a { display:inline-block; border-left:0; margin-right:5px; }
-    .wrap { padding-top:26px; }
-  }
 </style>
 </head>
 <body>
-<button id="tt" aria-label="Toggle light and dark theme" title="Toggle theme">◐</button>
-<div class="layout">
-<nav class="toc" aria-label="Contents">
-  <div class="brand">CCBS · Week 1 · Extension</div>
-  <a href="#s1">1 · Correct the record</a>
-  <a href="#s2">2 · Recover the result</a>
-  <a href="#s3">3 · Define the target</a>
-  <a href="#s4">4 · Test sensitivity</a>
-  <a href="#s5">5 · Interpret the gap</a>
-  <a href="#refs">† · Sources</a>
-</nav>
-<main class="wrap">
+<div class="wrap">
 
 <h1>Week 1 Extension: What Is the Radius of a DNA Target?</h1>
 <p class="meta">Chengwei Jin · Week 1 · CCBS 2026</p>
@@ -280,19 +243,9 @@ hidden parameter moves.</p>
     Review of three-dimensional encounters, sliding, hopping and evidential limits.</li>
 </ol>
 
-</main>
 </div>
 <script>
 (function () {
-  const rootEl = document.documentElement;
-  const savedTheme = localStorage.getItem('week1-theme');
-  if (savedTheme) rootEl.setAttribute('data-theme', savedTheme);
-  document.getElementById('tt').addEventListener('click', function () {
-    const next = rootEl.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    localStorage.setItem('week1-theme', next);
-    rootEl.setAttribute('data-theme', next);
-    location.reload();
-  });
   const canvas = document.getElementById('sensitivity');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
