@@ -302,22 +302,53 @@ function validateSignupAgainstRegistry({
     );
   }
 
-  const duplicateChecks = [
-    ["submission name", "slug", record.slug],
-    ["GitHub account", "github", record.github],
-    ["student ID", "studentId", record.studentId.toLowerCase()],
-    ["email", "email", record.email],
+  const ownedSignups = others.filter(
+    (item) => item.record && item.record.github === authorHandle
+  );
+  const stableIdentityChecks = [
+    ["submission name (`yourname`)", record.slug, (item) => item.descriptor?.slug],
+    ["student ID", record.studentId.toLowerCase(), (item) => item.record?.studentId],
+    ["email", record.email, (item) => item.record?.email],
   ];
-  for (const [label, key, value] of duplicateChecks) {
+  for (const [label, value, readExisting] of stableIdentityChecks) {
     if (!value) continue;
-    const duplicate = others.find((item) => {
-      const candidate =
-        key === "slug" ? item.descriptor?.slug : item.record?.[key];
+    const mismatch = ownedSignups.find((item) => {
+      const candidate = readExisting(item);
+      return candidate && String(candidate).toLowerCase() !== value;
+    });
+    if (mismatch) {
+      problems.push(
+        `An additional sign-up must reuse the same ${label} as ${code(mismatch.path)}.`
+      );
+    }
+  }
+
+  const sameLecture = ownedSignups.find(
+    (item) => item.descriptor?.lecture === descriptor.lecture
+  );
+  if (sameLecture) {
+    problems.push(
+      `@${authorHandle} already has a student place in lecture ${descriptor.lecture} through ${code(sameLecture.path)}. One student may occupy only one place in a lecture.`
+    );
+  }
+
+  const otherStudents = others.filter(
+    (item) => item.record && item.record.github !== authorHandle
+  );
+  const collisionChecks = [
+    ["submission name", record.slug, (item) => item.descriptor?.slug],
+    ["student ID", record.studentId.toLowerCase(), (item) => item.record?.studentId],
+    ["email", record.email, (item) => item.record?.email],
+  ];
+  for (const [label, value, readExisting] of collisionChecks) {
+    if (!value) continue;
+    const collision = otherStudents.find((item) => {
+      const candidate = readExisting(item);
       return candidate && String(candidate).toLowerCase() === value;
     });
-    if (duplicate) {
+    if (collision) {
       problems.push(
-        `This ${label} is already registered in ${code(duplicate.path)}. Each student signs up exactly once.`
+        `This ${label} is already registered to another account in ${code(collision.path)}.`
       );
     }
   }
@@ -346,26 +377,23 @@ function validateSubmissionOwnership({ descriptors, author, baseSignups }) {
       `No merged sign-up belongs to @${authorHandle}. Merge your sign-up first, with its ${code("github")} field set to ${code(authorHandle)}.`,
     ];
   }
-  if (matches.length > 1) {
-    return [
-      `More than one merged sign-up belongs to @${authorHandle}. Ask a TA to repair the duplicate before submitting.`,
-    ];
-  }
-
-  const signup = matches[0];
+  const slugs = new Set(matches.map((item) => item.descriptor.slug));
+  const lectures = new Set(matches.map((item) => item.descriptor.lecture));
   for (const descriptor of descriptors) {
     if (["extension", "research"].includes(descriptor.category)) {
-      if (descriptor.slug !== signup.descriptor.slug) {
+      if (!slugs.has(descriptor.slug)) {
+        const registered = [...slugs].map(code).join(", ");
         problems.push(
-          `${code(descriptor.path)} uses the name ${code(descriptor.slug)}, but @${authorHandle}'s sign-up uses ${code(signup.descriptor.slug)}. Use the same name all term.`
+          `${code(descriptor.path)} uses the name ${code(descriptor.slug)}, but @${authorHandle}'s sign-up${slugs.size === 1 ? " uses" : "s use"} ${registered}. Use the same name all term.`
         );
       }
     } else if (
       descriptor.category === "exposition" &&
-      descriptor.lecture !== signup.descriptor.lecture
+      !lectures.has(descriptor.lecture)
     ) {
+      const registered = [...lectures].sort((a, b) => a - b).join(", ");
       problems.push(
-        `@${authorHandle} is signed up for lecture ${signup.descriptor.lecture}, so this account cannot submit to ${code(`lecture${String(descriptor.lecture).padStart(2, "0")}/`)}.`
+        `@${authorHandle} is signed up for lecture${lectures.size === 1 ? "" : "s"} ${registered}, so this account cannot submit to ${code(`lecture${String(descriptor.lecture).padStart(2, "0")}/`)}.`
       );
     }
   }
@@ -642,6 +670,9 @@ async function run({ github, context, core }) {
       pull_number: pr.number,
       merge_method: "squash",
       commit_title: `${pr.title} (#${pr.number})`,
+      // Refuse the merge if the student pushed after this exact revision was
+      // inspected. The synchronize event will validate the new revision next.
+      sha: pr.head.sha,
     });
     if (!result.data.merged) {
       throw new Error(result.data.message || "GitHub returned merged=false");
