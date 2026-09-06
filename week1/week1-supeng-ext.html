@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>[WEEK] — Extension: [one-line title of what you are adding]</title>
+
+<meta name="author" content="Your Name">
+<meta name="week" content="week1">
+
+<style>
+  :root {
+    --ink:#1a1a1a;
+    --muted:#566;
+    --accent:#1f4e79;
+    --line:#d8dee4;
+    --bg:#fff;
+    --soft:#f6f8fa;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink:#e8e8e8;
+      --muted:#9aa;
+      --accent:#8ab4e8;
+      --line:#3a4652;
+      --bg:#15191d;
+      --soft:#1e242a;
+    }
+  }
+
+  * {
+    box-sizing:border-box;
+  }
+
+  body {
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    line-height:1.6;
+  }
+
+  .wrap {
+    max-width:760px;
+    margin:0 auto;
+    padding:40px 22px 80px;
+  }
+
+  h1 {
+    font-size:1.6rem;
+    line-height:1.25;
+    margin:0 0 6px;
+    color:var(--accent);
+  }
+
+  .meta {
+    color:var(--muted);
+    font-size:.92rem;
+    margin-bottom:26px;
+  }
+
+  h2 {
+    font-size:1.05rem;
+    color:var(--accent);
+    margin:34px 0 8px;
+    border-bottom:1px solid var(--line);
+    padding-bottom:5px;
+  }
+
+  .card {
+    background:var(--soft);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:14px 18px;
+    margin:14px 0;
+  }
+
+  .fig {
+    width:100%;
+    border:1px solid var(--line);
+    border-radius:6px;
+    margin:14px 0;
+  }
+
+  figcaption {
+    font-size:.85rem;
+    color:var(--muted);
+    margin-top:6px;
+  }
+
+  a {
+    color:var(--accent);
+  }
+
+  .src {
+    font-size:.9rem;
+  }
+
+  table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 18px 0;
+  font-size: 0.95rem;
+}
+
+th,
+td {
+  border: 1px solid var(--line);
+  padding: 9px 12px;
+  text-align: center;
+}
+
+th {
+  background: var(--soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+</style>
+
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']]
+    }
+  };
+</script>
+
+<script
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+  async>
+</script>
+
+</head>
+
+<body>
+<div class="wrap">
+
+<h1>WEEK 1 — Extension: The third stage of "height" limit: Geometry after storage</h1>
+<p class="meta">Author: Peng Su · Week 1 (2026-9-6) · CCBS 2026</p>
+
+<p class="card"><strong>Transmission ratio as a second, orthogonal lever past the power limit</strong> </p>
+
+<h2>The main claim</h2>
+<p><em>In Lecture 1 we watched a small jumper fall off the flat height line. 
+  The reason was introduced as a second constraint, the time. 
+  Fleas cannot accelerate to the ~3 m/s that an energy-balanced jump “should” give, 
+  because their legs only have microseconds of muscle time, 
+  so they use a resilin spring and a latch to release stored energy in a millisecond. 
+  The lecture presents that spring as the escape from the power wall. 
+  My extension is that this solves only one part of the problem.
+  There is a second, orthogonal tool whose job is not to change the work through release in time, 
+  but to re-route force versus speed: the lever geometry, or more generally the four-bar linkage.
+  It does not add energy or power. Instead, it redistributes a given mechanical input between force and speed. 
+  The spring controls when energy is released; the linkage controls how that motion is transmitted. 
+  Although not directly related to the "jump" height, 
+  mantis shrimp make this distinction especially clear because their strike combines both a spring-latch system and a four-bar linkage.</em></p>
+  
+  <h2>Rereading the power limit</h2>
+<p><em>Lecture 1 displays that the jump height may represent as <p> $$ h = \frac{f_m w}{\rho g} $$</p> where the size cancels. 
+  At this level, a small and a large animal could in principle reach similar jump heights.
+  The problem appears when we ask how quickly that energy must be delivered. 
+  A jump of fixed height requires a roughly fixed take-off speed,
+  <p>
+$$
+v \sim \sqrt{2gh}
+$$
+</p>
+  But a small animal has only a short distance over which to accelerate, roughly one body length, 
+  so the available time scales approximately as
+<p>
+$$
+\tau \sim \frac{L}{v}
+$$
+</p>
+  For a flea, this is only on the order of a millisecond. 
+  Muscle cannot shorten fast enough to deliver all of the required work directly within that time, which formed the time/power wall.
+  The lecture's escape is the spring: store muscle work slowly, release it fast, so power is amplified while energy stays conserved.
+
+  But after the spring releases its energy, another question remains: <br><br>
+  <strong>How is the motion transmitted to the part of the animal that actually moves (the tip of the leg for jump)?</strong>
+  <br><br>That is where geometry enters.
+ </em></p>
+
+ <h2>The third stage: transmission geometry</h2>
+<p><em>Consider the simplest case: a lever.<br>
+If the input point of the lever moves slowly through a short distance, 
+the distal end can move through a larger distance in the same amount of time.<br>
+In a simplified description,
+<p>
+$$
+v_{\mathrm{out}}
+=
+v_{\mathrm{in}} \times R
+$$
+</p> where \(R\) is a velocity ratio: the ratio of the output lever arm to the input lever arm. 
+Energy conservation forces the force trade-off,
+<p>
+$$
+v_{\mathrm{out}} / v_{\mathrm{in}} = F_{\mathrm{out}} / F_{\mathrm{in}} =  R
+$$
+</p> 
+This shows the key trade-off:
+<strong> more speed <=> less force</strong>, with no additional energy being created.
+This makes geometry fundamentally different from a spring.
+A spring stores work and releases it over a shorter time, increasing the available instantaneous power.
+While the lever decides how the available motion is divided between force and velocity.
+
+</em></p>
+
+<h2>A toy calculation: how much can geometry change tip speed?</h2>
+
+<p><em>Here I ask the extreme question: if a system only had a lever, 
+  how fast could the tip move in the release window? Using <em>v<sub>out</sub></em> = <em>v<sub>in</sub>* R</em> with a muscle-driven input of order
+1 m/s and a few-millisecond window (the flea's own release time). The table and
+figure below are the whole calculation, 
+while the detailed input information is listed below</em></p>
+<pre><code># v_out = v_in * R ; a_peak(acceleration) ~ v_out / t_release ;  P = F.v conserved
+v_muscle = 1.0        # m/s of lever input (muscle-limited, ms release)
+t_release = 2e-3      # s  (flea-order release window)
+for R in (1, 2, 5, 10, 20):
+    v_out = v_muscle * R
+    a = v_out / t_release
+    print(R, round(v_out,1), 'm/s', round(a,0), 'm/s^2', round(a/9.81,0), 'g')</code></pre>
+
+<table>
+<tr><th>R</th><th>v<sub>tip</sub> (m/s)</th><th>a<sub>peak</sub> (m/s&sup2;)</th><th>a<sub>peak</sub> (g)</th></tr>
+<tr><td>1</td><td>1.0</td><td>500</td><td>&asymp; 51</td></tr>
+<tr><td>2</td><td>2.0</td><td>1000</td><td>&asymp; 102</td></tr>
+<tr><td>5</td><td>5.0</td><td>2500</td><td>&asymp; 255</td></tr>
+<tr><td>10</td><td>10.0</td><td>5000</td><td>&asymp; 510</td></tr>
+<tr><td>20</td><td>20.0</td><td>10000</td><td>&asymp; 1019</td></tr>
+</table>
+
+<p><em>
+At R=20, the toy model gives a tip speed of 20 m/s, 
+close to the measured mantis-shrimp range of 14-23 m/s.
+Its estimated mean acceleration is about 10000 m/s², or ~10³ g, 
+which roughly within one order of magnitude of the measured mantis-shrimp acceleration (6.6 * 10³ ~ 1.1 * 10⁴ g).
+(Patek et al. 2004). Compare the flea&rsquo;s ~98&nbsp;g from
+Lecture&nbsp;1. <br><br> In this case, the simulated calculation shows that the spring is what allows the strike to finish in &lt;1&nbsp;ms, but the
+speed-ratio that dominates the number is the lever.
+</em></p>
+
+<figure>
+  <svg class="fig" viewBox="0 0 640 320" xmlns="http://www.w3.org/2000/svg">
+
+    <!-- background -->
+    <rect x="0" y="0" width="640" height="320" fill="none"/>
+
+    <!-- overall title -->
+    <text x="320" y="24" text-anchor="middle" font-size="14" fill="#444">
+      Pure geometry toy model: transmission ratio versus distal performance
+    </text>
+
+    <!-- ===================== LEFT PANEL ===================== -->
+    <!-- panel title -->
+    <text x="175" y="48" text-anchor="middle" font-size="13" fill="#333">
+      Tip speed vs mechanical advantage
+    </text>
+
+    <!-- axes -->
+    <line x1="55" y1="230" x2="295" y2="230" stroke="#666" stroke-width="1"/>
+    <line x1="55" y1="70"  x2="55"  y2="230" stroke="#666" stroke-width="1"/>
+
+    <!-- y ticks and labels (0–25 m/s) -->
+    <line x1="50" y1="230" x2="55" y2="230" stroke="#666"/>
+    <text x="44" y="234" text-anchor="end" font-size="11" fill="#555">0</text>
+
+    <line x1="50" y1="198" x2="55" y2="198" stroke="#666"/>
+    <text x="44" y="202" text-anchor="end" font-size="11" fill="#555">5</text>
+
+    <line x1="50" y1="166" x2="55" y2="166" stroke="#666"/>
+    <text x="44" y="170" text-anchor="end" font-size="11" fill="#555">10</text>
+
+    <line x1="50" y1="134" x2="55" y2="134" stroke="#666"/>
+    <text x="44" y="138" text-anchor="end" font-size="11" fill="#555">15</text>
+
+    <line x1="50" y1="102" x2="55" y2="102" stroke="#666"/>
+    <text x="44" y="106" text-anchor="end" font-size="11" fill="#555">20</text>
+
+    <line x1="50" y1="70" x2="55" y2="70" stroke="#666"/>
+    <text x="44" y="74" text-anchor="end" font-size="11" fill="#555">25</text>
+
+    <!-- x ticks and labels -->
+    <line x1="80" y1="230" x2="80" y2="235" stroke="#666"/>
+    <text x="80" y="250" text-anchor="middle" font-size="11" fill="#555">1</text>
+
+    <line x1="120" y1="230" x2="120" y2="235" stroke="#666"/>
+    <text x="120" y="250" text-anchor="middle" font-size="11" fill="#555">2</text>
+
+    <line x1="170" y1="230" x2="170" y2="235" stroke="#666"/>
+    <text x="170" y="250" text-anchor="middle" font-size="11" fill="#555">5</text>
+
+    <line x1="220" y1="230" x2="220" y2="235" stroke="#666"/>
+    <text x="220" y="250" text-anchor="middle" font-size="11" fill="#555">10</text>
+
+    <line x1="280" y1="230" x2="280" y2="235" stroke="#666"/>
+    <text x="280" y="250" text-anchor="middle" font-size="11" fill="#555">20</text>
+
+    <!-- axis labels -->
+    <text x="175" y="272" text-anchor="middle" font-size="12" fill="#333">
+      Mechanical advantage (MA)
+    </text>
+    <text x="18" y="150" transform="rotate(-90 18 150)" text-anchor="middle" font-size="12" fill="#333">
+      Tip speed (m/s)
+    </text>
+
+    <!-- dashed reference line: mantis shrimp ~23 m/s -->
+    <line x1="55" y1="83" x2="295" y2="83" stroke="#c44" stroke-width="1.2" stroke-dasharray="5,4"/>
+    <text x="292" y="78" text-anchor="end" font-size="11" fill="#c44">
+      mantis shrimp ≈ 23 m/s
+    </text>
+
+    <!-- data polyline -->
+    <polyline
+      fill="none"
+      stroke="#1f4e79"
+      stroke-width="2"
+      points="80,224 120,218 170,198 220,166 280,102"/>
+
+    <!-- data points -->
+    <circle cx="80"  cy="224" r="4" fill="#1f4e79"/>
+    <circle cx="120" cy="218" r="4" fill="#1f4e79"/>
+    <circle cx="170" cy="198" r="4" fill="#1f4e79"/>
+    <circle cx="220" cy="166" r="4" fill="#1f4e79"/>
+    <circle cx="280" cy="102" r="4" fill="#1f4e79"/>
+
+    <!-- ===================== RIGHT PANEL ===================== -->
+    <!-- panel title -->
+    <text x="495" y="48" text-anchor="middle" font-size="13" fill="#333">
+      Mean acceleration vs mechanical advantage
+    </text>
+
+    <!-- axes -->
+    <line x1="375" y1="230" x2="615" y2="230" stroke="#666" stroke-width="1"/>
+    <line x1="375" y1="70"  x2="375" y2="230" stroke="#666" stroke-width="1"/>
+
+    <!-- y ticks and labels (0–1000 g) -->
+    <line x1="370" y1="230" x2="375" y2="230" stroke="#666"/>
+    <text x="364" y="234" text-anchor="end" font-size="11" fill="#555">0</text>
+
+    <line x1="370" y1="198" x2="375" y2="198" stroke="#666"/>
+    <text x="364" y="202" text-anchor="end" font-size="11" fill="#555">200</text>
+
+    <line x1="370" y1="166" x2="375" y2="166" stroke="#666"/>
+    <text x="364" y="170" text-anchor="end" font-size="11" fill="#555">400</text>
+
+    <line x1="370" y1="134" x2="375" y2="134" stroke="#666"/>
+    <text x="364" y="138" text-anchor="end" font-size="11" fill="#555">600</text>
+
+    <line x1="370" y1="102" x2="375" y2="102" stroke="#666"/>
+    <text x="364" y="106" text-anchor="end" font-size="11" fill="#555">800</text>
+
+    <line x1="370" y1="70" x2="375" y2="70" stroke="#666"/>
+    <text x="364" y="74" text-anchor="end" font-size="11" fill="#555">1000</text>
+
+    <!-- x ticks and labels -->
+    <line x1="400" y1="230" x2="400" y2="235" stroke="#666"/>
+    <text x="400" y="250" text-anchor="middle" font-size="11" fill="#555">1</text>
+
+    <line x1="440" y1="230" x2="440" y2="235" stroke="#666"/>
+    <text x="440" y="250" text-anchor="middle" font-size="11" fill="#555">2</text>
+
+    <line x1="490" y1="230" x2="490" y2="235" stroke="#666"/>
+    <text x="490" y="250" text-anchor="middle" font-size="11" fill="#555">5</text>
+
+    <line x1="540" y1="230" x2="540" y2="235" stroke="#666"/>
+    <text x="540" y="250" text-anchor="middle" font-size="11" fill="#555">10</text>
+
+    <line x1="600" y1="230" x2="600" y2="235" stroke="#666"/>
+    <text x="600" y="250" text-anchor="middle" font-size="11" fill="#555">20</text>
+
+    <!-- axis labels -->
+    <text x="495" y="272" text-anchor="middle" font-size="12" fill="#333">
+      Mechanical advantage (MA)
+    </text>
+    <text x="338" y="150" transform="rotate(-90 338 150)" text-anchor="middle" font-size="12" fill="#333">
+      Mean acceleration (g)
+    </text>
+
+    <!-- dashed reference line: mantis shrimp ~10^3 g -->
+    <line x1="375" y1="74" x2="615" y2="74" stroke="#c44" stroke-width="1.2" stroke-dasharray="5,4"/>
+    <text x="612" y="69" text-anchor="end" font-size="11" fill="#c44">
+      mantis shrimp (lower bound) ≈ 10^3 g
+    </text>
+
+    <!-- data polyline -->
+    <polyline
+      fill="none"
+      stroke="#1f4e79"
+      stroke-width="2"
+      points="400,222 440,214 490,189 540,148 600,76"/>
+
+    <!-- data points -->
+    <circle cx="400" cy="222" r="4" fill="#1f4e79"/>
+    <circle cx="440" cy="214" r="4" fill="#1f4e79"/>
+    <circle cx="490" cy="189" r="4" fill="#1f4e79"/>
+    <circle cx="540" cy="148" r="4" fill="#1f4e79"/>
+    <circle cx="600" cy="76"  r="4" fill="#1f4e79"/>
+
+  </svg>
+
+  <figcaption>
+    Figure 1: Left, tip speed increases linearly with mechanical advantage in the toy model
+    ($v_{\mathrm{out}} = v_{\mathrm{in}} \times MA$, with $v_{\mathrm{in}} = 1$ m/s). Right,
+    the corresponding mean acceleration estimate assuming a 2 ms release window
+    ($a \sim v_{\mathrm{out}} / t_{\mathrm{release}}$). Dashed lines mark the approximate
+    mantis-shrimp strike speed (~23 m/s) and acceleration (~10^3 g). Both panels were drawn
+    from the simple calculations reported in the text.
+  </figcaption>
+</figure>
+
+<h2>Reality beyond estimation</h2>
+<p><em>A real mantis shrimp, of course, does not operate as a pure lever,
+  it pairs the four-bar geometry with a saddle-shaped spring and a latch, 
+  exactly because the spring handles the sub-millisecond timing that a lever cannot. 
+  So my claim is not “geometry replaces the spring”, instead, it is that the two are independent controls, 
+  and the lecture, by teaching only the spring, under-sells how much of the speed-up is geometry at the third stage. 
+  The shrimps and the trap-jaw ants are the proof that evolution turns both dials. <br><br>
+  The weakest inputs in my little table: 
+  the 1 m/s muscle input is a loose order-of-magnitude, 
+  the 2 ms window is borrowed from the flea, 
+  and real four-bar linkages have a R that changes through the stroke rather than being a single number. 
+  <br><br><strong> However, the test example above still indicates that even without adding energy, 
+  changing transmission geometry can move distal velocity by an order of magnitude.</strong><br><br>
+  In other words,elastic storage determines how rapidly energy becomes available; 
+  linkage geometry determines what force-speed output that energy produces.
+
+<h2>Sources</h2>
+<ul class="src">
+<li><strong>CCBS 2026, Lecture 1 core sections 4–5.</strong> Re-derived the flat-height
+energy argument (<em>h</em>&nbsp;=&nbsp;<em>f<sub>m</sub>w</em>/<em>&rho;g</em>) and the power/time wall; took the flea&rsquo;s
+~98&nbsp;g and its ~23&times; shortfall as given. Read in full.</li>
+<li><strong>Patek, Korff &amp; Caldwell, <em>Nature</em> 428, 819–820 (2004).</strong> The classic
+measurement of the mantis-shrimp strike, with peak speed
+14~23&nbsp;m/s, peak acceleration 6.6 * 10<sup>3</sup> ~1.1 * 10<sup>4</sup>&nbsp;g.
+I read the speed related parts and the figure of the linkage.</li>
+</ul>
+
+</div>
+</body>
+</html>
