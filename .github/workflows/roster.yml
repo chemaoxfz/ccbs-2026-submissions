@@ -12,6 +12,11 @@ on:
     paths:
       - 'signup/lecture*.md'
       - 'tools/build_roster.py'
+      - 'tools/test_build_roster.py'
+      - 'tools/validate_submission.cjs'
+      - 'tools/test_validate_submission.cjs'
+      - '.github/workflows/automerge.yml'
+      - '.github/workflows/roster.yml'
   workflow_dispatch:
 
 permissions:
@@ -29,8 +34,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Rebuild ROSTER.md
-        run: python3 tools/build_roster.py
+      - name: Test submission tooling and rebuild ROSTER.md
+        run: |
+          node --test tools/test_validate_submission.cjs
+          python3 -m unittest tools/test_build_roster.py
+          python3 tools/build_roster.py
       - name: Commit if it changed
         run: |
           if git diff --quiet -- signup/ROSTER.md; then
