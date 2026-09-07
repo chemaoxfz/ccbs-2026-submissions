@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 1 — Extension: When 1 nM often means zero</title>
+<meta name="author" content="Zixuan Wang">
+<meta name="week" content="week1">
+<style>
+  :root {
+    --ink:#18212a; --muted:#5d6b75; --accent:#1f5b78; --warm:#b45a32;
+    --cool:#3f7d66; --line:#d7dfe4; --grid:#e6ebee; --bg:#ffffff;
+    --soft:#f4f8fa;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink:#e8edf0; --muted:#a5b1b8; --accent:#83c6e5; --warm:#f09b73;
+      --cool:#8bc9ad; --line:#3c4850; --grid:#29343b; --bg:#12171b;
+      --soft:#1a2228;
+    }
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    line-height:1.62;
+  }
+  .wrap { max-width:800px; margin:0 auto; padding:42px 22px 78px; }
+  .kicker {
+    margin:0 0 7px; color:var(--warm); font-size:.78rem;
+    font-weight:700; letter-spacing:.11em; text-transform:uppercase;
+  }
+  h1 {
+    margin:0 0 7px; color:var(--accent); font-size:1.86rem;
+    line-height:1.18; letter-spacing:-.015em;
+  }
+  .meta { color:var(--muted); font-size:.91rem; margin:0 0 25px; }
+  h2 {
+    font-size:1.08rem; color:var(--accent); margin:34px 0 9px;
+    border-bottom:1px solid var(--line); padding-bottom:6px;
+  }
+  p { margin:10px 0; }
+  .card {
+    background:var(--soft); border:1px solid var(--line);
+    border-left:5px solid var(--warm); border-radius:7px;
+    padding:14px 17px; margin:15px 0 18px;
+  }
+  .equation {
+    margin:14px 0; padding:11px 13px; overflow-x:auto;
+    text-align:center; background:var(--soft); border:1px solid var(--line);
+    border-radius:7px; font-family:Cambria,"Times New Roman",serif;
+    font-size:1.06rem;
+  }
+  .numbers {
+    display:grid; grid-template-columns:repeat(3,1fr); gap:10px;
+    margin:16px 0;
+  }
+  .number {
+    background:var(--soft); border:1px solid var(--line);
+    border-radius:7px; padding:12px; text-align:center;
+  }
+  .number strong {
+    display:block; color:var(--accent); font-size:1.22rem; line-height:1.2;
+  }
+  .number span { display:block; color:var(--muted); font-size:.79rem; margin-top:3px; }
+  figure { margin:18px 0 9px; }
+  .figure-scroll {
+    overflow-x:auto; border:1px solid var(--line); border-radius:7px;
+    background:var(--bg);
+  }
+  .fig {
+    display:block; width:100%; min-width:680px; height:auto; background:var(--bg);
+  }
+  figcaption { color:var(--ink); font-size:.88rem; line-height:1.5; margin-top:10px; }
+  details {
+    margin:15px 0; border:1px solid var(--line); border-radius:7px;
+    padding:10px 13px; background:var(--soft);
+  }
+  summary { cursor:pointer; color:var(--accent); font-size:.91rem; font-weight:700; }
+  pre {
+    margin:10px 0 0; padding:12px 13px; overflow:auto;
+    border:1px solid var(--line); border-radius:6px;
+    background:var(--bg); color:var(--ink); font-size:.76rem; line-height:1.46;
+  }
+  code { font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace; }
+  a { color:var(--accent); text-underline-offset:2px; }
+  .src { padding-left:21px; font-size:.88rem; }
+  .src li { margin:9px 0; }
+  .small { color:var(--muted); font-size:.86rem; }
+  @media (max-width:680px) {
+    .wrap { padding:30px 17px 60px; }
+    h1 { font-size:1.58rem; }
+    .numbers { grid-template-columns:1fr; }
+    .figure-scroll { scrollbar-width:thin; }
+  }
+  @media print {
+    body { font-size:10.5pt; }
+    .wrap { max-width:none; padding:0; }
+    .card,.number,figure,details { break-inside:avoid; }
+    pre { white-space:pre-wrap; }
+  }
+</style>
+</head>
+<body>
+<main class="wrap">
+
+<p class="kicker">CCBS 2026 · Week 1 extension</p>
+<h1>When 1 nM often means zero</h1>
+<p class="meta">Zixuan Wang · Week 1 (2026-09-07) · CCBS 2026</p>
+
+<p class="card"><strong>One sentence:</strong> Concentration alone does not determine
+signal reliability: under an independent Poisson null model, the product <em>cV</em>
+sets both the chance that a compartment contains no molecule and its relative
+copy-number fluctuation, so the same 1 nM signal can be mostly absent at 1 fL but
+smooth at 1000 fL.</p>
+
+<h2>The point I am adding</h2>
+
+<p>Lecture 2 gives a conversion worth remembering: one molecule in a 1-fL
+compartment is approximately 1 nM [1]. I want to run that statement in the opposite
+direction. If a nominal concentration is 1 nM, how many whole molecules represent it,
+and when is “concentration” a useful continuous variable rather than an average over
+integer counts?</p>
+
+<p>The conversion itself is exact bookkeeping. If a compartment of volume <em>V</em>
+has concentration <em>c</em>, its expected molecule count is</p>
+
+<div class="equation">
+  &lambda; = <em>cVN</em><sub>A</sub>, &nbsp;&nbsp;or, in convenient units,&nbsp;&nbsp;
+  <strong>&lambda; = 0.602&nbsp;<em>c</em><sub>nM</sub><em>V</em><sub>fL</sub>.</strong>
+</div>
+
+<p>Here <em>N</em><sub>A</sub> is Avogadro's constant and &lambda; is an ensemble mean,
+not a fractional molecule inside one cell. At 1 nM and 1 fL, &lambda; = 0.602; at the
+same concentration and 1000 fL, &lambda; = 602. The concentration step created by one
+additional molecule is &Delta;<em>c</em> = 1/(<em>N</em><sub>A</sub><em>V</em>): 1.66 nM
+at 1 fL but only 0.00166 nM at 1000 fL. This discreteness follows from counting alone
+and requires no noise model [1,2].</p>
+
+<h2>Work it: present is not the same as precise</h2>
+
+<p>Now add a deliberately simple model. Suppose molecules are independent and
+well mixed, as in an ideal open compartment or a constant-birth, first-order-death
+process at steady state. The copy number is then Poisson distributed. Its two useful
+statistics are</p>
+
+<div class="equation">
+  <em>P</em><sub>0</sub> = exp(&minus;&lambda;),
+  &nbsp;&nbsp;&nbsp;
+  CV = &sigma;/&lambda; = 1/&radic;&lambda;.
+</div>
+
+<p><em>P</em><sub>0</sub> is the probability that an independent compartment or
+snapshot contains zero molecules. CV is the standard deviation divided by the mean.
+For 1 nM in 1 fL, the model predicts <em>P</em><sub>0</sub> = 54.8% and CV = 129%.
+For 1 nM in 1000 fL, the zero-count probability is negligible and CV = 4.1%.</p>
+
+<div class="numbers" aria-label="Three results from the Poisson calculation">
+  <div class="number"><strong>54.8%</strong><span>zero molecules at 1 nM and 1 fL</span></div>
+  <div class="number"><strong>4.1%</strong><span>Poisson CV at 1 nM and 1000 fL</span></div>
+  <div class="number"><strong>21.7&times;</strong><span>more copies needed for precision than mere presence</span></div>
+</div>
+
+<p>I defined two operational standards. “Present” means at least a 99% probability
+of one or more molecules, so exp(&minus;&lambda;) &le; 0.01 and &lambda; &ge; 4.605.
+“Precise” means Poisson CV &le; 10%, so &lambda; &ge; 100. Using the unit conversion
+above gives</p>
+
+<div class="equation">
+  99% non-empty: &nbsp;<em>c</em><sub>nM</sub><em>V</em><sub>fL</sub> &ge; 7.65;
+  &nbsp;&nbsp;&nbsp;
+  CV &le; 10%: &nbsp;<em>c</em><sub>nM</sub><em>V</em><sub>fL</sub> &ge; 166.
+</div>
+
+<p>The thresholds differ by a factor of 100/4.605 = 21.7. A molecular species can
+therefore be almost certainly present while still being a poor continuous signal.</p>
+
+<figure>
+  <div class="figure-scroll" tabindex="0" aria-label="Scrollable phase diagram">
+  <svg class="fig" viewBox="0 0 800 480" xmlns="http://www.w3.org/2000/svg"
+       role="img" aria-labelledby="phase-title phase-desc"
+       font-family="Segoe UI,Roboto,Arial,sans-serif">
+    <title id="phase-title">Poisson counting regimes across concentration and compartment volume</title>
+    <desc id="phase-desc">A logarithmic concentration-volume diagram with boundaries for one percent zero-count probability and ten percent coefficient of variation. A one-femtolitre compartment at one nanomolar is in the frequently empty region, while a thousand-femtolitre compartment at the same concentration is in the low-noise region.</desc>
+    <rect x="0" y="0" width="800" height="480" fill="var(--bg)"/>
+    <text x="400" y="24" text-anchor="middle" fill="var(--ink)" font-size="15" font-weight="650">The product cV selects the counting regime</text>
+
+    <!-- Boundary key: kept outside the plotting area so no curve crosses its text. -->
+    <g font-size="11.5" font-weight="600">
+      <line x1="145" y1="51" x2="181" y2="51" stroke="var(--cool)" stroke-width="3"/>
+      <text x="190" y="55" fill="var(--cool)">10% relative-noise boundary (&lambda; = 100)</text>
+      <line x1="455" y1="51" x2="491" y2="51" stroke="var(--warm)" stroke-width="3"/>
+      <text x="500" y="55" fill="var(--warm)">1% empty boundary (<tspan font-style="italic">P</tspan><tspan baseline-shift="sub" font-size="8">0</tspan> = 1%)</text>
+    </g>
+
+    <!-- Plot frame and logarithmic grid. x: 0.1–10000 fL; y: 0.0001–10000 nM. -->
+    <defs>
+      <clipPath id="plot-clip"><rect x="100" y="82" width="600" height="304"/></clipPath>
+    </defs>
+    <g clip-path="url(#plot-clip)">
+      <!-- Light fills make the three regimes visible without relying on labels alone. -->
+      <polygon points="100,82 700,82 700,301.6 100,111.6" fill="var(--cool)" opacity="0.09"/>
+      <polygon points="100,111.6 700,301.6 700,352.4 100,162.4" fill="var(--accent)" opacity="0.06"/>
+      <polygon points="100,162.4 700,352.4 700,386 100,386" fill="var(--warm)" opacity="0.09"/>
+    </g>
+    <g stroke="var(--grid)" stroke-width="1">
+      <line x1="100" y1="82" x2="100" y2="386"/><line x1="220" y1="82" x2="220" y2="386"/>
+      <line x1="340" y1="82" x2="340" y2="386"/><line x1="460" y1="82" x2="460" y2="386"/>
+      <line x1="580" y1="82" x2="580" y2="386"/><line x1="700" y1="82" x2="700" y2="386"/>
+      <line x1="100" y1="82" x2="700" y2="82"/><line x1="100" y1="158" x2="700" y2="158"/>
+      <line x1="100" y1="234" x2="700" y2="234"/><line x1="100" y1="310" x2="700" y2="310"/>
+      <line x1="100" y1="386" x2="700" y2="386"/>
+    </g>
+    <rect x="100" y="82" width="600" height="304" fill="none" stroke="var(--line)"/>
+
+    <!-- Boundaries c = lambda/(0.602214 V), computed from the embedded code. -->
+    <line x1="100" y1="111.6" x2="700" y2="301.6" stroke="var(--cool)" stroke-width="3"/>
+    <line x1="100" y1="162.4" x2="700" y2="352.4" stroke="var(--warm)" stroke-width="3"/>
+
+    <!-- Region labels sit in open areas rather than on top of either boundary. -->
+    <text x="678" y="105" fill="var(--cool)" font-size="12" font-weight="650" text-anchor="end">Low relative noise: CV &le; 10%</text>
+    <text x="365" y="229" fill="var(--accent)" font-size="11.5" font-weight="650" text-anchor="middle"
+          transform="rotate(17.6 365 229)" style="paint-order:stroke;stroke:var(--bg);stroke-width:5px;stroke-linejoin:round">&ge;99% non-empty; CV &gt; 10%</text>
+    <text x="680" y="374" fill="var(--warm)" font-size="12" font-weight="650" text-anchor="end">Often empty: <tspan font-style="italic">P</tspan><tspan baseline-shift="sub" font-size="8">0</tspan> &gt; 1%</text>
+
+    <!-- Same nominal concentration, two volumes; callout boxes keep text off the curves. -->
+    <circle cx="220" cy="234" r="6" fill="var(--warm)" stroke="var(--bg)" stroke-width="2"/>
+    <line x1="220" y1="242" x2="220" y2="258" stroke="var(--muted)" stroke-width="1.2"/>
+    <rect x="112" y="258" width="216" height="48" rx="6" fill="var(--bg)" stroke="var(--line)"/>
+    <text x="220" y="277" fill="var(--ink)" font-size="11.5" font-weight="600" text-anchor="middle">1 fL at 1 nM: &lambda; = 0.60</text>
+    <text x="220" y="294" fill="var(--muted)" font-size="10.8" text-anchor="middle"><tspan font-style="italic">P</tspan><tspan baseline-shift="sub" font-size="8">0</tspan> = 55% (frequently empty)</text>
+
+    <circle cx="580" cy="234" r="6" fill="var(--cool)" stroke="var(--bg)" stroke-width="2"/>
+    <line x1="580" y1="226" x2="580" y2="218" stroke="var(--muted)" stroke-width="1.2"/>
+    <rect x="474" y="170" width="212" height="48" rx="6" fill="var(--bg)" stroke="var(--line)"/>
+    <text x="580" y="189" fill="var(--ink)" font-size="11.5" font-weight="600" text-anchor="middle">1000 fL at 1 nM: &lambda; = 602</text>
+    <text x="580" y="206" fill="var(--muted)" font-size="10.8" text-anchor="middle">CV = 4.1% (comparatively smooth)</text>
+
+    <!-- Tick labels. -->
+    <g fill="var(--muted)" font-size="10.5" text-anchor="middle">
+      <text x="100" y="405">0.1</text><text x="220" y="405">1</text>
+      <text x="340" y="405">10</text><text x="460" y="405">100</text>
+      <text x="580" y="405">1,000</text><text x="700" y="405">10,000</text>
+    </g>
+    <g fill="var(--muted)" font-size="10.5" text-anchor="end">
+      <text x="90" y="86">10,000</text><text x="90" y="162">100</text>
+      <text x="90" y="238">1</text><text x="90" y="314">0.01</text>
+      <text x="90" y="390">0.0001</text>
+    </g>
+    <text x="400" y="446" text-anchor="middle" fill="var(--ink)" font-size="12.5">Compartment volume V (fL, log scale)</text>
+    <text x="26" y="234" text-anchor="middle" fill="var(--ink)" font-size="12.5"
+          transform="rotate(-90 26 234)">Concentration c (nM, log scale)</text>
+  </svg>
+  </div>
+  <figcaption><strong>Figure 1.</strong> My calculation of two reliability boundaries
+  in the Poisson null model. The green line marks 10% relative counting noise; the
+  orange line marks a 1% probability of an empty compartment. Both have slope
+  &minus;1 because each holds the product <em>cV</em> constant. The two boxed markers
+  compare the same 1 nM concentration at 1 fL and 1000 fL. These criteria are
+  illustrative choices, not universal biological thresholds.</figcaption>
+</figure>
+
+<details>
+  <summary>Python code that reproduces the numbers and boundary curves</summary>
+  <pre><code>import numpy as np
+import matplotlib.pyplot as plt
+
+# Because c is in nM and V is in fL:
+# lambda = (c * 1e-9 mol/L)(V * 1e-15 L)(N_A molecules/mol)
+NA = 6.02214076e23
+factor = NA * 1e-24                 # 0.602214076
+
+def statistics(c_nM, V_fL):
+    lam = factor * c_nM * V_fL
+    p_zero = np.exp(-lam)
+    cv = 1 / np.sqrt(lam)
+    return lam, p_zero, cv
+
+for V in [1, 10, 100, 1000]:
+    lam, p0, cv = statistics(1, V)
+    print(V, lam, p0, cv)
+
+# Author-chosen operational criteria
+lambda_present = -np.log(0.01)      # P0 = 1%
+lambda_precise = 1 / 0.10**2        # CV = 10%
+
+V = np.logspace(-1, 4, 400)
+c_present = lambda_present / (factor * V)
+c_precise = lambda_precise / (factor * V)
+
+plt.loglog(V, c_present, label="P0 = 1%")
+plt.loglog(V, c_precise, label="CV = 10%")
+plt.scatter([1, 1000], [1, 1])
+plt.xlabel("Compartment volume V (fL)")
+plt.ylabel("Concentration c (nM)")
+plt.legend()
+plt.tight_layout()
+plt.show()</code></pre>
+</details>
+
+<p>Lecture 1 adds one more view. For geometrically similar compartments,
+<em>V</em> &prop; <em>L</em><sup>3</sup>. At fixed concentration, &lambda; &prop;
+<em>L</em><sup>3</sup> and Poisson CV &prop; <em>L</em><sup>&minus;3/2</sup>.
+Shrinking linear size tenfold therefore reduces the expected count 1000-fold and raises
+relative counting noise by &radic;1000 &asymp; 32. This is the same concentration, but not
+the same physical representation.</p>
+
+<h2>What I would argue against / where this breaks</h2>
+
+<p>The conversion &lambda; = <em>cVN</em><sub>A</sub> is bookkeeping; the Poisson
+prediction is conditional. Fixed concentration alone does not imply Poisson counts.
+Transcriptional bursting, shared upstream fluctuations, cell-cycle variation and changing
+cell volume can produce fluctuations larger than this baseline. Single-cell experiments
+have separated intrinsic from extrinsic expression noise [4], and simultaneous
+measurements of transcript number and cell volume show both approximate concentration
+homeostasis and additional biological variability [3]. Conversely, feedback or tighter
+copy-number control can reduce noise below the simple model [5].</p>
+
+<p>The relevant <em>V</em> may also be a local compartment rather than the whole cell,
+and a downstream system can average repeated observations over time. Finally, my 99%
+presence and 10% CV lines are definitions chosen to make two questions comparable, not
+fitness thresholds measured in an organism. The robust conclusion is narrower: <strong>in
+the Poisson baseline, <em>cV</em> selects the discreteness regime; departures from that
+baseline are where biological regulation and spatial organization become interesting.</strong></p>
+
+<h2>Sources</h2>
+<ol class="src">
+  <li>F. Xiao. <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture02-core.html">“From order of magnitude in biology to binding and catalysis.”</a> CCBS 2026, Lecture 2 core (2026). Source for the 1-fL cell ledger and the one-molecule-to-nanomolar conversion.</li>
+  <li>R. Milo <em>et al.</em> <a href="https://bionumbers.hms.harvard.edu/bionumber.aspx?id=102068">BioNumbers BNID 102068: “What is the concentration of 1 molecule in an E. coli cell?”</a> Independent numerical check of the volume and 1.66-nM-per-molecule anchor.</li>
+  <li>H. Kempe <em>et al.</em> <a href="https://doi.org/10.1091/mbc.E14-08-1296">“The volumes and transcript counts of single cells reveal concentration homeostasis and capture biological noise.”</a> <em>Molecular Biology of the Cell</em> 26, 797–804 (2015). Single-cell measurements linking transcript number, volume and concentration variability.</li>
+  <li>M. B. Elowitz, A. J. Levine, E. D. Siggia and P. S. Swain. <a href="https://doi.org/10.1126/science.1070919">“Stochastic gene expression in a single cell.”</a> <em>Science</em> 297, 1183–1186 (2002). Experimental separation of intrinsic and extrinsic expression noise in <em>E. coli</em>.</li>
+  <li>J. Paulsson. <a href="https://doi.org/10.1038/nature02257">“Summing up the noise in gene networks.”</a> <em>Nature</em> 427, 415–418 (2004). Framework for low-copy-number noise and mechanisms that modify it.</li>
+</ol>
+
+<p class="small">All numerical thresholds and the phase diagram were calculated from
+the equations shown here; no biological data were fitted.</p>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 1 — Extension: Why a DNA-binding protein should not search DNA forever</title>
+<meta name="author" content="Your Name">
+<meta name="week" content="week1">
+<style>
+  :root {
+    --ink:#17212b; --muted:#5f6f79; --accent:#155e75; --accent2:#c4582f;
+    --line:#d7e0e3; --bg:#fffefa; --soft:#f2f7f7; --code:#13232b;
+    --grid:#dfe8e9; --cyan:#1686a0; --orange:#d26a3b; --green:#4b7c63;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink:#e9f0f1; --muted:#a6b7bc; --accent:#78cce0; --accent2:#f39a73;
+      --line:#3c4b50; --bg:#11191d; --soft:#19272c; --code:#0c1317;
+      --grid:#304147; --cyan:#6ed3e8; --orange:#f39a73; --green:#8cc4a4;
+    }
+  }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body {
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    line-height:1.62;
+  }
+  .wrap { max-width:850px; margin:0 auto; padding:42px 24px 80px; }
+  .kicker {
+    margin:0 0 8px; color:var(--accent2); font-size:.76rem; font-weight:750;
+    letter-spacing:.13em; text-transform:uppercase;
+  }
+  h1 {
+    max-width:740px; margin:0 0 8px; color:var(--accent);
+    font-family:Georgia,"Times New Roman",serif; font-size:2rem; line-height:1.16;
+    letter-spacing:-.022em;
+  }
+  .meta { color:var(--muted); font-size:.91rem; margin:0 0 25px; }
+  h2 {
+    font-size:1.08rem; color:var(--accent); margin:34px 0 9px;
+    border-bottom:1px solid var(--line); padding-bottom:6px;
+  }
+  p { margin:10px 0; }
+  .card {
+    background:var(--soft); border:1px solid var(--line); border-left:5px solid var(--accent2);
+    border-radius:8px; padding:15px 18px; margin:16px 0 18px;
+  }
+  .equation {
+    margin:15px 0; padding:12px 14px; overflow-x:auto; text-align:center;
+    background:var(--soft); border:1px solid var(--line); border-radius:8px;
+    font-family:Cambria,"Times New Roman",serif; font-size:1.05rem;
+  }
+  .mechanism {
+    display:grid; grid-template-columns:1fr auto 1.1fr auto 1fr;
+    align-items:center; gap:10px; margin:18px 0; padding:15px;
+    border:1px solid var(--line); border-radius:8px; background:var(--soft);
+  }
+  .step { text-align:center; }
+  .step b { display:block; color:var(--accent); font-size:.93rem; }
+  .step span { display:block; color:var(--muted); font-size:.78rem; }
+  .arrow { color:var(--accent2); font-size:1.35rem; }
+  .dna {
+    display:block; width:76px; height:10px; margin:7px auto 6px;
+    border-top:3px solid var(--cyan); border-bottom:3px solid var(--orange);
+    transform:skewX(-18deg);
+  }
+  .numbers { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:16px 0; }
+  .number { background:var(--soft); border:1px solid var(--line); border-radius:8px; padding:12px; text-align:center; }
+  .number strong { display:block; color:var(--accent); font-size:1.25rem; line-height:1.2; }
+  .number span { color:var(--muted); font-size:.78rem; }
+  figure { margin:16px 0 8px; }
+  .plotbox { border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--bg); }
+  .fig { display:block; width:100%; height:auto; }
+  figcaption { color:var(--muted); font-size:.82rem; margin-top:7px; }
+  details {
+    margin:16px 0 8px; border:1px solid var(--line); border-radius:8px;
+    padding:10px 13px; background:var(--soft);
+  }
+  summary { cursor:pointer; color:var(--accent); font-size:.9rem; font-weight:700; }
+  summary:hover { color:var(--accent2); }
+  pre {
+    margin:10px 0 0; padding:12px 13px; overflow:auto;
+    border:1px solid #2d414a; border-radius:7px; background:var(--code);
+    color:#e5f1f4; font-size:.73rem; line-height:1.46;
+  }
+  code { font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace; }
+  .callout {
+    margin:16px 0; padding:12px 15px; border:1px solid var(--line);
+    border-radius:8px; background:linear-gradient(110deg,var(--soft),transparent);
+  }
+  .callout strong { color:var(--accent2); }
+  a { color:var(--accent); text-underline-offset:2px; }
+  .src { padding-left:21px; font-size:.88rem; }
+  .src li { margin:9px 0; }
+  .small { color:var(--muted); font-size:.84rem; }
+  @media (max-width:720px) {
+    .wrap { padding:30px 17px 62px; }
+    h1 { font-size:1.7rem; }
+    .mechanism { grid-template-columns:1fr; }
+    .arrow { transform:rotate(90deg); }
+    .numbers { grid-template-columns:1fr; }
+    pre { max-height:410px; }
+  }
+  @media print {
+    body { font-size:10.5pt; }
+    .wrap { max-width:none; padding:0; }
+    .card,.mechanism,.number,figure { break-inside:avoid; }
+    details { border-color:#bbb; background:#fff; }
+    details[open] { break-inside:avoid; }
+    pre { white-space:pre-wrap; color:#111; background:#f5f5f5; border-color:#bbb; }
+  }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <p class="kicker">CCBS 2026 · Week 1 extension</p>
+  <h1>Why a DNA-binding protein should not search DNA forever</h1>
+<p class="meta">Author: Wangsiheng · Week 1 (due 2026-09-07) · CCBS 2026</p>
+
+  <p class="card"><strong>One sentence:</strong> A transcription factor finds a DNA target fastest by alternating 3D diffusion with short 1D slides, because longer sliding checks more base pairs per landing but wastes time revisiting nearby DNA; a minimal model predicts a finite optimum where the two legs take equal time.</p>
+
+  <h2>The point I am adding</h2>
+  <p>Lecture 2 derives a diffusion-limited rate for two molecules meeting in solution, then mentions that the lac repressor can beat the naive limit for a one-base-pair target by first binding anywhere on DNA and sliding to its operator [1]. That sounds as if more nonspecific DNA binding—and therefore more sliding—must always make the search faster. It does not. If LacI never lets go, finding one operator becomes a one-dimensional random walk across a 4.6-million-base-pair chromosome, and the diffusion time grows with distance squared. The useful strategy is not “slide”; it is <strong>alternate dimensions</strong>.</p>
+
+  <div class="mechanism" role="img" aria-label="A DNA-binding protein alternates a three-dimensional relocation with one-dimensional sliding, then repeats until it reaches the target">
+    <div class="step"><b>3D relocation</b><span>land at a new DNA segment</span></div>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div class="step"><span class="dna" aria-hidden="true"></span><b>1D slide</b><span>scan ℓ nearby base pairs</span></div>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div class="step"><b>repeat</b><span>until the operator is hit</span></div>
+  </div>
+
+  <p>Make that trade-off explicit. Let the genome contain <em>G</em> base pairs. In one search round, a protein spends τ<sub>3</sub> relocating in the cytoplasm, then scans a fresh stretch of length ℓ by 1D diffusion with coefficient <em>D</em><sub>1</sub>. Diffusing a distance ℓ takes roughly τ<sub>1</sub> = ℓ²/(2<em>D</em><sub>1</sub>), while about <em>G</em>/ℓ rounds are needed to cover the genome. The null-model search time is therefore</p>
+
+  <div class="equation"><em>T</em>(ℓ) ≈ (<em>G</em>/ℓ)[τ<sub>3</sub> + ℓ²/(2<em>D</em><sub>1</sub>)] = <em>G</em>τ<sub>3</sub>/ℓ + <em>G</em>ℓ/(2<em>D</em><sub>1</sub>).</div>
+
+  <p>The first term falls when sliding length grows: longer slides amortize each 3D landing. The second rises: 1D diffusion revisits nearby positions, so doubling the distance costs four times as long per slide. Differentiating gives ℓ<sup>*</sup> = √(2<em>D</em><sub>1</sub>τ<sub>3</sub>). At this optimum, τ<sub>1</sub> = τ<sub>3</sub>: <strong>the fastest search spends equal time in the two modes</strong>, a scaling result first developed for facilitated diffusion by Berg, Winter and von Hippel [2].</p>
+
+  <h2>Work it: one universal curve, then LacI</h2>
+  <p>Write <em>x</em> = ℓ/ℓ<sup>*</sup>. Dividing by the minimum time removes every organism-specific parameter:</p>
+  <div class="equation"><em>T</em>/<em>T</em><sub>min</sub> = ½(<em>x</em> + 1/<em>x</em>).</div>
+
+  <figure>
+    <div class="plotbox">
+      <svg id="tradeoff-plot" class="fig" viewBox="0 0 520 350" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="plot-title plot-desc">
+        <title id="plot-title">Universal trade-off between sliding length and target search time</title>
+        <desc id="plot-desc">The total search time is U-shaped, with a minimum at sliding length divided by optimal sliding length equal to one. The cost of repeated three-dimensional relocation falls with sliding length while the cost of one-dimensional overscanning rises.</desc>
+        <g id="plot-grid"></g>
+        <g id="plot-curves"></g>
+      </svg>
+    </div>
+    <figcaption><strong>Figure 1.</strong> My null-model calculation. Short slides waste 3D landings; long slides waste time by 1D revisiting. The minimum occurs where the two costs cross. The calculation below reproduces the curve and the LacI estimates.</figcaption>
+  </figure>
+
+  <details>
+    <summary>Reproducible calculation embedded in this file</summary>
+    <pre><code># Python 3; no packages
+from math import log10
+
+# Universal curve in Fig. 1
+for i in range(101):
+    logx = -1 + 2*i/100
+    x = 10**logx       # ell / ell_star
+    y3 = 1/(2*x)       # 3D-relocation cost
+    y1 = x/2           # 1D-scanning cost
+    total = y3 + y1
+    print(x, y3, y1, total)
+
+# LacI order-of-magnitude check
+G = 4.6e6             # bp [1]
+ell = 45              # bp [4]
+D1_um2_s = 0.046      # um^2/s [3]
+bp_um = 0.00034       # um/bp
+D1 = D1_um2_s / bp_um**2
+
+rounds = G / ell
+cycle_ms = [t/rounds*1000
+            for t in (180, 300)]
+slide_ms = ell**2/(2*D1)*1000
+
+print(rounds)          # 102222
+print(cycle_ms)        # 1.76, 2.93 ms
+print(slide_ms)        # 2.54 ms</code></pre>
+  </details>
+
+  <p>Now use LacI as an order-of-magnitude check, not a fit. Hammar and colleagues measured a sliding length of 45 ± 10 bp in living <em>E. coli</em> and a 3–5 minute search time for one LacI dimer to find one operator [4]. If each 45-bp slide inspected entirely fresh DNA—the model’s deliberately optimistic assumption—then a 4.6-Mbp genome requires about 4.6×10<sup>6</sup>/45 ≈ <strong>1.0×10<sup>5</sup> rounds</strong>. Dividing 3–5 minutes by that count leaves only <strong>1.8–2.9 ms per round</strong>.</p>
+
+  <div class="numbers" aria-label="LacI order-of-magnitude results">
+    <div class="number"><strong>45 ± 10 bp</strong><span>measured sliding length [4]</span></div>
+    <div class="number"><strong>≈10<sup>5</sup></strong><span>optimistic rounds per genome</span></div>
+    <div class="number"><strong>1.8–2.9 ms</strong><span>implied time per round</span></div>
+  </div>
+
+  <p>An independent single-molecule study reported <em>D</em><sub>1</sub> = 0.046 ± 0.01 μm²/s for LacI [3]. Using 0.34 nm per base pair, a 45-bp RMS slide takes ℓ²/(2<em>D</em><sub>1</sub>) ≈ <strong>2.5 ms</strong>—the same millisecond scale as the entire round inferred above. The agreement is not a parameter-free prediction, but it passes the lecture’s order-of-magnitude test: alternating roughly 10<sup>5</sup> very short searches can fit inside minutes.</p>
+
+  <div class="callout"><strong>The extension:</strong> facilitated diffusion is useful because it creates a tunable compromise, not because one-dimensional search is intrinsically faster. The optimal control variable is how long the protein stays nonspecifically bound.</div>
+
+  <h2>What I would argue against / where this breaks</h2>
+  <p>The calculation assumes each 3D excursion lands at an independent, uniformly random genome position and each slide scans ℓ new base pairs. A packed nucleoid violates both assumptions: the protein can rebind nearby, revisit bases, transfer between adjacent DNA segments, hit roadblocks, and miss the operator even after sliding across it. Hammar et al. found that LacI passed its natural operator without binding in more than 90% of encounters [4]. Our numerical check is therefore an optimistic lower-resolution ledger, not a mechanistic fit. Its robust claim is only the U-shaped trade-off: if 3D relocation has a cost and 1D motion is diffusive, both zero sliding and infinite sliding are slow, so an intermediate switching time must be best.</p>
+
+  <h2>Sources actually read</h2>
+  <ol class="src">
+    <li>F. Xiao. “From order of magnitude in biology to binding and catalysis.” <em>CCBS 2026, Lecture 2 core</em> (2026). <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture02-core.html">Course page</a>. I used the 4.6-Mbp <em>E. coli</em> genome, the diffusion-time scaling, and the lecture’s brief statement of facilitated diffusion.</li>
+    <li>Berg O G, Winter R B, Von Hippel P H. Diffusion-driven mechanisms of protein translocation on nucleic acids. 1. Models and theory[J]. Biochemistry, 1981, 20(24): 6929-6948.</li>
+    <li>Elf J, Li G W, Xie X S. Probing transcription factor dynamics at the single-molecule level in a living cell[J]. Science, 2007, 316(5828): 1191-1194.</li>
+    <li>Hammar P, Leroy P, Mahmutovic A, et al. The lac repressor displays facilitated diffusion in living cells[J]. Science, 2012, 336(6088): 1595-1598.</li>
+  </ol>
+</main>
+
+<script>
+(() => {
+  const svg = document.getElementById('tradeoff-plot');
+  const grid = document.getElementById('plot-grid');
+  const curves = document.getElementById('plot-curves');
+  const NS = 'http://www.w3.org/2000/svg';
+  const left = 58, right = 496, top = 28, bottom = 292;
+  const width = right-left, height = bottom-top, ymax = 5.25;
+  const sx = x => left + (Math.log10(x)+1)/2*width;
+  const sy = y => bottom - y/ymax*height;
+  const add = (tag, attrs, parent=grid, text='') => {
+    const el = document.createElementNS(NS, tag);
+    Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k,v));
+    if (text) el.textContent = text;
+    parent.appendChild(el); return el;
+  };
+  const css = getComputedStyle(document.documentElement);
+  const color = name => css.getPropertyValue(name).trim();
+  [0,1,2,3,4,5].forEach(y => {
+    add('line',{x1:left,y1:sy(y),x2:right,y2:sy(y),stroke:color('--grid'),'stroke-width':1});
+    add('text',{x:left-10,y:sy(y)+4,'text-anchor':'end',fill:color('--muted'),'font-size':11},grid,String(y));
+  });
+  [[.1,'0.1'],[.2,'0.2'],[.5,'0.5'],[1,'1'],[2,'2'],[5,'5'],[10,'10']].forEach(([x,label]) => {
+    add('line',{x1:sx(x),y1:top,x2:sx(x),y2:bottom,stroke:color('--grid'),'stroke-width':1});
+    add('text',{x:sx(x),y:bottom+20,'text-anchor':'middle',fill:color('--muted'),'font-size':11},grid,label);
+  });
+  add('line',{x1:left,y1:bottom,x2:right,y2:bottom,stroke:color('--muted'),'stroke-width':1.2});
+  add('line',{x1:left,y1:top,x2:left,y2:bottom,stroke:color('--muted'),'stroke-width':1.2});
+  add('text',{x:(left+right)/2,y:337,'text-anchor':'middle',fill:color('--muted'),'font-size':12,'font-weight':600},grid,'sliding length, ℓ / ℓ*  (log scale)');
+  add('text',{x:16,y:(top+bottom)/2,transform:`rotate(-90 16 ${(top+bottom)/2})`,'text-anchor':'middle',fill:color('--muted'),'font-size':12,'font-weight':600},grid,'relative search time');
+
+  const values = Array.from({length:161},(_,i) => 10**(-1 + 2*i/160));
+  const path = fn => values.map((x,i) => `${i?'L':'M'}${sx(x).toFixed(2)},${sy(Math.min(ymax,fn(x))).toFixed(2)}`).join(' ');
+  add('path',{d:path(x=>.5*(x+1/x)),fill:'none',stroke:color('--cyan'),'stroke-width':3.2,'stroke-linecap':'round'},curves);
+  add('path',{d:path(x=>1/(2*x)),fill:'none',stroke:color('--orange'),'stroke-width':2,'stroke-dasharray':'6 5'},curves);
+  add('path',{d:path(x=>x/2),fill:'none',stroke:color('--green'),'stroke-width':2,'stroke-dasharray':'2 5'},curves);
+  add('line',{x1:sx(1),y1:sy(1),x2:sx(1),y2:bottom,stroke:color('--muted'),'stroke-width':1.2,'stroke-dasharray':'4 4'},curves);
+  add('circle',{cx:sx(1),cy:sy(1),r:5,fill:color('--bg'),stroke:color('--cyan'),'stroke-width':3},curves);
+  add('text',{x:sx(1)+8,y:sy(1)-10,fill:color('--accent'),'font-size':11,'font-weight':700},curves,'optimum: τ₁ = τ₃');
+  add('line',{x1:310,y1:23,x2:334,y2:23,stroke:color('--cyan'),'stroke-width':3},curves);
+  add('text',{x:340,y:27,fill:color('--muted'),'font-size':10.5},curves,'total');
+  add('line',{x1:378,y1:23,x2:402,y2:23,stroke:color('--orange'),'stroke-width':2,'stroke-dasharray':'6 5'},curves);
+  add('text',{x:408,y:27,fill:color('--muted'),'font-size':10.5},curves,'3D cost');
+  add('line',{x1:310,y1:41,x2:334,y2:41,stroke:color('--green'),'stroke-width':2,'stroke-dasharray':'2 5'},curves);
+  add('text',{x:340,y:45,fill:color('--muted'),'font-size':10.5},curves,'1D cost');
+})();
+</script>
+</body>
+</html>

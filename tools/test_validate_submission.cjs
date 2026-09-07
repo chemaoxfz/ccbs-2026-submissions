@@ -171,7 +171,7 @@ test("sign-up must belong to the pull-request author", () => {
   assert.match(problems.join("\n"), /account that opened this pull request/);
 });
 
-test("duplicate identities and submission names are rejected", () => {
+test("a student may volunteer for a different lecture with the same identity", () => {
   const descriptor = guard.classifyPath("signup/lecture10-tongli.md");
   const record = guard.signupRecordFromText(
     signupText({ lecture: "10" }),
@@ -184,11 +184,65 @@ test("duplicate identities and submission names are rejected", () => {
     status: "added",
     baseSignups: [baseSignup()],
   });
+  assert.deepEqual(problems, []);
+});
+
+test("an additional sign-up must reuse the student's stable identity", () => {
+  const descriptor = guard.classifyPath("signup/lecture10-tongli-new.md");
+  const record = guard.signupRecordFromText(
+    signupText({
+      lecture: "10",
+      student_id: "20261201999",
+      email: "different@westlake.edu.cn",
+    }),
+    descriptor
+  ).record;
+  const problems = guard.validateSignupAgainstRegistry({
+    descriptor,
+    record,
+    author: "tongli-gh",
+    status: "added",
+    baseSignups: [baseSignup()],
+  });
   const joined = problems.join("\n");
-  assert.match(joined, /submission name is already registered/);
-  assert.match(joined, /GitHub account is already registered/);
-  assert.match(joined, /student ID is already registered/);
-  assert.match(joined, /email is already registered/);
+  assert.match(joined, /same submission name/);
+  assert.match(joined, /same student ID/);
+  assert.match(joined, /same email/);
+});
+
+test("one student cannot occupy two places in the same lecture", () => {
+  const descriptor = guard.classifyPath("signup/lecture09-tongli-second.md");
+  const record = guard.signupRecordFromText(
+    signupText({ lecture: "9" }),
+    descriptor
+  ).record;
+  const problems = guard.validateSignupAgainstRegistry({
+    descriptor,
+    record,
+    author: "tongli-gh",
+    status: "added",
+    baseSignups: [baseSignup()],
+  });
+  assert.match(problems.join("\n"), /only one place in a lecture/);
+});
+
+test("another account cannot claim a registered identity or submission name", () => {
+  const descriptor = guard.classifyPath("signup/lecture10-tongli.md");
+  const record = guard.signupRecordFromText(
+    signupText({ github: "impostor-gh", lecture: "10" }),
+    descriptor
+  ).record;
+  const problems = guard.validateSignupAgainstRegistry({
+    descriptor,
+    record,
+    author: "impostor-gh",
+    status: "added",
+    baseSignups: [baseSignup()],
+  });
+  const joined = problems.join("\n");
+  assert.match(joined, /submission name is already registered to another account/);
+  assert.match(joined, /student ID is already registered to another account/);
+  assert.match(joined, /email is already registered to another account/);
 });
 
 test("lecture capacity is enforced", () => {
@@ -244,7 +298,10 @@ test("an existing sign-up can only be updated by its owner", () => {
 });
 
 test("later submissions use the registered name and lecture", () => {
-  const registry = [baseSignup()];
+  const registry = [
+    baseSignup(),
+    baseSignup({ path: "signup/lecture10-tongli.md" }),
+  ];
   assert.deepEqual(
     guard.validateSubmissionOwnership({
       descriptors: [guard.classifyPath("week3/week3-tongli-ext.html")],
@@ -266,7 +323,14 @@ test("later submissions use the registered name and lecture", () => {
     author: "tongli-gh",
     baseSignups: registry,
   });
-  assert.match(problems.join("\n"), /signed up for lecture 9/);
+  assert.deepEqual(problems, []);
+
+  problems = guard.validateSubmissionOwnership({
+    descriptors: [guard.classifyPath("lecture11/slides.pdf")],
+    author: "tongli-gh",
+    baseSignups: registry,
+  });
+  assert.match(problems.join("\n"), /signed up for lectures 9, 10/);
 });
 
 test("unregistered accounts cannot submit later work", () => {
@@ -462,6 +526,7 @@ test("the API-facing gate accepts, comments on, and merges a valid fork sign-up"
   assert.deepEqual(fixture.core.failures, []);
   assert.equal(fixture.core.outputs.merged, "true");
   assert.equal(fixture.calls.merges.length, 1);
+  assert.equal(fixture.calls.merges[0].sha, "abc123");
   assert.match(fixture.calls.comments.at(-1), /Checks passed/);
 });
 

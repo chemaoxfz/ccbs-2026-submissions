@@ -16,7 +16,7 @@ submission, and the bot takes over as soon as the run is released.
 
 | What | Where | When |
 |---|---|---|
-| **Sign up to teach a lecture** | `signup/lectureNN-yourname.md` | by **Thu 2026-09-03, 23:59** |
+| **Sign up to teach; optionally volunteer again** | `signup/lectureNN-yourname.md` | required sign-up by **Thu 2026-09-03, 23:59** |
 | **Extension mini-essay**, one per week | `weekN/weekN-yourname-ext.html` | Mondays 23:59, eight of them |
 | **Exposition**, after you teach | `lectureNN/` (any sensible filename) | the week you teach |
 | **Research essay** | `research-essay/yourname.html` | **Thu 2026-11-05, 23:59** |
@@ -45,12 +45,14 @@ pull request proves you can submit, well before anything is graded on it.
 - Every file follows the path and naming rule, is non-empty, is a regular file, and is at
   most 5 MB. The week number in an extension's folder and filename must match.
 - A sign-up has all required front matter, names the same lecture as its filename, and has
-  a `github` field matching the account that opened the pull request. GitHub account,
-  student ID, email and submission name must be unique, and a lecture cannot exceed three
-  students.
+  a `github` field matching the account that opened the pull request. A student may sign
+  up for more than one lecture, but must reuse the same GitHub account, student ID, email
+  and submission name, may occupy only one place in any lecture, and cannot take a lecture
+  past three students.
 - Later work must come from the GitHub account in a merged sign-up. Extensions and research
-  essays must reuse that sign-up's `yourname`; expositions must go to that student's own
-  lecture folder. This also prevents one student from replacing another student's work.
+  essays must reuse that sign-up's `yourname`; expositions must go to one of that student's
+  registered lecture folders. This also prevents one student from replacing another
+  student's work.
 - Course files (`README.md`, `.github/`, `tools/`, templates and the generated roster),
   deletions, renames and mixed submissions are refused.
 
@@ -66,9 +68,14 @@ with the same filename attached, is always an accepted fallback.
 
 ## 1. Signing up to teach
 
-There are 14 student-taught lectures, lectures 3 to 16, and 35 of you. Each lecture is
-owned by a team of **2 or 3 students**, so seven teams of three and seven of two uses
-everyone exactly once. First come, first served.
+There are 14 scheduled student-taught lectures, lectures 3 to 16. **Every student must
+teach at least one lecture.** A lecture may be taught by **1, 2 or 3 students**, first
+come, first served. If no student claims a lecture, Fangzhou Xiao teaches it.
+
+After your required sign-up has merged, you may volunteer for another lecture that still
+has room. **Completing each additional lecture earns extra credit.** Use a separate sign-up
+file and pull request for each lecture, but keep the same `yourname`, student ID, email and
+GitHub account in every one.
 
 Copy [`signup/TEMPLATE.md`](signup/TEMPLATE.md) to `signup/lectureNN-yourname.md` and fill
 in the front matter:
@@ -86,12 +93,13 @@ teammates: Name A, Name B
 One or two sentences on why you picked this lecture. Optional.
 ```
 
-**One file per student**, even when you sign up as a team. That way nobody's pull request
-conflicts with anybody else's, and everything merges cleanly.
+**One file per student per lecture**, even when you sign up as a team. That way nobody's
+pull request conflicts with anybody else's, and everything merges cleanly.
 
 Check [**`signup/ROSTER.md`**](signup/ROSTER.md) for which lectures still have room. It is
 rebuilt automatically every time a sign-up merges, so it is always current. After the
-deadline the lecturer assigns anyone who has not signed up, filling the thin lectures first.
+deadline the lecturer assigns a first lecture to anyone who has not signed up. Lectures
+still empty after that are taught by the lecturer and remain open to student volunteers.
 
 Lectures 3 and 4 are on 09-08 and 09-10, so those two teams should sign up first and start
 immediately.

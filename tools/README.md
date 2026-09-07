@@ -19,9 +19,13 @@ of `.github/workflows/automerge.yml`, so you rarely need to invoke it by hand.
 
 `tools/validate_submission.cjs` is the trusted merge gate used by
 `.github/workflows/automerge.yml`. It checks paths, real file sizes, sign-up front matter,
-lecture capacity, unique identities and ownership without executing pull-request content.
+lecture capacity, identity consistency across repeat sign-ups and ownership without
+executing pull-request content. It permits one student to register for multiple different
+lectures, while preventing duplicate places in one lecture and identity claims by another
+account.
 After changing it, run:
 
 ```sh
 node --test tools/test_validate_submission.cjs
+python3 -m unittest tools/test_build_roster.py
 ```
