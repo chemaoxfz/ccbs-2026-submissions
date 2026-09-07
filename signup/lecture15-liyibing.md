@@ -5,7 +5,7 @@ student_id: 20261101018
 email: liyibing@westlake.edu.cn
 github: jli816433-Li
 lecture: 15
-teammates: zhutao
+teammates: zhutao,yanrunzi
 ---
 
 Copy this file to `signup/lectureNN-yourname.md` (lowercase, no spaces), for example
