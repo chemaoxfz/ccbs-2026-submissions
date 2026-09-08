@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 1 — Extension: what the scaling step throws away is a shape parameter</title>
+<meta name="author" content="Zhu Chenkai">
+<meta name="week" content="week1">
+<style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; --warn:#a8390f; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; --warn:#e59b76; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px;
+    border-bottom:1px solid var(--line); padding-bottom:5px; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:14px 18px; margin:14px 0; }
+  .fig { width:100%; border:1px solid var(--line); border-radius:6px; margin:14px 0;
+    background:var(--bg); color:var(--ink); }
+  figure { margin:22px 0; }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; }
+  .src li { margin:.5rem 0; }
+  .eq { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:10px 14px; margin:14px 0; overflow-x:auto;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:.88rem; }
+  table { border-collapse:collapse; width:100%; font-size:.87rem; margin:14px 0; }
+  th,td { text-align:left; padding:.45rem .6rem; border-bottom:1px solid var(--line); }
+  th { font-size:.74rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
+  td.n { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    white-space:nowrap; }
+  td.hl { color:var(--warn); font-weight:600; }
+  pre { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:12px 14px; overflow-x:auto; font-size:.78rem; line-height:1.45;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+  code { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:.9em; }
+  .q { border-left:3px solid var(--line); padding:2px 0 2px 14px; margin:14px 0;
+    color:var(--muted); font-style:italic; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Week 1 — Extension: what the scaling step throws away is the shape parameter</h1>
+<p class="meta">Author: Zhu Chenkai · Week 1 (2026-09-07) · CCBS 2026 · on lecture 1, §6–§7</p>
+
+<p class="card"><strong>One sentence:</strong> Lecture 1's order-of-magnitude step silently
+sets the Fourier number <code>&kappa;t/x&sup2;</code> to 1; solving the same problem exactly
+gives 0.44 for a sphere and 1.59 for a slab, so the discarded factor is a <em>shape</em>
+parameter — the one thing §5 says a dimension count cannot supply — and the potato anchor's
+fifteen per cent is bought by the guess &ldquo;call it 3 cm&rdquo;, not by the formula.</p>
+
+<h2>The point I am adding</h2>
+
+<p>Lecture 1 §6 derives the heat equation honestly, then takes one more step:</p>
+
+<p class="q">Now take the order-of-magnitude step: replace each derivative by the variation
+over one characteristic scale, &part;T/&part;t &rarr; T/t and &part;&sup2;T/&part;x&sup2; &rarr;
+T/x&sup2;. The temperature cancels and t &asymp; x&sup2;/&kappa;. </p>
+
+<p>That is usually read as &ldquo;drop the O(1) factors&rdquo;. It is worth naming what it
+actually is. The heat equation has one dimensionless group, the Fourier number
+<code>Fo = &kappa;t/a&sup2;</code>, and it is disposed as <strong>one</strong>.</p>
+
+<p>However, it is a computable number that depends on the shape of the body. Which is
+what §5 warns about at the other end of the same lecture:</p>
+
+<p class="q">Quantities of the same dimension defeat it. … it is telling you that shape
+matters and units cannot decide it.</p>
+
+<p>The prefactor the scaling step discards and the blind spot the &Pi; theorem admits to are
+the same gap, reached from the two ends of lecture 1. The lecture keeps them in separate
+sections and never says so.</p>
+
+<h2>Work it</h2>
+
+<p>Take a body uniform at <code>T&#8320;</code> whose surface is stepped to
+<code>T&#8347;</code> at <code>t = 0</code>, and follow the centre. With
+<code>&theta; = (T<sub>centre</sub>&minus;T&#8347;)/(T&#8320;&minus;T&#8347;)</code> and
+<code>Fo = &kappa;t/a&sup2;</code>, where <code>a</code> is the half-thickness of the slab or
+the radius of the cylinder or sphere, <code>&theta;</code> falls from 1 to 0 and separation
+of variables gives three standard series (Carslaw &amp; Jaeger):</p>
+
+<div class="eq">
+slab: &nbsp; &theta; = (4/&pi;) &Sigma;<sub>n&ge;0</sub> (&minus;1)<sup>n</sup>/(2n+1) &middot; exp[&minus;(2n+1)&sup2;&pi;&sup2;Fo/4]<br>
+cyl: &nbsp;&nbsp; &theta; = &Sigma;<sub>n&ge;1</sub> 2/(&beta;<sub>n</sub>J&#8321;(&beta;<sub>n</sub>)) &middot; exp[&minus;&beta;<sub>n</sub>&sup2;Fo], &nbsp; J&#8320;(&beta;<sub>n</sub>) = 0<br>
+sph: &nbsp;&nbsp; &theta; = 2 &Sigma;<sub>n&ge;1</sub> (&minus;1)<sup>n+1</sup> &middot; exp[&minus;n&sup2;&pi;&sup2;Fo]
+</div>
+
+<p>A threshold is needed, so take the one the potato implies: a wet skin holds the surface
+near 100 °C while the inside cooks, the potato starts at 20 °C, and done is a centre at
+98 °C — that is <code>&theta; = 0.025</code>.</p>
+
+<figure>
+<svg class="fig" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 300" role="img" aria-label="Exact centre temperature versus Fourier number for slab, cylinder and sphere"><style>.ax{stroke:currentColor;stroke-width:1;opacity:.45;fill:none}.gr{stroke:currentColor;stroke-width:.5;opacity:.16;fill:none}.lb{font:11px system-ui,-apple-system,Segoe UI,Roboto,sans-serif;fill:currentColor;opacity:.75}.lbb{font:600 11.5px system-ui,-apple-system,Segoe UI,Roboto,sans-serif;fill:currentColor}.cv{fill:none;stroke-width:2.1}.naive{stroke:#c0392b;stroke-width:1.6;stroke-dasharray:5 3;fill:none}.done{stroke:currentColor;stroke-width:1;stroke-dasharray:2 3;opacity:.5;fill:none}</style>
+<path class="gr" d="M56 16.0H624"/>
+<text class="lb" x="49" y="19.6" text-anchor="end">1</text>
+<path class="gr" d="M56 78.7H624"/>
+<text class="lb" x="49" y="82.3" text-anchor="end">0.3</text>
+<path class="gr" d="M56 136.0H624"/>
+<text class="lb" x="49" y="139.6" text-anchor="end">0.1</text>
+<path class="gr" d="M56 198.7H624"/>
+<text class="lb" x="49" y="202.3" text-anchor="end">0.03</text>
+<path class="gr" d="M56 256.0H624"/>
+<text class="lb" x="49" y="259.6" text-anchor="end">0.01</text>
+<path class="gr" d="M56.0 16V256"/>
+<text class="lb" x="56.0" y="272" text-anchor="middle">0</text>
+<path class="gr" d="M169.6 16V256"/>
+<text class="lb" x="169.6" y="272" text-anchor="middle">0.5</text>
+<path class="gr" d="M283.2 16V256"/>
+<text class="lb" x="283.2" y="272" text-anchor="middle">1</text>
+<path class="gr" d="M396.8 16V256"/>
+<text class="lb" x="396.8" y="272" text-anchor="middle">1.5</text>
+<path class="gr" d="M510.4 16V256"/>
+<text class="lb" x="510.4" y="272" text-anchor="middle">2</text>
+<path class="gr" d="M624.0 16V256"/>
+<text class="lb" x="624.0" y="272" text-anchor="middle">2.5</text>
+<path class="ax" d="M56 16V256H624"/>
+<path class="done" d="M56 208.2H624"/>
+<text class="lb" x="621" y="203.2" text-anchor="end">centre &#8220;done&#8221;, &#952; = 0.025</text>
+<path class="naive" d="M283.2 16V256"/>
+<text class="lbb" x="289.2" y="29" fill="#c0392b">Fo := 1, what the substitution assumes</text>
+<path class="cv" stroke="#1f4e79" d="M67.36 16.16L69.50 16.39L71.64 16.74L73.78 17.21L75.92 17.80L78.06 18.48L80.21 19.26L82.35 20.10L84.49 21.01L86.63 21.97L88.77 22.97L90.91 24.01L93.05 25.08L95.19 26.17L97.33 27.29L99.47 28.41L101.61 29.56L103.76 30.71L105.90 31.88L108.04 33.05L110.18 34.23L112.32 35.42L114.46 36.61L116.60 37.80L118.74 39.00L120.88 40.19L123.02 41.40L125.16 42.60L127.31 43.80L129.45 45.01L131.59 46.22L133.73 47.42L135.87 48.63L138.01 49.84L140.15 51.05L142.29 52.26L144.43 53.47L146.57 54.68L148.72 55.89L150.86 57.10L153.00 58.31L155.14 59.52L157.28 60.73L159.42 61.95L161.56 63.16L163.70 64.37L165.84 65.58L167.98 66.79L170.12 68.00L172.27 69.21L174.41 70.43L176.55 71.64L178.69 72.85L180.83 74.06L182.97 75.27L185.11 76.48L187.25 77.70L189.39 78.91L191.53 80.12L193.67 81.33L195.82 82.54L197.96 83.75L200.10 84.97L202.24 86.18L204.38 87.39L206.52 88.60L208.66 89.81L210.80 91.02L212.94 92.24L215.08 93.45L217.22 94.66L219.37 95.87L221.51 97.08L223.65 98.29L225.79 99.51L227.93 100.72L230.07 101.93L232.21 103.14L234.35 104.35L236.49 105.57L238.63 106.78L240.77 107.99L242.92 109.20L245.06 110.41L247.20 111.62L249.34 112.84L251.48 114.05L253.62 115.26L255.76 116.47L257.90 117.68L260.04 118.89L262.18 120.11L264.32 121.32L266.47 122.53L268.61 123.74L270.75 124.95L272.89 126.16L275.03 127.38L277.17 128.59L279.31 129.80L281.45 131.01L283.59 132.22L285.73 133.43L287.88 134.65L290.02 135.86L292.16 137.07L294.30 138.28L296.44 139.49L298.58 140.70L300.72 141.92L302.86 143.13L305.00 144.34L307.14 145.55L309.28 146.76L311.43 147.97L313.57 149.19L315.71 150.40L317.85 151.61L319.99 152.82L322.13 154.03L324.27 155.25L326.41 156.46L328.55 157.67L330.69 158.88L332.83 160.09L334.98 161.30L337.12 162.52L339.26 163.73L341.40 164.94L343.54 166.15L345.68 167.36L347.82 168.57L349.96 169.79L352.10 171.00L354.24 172.21L356.38 173.42L358.53 174.63L360.67 175.84L362.81 177.06L364.95 178.27L367.09 179.48L369.23 180.69L371.37 181.90L373.51 183.11L375.65 184.33L377.79 185.54L379.93 186.75L382.08 187.96L384.22 189.17L386.36 190.38L388.50 191.60L390.64 192.81L392.78 194.02L394.92 195.23L397.06 196.44L399.20 197.66L401.34 198.87L403.48 200.08L405.63 201.29L407.77 202.50L409.91 203.71L412.05 204.93L414.19 206.14L416.33 207.35L418.47 208.56L420.61 209.77L422.75 210.98L424.89 212.20L427.04 213.41L429.18 214.62L431.32 215.83L433.46 217.04L435.60 218.25L437.74 219.47L439.88 220.68L442.02 221.89L444.16 223.10L446.30 224.31L448.44 225.52L450.59 226.74L452.73 227.95L454.87 229.16L457.01 230.37L459.15 231.58L461.29 232.79L463.43 234.01L465.57 235.22L467.71 236.43L469.85 237.64L471.99 238.85L474.14 240.06L476.28 241.28L478.42 242.49L480.56 243.70L482.70 244.91L484.84 246.12L486.98 247.34L489.12 248.55L491.26 249.76L493.40 250.97L495.54 252.18L497.69 253.39L499.83 254.61L501.97 255.82L504.11 256.00L506.25 256.00L508.39 256.00L510.53 256.00"/>
+<circle cx="417.9" cy="208.2" r="3.6" fill="#1f4e79"/>
+<text class="lbb" x="417.9" y="225.2" text-anchor="middle" fill="#1f4e79">1.59</text>
+<path class="cv" stroke="#2e8b57" d="M67.36 16.68L69.50 17.50L71.64 18.67L73.78 20.17L75.92 21.94L78.06 23.92L80.21 26.09L82.35 28.40L84.49 30.82L86.63 33.33L88.77 35.90L90.91 38.54L93.05 41.21L95.19 43.92L97.33 46.66L99.47 49.42L101.61 52.20L103.76 54.99L105.90 57.79L108.04 60.59L110.18 63.41L112.32 66.23L114.46 69.05L116.60 71.88L118.74 74.71L120.88 77.54L123.02 80.38L125.16 83.21L127.31 86.05L129.45 88.88L131.59 91.72L133.73 94.56L135.87 97.40L138.01 100.24L140.15 103.08L142.29 105.92L144.43 108.75L146.57 111.59L148.72 114.43L150.86 117.27L153.00 120.11L155.14 122.95L157.28 125.79L159.42 128.63L161.56 131.47L163.70 134.31L165.84 137.15L167.98 139.99L170.12 142.83L172.27 145.67L174.41 148.51L176.55 151.35L178.69 154.19L180.83 157.03L182.97 159.87L185.11 162.71L187.25 165.55L189.39 168.39L191.53 171.23L193.67 174.07L195.82 176.91L197.96 179.75L200.10 182.59L202.24 185.43L204.38 188.27L206.52 191.11L208.66 193.95L210.80 196.79L212.94 199.63L215.08 202.47L217.22 205.31L219.37 208.15L221.51 210.99L223.65 213.83L225.79 216.67L227.93 219.51L230.07 222.35L232.21 225.19L234.35 228.03L236.49 230.87L238.63 233.71L240.77 236.55L242.92 239.39L245.06 242.23L247.20 245.07L249.34 247.91L251.48 250.75L253.62 253.60L255.76 256.00L257.90 256.00"/>
+<circle cx="219.4" cy="208.2" r="3.6" fill="#2e8b57"/>
+<text class="lbb" x="219.4" y="225.2" text-anchor="middle" fill="#2e8b57">0.72</text>
+<path class="cv" stroke="#b8860b" d="M67.36 17.80L69.50 19.72L71.64 22.30L73.78 25.42L75.92 28.96L78.06 32.83L80.21 36.94L82.35 41.23L84.49 45.65L86.63 50.19L88.77 54.80L90.91 59.46L93.05 64.17L95.19 68.92L97.33 73.69L99.47 78.48L101.61 83.28L103.76 88.09L105.90 92.92L108.04 97.74L110.18 102.58L112.32 107.41L114.46 112.25L116.60 117.09L118.74 121.93L120.88 126.78L123.02 131.62L125.16 136.47L127.31 141.31L129.45 146.16L131.59 151.00L133.73 155.85L135.87 160.69L138.01 165.54L140.15 170.39L142.29 175.23L144.43 180.08L146.57 184.93L148.72 189.77L150.86 194.62L153.00 199.47L155.14 204.31L157.28 209.16L159.42 214.01L161.56 218.85L163.70 223.70L165.84 228.55L167.98 233.40L170.12 238.24L172.27 243.09L174.41 247.94L176.55 252.78L178.69 256.00"/>
+<circle cx="156.9" cy="208.2" r="3.6" fill="#b8860b"/>
+<text class="lbb" x="156.9" y="225.2" text-anchor="middle" fill="#b8860b">0.44</text>
+<path class="cv" stroke="#1f4e79" d="M528 62h20"/>
+<text class="lb" x="554" y="66">slab</text>
+<path class="cv" stroke="#2e8b57" d="M528 79h20"/>
+<text class="lb" x="554" y="83">cylinder</text>
+<path class="cv" stroke="#b8860b" d="M528 96h20"/>
+<text class="lb" x="554" y="100">sphere</text>
+<text class="lb" x="340.0" y="294" text-anchor="middle">Fourier number  Fo = &#954;t / a&#178;</text>
+<text class="lb" x="-136.0" y="13" text-anchor="middle" transform="rotate(-90)">&#952;, centre</text>
+</svg>
+<figcaption><b>Figure 1.</b> Exact centre temperature for the three separable geometries.
+The red dashed line is <code>Fo = 1</code>, what the substitution assumes; not one of the
+three curves is done there. Computed from the series above by the code at the end of this
+page. Nothing is fitted.</figcaption>
+</figure>
+
+<table>
+<thead><tr><th>Geometry</th><th>True Fo</th><th>Effective x/a = &radic;Fo</th><th>Using Fo = 1</th></tr></thead>
+<tbody>
+<tr><td>slab</td><td class="n">1.593</td><td class="n">1.26</td><td class="n">1.6&times; too short</td></tr>
+<tr><td>cylinder</td><td class="n">0.719</td><td class="n">0.85</td><td class="n">1.4&times; too long</td></tr>
+<tr><td>sphere</td><td class="n">0.444</td><td class="n">0.67</td><td class="n hl">2.3&times; too long</td></tr>
+</tbody>
+</table>
+
+<p>A factor of <strong>3.6 between the extremes</strong>, and the sign of the error flips
+between a slab and a sphere. The number the substitution guesses is not a universal constant
+a careful person could absorb once; it is a property of the shape, and no amount of counting
+units will produce it.</p>
+
+<h2>Why the potato model still worked</h2>
+
+<p>§7 bakes a potato: about 10 cm across, so <code>a = 5 cm</code>; &ldquo;the heat has to
+reach the middle, so the distance is a few centimetres: call it 3 cm&rdquo;; two hours; and
+<code>&kappa; = (0.03)&sup2;/7200 = 1.2&times;10&#8315;&#8311;</code> against water's
+<code>1.44&times;10&#8315;&#8311;</code>. Three routes, one potato, the same two hours:</p>
+
+<figure>
+<svg class="fig" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 176" role="img" aria-label="Diffusivity inferred from a two-hour potato by three routes, against water"><style>.ax{stroke:currentColor;stroke-width:1;opacity:.45;fill:none}.gr{stroke:currentColor;stroke-width:.5;opacity:.16;fill:none}.lb{font:11px system-ui,-apple-system,Segoe UI,Roboto,sans-serif;fill:currentColor;opacity:.75}.lbb{font:600 11.5px system-ui,-apple-system,Segoe UI,Roboto,sans-serif;fill:currentColor}.cv{fill:none;stroke-width:2.1}.naive{stroke:#c0392b;stroke-width:1.6;stroke-dasharray:5 3;fill:none}.done{stroke:currentColor;stroke-width:1;stroke-dasharray:2 3;opacity:.5;fill:none}</style>
+<path class="ax" d="M70 96H600"/>
+<path class="ax" d="M85.2 96v5"/>
+<text class="lb" x="85.2" y="114" text-anchor="middle">0.75&#215;</text>
+<path class="ax" d="M192.0 96v5"/>
+<text class="lb" x="192.0" y="114" text-anchor="middle">1&#215;</text>
+<path class="ax" d="M342.6 96v5"/>
+<text class="lb" x="342.6" y="114" text-anchor="middle">1.5&#215;</text>
+<path class="ax" d="M449.4 96v5"/>
+<text class="lb" x="449.4" y="114" text-anchor="middle">2&#215;</text>
+<path class="ax" d="M600.0 96v5"/>
+<text class="lb" x="600.0" y="114" text-anchor="middle">3&#215;</text>
+<path d="M192.0 32V102" stroke="currentColor" stroke-width="1.4" opacity=".65"/>
+<text class="lbb" x="192.0" y="26" text-anchor="middle">water, &#954; = 1.44&#215;10&#8315;&#8311; m&#178;/s</text>
+<circle cx="140.6" cy="96.0" r="4.4" fill="#1f4e79"/>
+<path d="M140.6 96V66.0" stroke="#1f4e79" stroke-width="1.3"/>
+<text class="lbb" x="140.6" y="57.0" text-anchor="middle" fill="#1f4e79">lecture: x = 3 cm, Fo := 1</text>
+<text class="lb" x="140.6" y="44.0" text-anchor="middle">0.87&#215; water</text>
+<circle cx="218.5" cy="96.0" r="4.4" fill="#b8860b"/>
+<path d="M218.5 96V130.0" stroke="#b8860b" stroke-width="1.3"/>
+<text class="lbb" x="218.5" y="143.0" text-anchor="middle" fill="#b8860b">exact sphere: a = 5 cm, Fo = 0.44</text>
+<text class="lb" x="218.5" y="156.0" text-anchor="middle">1.07&#215; water</text>
+<circle cx="520.1" cy="96.0" r="4.4" fill="#c0392b"/>
+<path d="M520.1 96V66.0" stroke="#c0392b" stroke-width="1.3"/>
+<text class="lbb" x="536.1" y="57.0" text-anchor="end" fill="#c0392b">same formula, honest x = a = 5 cm</text>
+<text class="lb" x="536.1" y="44.0" text-anchor="end">2.42&#215; water</text>
+<text class="lb" x="335.0" y="170" text-anchor="middle">&#954; inferred from a two-hour potato, relative to water</text>
+</svg>
+<figcaption><b>Figure 2.</b> Diffusivity inferred from a two-hour potato, relative to water.
+The lecture's route and the exact sphere both land within about 10% of water. The same naive
+formula with the potato's <em>actual</em> radius does not.</figcaption>
+</figure>
+
+<p>The third marker is the one that matters. Had the lecture read &ldquo;the heat has to
+reach the middle&rdquo; literally and used the radius,
+<code>t &asymp; x&sup2;/&kappa;</code> would have given
+<code>3.5&times;10&#8315;&#8311;</code> — <strong>2.4&times; water</strong>. It gets away with it because &ldquo;call it 3 cm&rdquo; quietly supplies the
+missing prefactor: <code>(3/5)&sup2; = 0.36</code>, against the exact <code>0.444</code>.</p>
+
+<p>So &ldquo;the distance the heat actually crosses&rdquo; is not a geometric correction. It
+is the Fourier number in disguise: the effective
+distance is <code>&radic;Fo &middot; a</code>, which is 0.67<code>a</code> for a sphere,
+0.85<code>a</code> for a cylinder, 1.26<code>a</code> for a slab.</p>
+
+<p>The lecture informs that &ldquo;what earns your trust is not the agreement but the fact
+that it does not depend on the guesses being good.&rdquo; For this anchor it is the other way
+round: the guess is carrying the agreement. The robustness box still holds — 3–5 cm and 1–3
+hours keeps water inside a factor-of-eight box — but because the box is wide, not because its
+centre is well placed.</p>
+
+<h2>What I would argue against</h2>
+
+<p><strong>The threshold is mine.</strong> <code>&theta; = 0.025</code> is my reading of a
+potato, and Fo depends on it — at <code>&theta; = 0.1</code> the sphere gives 0.30 rather
+than 0.44. The conclusion does not move. Across thresholds from 0.5 to 0.01 the sphere runs
+0.14 to 0.54 and never approaches 1, and the slab/sphere spread runs 2.7&times; to
+3.7&times;. The spread is in the eigenvalues, not in my threshold.</p>
+
+<p><strong>My &ldquo;exact&rdquo; is exact for the wrong problem.</strong> A potato is not a
+sphere, and real baking has a moving evaporation front, latent heat and starch gelatinisation absorbing energy on the way. All
+lengthen the time. My 2.15 h is exact for the stated boundary-value problem and idealised for
+a potato, which is the same kind of claim I am criticising, one level further in.</p>
+
+<p><strong>And the generous reading, which is partly right.</strong> The lecture writes
+<code>&asymp;</code>, not <code>=</code>, and an argument landing within 2.4&times; has done
+what it promised. My complaint is narrower than &ldquo;the line is wrong&rdquo;: the
+substitution hides <em>which</em> quantity it is guessing, and that quantity has a name, a
+closed form, and a value units cannot see.</p>
+
+<h2>Sources</h2>
+<ul class="src">
+<li>H. S. Carslaw &amp; J. C. Jaeger, <em>Conduction of Heat in Solids</em>, 2nd ed., Oxford
+1959 — slab §3.4, cylinder §7.6, sphere §9.3. <strong>Read the three centre-temperature
+solutions and checked each series against its own <code>t &rarr; 0</code> limit</strong>
+(&theta; &rarr; 1) rather than copying them; I did not work through the derivations of the
+eigenfunction expansions.</li>
+<li>CCBS 2026 lecture 1,
+<a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture01-core.html">core</a> §6–§7
+and <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture01-exposition.html">exposition</a>
+§14–§15 — <strong>read in full.</strong> Both quotations are copied from the pages, not from
+memory. The &Pi;-theorem limit I lean on is core §5 / exposition §8.</li>
+<li>G. N. Watson, <em>A Treatise on the Theory of Bessel Functions</em>, §2.2, for the
+integral representation used to compute J&#8320; and J&#8321; without a numerical library.
+<strong>Used the one formula; did not read further.</strong> The first three zeros of
+J&#8320; my code finds are 2.4048, 5.5201, 8.6537, matching the standard values to four
+decimals — that is the check that the Bessel routine is right rather than merely plausible.</li>
+<li>Every number here comes from the script below, run with <code>python3 prefactor.py</code>
+on Python 3.14, standard library only. Nothing is quoted from a table except water's
+<code>K</code>, <code>&rho;</code>, <code>c<sub>p</sub></code>, which are the lecture's own.</li>
+</ul>
+
+<h2>The code</h2>
+<p class="meta" style="margin-bottom:10px">Reproduces every number above and regenerates both
+figures. No numpy, no scipy, no matplotlib.</p>
+<pre><code>&quot;&quot;&quot;What the scaling substitution t ~ x^2/kappa throws away.
+
+CCBS 2026, week 1 extension mini-essay.  Standard library only; no numpy,
+no scipy, no matplotlib.  Run `python3 prefactor.py` to reproduce every
+number quoted in the essay and to regenerate both figures.
+
+Exact centre temperature after a step change of surface temperature, for the
+three separable geometries (Carslaw &amp; Jaeger, *Conduction of Heat in Solids*,
+2nd ed. 1959: slab p.97 eq.(8), cylinder p.199 eq.(6), sphere p.233 eq.(4)).
+With
+
+    theta = (T_centre - T_surface) / (T_initial - T_surface)
+    Fo    = kappa t / a^2        (a = half-thickness for the slab, radius otherwise)
+
+theta = 1 at t = 0 and decays to 0.  The lecture&#x27;s order-of-magnitude step,
+d/dt -&gt; 1/t and d2/dx2 -&gt; 1/x2, is exactly the statement Fo := 1.
+&quot;&quot;&quot;
+import math
+
+NT = 60  # series terms: plenty for Fo &gt;= 0.05
+
+
+# ---- Bessel J0, J1 from the integral representation (Watson, Sec. 2.2) ----
+def bessel(n, x, m=2000):
+    &quot;&quot;&quot;J_n(x) = (1/pi) int_0^pi cos(n tau - x sin tau) dtau, by Simpson.&quot;&quot;&quot;
+    h = math.pi / m
+    s = 0.0
+    for i in range(m + 1):
+        tau = i * h
+        w = 1 if i in (0, m) else (4 if i % 2 else 2)
+        s += w * math.cos(n * tau - x * math.sin(tau))
+    return s * h / 3 / math.pi
+
+
+def zeros_J0(k):
+    &quot;&quot;&quot;First k positive zeros of J0, bracketed by McMahon&#x27;s asymptote.&quot;&quot;&quot;
+    out = []
+    for i in range(1, k + 1):
+        lo, hi = (i - 0.25) * math.pi - 0.35, (i - 0.25) * math.pi + 0.35
+        flo = bessel(0, lo)
+        while flo * bessel(0, hi) &gt; 0:
+            lo -= 0.1; hi += 0.1; flo = bessel(0, lo)
+        for _ in range(80):
+            mid = 0.5 * (lo + hi)
+            if flo * bessel(0, mid) &lt;= 0:
+                hi = mid
+            else:
+                lo, flo = mid, bessel(0, mid)
+        out.append(0.5 * (lo + hi))
+    return out
+
+
+_B = zeros_J0(NT)
+_C = [2.0 / (b * bessel(1, b)) for b in _B]
+
+
+def theta_slab(Fo):
+    return 4 / math.pi * sum(
+        (-1) ** n / (2 * n + 1) * math.exp(-((2 * n + 1) ** 2) * math.pi ** 2 * Fo / 4)
+        for n in range(NT))
+
+
+def theta_cyl(Fo):
+    return sum(c * math.exp(-b * b * Fo) for b, c in zip(_B, _C))
+
+
+def theta_sph(Fo):
+    return 2 * sum((-1) ** (n + 1) * math.exp(-(n ** 2) * math.pi ** 2 * Fo)
+                   for n in range(1, NT))
+
+
+GEOM = {&#x27;slab&#x27;: theta_slab, &#x27;cylinder&#x27;: theta_cyl, &#x27;sphere&#x27;: theta_sph}
+
+
+def Fo_for(theta_target, geom):
+    &quot;&quot;&quot;Fourier number at which the centre first reaches theta_target.&quot;&quot;&quot;
+    f, lo, hi = GEOM[geom], 1e-4, 20.0
+    for _ in range(200):
+        mid = 0.5 * (lo + hi)
+        lo, hi = (mid, hi) if f(mid) &gt; theta_target else (lo, mid)
+    return 0.5 * (lo + hi)
+
+
+# ------------------------------------------------------------- the potato --
+# A whole potato in a hot oven.  Its skin is wet, so evaporation pins the
+# surface near 100 C while the centre cooks; &quot;done&quot; is the centre reaching
+# starch-gelatinisation temperature and then some -- call it 98 C.
+T0, TS, TC = 20.0, 100.0, 98.0          # initial, surface, centre-when-done
+THETA_DONE = (TC - TS) / (T0 - TS)      # = 0.025
+A = 0.05                                # radius of a &quot;10 cm across&quot; potato, m
+KW = 0.60 / (1000 * 4180)               # water diffusivity, lecture eq. (10)
+T_OBS = 7200.0                          # &quot;call it two hours&quot;
+X_LEC = 0.03                            # the lecture&#x27;s &quot;distance heat crosses&quot;
+
+FO = {g: Fo_for(THETA_DONE, g) for g in (&#x27;slab&#x27;, &#x27;cylinder&#x27;, &#x27;sphere&#x27;)}
+
+
+# ------------------------------------------------------------- figures -----
+W1, H1 = 640, 300
+L, R, TOP, BOT = 56, 16, 16, 44
+PW, PH = W1 - L - R, H1 - TOP - BOT
+FO_MAX, TH_LO = 2.5, 0.01
+
+px = lambda fo: L + fo / FO_MAX * PW
+py = lambda th: TOP + (-math.log10(th)) / (-math.log10(TH_LO)) * PH
+
+STYLE = (&#x27;.ax{stroke:currentColor;stroke-width:1;opacity:.45;fill:none}&#x27;
+         &#x27;.gr{stroke:currentColor;stroke-width:.5;opacity:.16;fill:none}&#x27;
+         &#x27;.lb{font:11px system-ui,-apple-system,Segoe UI,Roboto,sans-serif;&#x27;
+         &#x27;fill:currentColor;opacity:.75}&#x27;
+         &#x27;.lbb{font:600 11.5px system-ui,-apple-system,Segoe UI,Roboto,sans-serif;&#x27;
+         &#x27;fill:currentColor}&#x27;
+         &#x27;.cv{fill:none;stroke-width:2.1}&#x27;
+         &#x27;.naive{stroke:#c0392b;stroke-width:1.6;stroke-dasharray:5 3;fill:none}&#x27;
+         &#x27;.done{stroke:currentColor;stroke-width:1;stroke-dasharray:2 3;&#x27;
+         &#x27;opacity:.5;fill:none}&#x27;)
+COL = {&#x27;slab&#x27;: &#x27;#1f4e79&#x27;, &#x27;cylinder&#x27;: &#x27;#2e8b57&#x27;, &#x27;sphere&#x27;: &#x27;#b8860b&#x27;}
+
+
+def fig1(path):
+    p = [f&#x27;&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 {W1} {H1}&quot; &#x27;
+         f&#x27;role=&quot;img&quot; aria-label=&quot;Exact centre temperature versus Fourier &#x27;
+         f&#x27;number for slab, cylinder and sphere&quot;&gt;&lt;style&gt;{STYLE}&lt;/style&gt;&#x27;]
+    for th in (1, .3, .1, .03, .01):
+        y = py(th)
+        p.append(f&#x27;&lt;path class=&quot;gr&quot; d=&quot;M{L} {y:.1f}H{L+PW}&quot;/&gt;&#x27;)
+        p.append(f&#x27;&lt;text class=&quot;lb&quot; x=&quot;{L-7}&quot; y=&quot;{y+3.6:.1f}&quot; &#x27;
+                 f&#x27;text-anchor=&quot;end&quot;&gt;{th:g}&lt;/text&gt;&#x27;)
+    for fo in (0, .5, 1, 1.5, 2, 2.5):
+        x = px(fo)
+        p.append(f&#x27;&lt;path class=&quot;gr&quot; d=&quot;M{x:.1f} {TOP}V{TOP+PH}&quot;/&gt;&#x27;)
+        p.append(f&#x27;&lt;text class=&quot;lb&quot; x=&quot;{x:.1f}&quot; y=&quot;{TOP+PH+16}&quot; &#x27;
+                 f&#x27;text-anchor=&quot;middle&quot;&gt;{fo:g}&lt;/text&gt;&#x27;)
+    p.append(f&#x27;&lt;path class=&quot;ax&quot; d=&quot;M{L} {TOP}V{TOP+PH}H{L+PW}&quot;/&gt;&#x27;)
+    p.append(f&#x27;&lt;path class=&quot;done&quot; d=&quot;M{L} {py(THETA_DONE):.1f}H{L+PW}&quot;/&gt;&#x27;)
+    p.append(f&#x27;&lt;text class=&quot;lb&quot; x=&quot;{L+PW-3}&quot; y=&quot;{py(THETA_DONE)-5:.1f}&quot; &#x27;
+             f&#x27;text-anchor=&quot;end&quot;&gt;centre &amp;#8220;done&amp;#8221;, &amp;#952; = 0.025&lt;/text&gt;&#x27;)
+    p.append(f&#x27;&lt;path class=&quot;naive&quot; d=&quot;M{px(1):.1f} {TOP}V{TOP+PH}&quot;/&gt;&#x27;)
+    p.append(f&#x27;&lt;text class=&quot;lbb&quot; x=&quot;{px(1)+6:.1f}&quot; y=&quot;{TOP+13}&quot; &#x27;
+             f&#x27;fill=&quot;#c0392b&quot;&gt;Fo := 1, what the substitution assumes&lt;/text&gt;&#x27;)
+    for g in (&#x27;slab&#x27;, &#x27;cylinder&#x27;, &#x27;sphere&#x27;):
+        f = GEOM[g]
+        d, n = [], 260
+        for i in range(n + 1):
+            fo = 0.05 + (FO_MAX - 0.05) * i / n
+            th = f(fo)
+            if th &lt; TH_LO * .9:
+                break
+            d.append(f&#x27;{&quot;M&quot; if not d else &quot;L&quot;}{px(fo):.2f} {py(max(th, TH_LO)):.2f}&#x27;)
+        p.append(f&#x27;&lt;path class=&quot;cv&quot; stroke=&quot;{COL[g]}&quot; d=&quot;{&quot;&quot;.join(d)}&quot;/&gt;&#x27;)
+        x, y = px(FO[g]), py(THETA_DONE)
+        p.append(f&#x27;&lt;circle cx=&quot;{x:.1f}&quot; cy=&quot;{y:.1f}&quot; r=&quot;3.6&quot; fill=&quot;{COL[g]}&quot;/&gt;&#x27;)
+        p.append(f&#x27;&lt;text class=&quot;lbb&quot; x=&quot;{x:.1f}&quot; y=&quot;{y+17:.1f}&quot; &#x27;
+                 f&#x27;text-anchor=&quot;middle&quot; fill=&quot;{COL[g]}&quot;&gt;{FO[g]:.2f}&lt;/text&gt;&#x27;)
+    # legend: top right, the one corner every curve has left by Fo ~ 0.6
+    lx = L + PW - 96
+    for i, g in enumerate((&#x27;slab&#x27;, &#x27;cylinder&#x27;, &#x27;sphere&#x27;)):
+        yy = TOP + 46 + i * 17
+        p.append(f&#x27;&lt;path class=&quot;cv&quot; stroke=&quot;{COL[g]}&quot; d=&quot;M{lx} {yy}h20&quot;/&gt;&#x27;)
+        p.append(f&#x27;&lt;text class=&quot;lb&quot; x=&quot;{lx+26}&quot; y=&quot;{yy+4}&quot;&gt;{g}&lt;/text&gt;&#x27;)
+    p.append(f&#x27;&lt;text class=&quot;lb&quot; x=&quot;{L+PW/2}&quot; y=&quot;{H1-6}&quot; text-anchor=&quot;middle&quot;&gt;&#x27;
+             f&#x27;Fourier number  Fo = &amp;#954;t / a&amp;#178;&lt;/text&gt;&#x27;)
+    p.append(f&#x27;&lt;text class=&quot;lb&quot; x=&quot;-{TOP+PH/2}&quot; y=&quot;13&quot; text-anchor=&quot;middle&quot; &#x27;
+             f&#x27;transform=&quot;rotate(-90)&quot;&gt;&amp;#952;, centre&lt;/text&gt;&#x27;)
+    p.append(&#x27;&lt;/svg&gt;&#x27;)
+    open(path, &#x27;w&#x27;).write(&#x27;\n&#x27;.join(p))
+
+
+W2, H2 = 640, 176
+AX_Y, AL, AR = 96, 70, 600
+RLO, RHI = 0.72, 3.0
+rx = lambda r: AL + (math.log10(r) - math.log10(RLO)) / \
+    (math.log10(RHI) - math.log10(RLO)) * (AR - AL)
+
+
+def fig2(path):
+    routes = [
+        (&#x27;lecture: x = 3 cm, Fo := 1&#x27;, X_LEC ** 2 / T_OBS, &#x27;#1f4e79&#x27;, -1),
+        (&#x27;exact sphere: a = 5 cm, Fo = 0.44&#x27;, FO[&#x27;sphere&#x27;] * A ** 2 / T_OBS, &#x27;#b8860b&#x27;, 1),
+        (&#x27;same formula, honest x = a = 5 cm&#x27;, A ** 2 / T_OBS, &#x27;#c0392b&#x27;, -1),
+    ]
+    p = [f&#x27;&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 {W2} {H2}&quot; &#x27;
+         f&#x27;role=&quot;img&quot; aria-label=&quot;Diffusivity inferred from a two-hour potato &#x27;
+         f&#x27;by three routes, against water&quot;&gt;&lt;style&gt;{STYLE}&lt;/style&gt;&#x27;]
+    p.append(f&#x27;&lt;path class=&quot;ax&quot; d=&quot;M{AL} {AX_Y}H{AR}&quot;/&gt;&#x27;)
+    for r in (0.75, 1, 1.5, 2, 3):
+        x = rx(r)
+        p.append(f&#x27;&lt;path class=&quot;ax&quot; d=&quot;M{x:.1f} {AX_Y}v5&quot;/&gt;&#x27;)
+        p.append(f&#x27;&lt;text class=&quot;lb&quot; x=&quot;{x:.1f}&quot; y=&quot;{AX_Y+18}&quot; &#x27;
+                 f&#x27;text-anchor=&quot;middle&quot;&gt;{r:g}&amp;#215;&lt;/text&gt;&#x27;)
+    xw = rx(1.0)
+    p.append(f&#x27;&lt;path d=&quot;M{xw:.1f} {AX_Y-64}V{AX_Y+6}&quot; stroke=&quot;currentColor&quot; &#x27;
+             f&#x27;stroke-width=&quot;1.4&quot; opacity=&quot;.65&quot;/&gt;&#x27;)
+    p.append(f&#x27;&lt;text class=&quot;lbb&quot; x=&quot;{xw:.1f}&quot; y=&quot;{AX_Y-70}&quot; text-anchor=&quot;middle&quot;&gt;&#x27;
+             f&#x27;water, &amp;#954; = 1.44&amp;#215;10&amp;#8315;&amp;#8311; m&amp;#178;/s&lt;/text&gt;&#x27;)
+    for i, (lab, k, col, side) in enumerate(routes):
+        r = k / KW
+        x = rx(r)
+        y = AX_Y - 30 if side &lt; 0 else AX_Y + 34
+        ty = y - 9 if side &lt; 0 else y + 13
+        p.append(f&#x27;&lt;circle cx=&quot;{x:.1f}&quot; cy=&quot;{AX_Y:.1f}&quot; r=&quot;4.4&quot; fill=&quot;{col}&quot;/&gt;&#x27;)
+        p.append(f&#x27;&lt;path d=&quot;M{x:.1f} {AX_Y}V{y:.1f}&quot; stroke=&quot;{col}&quot; &#x27;
+                 f&#x27;stroke-width=&quot;1.3&quot;/&gt;&#x27;)
+        anc = &#x27;middle&#x27;
+        tx = x
+        if r &gt; 2:
+            anc, tx = &#x27;end&#x27;, x + 16
+        p.append(f&#x27;&lt;text class=&quot;lbb&quot; x=&quot;{tx:.1f}&quot; y=&quot;{ty:.1f}&quot; &#x27;
+                 f&#x27;text-anchor=&quot;{anc}&quot; fill=&quot;{col}&quot;&gt;{lab}&lt;/text&gt;&#x27;)
+        p.append(f&#x27;&lt;text class=&quot;lb&quot; x=&quot;{tx:.1f}&quot; y=&quot;{ty + (-13 if side&lt;0 else 13):.1f}&quot; &#x27;
+                 f&#x27;text-anchor=&quot;{anc}&quot;&gt;{r:.2f}&amp;#215; water&lt;/text&gt;&#x27;)
+    p.append(f&#x27;&lt;text class=&quot;lb&quot; x=&quot;{(AL+AR)/2}&quot; y=&quot;{H2-6}&quot; text-anchor=&quot;middle&quot;&gt;&#x27;
+             f&#x27;&amp;#954; inferred from a two-hour potato, relative to water&lt;/text&gt;&#x27;)
+    p.append(&#x27;&lt;/svg&gt;&#x27;)
+    open(path, &#x27;w&#x27;).write(&#x27;\n&#x27;.join(p))
+
+
+if __name__ == &#x27;__main__&#x27;:
+    print(f&#x27;J0 zeros  {[round(b, 4) for b in _B[:3]]}  (exact 2.4048 5.5201 8.6537)&#x27;)
+    print(f&#x27;theta(Fo=0.05)  slab {theta_slab(.05):.4f}  cyl {theta_cyl(.05):.4f}&#x27;
+          f&#x27;  sph {theta_sph(.05):.4f}&#x27;)
+    print(f&#x27;\ntheta at &quot;done&quot; = {THETA_DONE:.4f}   kappa_water = {KW:.3e} m^2/s\n&#x27;)
+
+    print(&#x27;--- the dropped prefactor, by geometry ---&#x27;)
+    for g in (&#x27;slab&#x27;, &#x27;cylinder&#x27;, &#x27;sphere&#x27;):
+        print(f&#x27;  {g:9s} Fo = {FO[g]:.4f}   effective x/a = {math.sqrt(FO[g]):.3f}&#x27;)
+    print(f&#x27;  slab / sphere = {FO[&quot;slab&quot;] / FO[&quot;sphere&quot;]:.2f}x\n&#x27;)
+
+    print(&#x27;--- forwards: how long does the potato take? ---&#x27;)
+    for lab, t in ((&#x27;naive, x = a = 5 cm  (Fo:=1)&#x27;, A ** 2 / KW),
+                   (&#x27;lecture, x = 3 cm    (Fo:=1)&#x27;, X_LEC ** 2 / KW),
+                   (&#x27;exact sphere, a = 5 cm      &#x27;, FO[&#x27;sphere&#x27;] * A ** 2 / KW)):
+        print(f&#x27;  {lab}: {t:7.0f} s = {t / 3600:.2f} h&#x27;)
+
+    print(&#x27;\n--- backwards: kappa from a two-hour potato ---&#x27;)
+    for lab, k in ((&#x27;naive, x = a = 5 cm  (Fo:=1)&#x27;, A ** 2 / T_OBS),
+                   (&#x27;lecture, x = 3 cm    (Fo:=1)&#x27;, X_LEC ** 2 / T_OBS),
+                   (&#x27;exact sphere, a = 5 cm      &#x27;, FO[&#x27;sphere&#x27;] * A ** 2 / T_OBS)):
+        print(f&#x27;  {lab}: {k:.3e}  = {k / KW:5.2f}x water&#x27;)
+
+    imp = (X_LEC / A) ** 2
+    print(f&#x27;\n--- the cancellation ---&#x27;)
+    print(f&#x27;  lecture implies Fo = (3/5)^2 = {imp:.3f}&#x27;)
+    print(f&#x27;  true sphere Fo               = {FO[&quot;sphere&quot;]:.3f}   &#x27;
+          f&#x27;(fudge low by {FO[&quot;sphere&quot;] / imp:.2f}x)&#x27;)
+
+    # How much does the answer depend on MY choice of &quot;done&quot;?  At large Fo each
+    # series is a single exponential, theta = A exp(-lam Fo), so
+    # Fo = ln(A/theta)/lam and the slab/sphere ratio tends to lam_sph/lam_slab
+    # = pi^2 / (pi^2/4) = 4 as the criterion tightens.  It never approaches 1.
+    print(&#x27;\n--- sensitivity to the &quot;done&quot; criterion ---&#x27;)
+    print(&#x27;  theta    slab   cylinder  sphere   slab/sphere&#x27;)
+    for th in (0.5, 0.25, 0.1, 0.05, 0.025, 0.01):
+        f = {g: Fo_for(th, g) for g in (&#x27;slab&#x27;, &#x27;cylinder&#x27;, &#x27;sphere&#x27;)}
+        print(f&#x27;  {th:&lt;7.3f}{f[&quot;slab&quot;]:6.3f}{f[&quot;cylinder&quot;]:9.3f}&#x27;
+              f&#x27;{f[&quot;sphere&quot;]:9.3f}{f[&quot;slab&quot;] / f[&quot;sphere&quot;]:11.2f}&#x27;)
+    print(f&#x27;  limit theta-&gt;0: slab/sphere -&gt; pi^2/(pi^2/4) = 4.00&#x27;)
+
+    fig1(&#x27;fig1.svg&#x27;); fig2(&#x27;fig2.svg&#x27;)
+    print(&#x27;\nwrote fig1.svg, fig2.svg&#x27;)
+</code></pre>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 1 — Extension: When faster antibody capture makes shallower ADC delivery</title>
+<meta name="author" content="Wuxinyu">
+<meta name="week" content="week1">
+<style>
+:root{--ink:#1d2029;--muted:#606775;--accent:#4b3f8f;--accent2:#d05a42;--line:#dddde7;--bg:#fff;--soft:#f5f3fb;--green:#14806b}
+@media(prefers-color-scheme:dark){:root{--ink:#f0eef7;--muted:#b6b1c4;--accent:#b9aaff;--accent2:#ff9a83;--line:#464354;--bg:#15141b;--soft:#211f2b;--green:#6bd4bd}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;line-height:1.62}.wrap{max-width:800px;margin:0 auto;padding:38px 22px 76px}h1{font-size:1.72rem;line-height:1.2;margin:0 0 7px;color:var(--accent);letter-spacing:-.02em}.meta{color:var(--muted);font-size:.91rem;margin-bottom:24px}h2{font-size:1.06rem;color:var(--accent);margin:31px 0 8px;border-bottom:1px solid var(--line);padding-bottom:5px}p{margin:10px 0}.card{background:var(--soft);border:1px solid var(--line);border-left:5px solid var(--accent2);border-radius:7px;padding:14px 17px;margin:15px 0}.formula{text-align:center;font-family:Cambria,"Times New Roman",serif;font-size:1.18rem;margin:16px 0}.fig{width:100%;height:auto;border:1px solid var(--line);border-radius:7px;background:var(--bg);margin:10px 0 0}.grid{stroke:var(--line);stroke-width:1}.axis{stroke:var(--muted);stroke-width:1.2}.tick,.label,.note{fill:var(--muted);font-family:"Segoe UI",Arial,sans-serif}.tick{font-size:11px}.label{font-size:12px;font-weight:600}.note{font-size:11px}.control{fill:none;stroke:var(--accent2);stroke-width:3}.inhib{fill:none;stroke:var(--green);stroke-width:3}.marker{stroke-width:1.5;stroke-dasharray:5 4}.numbers{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:15px 0}.number{background:var(--soft);border:1px solid var(--line);border-radius:7px;padding:11px;text-align:center}.number b{display:block;color:var(--accent);font-size:1.24rem}.number span{font-size:.78rem;color:var(--muted)}a{color:var(--accent)}.src{font-size:.89rem;padding-left:20px}.src li{margin:9px 0}details{margin-top:18px;border:1px solid var(--line);border-radius:7px;padding:10px 13px}summary{cursor:pointer;color:var(--accent);font-weight:650}pre{overflow:auto;background:var(--soft);padding:12px;border-radius:6px;font-size:.78rem;line-height:1.45}.small{font-size:.87rem;color:var(--muted)}
+@media(max-width:620px){.numbers{grid-template-columns:1fr}.wrap{padding:28px 16px 60px}}@media print{body{font-size:10.5pt}.wrap{max-width:none;padding:0}.card,.number{break-inside:avoid}summary{display:none}pre{white-space:pre-wrap}.fig{max-height:420px}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<h1>Week 1 — Extension: When faster antibody capture makes shallower ADC delivery</h1>
+<p class="meta">Author: Wuxinyu · Week 1 (due 2026-09-07) · CCBS 2026</p>
+
+<p class="card"><strong>One sentence:</strong> In a minimal reaction–diffusion model, a tumor-targeting antibody penetrates only ℓ = √(<em>D</em>/<em>k</em>) before binding and removal, so faster capture can improve local engagement while starving cells farther from a vessel—and can therefore make ADC delivery shallower.</p>
+
+<h2>The point I am adding</h2>
+<p>High affinity sounds unconditionally desirable for an ADC: bind HER2 tightly, internalize, release payload. The missing spatial question is <em>where</em> that first binding happens. If molecules entering from a vessel are captured by the first antigen-rich cells they meet, high local engagement creates a low-concentration region behind them—the binding-site barrier.</p>
+<p>My quantitative null model compresses binding, internalization and irreversible loss into one spatially uniform first-order sink <em>k</em>. It assumes one-dimensional tissue, constant diffusivity <em>D</em>, a fixed concentration at the vessel and steady state:</p>
+<p class="formula">0 = <em>D</em>d²<em>C</em>/d<em>x</em>² − <em>kC</em> &nbsp; ⇒ &nbsp; <em>C</em>(<em>x</em>)/<em>C</em><sub>0</sub> = exp(−<em>x</em>/ℓ), &nbsp; <strong>ℓ = √(<em>D</em>/<em>k</em>)</strong>.</p>
+<p>The parameter ℓ is a penetration length: after one ℓ the free concentration is 1/<em>e</em> of its vessel value. Doubling <em>D</em> increases ℓ only √2-fold; doubling the effective sink shortens ℓ by √2.</p>
+
+<h2>Work it</h2>
+<p>Bordeau, Yang and Balthasar tested this logic without altering trastuzumab itself. A short-lived anti-trastuzumab nanobody, 1HE, temporarily competed with HER2 binding. In SKOV3 xenografts, coadministration increased mean trastuzumab penetration from <strong>41.30 ± 6.70 μm (mean ± SD)</strong> to <strong>58.24 ± 5.40 μm (mean ± SD)</strong>, and positive tumor area from <strong>26.52 ± 8.11%</strong> to <strong>43.32 ± 11.42% (mean ± SD)</strong>. Penetration was measured for trastuzumab; T-DM1 was used in the subsequent efficacy experiment.</p>
+<p>For an order-of-magnitude calculation, I deliberately equate those reported mean distances with ℓ and borrow <em>D</em> = 4.5 μm² s<sup>−1</sup>, measured by FRAP for nonbinding IgG in ovarian-cancer spheroids. Then <em>k</em> = <em>D</em>/ℓ²:</p>
+<div class="numbers" aria-label="Inferred effective sink calculations">
+ <div class="number"><b>2.64 × 10⁻³ s⁻¹</b><span>control effective sink</span></div>
+ <div class="number"><b>1.33 × 10⁻³ s⁻¹</b><span>with transient inhibition</span></div>
+ <div class="number"><b>0.503×</b><span>inferred sink ratio</span></div>
+</div>
+<p>The absolute <em>k</em> values depend on the borrowed <em>D</em>, but their ratio does not within this model: <em>k</em><sub>1HE</sub>/<em>k</em><sub>control</sub> = (41.30/58.24)² = <strong>0.503</strong>. <strong>Under the imposed exponential null model, the distance ratio corresponds to an effective-sink ratio of 0.503.</strong> This is a model translation of the observed 41% increase in distance, not a direct measurement of binding or internalization kinetics.</p>
+
+<figure>
+<svg class="fig" viewBox="0 0 760 390" role="img" aria-labelledby="figtitle figdesc" xmlns="http://www.w3.org/2000/svg">
+ <title id="figtitle">Reaction-diffusion profiles inferred from trastuzumab penetration distances</title>
+ <desc id="figdesc">An exponential profile with a 58.24 micrometer length decays more slowly than one with a 41.30 micrometer length.</desc>
+ <line class="grid" x1="72" y1="60" x2="692" y2="60"/><line class="grid" x1="72" y1="120" x2="692" y2="120"/><line class="grid" x1="72" y1="180" x2="692" y2="180"/><line class="grid" x1="72" y1="240" x2="692" y2="240"/><line class="grid" x1="72" y1="300" x2="692" y2="300"/>
+ <line class="axis" x1="72" y1="300" x2="692" y2="300"/><line class="axis" x1="72" y1="60" x2="72" y2="300"/>
+ <text class="tick" x="48" y="304">0</text><text class="tick" x="42" y="244">0.25</text><text class="tick" x="42" y="184">0.50</text><text class="tick" x="42" y="124">0.75</text><text class="tick" x="48" y="64">1</text>
+ <text class="tick" x="69" y="321">0</text><text class="tick" x="171" y="321">20</text><text class="tick" x="274" y="321">40</text><text class="tick" x="378" y="321">60</text><text class="tick" x="481" y="321">80</text><text class="tick" x="580" y="321">100</text><text class="tick" x="680" y="321">120</text>
+ <text class="label" x="318" y="352">distance from vessel, x (μm)</text><text class="label" transform="translate(18 250) rotate(-90)">free antibody, C/C₀</text>
+ <path class="control" d="M72 60 C119 104,153 132,175 152 C224 190,253 204,279 209 C330 228,353 239,382 244 C433 258,459 264,485 265 C536 273,563 278,589 279 C640 284,666 286,692 287"/>
+ <path class="inhib" d="M72 60 C117 91,150 113,175 130 C222 156,252 174,279 179 C329 195,357 207,382 214 C433 225,458 234,485 239 C536 247,563 253,589 257 C640 263,666 267,692 270"/>
+ <line class="marker" x1="285" y1="60" x2="285" y2="300" style="stroke:var(--accent2)"/><line class="marker" x1="373" y1="60" x2="373" y2="300" style="stroke:var(--green)"/>
+ <text class="note" x="242" y="286" style="fill:var(--accent2)">ℓ = 41.30</text><text class="note" x="382" y="286" style="fill:var(--green)">ℓ = 58.24</text>
+ <line class="control" x1="390" y1="31" x2="424" y2="31"/><text class="note" x="431" y="35">trastuzumab</text><line class="inhib" x1="535" y1="31" x2="569" y2="31"/><text class="note" x="576" y="35">+ 1HE</text>
+</svg>
+<figcaption><strong>Figure 1.</strong> Exponential profiles generated from <em>C</em>/<em>C</em><sub>0</sub> = exp(−<em>x</em>/ℓ), using the two reported mean penetration distances as ℓ. This is my null-model visualization, not a fit to the original microscopy pixels. Dashed lines mark the imposed 1/<em>e</em> lengths.</figcaption>
+</figure>
+
+<h2>What I would argue against / where this breaks</h2>
+<p>The numerical <em>k</em> is an <em>effective</em> sink, not the HER2 association rate. Real binding is second order, saturable and reversible; internalization follows bound antibody; antigen varies cell to cell; delivery is pulsed by plasma pharmacokinetics; vessels are irregular; and ADC-bound payload can kill neighboring cells through a bystander effect. Most importantly, the experimental “penetration distance” is a mean image-analysis distance, not an exponential decay constant, and my <em>D</em> came from a different spheroid system. Thus, <strong>under the imposed exponential null model</strong>, the distance ratio corresponds to an effective-sink ratio of 0.503; that number should not be read as an experimentally measured twofold change in any single kinetic rate. The scaling explains why affinity, antigen density, dose and internalization must be designed together—not why weaker binding is always better.</p>
+
+<details><summary>Reproducible calculation embedded in this file</summary><pre><code># Python 3; no packages
+from math import log, exp
+D = 4.5                    # um^2/s; stated cross-system assumption
+ell0, ell1 = 41.30, 58.24 # um; Bordeau et al. means
+k0, k1 = D/ell0**2, D/ell1**2
+print(k0, k1, k1/k0)      # 0.002638, 0.001327, 0.503
+print(log(2)/k0/60, log(2)/k1/60)  # 4.38 and 8.71 min
+for x in range(0,121,20):
+    print(x, exp(-x/ell0), exp(-x/ell1))
+</code></pre></details>
+
+<h2>Sources actually read</h2>
+<ul class="src">
+<li>Bordeau BM, Yang Y, Balthasar JP. “Transient Competitive Inhibition Bypasses the Binding Site Barrier to Improve Tumor Penetration of Trastuzumab and Enhance T-DM1 Efficacy.” <em>Cancer Research</em> 81 (2021): 4145–4154. <a href="https://doi.org/10.1158/0008-5472.CAN-20-3822">doi:10.1158/0008-5472.CAN-20-3822</a>. I checked the experimental design, penetration and positive-area values, pharmacokinetic control and authors’ caveats.</li>
+<li>Kanigel Winner K <em>et al.</em> “Spatial Modeling of Drug Delivery Routes for Treatment of Disseminated Ovarian Cancer.” <em>Cancer Research</em> 76 (2016): 1320–1334. <a href="https://doi.org/10.1158/0008-5472.CAN-15-1620">doi:10.1158/0008-5472.CAN-15-1620</a>. I checked the spheroid FRAP method and the 4.5 μm² s<sup>−1</sup> nonbinding-IgG estimate.</li>
+<li>Vasalou C, Helmlinger G, Gomes B. “A Mechanistic Tumor Penetration Model to Guide Antibody Drug Conjugate Design.” <em>PLoS ONE</em> 10 (2015): e0118977. <a href="https://doi.org/10.1371/journal.pone.0118977">doi:10.1371/journal.pone.0118977</a>. I read the reaction/transport model, receptor-density sweep and discussion of affinity, internalization, recycling and bystander payload.</li>
+<li>CCBS 2026, “How this course works.” <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/intro.html">Course page</a>. I checked the current extension format, reproducibility and sourcing rules.</li>
+</ul>
+<p class="small">All artwork is inline SVG. No external image, font, stylesheet or script is required.</p>
+</main>
+</body>
+</html>

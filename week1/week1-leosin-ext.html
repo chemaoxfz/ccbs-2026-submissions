@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 1 — Extension: One Michaelis–Menten curve, five decades of simulation cost</title>
+<meta name="author" content="Leo Sin">
+<meta name="week" content="week1">
+<style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .wrap { max-width:820px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px;
+    border-bottom:1px solid var(--line); padding-bottom:5px; }
+  h2 .n { display:inline-block; width:1.5em; color:var(--muted); font-weight:400; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:14px 18px; margin:14px 0; }
+  .fig { width:100%; height:auto; border:1px solid var(--line); border-radius:6px;
+    margin:14px 0; background:var(--bg); }
+  figure { margin:22px 0; }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; }
+  .src li { margin-bottom:8px; }
+  table { border-collapse:collapse; width:100%; font-size:.87rem; margin:14px 0; }
+  th, td { border-bottom:1px solid var(--line); padding:5px 8px; text-align:right; }
+  th:first-child, td:first-child { text-align:left; }
+  th { color:var(--muted); font-weight:600; }
+  .tcap { font-size:.85rem; color:var(--muted); margin-top:-6px; }
+  pre { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:12px 14px; overflow-x:auto; font-size:.78rem; line-height:1.45; }
+  code { font-family:"SF Mono",Consolas,Menlo,monospace; }
+  eq { display:block; text-align:center; margin:14px 0; font-size:1.02rem; }
+  .wide { overflow-x:auto; }
+  details { margin:12px 0; }
+  summary { cursor:pointer; color:var(--accent); font-size:.9rem; }
+  em.q { color:var(--muted); font-style:normal; }
+  .no { color:#c0392b; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>One Michaelis–Menten curve, five decades of simulation cost</h1>
+<p class="meta">Shi Yanqing (施延庆) · Week 1, lectures 1–2 · CCBS 2026 · ~1150 words</p>
+
+<p class="card"><strong>One sentence:</strong> Steady-state kinetics measures
+<em>k</em><sub>cat</sub> and <em>K</em><sub>M</sub>; the cost of simulating the same enzyme one
+reaction event at a time is proportional to <em>k</em><sub>1</sub>, which is the one constant
+those measurements cannot see — so two enzymes with identical Michaelis–Menten curves can
+differ by five decades in simulation cost.</p>
+
+<h2><span class="n">1</span>The input that is not a measurement</h2>
+
+<p>Lecture 2 §11 compresses Briggs–Haldane into one line and calls the result the number the
+whole course rests on: how many times a complex forms and falls apart per molecule of product,</p>
+
+<eq><em>r</em> ≡ <em>k</em><sub>−1</sub>/<em>k</em><sub>2</sub> =
+<em>k</em><sub>1</sub>/(<em>k</em><sub>cat</sub>/<em>K</em><sub>M</sub>) − 1.
+&nbsp;&nbsp;(1)</eq>
+
+<p>Equation (1) is exact. What I want to push on is what goes into it. Steady-state kinetics
+returns <em>k</em><sub>cat</sub> and <em>K</em><sub>M</sub>; <em>k</em><sub>1</sub> appears only
+inside the composite <em>k</em><sub>cat</sub>/<em>K</em><sub>M</sub> and is never recovered on
+its own. The course exposition says exactly this, about its own arithmetic: <em class="q">"one
+of the five inputs above is not a measurement … <em>k</em><sub>on</sub> = 10<sup>8</sup> did
+not: it is the diffusion ceiling, discounted for modesty."</em> And because
+<em>k</em><sub>cat</sub>/<em>K</em><sub>M</sub> ≤ <em>k</em><sub>1</sub>, a measured
+<em>k</em><sub>cat</sub>/<em>K</em><sub>M</sub> is only a <em>lower bound</em> on the encounter
+rate.<sup>1</sup></p>
+
+<p>So <em>r</em> is not measured either. It is bracketed, between that lower bound and the
+diffusion-limited rate constant of lecture 2 §8. Write that ceiling as
+<em>k</em><sub>diff</sub> ≡ 4π<em>Da</em> · 10<sup>3</sup><em>N</em><sub>A</sub>, the
+Smoluchowski volume-per-time already converted into M<sup>−1</sup>s<sup>−1</sup>; for a
+metabolite meeting an enzyme it is 1.4 × 10<sup>10</sup> M<sup>−1</sup>s<sup>−1</sup>. Then</p>
+
+<eq><em>k</em><sub>cat</sub>/<em>K</em><sub>M</sub> ≤ <em>k</em><sub>1</sub> ≤
+<em>k</em><sub>diff</sub> &nbsp;⟹&nbsp; 0 ≤ <em>r</em> ≤ 1.4 × 10<sup>5</sup>. &nbsp;&nbsp;(2)</eq>
+
+<p>A bracket 5.15 decades wide. My claim is that this particular missing constant is not
+harmless bookkeeping: it is the entire cost of simulating the enzyme stochastically.</p>
+
+<h2><span class="n">2</span>One curve, many enzymes</h2>
+
+<p>Hold <em>k</em><sub>cat</sub> = 10 s<sup>−1</sup> and <em>K</em><sub>M</sub> = 10<sup>−4</sup> M,
+the medians of lecture 2's Table 4. Walk <em>k</em><sub>1</sub> across the bracket in (2) and set
+<em>k</em><sub>−1</sub> = <em>K</em><sub>M</sub><em>k</em><sub>1</sub> − <em>k</em><sub>cat</sub>
+at each step, which holds <em>K</em><sub>M</sub> fixed by construction. Every parameter set below
+therefore has the identical rate law <em>v</em> = <em>k</em><sub>cat</sub>[S]/(<em>K</em><sub>M</sub>+[S]).</p>
+
+<p>In Gillespie's direct method each product molecule costs, in expectation, (1 + <em>r</em>)
+bindings, <em>r</em> unbindings and one catalysis. Substituting (1),</p>
+
+<eq>E[<em>N</em><sub>events</sub>] per turnover = 2(<em>r</em> + 1) =
+2<em>k</em><sub>1</sub>/(<em>k</em><sub>cat</sub>/<em>K</em><sub>M</sub>). &nbsp;&nbsp;(3)</eq>
+
+<p>Both equalities are exact — the second is just (1) with the −1 cancelled, so no large-<em>r</em>
+approximation is needed. The bill is <em>linear</em> in the unmeasured constant: one decade of
+<em>k</em><sub>1</sub> buys exactly one decade of events.</p>
+
+<div class="wide"><table>
+<tr><th><em>k</em><sub>1</sub> (M<sup>−1</sup>s<sup>−1</sup>)</th>
+    <th><em>k</em><sub>−1</sub> (s<sup>−1</sup>)</th><th><em>r</em></th>
+    <th>E[events] / turnover</th></tr>
+<tr><td>1.0 × 10<sup>5</sup></td><td>0</td><td>0</td><td>2</td></tr>
+<tr><td>1.0 × 10<sup>6</sup></td><td>90</td><td>9</td><td>20</td></tr>
+<tr><td>1.0 × 10<sup>7</sup></td><td>990</td><td>99</td><td>2.0 × 10<sup>2</sup></td></tr>
+<tr><td>1.0 × 10<sup>8</sup></td><td>9 990</td><td>999</td><td>2.0 × 10<sup>3</sup></td></tr>
+<tr><td>1.0 × 10<sup>9</sup></td><td>9.999 × 10<sup>4</sup></td><td>9 999</td><td>2.0 × 10<sup>4</sup></td></tr>
+<tr><td>1.4 × 10<sup>10</sup></td><td>1.400 × 10<sup>6</sup></td><td>1.4 × 10<sup>5</sup></td><td>2.8 × 10<sup>5</sup></td></tr>
+</table></div>
+<p class="tcap">Table 1. The sweep. <em>k</em><sub>1</sub> spans 5.15 decades; so does the event
+bill. The code asserts the second equality of (3) at every row.</p>
+
+<details><summary>the sweep, in full</summary>
+<pre><code>KCAT, KM = 10.0, 1e-4              # lecture 2, Table 4 medians
+KCATKM   = KCAT / KM               # 1e5 M^-1 s^-1, the measured composite
+
+def r_of(k1):                      # lecture 2, eq (21). Exact.
+    return k1 / KCATKM - 1.0
+
+def events_per_turnover(r):        # (1+r) bindings + r unbindings + 1 catalysis
+    return 2.0 * r + 2.0
+
+for k1 in (1e5, 1e6, 1e7, 1e8, 1e9, 1.4e10):
+    r = r_of(k1)
+    assert abs(events_per_turnover(r) - 2*k1/KCATKM) < 1e-6      # eq (3), exactly
+    print(f"k1={k1:8.1e}  k_-1={r*KCAT:10.1f}  r={r:9.1f}  E[events]={events_per_turnover(r):9.1f}")</code></pre></details>
+
+<figure>
+<svg class="fig" viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Left: six Michaelis-Menten curves that coincide. Right: the per-event simulation bill rising five decades over the same six parameter sets.">
+<style>.ax{stroke:var(--line);stroke-width:1}.tk{fill:var(--muted);font-size:10px}.lb{fill:var(--ink);font-size:11px}.ti{fill:var(--accent);font-size:11.5px;font-weight:600}.gr{stroke:var(--line);stroke-width:.5;stroke-dasharray:2 3}</style>
+<text class="ti" x="56" y="24">A · the macroscopic curve</text>
+<line class="gr" x1="56.0" y1="40" x2="56.0" y2="246"/>
+<text class="tk" x="56.0" y="260" text-anchor="middle">10<tspan font-size="7" dy="-4">-2</tspan></text>
+<line class="gr" x1="101.0" y1="40" x2="101.0" y2="246"/>
+<text class="tk" x="101.0" y="260" text-anchor="middle">10<tspan font-size="7" dy="-4">-1</tspan></text>
+<line class="gr" x1="146.0" y1="40" x2="146.0" y2="246"/>
+<text class="tk" x="146.0" y="260" text-anchor="middle">10<tspan font-size="7" dy="-4">0</tspan></text>
+<line class="gr" x1="191.0" y1="40" x2="191.0" y2="246"/>
+<text class="tk" x="191.0" y="260" text-anchor="middle">10<tspan font-size="7" dy="-4">1</tspan></text>
+<line class="gr" x1="236.0" y1="40" x2="236.0" y2="246"/>
+<text class="tk" x="236.0" y="260" text-anchor="middle">10<tspan font-size="7" dy="-4">2</tspan></text>
+<line class="gr" x1="56" y1="246.0" x2="236" y2="246.0"/>
+<text class="tk" x="50" y="249.0" text-anchor="end">0</text>
+<line class="gr" x1="56" y1="143.0" x2="236" y2="143.0"/>
+<text class="tk" x="50" y="146.0" text-anchor="end">0.5</text>
+<line class="gr" x1="56" y1="40.0" x2="236" y2="40.0"/>
+<text class="tk" x="50" y="43.0" text-anchor="end">1</text>
+<line class="ax" x1="56" y1="246" x2="236" y2="246"/><line class="ax" x1="56" y1="40" x2="56" y2="246"/>
+<polyline fill="none" stroke="#4e79a7" stroke-width="6.5" opacity=".95" points="56.00,243.96 57.50,243.80 59.00,243.63 60.50,243.44 62.00,243.24 63.50,243.02 65.00,242.79 66.50,242.53 68.00,242.26 69.50,241.97 71.00,241.66 72.50,241.32 74.00,240.95 75.50,240.56 77.00,240.14 78.50,239.69 80.00,239.20 81.50,238.67 83.00,238.11 84.50,237.51 86.00,236.86 87.50,236.17 89.00,235.42 90.50,234.63 92.00,233.77 93.50,232.86 95.00,231.88 96.50,230.84 98.00,229.73 99.50,228.54 101.00,227.27 102.50,225.92 104.00,224.49 105.50,222.97 107.00,221.35 108.50,219.63 110.00,217.82 111.50,215.90 113.00,213.87 114.50,211.73 116.00,209.49 117.50,207.12 119.00,204.64 120.50,202.05 122.00,199.34 123.50,196.51 125.00,193.56 126.50,190.51 128.00,187.34 129.50,184.07 131.00,180.70 132.50,177.22 134.00,173.66 135.50,170.02 137.00,166.31 138.50,162.52 140.00,158.69 141.50,154.81 143.00,150.89 144.50,146.95 146.00,143.00 147.50,139.05 149.00,135.11 150.50,131.19 152.00,127.31 153.50,123.48 155.00,119.69 156.50,115.98 158.00,112.34 159.50,108.78 161.00,105.30 162.50,101.93 164.00,98.66 165.50,95.49 167.00,92.44 168.50,89.49 170.00,86.66 171.50,83.95 173.00,81.36 174.50,78.88 176.00,76.51 177.50,74.27 179.00,72.13 180.50,70.10 182.00,68.18 183.50,66.37 185.00,64.65 186.50,63.03 188.00,61.51 189.50,60.08 191.00,58.73 192.50,57.46 194.00,56.27 195.50,55.16 197.00,54.12 198.50,53.14 200.00,52.23 201.50,51.37 203.00,50.58 204.50,49.83 206.00,49.14 207.50,48.49 209.00,47.89 210.50,47.33 212.00,46.80 213.50,46.31 215.00,45.86 216.50,45.44 218.00,45.05 219.50,44.68 221.00,44.34 222.50,44.03 224.00,43.74 225.50,43.47 227.00,43.21 228.50,42.98 230.00,42.76 231.50,42.56 233.00,42.37 234.50,42.20 236.00,42.04"/>
+<polyline fill="none" stroke="#f28e2b" stroke-width="5.6" opacity=".95" points="56.00,243.96 57.50,243.80 59.00,243.63 60.50,243.44 62.00,243.24 63.50,243.02 65.00,242.79 66.50,242.53 68.00,242.26 69.50,241.97 71.00,241.66 72.50,241.32 74.00,240.95 75.50,240.56 77.00,240.14 78.50,239.69 80.00,239.20 81.50,238.67 83.00,238.11 84.50,237.51 86.00,236.86 87.50,236.17 89.00,235.42 90.50,234.63 92.00,233.77 93.50,232.86 95.00,231.88 96.50,230.84 98.00,229.73 99.50,228.54 101.00,227.27 102.50,225.92 104.00,224.49 105.50,222.97 107.00,221.35 108.50,219.63 110.00,217.82 111.50,215.90 113.00,213.87 114.50,211.73 116.00,209.49 117.50,207.12 119.00,204.64 120.50,202.05 122.00,199.34 123.50,196.51 125.00,193.56 126.50,190.51 128.00,187.34 129.50,184.07 131.00,180.70 132.50,177.22 134.00,173.66 135.50,170.02 137.00,166.31 138.50,162.52 140.00,158.69 141.50,154.81 143.00,150.89 144.50,146.95 146.00,143.00 147.50,139.05 149.00,135.11 150.50,131.19 152.00,127.31 153.50,123.48 155.00,119.69 156.50,115.98 158.00,112.34 159.50,108.78 161.00,105.30 162.50,101.93 164.00,98.66 165.50,95.49 167.00,92.44 168.50,89.49 170.00,86.66 171.50,83.95 173.00,81.36 174.50,78.88 176.00,76.51 177.50,74.27 179.00,72.13 180.50,70.10 182.00,68.18 183.50,66.37 185.00,64.65 186.50,63.03 188.00,61.51 189.50,60.08 191.00,58.73 192.50,57.46 194.00,56.27 195.50,55.16 197.00,54.12 198.50,53.14 200.00,52.23 201.50,51.37 203.00,50.58 204.50,49.83 206.00,49.14 207.50,48.49 209.00,47.89 210.50,47.33 212.00,46.80 213.50,46.31 215.00,45.86 216.50,45.44 218.00,45.05 219.50,44.68 221.00,44.34 222.50,44.03 224.00,43.74 225.50,43.47 227.00,43.21 228.50,42.98 230.00,42.76 231.50,42.56 233.00,42.37 234.50,42.20 236.00,42.04"/>
+<polyline fill="none" stroke="#59a14f" stroke-width="4.7" opacity=".95" points="56.00,243.96 57.50,243.80 59.00,243.63 60.50,243.44 62.00,243.24 63.50,243.02 65.00,242.79 66.50,242.53 68.00,242.26 69.50,241.97 71.00,241.66 72.50,241.32 74.00,240.95 75.50,240.56 77.00,240.14 78.50,239.69 80.00,239.20 81.50,238.67 83.00,238.11 84.50,237.51 86.00,236.86 87.50,236.17 89.00,235.42 90.50,234.63 92.00,233.77 93.50,232.86 95.00,231.88 96.50,230.84 98.00,229.73 99.50,228.54 101.00,227.27 102.50,225.92 104.00,224.49 105.50,222.97 107.00,221.35 108.50,219.63 110.00,217.82 111.50,215.90 113.00,213.87 114.50,211.73 116.00,209.49 117.50,207.12 119.00,204.64 120.50,202.05 122.00,199.34 123.50,196.51 125.00,193.56 126.50,190.51 128.00,187.34 129.50,184.07 131.00,180.70 132.50,177.22 134.00,173.66 135.50,170.02 137.00,166.31 138.50,162.52 140.00,158.69 141.50,154.81 143.00,150.89 144.50,146.95 146.00,143.00 147.50,139.05 149.00,135.11 150.50,131.19 152.00,127.31 153.50,123.48 155.00,119.69 156.50,115.98 158.00,112.34 159.50,108.78 161.00,105.30 162.50,101.93 164.00,98.66 165.50,95.49 167.00,92.44 168.50,89.49 170.00,86.66 171.50,83.95 173.00,81.36 174.50,78.88 176.00,76.51 177.50,74.27 179.00,72.13 180.50,70.10 182.00,68.18 183.50,66.37 185.00,64.65 186.50,63.03 188.00,61.51 189.50,60.08 191.00,58.73 192.50,57.46 194.00,56.27 195.50,55.16 197.00,54.12 198.50,53.14 200.00,52.23 201.50,51.37 203.00,50.58 204.50,49.83 206.00,49.14 207.50,48.49 209.00,47.89 210.50,47.33 212.00,46.80 213.50,46.31 215.00,45.86 216.50,45.44 218.00,45.05 219.50,44.68 221.00,44.34 222.50,44.03 224.00,43.74 225.50,43.47 227.00,43.21 228.50,42.98 230.00,42.76 231.50,42.56 233.00,42.37 234.50,42.20 236.00,42.04"/>
+<polyline fill="none" stroke="#e15759" stroke-width="3.8" opacity=".95" points="56.00,243.96 57.50,243.80 59.00,243.63 60.50,243.44 62.00,243.24 63.50,243.02 65.00,242.79 66.50,242.53 68.00,242.26 69.50,241.97 71.00,241.66 72.50,241.32 74.00,240.95 75.50,240.56 77.00,240.14 78.50,239.69 80.00,239.20 81.50,238.67 83.00,238.11 84.50,237.51 86.00,236.86 87.50,236.17 89.00,235.42 90.50,234.63 92.00,233.77 93.50,232.86 95.00,231.88 96.50,230.84 98.00,229.73 99.50,228.54 101.00,227.27 102.50,225.92 104.00,224.49 105.50,222.97 107.00,221.35 108.50,219.63 110.00,217.82 111.50,215.90 113.00,213.87 114.50,211.73 116.00,209.49 117.50,207.12 119.00,204.64 120.50,202.05 122.00,199.34 123.50,196.51 125.00,193.56 126.50,190.51 128.00,187.34 129.50,184.07 131.00,180.70 132.50,177.22 134.00,173.66 135.50,170.02 137.00,166.31 138.50,162.52 140.00,158.69 141.50,154.81 143.00,150.89 144.50,146.95 146.00,143.00 147.50,139.05 149.00,135.11 150.50,131.19 152.00,127.31 153.50,123.48 155.00,119.69 156.50,115.98 158.00,112.34 159.50,108.78 161.00,105.30 162.50,101.93 164.00,98.66 165.50,95.49 167.00,92.44 168.50,89.49 170.00,86.66 171.50,83.95 173.00,81.36 174.50,78.88 176.00,76.51 177.50,74.27 179.00,72.13 180.50,70.10 182.00,68.18 183.50,66.37 185.00,64.65 186.50,63.03 188.00,61.51 189.50,60.08 191.00,58.73 192.50,57.46 194.00,56.27 195.50,55.16 197.00,54.12 198.50,53.14 200.00,52.23 201.50,51.37 203.00,50.58 204.50,49.83 206.00,49.14 207.50,48.49 209.00,47.89 210.50,47.33 212.00,46.80 213.50,46.31 215.00,45.86 216.50,45.44 218.00,45.05 219.50,44.68 221.00,44.34 222.50,44.03 224.00,43.74 225.50,43.47 227.00,43.21 228.50,42.98 230.00,42.76 231.50,42.56 233.00,42.37 234.50,42.20 236.00,42.04"/>
+<polyline fill="none" stroke="#b07aa1" stroke-width="2.9" opacity=".95" points="56.00,243.96 57.50,243.80 59.00,243.63 60.50,243.44 62.00,243.24 63.50,243.02 65.00,242.79 66.50,242.53 68.00,242.26 69.50,241.97 71.00,241.66 72.50,241.32 74.00,240.95 75.50,240.56 77.00,240.14 78.50,239.69 80.00,239.20 81.50,238.67 83.00,238.11 84.50,237.51 86.00,236.86 87.50,236.17 89.00,235.42 90.50,234.63 92.00,233.77 93.50,232.86 95.00,231.88 96.50,230.84 98.00,229.73 99.50,228.54 101.00,227.27 102.50,225.92 104.00,224.49 105.50,222.97 107.00,221.35 108.50,219.63 110.00,217.82 111.50,215.90 113.00,213.87 114.50,211.73 116.00,209.49 117.50,207.12 119.00,204.64 120.50,202.05 122.00,199.34 123.50,196.51 125.00,193.56 126.50,190.51 128.00,187.34 129.50,184.07 131.00,180.70 132.50,177.22 134.00,173.66 135.50,170.02 137.00,166.31 138.50,162.52 140.00,158.69 141.50,154.81 143.00,150.89 144.50,146.95 146.00,143.00 147.50,139.05 149.00,135.11 150.50,131.19 152.00,127.31 153.50,123.48 155.00,119.69 156.50,115.98 158.00,112.34 159.50,108.78 161.00,105.30 162.50,101.93 164.00,98.66 165.50,95.49 167.00,92.44 168.50,89.49 170.00,86.66 171.50,83.95 173.00,81.36 174.50,78.88 176.00,76.51 177.50,74.27 179.00,72.13 180.50,70.10 182.00,68.18 183.50,66.37 185.00,64.65 186.50,63.03 188.00,61.51 189.50,60.08 191.00,58.73 192.50,57.46 194.00,56.27 195.50,55.16 197.00,54.12 198.50,53.14 200.00,52.23 201.50,51.37 203.00,50.58 204.50,49.83 206.00,49.14 207.50,48.49 209.00,47.89 210.50,47.33 212.00,46.80 213.50,46.31 215.00,45.86 216.50,45.44 218.00,45.05 219.50,44.68 221.00,44.34 222.50,44.03 224.00,43.74 225.50,43.47 227.00,43.21 228.50,42.98 230.00,42.76 231.50,42.56 233.00,42.37 234.50,42.20 236.00,42.04"/>
+<polyline fill="none" stroke="#76b7b2" stroke-width="2.0" opacity=".95" points="56.00,243.96 57.50,243.80 59.00,243.63 60.50,243.44 62.00,243.24 63.50,243.02 65.00,242.79 66.50,242.53 68.00,242.26 69.50,241.97 71.00,241.66 72.50,241.32 74.00,240.95 75.50,240.56 77.00,240.14 78.50,239.69 80.00,239.20 81.50,238.67 83.00,238.11 84.50,237.51 86.00,236.86 87.50,236.17 89.00,235.42 90.50,234.63 92.00,233.77 93.50,232.86 95.00,231.88 96.50,230.84 98.00,229.73 99.50,228.54 101.00,227.27 102.50,225.92 104.00,224.49 105.50,222.97 107.00,221.35 108.50,219.63 110.00,217.82 111.50,215.90 113.00,213.87 114.50,211.73 116.00,209.49 117.50,207.12 119.00,204.64 120.50,202.05 122.00,199.34 123.50,196.51 125.00,193.56 126.50,190.51 128.00,187.34 129.50,184.07 131.00,180.70 132.50,177.22 134.00,173.66 135.50,170.02 137.00,166.31 138.50,162.52 140.00,158.69 141.50,154.81 143.00,150.89 144.50,146.95 146.00,143.00 147.50,139.05 149.00,135.11 150.50,131.19 152.00,127.31 153.50,123.48 155.00,119.69 156.50,115.98 158.00,112.34 159.50,108.78 161.00,105.30 162.50,101.93 164.00,98.66 165.50,95.49 167.00,92.44 168.50,89.49 170.00,86.66 171.50,83.95 173.00,81.36 174.50,78.88 176.00,76.51 177.50,74.27 179.00,72.13 180.50,70.10 182.00,68.18 183.50,66.37 185.00,64.65 186.50,63.03 188.00,61.51 189.50,60.08 191.00,58.73 192.50,57.46 194.00,56.27 195.50,55.16 197.00,54.12 198.50,53.14 200.00,52.23 201.50,51.37 203.00,50.58 204.50,49.83 206.00,49.14 207.50,48.49 209.00,47.89 210.50,47.33 212.00,46.80 213.50,46.31 215.00,45.86 216.50,45.44 218.00,45.05 219.50,44.68 221.00,44.34 222.50,44.03 224.00,43.74 225.50,43.47 227.00,43.21 228.50,42.98 230.00,42.76 231.50,42.56 233.00,42.37 234.50,42.20 236.00,42.04"/>
+<text class="lb" x="146" y="276" text-anchor="middle">substrate [S] / K<tspan font-size="8" dy="2">M</tspan></text>
+<text class="lb" transform="translate(22,143) rotate(-90)" text-anchor="middle">v / k<tspan font-size="8" dy="2">cat</tspan></text>
+<text class="tk" x="66" y="56">six parameter sets, drawn thickest first —</text>
+<text class="tk" x="66" y="68">every one lies underneath the last.</text>
+<text class="ti" x="430" y="24">B · the per-event simulation bill</text>
+<line class="gr" x1="430.0" y1="40" x2="430.0" y2="246"/>
+<text class="tk" x="430.0" y="260" text-anchor="middle">10<tspan font-size="7" dy="-4">5</tspan></text>
+<line class="gr" x1="485.8" y1="40" x2="485.8" y2="246"/>
+<text class="tk" x="485.8" y="260" text-anchor="middle">10<tspan font-size="7" dy="-4">6</tspan></text>
+<line class="gr" x1="541.5" y1="40" x2="541.5" y2="246"/>
+<text class="tk" x="541.5" y="260" text-anchor="middle">10<tspan font-size="7" dy="-4">7</tspan></text>
+<line class="gr" x1="597.3" y1="40" x2="597.3" y2="246"/>
+<text class="tk" x="597.3" y="260" text-anchor="middle">10<tspan font-size="7" dy="-4">8</tspan></text>
+<line class="gr" x1="653.1" y1="40" x2="653.1" y2="246"/>
+<text class="tk" x="653.1" y="260" text-anchor="middle">10<tspan font-size="7" dy="-4">9</tspan></text>
+<line class="gr" x1="708.8" y1="40" x2="708.8" y2="246"/>
+<text class="tk" x="708.8" y="260" text-anchor="middle">10<tspan font-size="7" dy="-4">10</tspan></text>
+<line class="gr" x1="430" y1="216.0" x2="720" y2="216.0"/>
+<text class="tk" x="424" y="219.0" text-anchor="end">10<tspan font-size="7" dy="-4">1</tspan></text>
+<line class="gr" x1="430" y1="178.6" x2="720" y2="178.6"/>
+<text class="tk" x="424" y="181.6" text-anchor="end">10<tspan font-size="7" dy="-4">2</tspan></text>
+<line class="gr" x1="430" y1="141.1" x2="720" y2="141.1"/>
+<text class="tk" x="424" y="144.1" text-anchor="end">10<tspan font-size="7" dy="-4">3</tspan></text>
+<line class="gr" x1="430" y1="103.7" x2="720" y2="103.7"/>
+<text class="tk" x="424" y="106.7" text-anchor="end">10<tspan font-size="7" dy="-4">4</tspan></text>
+<line class="gr" x1="430" y1="66.2" x2="720" y2="66.2"/>
+<text class="tk" x="424" y="69.2" text-anchor="end">10<tspan font-size="7" dy="-4">5</tspan></text>
+<line class="ax" x1="430" y1="246" x2="720" y2="246"/><line class="ax" x1="430" y1="40" x2="430" y2="246"/>
+<polyline fill="none" stroke="var(--accent)" stroke-width="2.2" points="430.00,242.22 431.81,241.00 433.62,239.78 435.44,238.56 437.25,237.35 439.06,236.13 440.88,234.91 442.69,233.70 444.50,232.48 446.31,231.26 448.12,230.04 449.94,228.83 451.75,227.61 453.56,226.39 455.38,225.17 457.19,223.96 459.00,222.74 460.81,221.52 462.62,220.31 464.44,219.09 466.25,217.87 468.06,216.65 469.88,215.44 471.69,214.22 473.50,213.00 475.31,211.78 477.12,210.57 478.94,209.35 480.75,208.13 482.56,206.92 484.38,205.70 486.19,204.48 488.00,203.26 489.81,202.05 491.62,200.83 493.44,199.61 495.25,198.39 497.06,197.18 498.88,195.96 500.69,194.74 502.50,193.53 504.31,192.31 506.12,191.09 507.94,189.87 509.75,188.66 511.56,187.44 513.38,186.22 515.19,185.00 517.00,183.79 518.81,182.57 520.62,181.35 522.44,180.14 524.25,178.92 526.06,177.70 527.88,176.48 529.69,175.27 531.50,174.05 533.31,172.83 535.12,171.61 536.94,170.40 538.75,169.18 540.56,167.96 542.38,166.75 544.19,165.53 546.00,164.31 547.81,163.09 549.62,161.88 551.44,160.66 553.25,159.44 555.06,158.22 556.88,157.01 558.69,155.79 560.50,154.57 562.31,153.36 564.12,152.14 565.94,150.92 567.75,149.70 569.56,148.49 571.38,147.27 573.19,146.05 575.00,144.83 576.81,143.62 578.62,142.40 580.44,141.18 582.25,139.97 584.06,138.75 585.88,137.53 587.69,136.31 589.50,135.10 591.31,133.88 593.12,132.66 594.94,131.44 596.75,130.23 598.56,129.01 600.38,127.79 602.19,126.58 604.00,125.36 605.81,124.14 607.62,122.92 609.44,121.71 611.25,120.49 613.06,119.27 614.88,118.05 616.69,116.84 618.50,115.62 620.31,114.40 622.12,113.19 623.94,111.97 625.75,110.75 627.56,109.53 629.38,108.32 631.19,107.10 633.00,105.88 634.81,104.66 636.62,103.45 638.44,102.23 640.25,101.01 642.06,99.80 643.88,98.58 645.69,97.36 647.50,96.14 649.31,94.93 651.12,93.71 652.94,92.49 654.75,91.27 656.56,90.06 658.38,88.84 660.19,87.62 662.00,86.41 663.81,85.19 665.62,83.97 667.44,82.75 669.25,81.54 671.06,80.32 672.88,79.10 674.69,77.88 676.50,76.67 678.31,75.45 680.12,74.23 681.94,73.02 683.75,71.80 685.56,70.58 687.38,69.36 689.19,68.15 691.00,66.93 692.81,65.71 694.62,64.49 696.44,63.28 698.25,62.06 700.06,60.84 701.88,59.63 703.69,58.41 705.50,57.19 707.31,55.97 709.12,54.76 710.94,53.54 712.75,52.32 714.56,51.10 716.38,49.89 718.19,48.67 720.00,47.45"/>
+<circle cx="446.8" cy="230.9" r="4.6" fill="var(--bg)" stroke="var(--ink)" stroke-width="1.6"/>
+<circle cx="488.1" cy="203.4" r="4.6" fill="var(--bg)" stroke="var(--ink)" stroke-width="1.6"/>
+<circle cx="541.8" cy="167.0" r="4.6" fill="var(--bg)" stroke="var(--ink)" stroke-width="1.6"/>
+<circle cx="597.3" cy="130.0" r="4.6" fill="var(--bg)" stroke="var(--ink)" stroke-width="1.6"/>
+<line class="gr" x1="597.3" y1="129.9" x2="597.3" y2="246" stroke="#e15759" stroke-dasharray="3 2"/>
+<circle cx="597.3" cy="129.9" r="4" fill="#e15759"/>
+<text class="tk" x="604.3" y="117.9" text-anchor="start" fill="#e15759">exposition §23</text>
+<line class="gr" x1="717.0" y1="49.5" x2="717.0" y2="246" stroke="#e15759" stroke-dasharray="3 2"/>
+<circle cx="717.0" cy="49.5" r="4" fill="#e15759"/>
+<text class="tk" x="710.0" y="66.5" text-anchor="end" fill="#e15759">core §11</text>
+<text class="lb" x="575" y="276" text-anchor="middle">association constant k<tspan font-size="8" dy="2">1</tspan> (M⁻¹s⁻¹) — not measured</text>
+<text class="lb" transform="translate(392,143) rotate(-90)" text-anchor="middle">SSA events per product</text>
+<circle cx="444" cy="54" r="4.6" fill="var(--bg)" stroke="var(--ink)" stroke-width="1.6"/>
+<text class="tk" x="454" y="58">direct-method runs</text>
+<line x1="440" y1="70" x2="450" y2="70" stroke="var(--accent)" stroke-width="2.2"/>
+<text class="tk" x="454" y="74">2(r+1), exact</text>
+</svg>
+<figcaption><strong>Figure 1.</strong> Left: the six parameter sets of Table 1, plotted thickest
+first. Each is drawn on top of the last and every one is hidden underneath it, because the
+Michaelis–Menten curve is identical by construction. Right: the same six sets priced in direct-method
+events per product. The line is equation (3); the open circles are what the algorithm actually did.
+The two red points are the two values of <em>k</em><sub>1</sub> the course itself uses — §4.</figcaption>
+</figure>
+
+<h2><span class="n">3</span>Counting it, rather than trusting the count</h2>
+
+<p>Equation (3) is an argument about a Markov chain, so I ran the chain: the full direct method,
+drawing the exponential waiting time and advancing the clock at every step, one enzyme
+(<em>E</em><sub>0</sub> = 1), substrate buffered, stopped at 3 000 products.</p>
+
+<div class="wide"><table>
+<tr><th><em>r</em></th><th><em>k</em><sub>−1</sub> (s<sup>−1</sup>)</th>
+    <th>measured events/turnover</th><th>2(<em>r</em>+1)</th><th>ratio</th><th>wall clock</th></tr>
+<tr><td>1</td><td>10</td><td>4.0</td><td>4</td><td>1.005</td><td>0.01 s</td></tr>
+<tr><td>10</td><td>100</td><td>21.8</td><td>22</td><td>0.990</td><td>0.03 s</td></tr>
+<tr><td>100</td><td>1 000</td><td>203.6</td><td>202</td><td>1.008</td><td>0.32 s</td></tr>
+<tr><td>1 000</td><td>10 000</td><td>1 983.3</td><td>2 002</td><td>0.991</td><td>3.16 s</td></tr>
+</table></div>
+<p class="tcap">Table 2. My own runs. I stop at <em>r</em> = 10<sup>3</sup> on purpose: at the same
+stop condition, <em>r</em> = 10<sup>6</sup> needs 3 000 × 2 × 10<sup>6</sup> = 6.0 × 10<sup>9</sup>
+events, which is 58 minutes on this machine for one dot. Everything to the right of the last circle
+in Figure 1B is equation (3), not a simulation, and the two are marked differently there.</p>
+
+<details><summary>the simulator</summary>
+<pre><code>import random, time, math
+def ssa_mm(k1S, km1, k2, E0, n_prod, seed=0):
+    """Gillespie DIRECT METHOD, substrate buffered so k1S = k1*[S] is constant.
+       Draws the exponential waiting time and advances the clock, then the channel."""
+    rng = random.Random(seed)
+    E, C, P, ev, t = E0, 0, 0, 0, 0.0
+    w0 = time.perf_counter()
+    while P < n_prod:
+        a1, a2, a3 = k1S * E, km1 * C, k2 * C
+        a0 = a1 + a2 + a3
+        if a0 <= 0.0: break
+        t += -math.log(rng.random()) / a0        # waiting time; clock advanced
+        u = rng.random() * a0                    # which channel fired
+        if   u < a1:      E -= 1; C += 1         # bind
+        elif u < a1 + a2: E += 1; C -= 1         # fall apart
+        else:             E += 1; C -= 1; P += 1 # turn over
+        ev += 1
+    return ev, P, t, time.perf_counter() - w0
+
+for r in (1, 10, 100, 1000):                     # E0 = 1: one enzyme
+    ev, P, t, dt = ssa_mm(1e4, r * 10.0, 10.0, 1, 3000, seed=7)
+    print(f"r={r:5d}  measured {ev/P:8.1f}   2(r+1) = {2*(r+1):6d}   "
+          f"ratio {ev/P/(2*(r+1)):.3f}   {dt:.2f} s wall")</code></pre></details>
+
+<h2><span class="n">4</span>What it costs a cell, and why the course gives two answers</h2>
+
+<p>Lecture 2's Table 6 puts central-carbon flux in <em>E. coli</em> at <em>J</em> = 0.73 mM/s: in
+one femtolitre over one 40-minute cell cycle, 1.06 × 10<sup>9</sup> product molecules. The
+implementation above sustains a measured 1.72 × 10<sup>6</sup> events/s on this machine, in pure
+Python. Put the two values of <em>k</em><sub>1</sub> that the course itself uses through (3):</p>
+
+<div class="wide"><table>
+<tr><th>where</th><th><em>k</em><sub>1</sub></th><th>E[events]/turnover</th>
+    <th>events / cell cycle</th><th>wall clock</th></tr>
+<tr><td>lecture 2 core, §11</td><td>1.4 × 10<sup>10</sup></td><td>2.8 × 10<sup>5</sup></td>
+    <td>2.95 × 10<sup>14</sup></td><td><strong>1 985 days</strong></td></tr>
+<tr><td>lecture 2 exposition, §23</td><td>1.0 × 10<sup>8</sup></td><td>2.0 × 10<sup>3</sup></td>
+    <td>2.11 × 10<sup>12</sup></td><td><strong>14 days</strong></td></tr>
+</table></div>
+<p class="tcap">Table 3. Same course, same cell, same medians, same algorithm. The two pages
+substitute <em>k</em><sub>1</sub> differently — the ceiling, and the ceiling <em class="q">"discounted
+for modesty"</em> — and the answer moves by a factor of 140. The wall-clock column depends on my
+implementation; the 140 does not, because it is a ratio of event counts.</p>
+
+<details><summary>the cell-cycle arithmetic</summary>
+<pre><code>NA, J, V, TD = 6.022e23, 0.73e-3, 1e-15, 2400.0   # lecture 2 Table 6; 1 fL; 40 min
+products = J * V * NA * TD                                  # 1.06e9 per cell cycle
+THROUGHPUT = 1.72e6                                         # events/s, measured above
+
+for label, k1 in (("core, eq (21)", 1.4e10), ("exposition, sec 23", 1.0e8)):
+    events = products * events_per_turnover(r_of(k1))
+    print(f"{label:20s} k1={k1:8.1e}  {events:9.2e} events  "
+          f"{events/THROUGHPUT/86400:8.1f} days")</code></pre></details>
+
+<p>This is the payoff, and it is not a complaint about the lecture: it is the lecture's own
+instruction being followed. Lecture 1 §10 closes with <em class="q">"every number on this page is
+checkable, and some of them will not survive being checked."</em> Equation (1) survives. The number
+people quote from it does not, because the input it needs was never measured.</p>
+
+<h2><span class="n">5</span>Then which measurement would settle it?</h2>
+
+<p>If the mean carries no information about <em>r</em>, the fluctuations might. Take a single
+enzyme with buffered substrate. One turnover is a geometric number of attempts, each an
+Exp(<em>k</em><sub>1</sub>[S]) wait in E followed by an Exp(<em>k</em><sub>−1</sub>+<em>k</em><sub>2</sub>)
+wait in C, succeeding with probability <em>p</em> = 1/(1+<em>r</em>). Writing
+<em>s</em> = 1/<em>k</em><sub>1</sub>[S] and <em>t</em> = 1/(<em>k</em><sub>−1</sub>+<em>k</em><sub>2</sub>),
+so that <em>s</em>/<em>t</em> = <em>K</em><sub>M</sub>/[S],</p>
+
+<eq>1/E[<em>T</em>] = <em>k</em><sub>cat</sub>[S]/(<em>K</em><sub>M</sub>+[S]),
+&nbsp;&nbsp;&nbsp;
+<em>R</em> ≡ Var<em>T</em>/(E<em>T</em>)<sup>2</sup> = 1 −
+<span style="white-space:nowrap">2<em>p</em>·<em>st</em>/(<em>s</em>+<em>t</em>)<sup>2</sup></span>.
+&nbsp;&nbsp;(4)</eq>
+
+<p>The mean returns Michaelis–Menten exactly, as it must. The variance does not: at
+[S] = <em>K</em><sub>M</sub>, equation (4) collapses to</p>
+
+<eq><em>R</em> = 1 − 1/(2(1+<em>r</em>)) &nbsp;⟺&nbsp;
+<em>r</em> = 1/(2(1−<em>R</em>)) − 1. &nbsp;&nbsp;(5)</eq>
+
+<p><em>R</em> is the randomness parameter, which is what single-molecule turnover statistics
+measure. So the information the steady-state curve throws away is recoverable in principle, from
+exactly the kind of experiment lecture 5 is about. Then ask how well it is recoverable, which is
+where my own check stops being able to help. As <em>r</em> grows <em>T</em> tends to an exponential,
+and the delta method on <em>R̂</em> = <em>m</em><sub>2</sub>/<em>m</em><sub>1</sub><sup>2</sup> − 1
+with exponential moments gives Var(<em>R̂</em>) → 4/<em>n</em>, so SE(<em>R̂</em>) ≈ 2/√<em>n</em>.
+At my <em>n</em> = 2 × 10<sup>5</sup> that is 4.5 × 10<sup>−3</sup>:</p>
+
+<div class="wide"><table>
+<tr><th><em>r</em></th><th>1 − <em>R</em>, eq (5)</th><th>1 − <em>R̂</em>, measured</th>
+    <th>signal / SE</th><th>verdict</th></tr>
+<tr><td>1</td><td>2.50 × 10<sup>−1</sup></td><td>2.45 × 10<sup>−1</sup></td><td>55.9</td><td>resolved</td></tr>
+<tr><td>10</td><td>4.55 × 10<sup>−2</sup></td><td>3.82 × 10<sup>−2</sup></td><td>10.2</td><td>resolved</td></tr>
+<tr><td>100</td><td>4.95 × 10<sup>−3</sup></td><td>9.82 × 10<sup>−3</sup></td><td>1.11</td><td class="no">marginal</td></tr>
+<tr><td>1 000</td><td>5.00 × 10<sup>−4</sup></td><td>8.5 × 10<sup>−4</sup></td><td>0.11</td><td class="no">not resolved</td></tr>
+</table></div>
+<p class="tcap">Table 4. My simulation verifies equation (5) for <em>r</em> ≤ 10 and cannot verify
+it beyond. The last two rows agree with (5) to a decimal place or two, and that agreement is not
+evidence: the deviation being tested is smaller than the error on the test. Saying so is the point
+of the table. (An empirical check with 200 replicates at <em>r</em> = 10 gives SD(<em>R̂</em>) =
+0.0246 against 2/√<em>n</em> = 0.0283, so the formula is a slight over-estimate at moderate
+<em>r</em>, where <em>T</em> is not yet exponential.)</p>
+
+<p>Inverting the requirement gives the sharper statement. To see the deviation at one sigma needs
+<em>n</em> = (2/(1−<em>R</em>))<sup>2</sup> = 4(1+<em>r</em>)<sup>2</sup> turnovers: 1.6 × 10<sup>7</sup>
+to detect <em>r</em> = 10<sup>3</sup>, and 3.1 × 10<sup>11</sup> to detect the
+<em>r</em> = 1.4 × 10<sup>5</sup> that lecture 2 §11 quotes. The cost of measuring <em>r</em> from
+noise grows as <em>r</em><sup>2</sup>, so the experiment gets hardest exactly where the answer
+matters most.</p>
+
+<figure>
+<svg class="fig" viewBox="0 0 620 268" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="1-R falls as one over two r. Error bars from 200000 turnovers per point swamp the signal beyond r of about 100.">
+<style>.ax{stroke:var(--line);stroke-width:1}.tk{fill:var(--muted);font-size:10px}.lb{fill:var(--ink);font-size:11px}.gr{stroke:var(--line);stroke-width:.5;stroke-dasharray:2 3}</style>
+<line class="gr" x1="91.6" y1="34" x2="91.6" y2="202"/>
+<text class="tk" x="91.6" y="216" text-anchor="middle">10<tspan font-size="7" dy="-4">0</tspan></text>
+<line class="gr" x1="235.6" y1="34" x2="235.6" y2="202"/>
+<text class="tk" x="235.6" y="216" text-anchor="middle">10<tspan font-size="7" dy="-4">1</tspan></text>
+<line class="gr" x1="379.6" y1="34" x2="379.6" y2="202"/>
+<text class="tk" x="379.6" y="216" text-anchor="middle">10<tspan font-size="7" dy="-4">2</tspan></text>
+<line class="gr" x1="523.6" y1="34" x2="523.6" y2="202"/>
+<text class="tk" x="523.6" y="216" text-anchor="middle">10<tspan font-size="7" dy="-4">3</tspan></text>
+<line class="gr" x1="70" y1="202.0" x2="574" y2="202.0"/>
+<text class="tk" x="64" y="205.0" text-anchor="end">10<tspan font-size="7" dy="-4">-4</tspan></text>
+<line class="gr" x1="70" y1="161.5" x2="574" y2="161.5"/>
+<text class="tk" x="64" y="164.5" text-anchor="end">10<tspan font-size="7" dy="-4">-3</tspan></text>
+<line class="gr" x1="70" y1="121.0" x2="574" y2="121.0"/>
+<text class="tk" x="64" y="124.0" text-anchor="end">10<tspan font-size="7" dy="-4">-2</tspan></text>
+<line class="gr" x1="70" y1="80.6" x2="574" y2="80.6"/>
+<text class="tk" x="64" y="83.6" text-anchor="end">10<tspan font-size="7" dy="-4">-1</tspan></text>
+<line class="gr" x1="70" y1="40.1" x2="574" y2="40.1"/>
+<text class="tk" x="64" y="43.1" text-anchor="end">10<tspan font-size="7" dy="-4">0</tspan></text>
+<line class="ax" x1="70" y1="202" x2="574" y2="202"/><line class="ax" x1="70" y1="34" x2="70" y2="202"/>
+<rect x="70" y="135.2" width="504" height="66.8" fill="#e15759" opacity=".07"/>
+<line x1="70" y1="135.2" x2="574" y2="135.2" stroke="#e15759" stroke-width="1.3" stroke-dasharray="5 3"/>
+<text class="tk" x="568" y="129.2" text-anchor="end" fill="#e15759">1&#963; floor at n = 2&#215;10<tspan font-size="7" dy="-4">5</tspan><tspan dy="4"> turnovers</tspan></text>
+<text class="tk" x="568" y="151.2" text-anchor="end" fill="#e15759">below here the estimate cannot see the signal</text>
+<polyline fill="none" stroke="var(--accent)" stroke-width="2.2" points="70.00,61.67 73.15,62.04 76.30,62.43 79.45,62.82 82.60,63.23 85.75,63.64 88.90,64.07 92.05,64.51 95.20,64.96 98.35,65.42 101.50,65.89 104.65,66.37 107.80,66.87 110.95,67.37 114.10,67.89 117.25,68.42 120.40,68.96 123.55,69.50 126.70,70.06 129.85,70.63 133.00,71.21 136.15,71.80 139.30,72.40 142.45,73.01 145.60,73.63 148.75,74.25 151.90,74.89 155.05,75.53 158.20,76.19 161.35,76.85 164.50,77.52 167.65,78.20 170.80,78.89 173.95,79.58 177.10,80.29 180.25,80.99 183.40,81.71 186.55,82.43 189.70,83.16 192.85,83.90 196.00,84.64 199.15,85.39 202.30,86.14 205.45,86.90 208.60,87.67 211.75,88.44 214.90,89.21 218.05,89.99 221.20,90.78 224.35,91.57 227.50,92.36 230.65,93.16 233.80,93.96 236.95,94.76 240.10,95.57 243.25,96.38 246.40,97.20 249.55,98.02 252.70,98.84 255.85,99.66 259.00,100.49 262.15,101.32 265.30,102.15 268.45,102.99 271.60,103.82 274.75,104.66 277.90,105.50 281.05,106.35 284.20,107.19 287.35,108.04 290.50,108.89 293.65,109.74 296.80,110.59 299.95,111.45 303.10,112.30 306.25,113.16 309.40,114.02 312.55,114.88 315.70,115.74 318.85,116.60 322.00,117.47 325.15,118.33 328.30,119.20 331.45,120.06 334.60,120.93 337.75,121.80 340.90,122.67 344.05,123.54 347.20,124.41 350.35,125.28 353.50,126.15 356.65,127.02 359.80,127.90 362.95,128.77 366.10,129.64 369.25,130.52 372.40,131.39 375.55,132.27 378.70,133.15 381.85,134.02 385.00,134.90 388.15,135.78 391.30,136.66 394.45,137.54 397.60,138.41 400.75,139.29 403.90,140.17 407.05,141.05 410.20,141.93 413.35,142.81 416.50,143.69 419.65,144.57 422.80,145.45 425.95,146.34 429.10,147.22 432.25,148.10 435.40,148.98 438.55,149.86 441.70,150.75 444.85,151.63 448.00,152.51 451.15,153.39 454.30,154.28 457.45,155.16 460.60,156.04 463.75,156.92 466.90,157.81 470.05,158.69 473.20,159.57 476.35,160.46 479.50,161.34 482.65,162.23 485.80,163.11 488.95,163.99 492.10,164.88 495.25,165.76 498.40,166.65 501.55,167.53 504.70,168.41 507.85,169.30 511.00,170.18 514.15,171.07 517.30,171.95 520.45,172.84 523.60,173.72 526.75,174.61 529.90,175.49 533.05,176.38 536.20,177.26 539.35,178.15 542.50,179.03 545.65,179.92 548.80,180.80 551.95,181.69 555.10,182.57 558.25,183.46 561.40,184.34 564.55,185.23 567.70,186.11 570.85,187.00 574.00,187.88"/>
+<line x1="91.6" y1="64.5" x2="91.6" y2="65.1" stroke="var(--ink)" stroke-width="1.3"/>
+<line x1="87.6" y1="64.5" x2="95.6" y2="64.5" stroke="var(--ink)" stroke-width="1.3"/>
+<line x1="87.6" y1="65.1" x2="95.6" y2="65.1" stroke="var(--ink)" stroke-width="1.3"/>
+<circle cx="91.6" cy="64.8" r="4.4" fill="var(--bg)" stroke="var(--ink)" stroke-width="1.6"/>
+<line x1="235.6" y1="95.5" x2="235.6" y2="99.6" stroke="var(--ink)" stroke-width="1.3"/>
+<line x1="231.6" y1="95.5" x2="239.6" y2="95.5" stroke="var(--ink)" stroke-width="1.3"/>
+<line x1="231.6" y1="99.6" x2="239.6" y2="99.6" stroke="var(--ink)" stroke-width="1.3"/>
+<circle cx="235.6" cy="97.5" r="4.4" fill="var(--bg)" stroke="var(--ink)" stroke-width="1.6"/>
+<line x1="379.6" y1="114.8" x2="379.6" y2="132.0" stroke="var(--ink)" stroke-width="1.3"/>
+<line x1="375.6" y1="114.8" x2="383.6" y2="114.8" stroke="var(--ink)" stroke-width="1.3"/>
+<line x1="375.6" y1="132.0" x2="383.6" y2="132.0" stroke="var(--ink)" stroke-width="1.3"/>
+<circle cx="379.6" cy="121.4" r="4.4" fill="var(--bg)" stroke="var(--ink)" stroke-width="1.6"/>
+<line x1="523.6" y1="132.1" x2="523.6" y2="202.0" stroke="var(--ink)" stroke-width="1.3"/>
+<line x1="519.6" y1="132.1" x2="527.6" y2="132.1" stroke="var(--ink)" stroke-width="1.3"/>
+<polygon points="519.6,195.0 527.6,195.0 523.6,201.5" fill="var(--ink)"/>
+<circle cx="523.6" cy="164.4" r="4.4" fill="var(--bg)" stroke="var(--ink)" stroke-width="1.6"/>
+<text class="lb" x="322" y="232" text-anchor="middle">r = k&#8331;&#8321; / k&#8322;</text>
+<text class="lb" transform="translate(28,118) rotate(-90)" text-anchor="middle">1 &#8722; R  (turnover noise)</text>
+<text class="tk" x="82" y="48">line: 1&#8722;R = 1/(2(1+r)), exact</text>
+<text class="tk" x="82" y="60">points: my runs, bars &#177;1 SE = &#177;2/&#8730;n</text>
+</svg>
+<figcaption><strong>Figure 2.</strong> Equation (5) with my runs on it, bars ±1 SE. At
+<em>r</em> = 10<sup>3</sup> the bar is nine times the signal and runs off the bottom of the axis;
+the shaded band is everything my sample size cannot see. This is why the honest answer to "which
+measurement is missing" is not the elegant one.</figcaption>
+</figure>
+
+<details><summary>the turnover-statistics check</summary>
+<pre><code>import random, statistics, math
+KCAT, KM = 10.0, 1e-4
+def turnovers(r, S_over_KM, n, seed=0):
+    """n turnover times of ONE enzyme; K_M held fixed while r varies."""
+    rng = random.Random(seed)
+    k2 = KCAT; b = r * k2 + k2                   # b = k_-1 + k_2
+    a = (b / KM) * (S_over_KM * KM)              # = k1 * [S]
+    p = k2 / b                                   # Pr[a formed complex reaches product]
+    ts = []
+    for _ in range(n):
+        T = 0.0
+        while True:
+            T += rng.expovariate(a) + rng.expovariate(b)
+            if rng.random() < p: break
+        ts.append(T)
+    m = statistics.fmean(ts)
+    return 1.0 / m, statistics.pvariance(ts) / m**2          # (rate, R)
+
+N = 200_000; SE = 2 / math.sqrt(N)               # delta method, exponential limit
+for r in (0, 1, 10, 100, 1000):
+    v, R = turnovers(r, 1.0, N, seed=11)
+    signal = 1 / (2 * (1 + r))                   # eq (5)
+    print(f"r={r:5d}  1/E[T]={v:7.4f} (MM: 5.0000)  1-R measured={1-R:9.2e}  "
+          f"theory={signal:9.2e}  signal/SE={signal/SE:6.2f}")</code></pre></details>
+
+<p>So the measurement that actually settles <em>r</em> is the pre-steady-state one: stopped flow,
+temperature-jump relaxation, or NMR relaxation dispersion — anything that resolves the binding
+transient instead of the steady state, and returns <em>k</em><sub>1</sub> and
+<em>k</em><sub>−1</sub> separately rather than through their combination.</p>
+
+<h2><span class="n">6</span>Where this breaks</h2>
+
+<p><strong>The bracket is not a distribution.</strong> The lower end of (2),
+<em>k</em><sub>1</sub> = <em>k</em><sub>cat</sub>/<em>K</em><sub>M</sub>, requires
+<em>k</em><sub>−1</sub> = 0, which is irreversible binding and not a real enzyme. So 5.15 decades is
+the width of what the measurements <em>permit</em>, not of what enzymes <em>do</em>. Establishing
+the latter needs the pre-steady-state data this essay says are missing, which is circular in a way
+I cannot escape from lecture material alone.</p>
+
+<p><strong>Equation (3) is a specific accounting.</strong> One enzyme, buffered substrate, direct
+method, and an expectation rather than a realisation. The next-reaction method changes the constant
+and not the scaling; substrate depletion, enzyme competition and compartmentation change it too.</p>
+
+<p><strong>The wall-clock column is one implementation.</strong> 1.72 × 10<sup>6</sup> events/s is
+measured, but it is pure Python on one core, and I have no benchmark for any other implementation,
+so I make no claim about how much a compiled one would gain. Table 3's argument is the ratio 140,
+which is a ratio of event counts and carries no implementation in it at all.</p>
+
+<p><strong>Equation (5) assumes the three-state scheme.</strong> Real enzymes have conformational
+substates, and dynamic disorder can push <em>R</em> above 1, which the derivation above cannot
+produce. Inverting a measured <em>R</em> for <em>r</em> is legitimate only once that scheme has been
+independently justified — the same kind of assumption this essay is complaining about, one level
+down.</p>
+
+<h2><span class="n">7</span>Where this goes</h2>
+
+<p>Cao, Gillespie and Petzold built the slow-scale SSA on exactly this system, and their reason for
+choosing it is equation (1) read as a computational statement: the complex <em class="q">"is usually
+much more likely to decay into its original constituents than to produce a product
+molecule."</em><sup>2</sup> Lecture 2's Figure 11 draws binding and catalysis as two boxes, separable
+because they are four decades apart. Equation (3) says that separation has a price list, and that
+the entry on it was never measured.</p>
+
+<h2>† Sources</h2>
+<ol class="src">
+<li>F. Xiao, <em>From order of magnitude in biology to binding and catalysis</em>, CCBS 2026
+lecture 2 — <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture02-core.html">core</a>
+(§8 the diffusion limit, §9 Table 4 medians, §11 equations 20–21, §12 Table 6) and
+<a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture02-exposition.html">exposition</a>
+(§23). <em>Both read in full.</em> The exposition is where the "<em>k</em><sub>on</sub> is not a
+measurement" admission and the <em>k</em><sub>cat</sub>/<em>K</em><sub>M</sub> ≤
+<em>k</em><sub>1</sub> bound are stated; the 140-fold discrepancy in Table 3 is between these two
+pages, and I checked both numbers against their own text.</li>
+
+<li>Y. Cao, D. T. Gillespie &amp; L. R. Petzold, "Accelerated stochastic simulation of the stiff
+enzyme–substrate reaction", <em>J. Chem. Phys.</em> <strong>123</strong>, 144917 (2005),
+<a href="https://doi.org/10.1063/1.2052596">doi:10.1063/1.2052596</a>.
+<em>Abstract only.</em> The quoted sentence is from the abstract; I have not read the full paper and
+do not use its method here, only its choice of system. DOI resolved against CrossRef rather than
+copied from a secondary source.</li>
+
+<li>D. T. Gillespie, "Exact stochastic simulation of coupled chemical reactions",
+<em>J. Phys. Chem.</em> <strong>81</strong>, 2340–2361 (1977). The direct method implemented above,
+including the exponential waiting time. <em>Known through secondary sources and standard
+implementations; original not opened for this essay.</em></li>
+
+<li>A. Bar-Even <em>et al.</em>, "The moderately efficient enzyme", <em>Biochemistry</em>
+<strong>50</strong>, 4402–4410 (2011). Source of the <em>k</em><sub>cat</sub> and
+<em>k</em><sub>cat</sub>/<em>K</em><sub>M</sub> medians. <em>Read through lecture 2's Table 4, which
+reports N = 1942 and N = 1882; original not opened.</em></li>
+
+<li>G. E. Briggs &amp; J. B. S. Haldane, "A note on the kinetics of enzyme action",
+<em>Biochem. J.</em> <strong>19</strong>, 338–339 (1925). The steady-state expression (1) is derived
+from. <em>Via lecture 2 §11.</em></li>
+
+<li>The randomness parameter <em>R</em> is standard in single-molecule enzymology
+(M. J. Schnitzer &amp; S. M. Block 1995 for motors; S. C. Kou, B. J. Cherayil, W. Min, B. P. English
+&amp; X. S. Xie 2005 for enzymes). <em>I have not opened either.</em> Equations (4) and (5), and the
+SE(<em>R̂</em>) ≈ 2/√<em>n</em> used in Table 4, are derived from scratch above and checked against
+my own simulation rather than taken from those papers; the name is theirs, the algebra here is mine,
+and Table 4 is the only evidence I offer for it — including its last two rows, which are not
+evidence.</li>
+</ol>
+
+<p class="tcap" style="margin-top:26px">Every number in Tables 1–4 and every value plotted in
+Figures 1–2 comes from the four scripts on this page, run on one machine; nothing is digitised from
+a published plot and nothing is fitted. The SVG drawing code that turns those values into the two
+figures is not reproduced here.</p>
+
+</div>
+</body>
+</html>

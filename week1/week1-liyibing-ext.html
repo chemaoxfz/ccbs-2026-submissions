@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 2 — Extension: How much space does the E. coli genome occupy?</title>
+<meta name="author" content="liyibing">
+<meta name="week" content="week1">
+<style>
+  :root { --ink:#182028; --muted:#60707b; --accent:#174f78; --warm:#d97706; --line:#d7e0e6; --bg:#fff; --soft:#f4f7f9; --code:#eef3f6; }
+  @media (prefers-color-scheme:dark) { :root { --ink:#e7edf1; --muted:#a7b4bc; --accent:#8bc0e7; --warm:#fbbf24; --line:#3b4953; --bg:#151a1e; --soft:#1d252b; --code:#11171b; } }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; font-size:16px; line-height:1.65; }
+  .toc { position:fixed; inset:0 auto 0 0; width:220px; padding:32px 22px; border-right:1px solid var(--line); background:var(--soft); }
+  .course { color:var(--muted); font-size:.75rem; letter-spacing:.09em; text-transform:uppercase; }
+  .toc h2 { margin:28px 0 12px; font-size:.9rem; color:var(--ink); border:0; }
+  .toc ol { margin:0; padding:0; list-style:none; }
+  .toc li { margin:9px 0; }
+  .toc a { color:var(--muted); text-decoration:none; font-size:.88rem; }
+  .toc a:hover { color:var(--accent); }
+  main { max-width:790px; margin-left:calc(220px + 7vw); padding:54px 28px 90px; }
+  h1 { margin:0 0 9px; color:var(--accent); font-size:2rem; line-height:1.2; }
+  .dek { margin:0 0 8px; font-size:1.08rem; color:var(--muted); }
+  .meta { margin:0 0 36px; color:var(--muted); font-size:.84rem; }
+  h2 { margin:42px 0 14px; padding-bottom:7px; border-bottom:1px solid var(--line); color:var(--accent); font-size:1.2rem; }
+  .n { display:inline-block; width:1.65rem; color:var(--muted); font-size:.82em; }
+  p { margin:0 0 15px; }
+  a { color:var(--accent); }
+  sup a { text-decoration:none; font-weight:700; }
+  .claim { margin:18px 0; padding:18px 20px; border-left:4px solid var(--accent); background:var(--soft); font-size:1.06rem; }
+  table { width:100%; border-collapse:collapse; margin:18px 0 9px; font-size:.92rem; }
+  caption { text-align:left; color:var(--muted); margin-bottom:8px; font-size:.84rem; }
+  th,td { padding:10px 11px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+  th { color:var(--accent); font-weight:650; }
+  .equation { margin:20px 0; padding:16px; text-align:center; background:var(--soft); border:1px solid var(--line); border-radius:6px; font-size:1.05rem; }
+  .boundary { padding:15px 18px; background:var(--soft); border:1px solid var(--line); border-radius:6px; }
+  .sources { padding-left:1.25rem; font-size:.88rem; }
+  .sources li { margin-bottom:11px; }
+  @media (max-width:980px) { .toc { position:static; width:auto; padding:18px 22px; border-right:0; border-bottom:1px solid var(--line); } .toc h2 { display:none; } .toc ol { display:flex; flex-wrap:wrap; gap:5px 16px; margin-top:8px; } .toc li { margin:0; } main { margin:0 auto; padding-top:38px; } }
+  @media (max-width:620px) { main { padding:30px 17px 60px; } h1 { font-size:1.6rem; } th,td { padding:8px 6px; font-size:.84rem; } }
+</style>
+</head>
+<body>
+<nav class="toc" aria-label="Contents">
+  <div class="course">CCBS · 2026 · Extension</div>
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#claim">1 · The claim</a></li>
+    <li><a href="#numbers">2 · Four numbers</a></li>
+    <li><a href="#estimate">3 · The estimate</a></li>
+    <li><a href="#wrong">4 · Where it is wrong</a></li>
+    <li><a href="#sources">† · Sources</a></li>
+  </ol>
+</nav>
+
+<main>
+  <header>
+    <h1>How much space does the <em>E. coli</em> genome occupy?</h1>
+    <p class="dek">A 1.56 mm molecule inside a micrometre-scale cell sounds impossible, until length is separated from volume.</p>
+    <p class="meta">Extension mini-essay · Your Name · Lecture 2 · CCBS 2026</p>
+  </header>
+
+  <section id="claim">
+    <h2><span class="n">1</span>The claim</h2>
+    <p>Lecture 2 introduced the proteins and genome inside a cell. <em>Escherichia coli</em> contains about 4.6 million base pairs of DNA.<sup><a href="#r1">1</a></sup> How can such a large genome be organized inside one tiny cell? Before asking how the chromosome is folded, I focus on a simpler geometric question: <strong>how much of the cell volume would one genome occupy as bare DNA?</strong></p>
+    <p class="claim">My claim is that the genome poses a severe <em>organization</em> problem, but not a material-capacity problem: bare DNA occupies only about 0.5% of a typical <em>E. coli</em> cell.</p>
+  </section>
+
+  <section id="numbers">
+    <h2><span class="n">2</span>Four numbers</h2>
+    <p>Everything in the estimate follows from four sourced, order-of-magnitude inputs.</p>
+    <table>
+      <caption>Table 1. Inputs for one <em>E. coli</em> genome equivalent.</caption>
+      <thead><tr><th>Quantity</th><th>Symbol</th><th>Value</th><th>Source</th></tr></thead>
+      <tbody>
+        <tr><td>Genome size</td><td><var>N</var></td><td>4.6 × 10<sup>6</sup> bp</td><td><a href="#r1">[1]</a></td></tr>
+        <tr><td>Axial rise per base pair</td><td><var>d</var></td><td>0.34 nm/bp</td><td><a href="#r2">[2]</a></td></tr>
+        <tr><td>Bare-DNA radius</td><td><var>r</var></td><td>≈ 1 nm</td><td><a href="#r2">[2]</a></td></tr>
+        <tr><td>Typical cell volume</td><td><var>V</var><sub>cell</sub></td><td>≈ 1 fL</td><td><a href="#r3">[3]</a></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="estimate">
+    <h2><span class="n">3</span>The estimate</h2>
+    <p>First multiply genome size by the spacing between base pairs. A fully extended chromosome has contour length</p>
+    <div class="equation"><var>L</var> = <var>Nd</var> = (4.6 × 10<sup>6</sup> bp)(0.34 nm/bp) = 1.56 mm.</div>
+    <p>Now treat the double helix as a solid cylinder. Because 1 fL = 10<sup>9</sup> nm<sup>3</sup>,</p>
+    <div class="equation"><var>V</var><sub>DNA</sub> = π<var>r</var><sup>2</sup><var>L</var> = 4.9 × 10<sup>−3</sup> fL, &nbsp; so &nbsp; <var>V</var><sub>DNA</sub>/<var>V</var><sub>cell</sub> = 0.49%.</div>
+    <p>The two results are not contradictory. DNA can be extremely long and still use little material volume because its cross-section is only nanometres wide. The cell must therefore solve a polymer-management problem: compacting and untangling the chromosome while keeping genes accessible for replication and transcription.<sup><a href="#r4">4</a></sup></p>
+
+  </section>
+
+  <section id="wrong">
+    <h2><span class="n">4</span>Where it is wrong</h2>
+    <div class="boundary">The 0.49% result is not the volume of the nucleoid. It assumes one genome equivalent of bare DNA packed without water or gaps. Real chromosomes are hydrated, supercoiled, bound by proteins and mixed with RNA and solvent; growing cells may also contain more than one genome equivalent.<sup><a href="#r3">3</a>,<a href="#r4">4</a></sup> The estimate therefore answers only whether the DNA material fits, not how much cellular space the organized chromosome occupies.</div>
+  </section>
+
+  <section id="sources">
+    <h2><span class="n">†</span>Sources</h2>
+    <ol class="sources">
+      <li id="r1">Blattner, F. R. <em>et al.</em> “The complete genome sequence of <em>Escherichia coli</em> K-12.” <em>Science</em> 277, 1453–1462 (1997). <a href="https://doi.org/10.1126/science.277.5331.1453">doi:10.1126/science.277.5331.1453</a>. Source for the 4.6 Mb genome size.</li>
+      <li id="r2">Watson, J. D. &amp; Crick, F. H. C. “Molecular structure of nucleic acids: A structure for deoxyribose nucleic acid.” <em>Nature</em> 171, 737–738 (1953). <a href="https://doi.org/10.1038/171737a0">doi:10.1038/171737a0</a>. Source for the 0.34 nm axial rise and approximately 2 nm DNA diameter.</li>
+      <li id="r3">Milo, R. &amp; Phillips, R. <em>Cell Biology by the Numbers</em>. Garland Science (2015). <a href="https://book.bionumbers.org/how-big-is-an-e-coli-cell-and-what-is-its-mass/">How big is an <em>E. coli</em> cell?</a> Source for the representative 1 fL cell volume and its growth-dependent variation.</li>
+      <li id="r4">Dillon, S. C. &amp; Dorman, C. J. “Bacterial nucleoid-associated proteins, nucleoid structure and gene expression.” <em>Nature Reviews Microbiology</em> 8, 185–195 (2010). <a href="https://doi.org/10.1038/nrmicro2261">doi:10.1038/nrmicro2261</a>. Source for chromosome supercoiling, nucleoid-associated proteins and the distinction between bare DNA and the nucleoid.</li>
+    </ol>
+  </section>
+</main>
+</body>
+</html>
