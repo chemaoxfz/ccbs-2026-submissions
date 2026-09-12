@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 2 — Extension: A constitutive gene can remember if it slows its own dilution</title>
+<meta name="author" content="Siheng Wang">
+<meta name="week" content="week2">
+<style>
+  :root {
+    --ink:#19242b; --muted:#607078; --accent:#315f72; --accent2:#c1583d;
+    --line:#d8e0e3; --bg:#fffefa; --soft:#f3f7f7; --code:#14242b;
+    --grid:#dfe7e9; --blue:#287f9a; --orange:#d16b47; --green:#4e8065;
+  }
+  @media (prefers-color-scheme:dark) {
+    :root {
+      --ink:#e9eff1; --muted:#a9b7bc; --accent:#83c9dc; --accent2:#f29a7b;
+      --line:#3b4a50; --bg:#11191d; --soft:#19262b; --code:#0b1317;
+      --grid:#304147; --blue:#72cfe4; --orange:#f29a7b; --green:#8bc4a4;
+    }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.62; }
+  .wrap { max-width:820px; margin:0 auto; padding:42px 23px 78px; }
+  h1 { margin:0 0 7px; color:var(--accent); font-size:1.72rem; line-height:1.2; letter-spacing:-.018em; }
+  .meta { margin:0 0 25px; color:var(--muted); font-size:.91rem; }
+  h2 { margin:32px 0 8px; padding-bottom:5px; border-bottom:1px solid var(--line); color:var(--accent); font-size:1.06rem; }
+  p { margin:10px 0; }
+  .card { margin:15px 0 18px; padding:14px 17px; border:1px solid var(--line); border-left:5px solid var(--accent2); border-radius:7px; background:var(--soft); }
+  .loop { display:grid; grid-template-columns:1fr auto 1fr auto 1fr; align-items:center; gap:9px; margin:17px 0; padding:14px; border:1px solid var(--line); border-radius:7px; background:var(--soft); }
+  .node { text-align:center; }
+  .node b { display:block; color:var(--accent); font-size:.92rem; }
+  .node span { display:block; color:var(--muted); font-size:.78rem; }
+  .arrow { color:var(--accent2); font-size:1.35rem; }
+  .equation { margin:14px 0; padding:11px 13px; overflow-x:auto; border:1px solid var(--line); border-radius:7px; background:var(--soft); text-align:center; font-family:Cambria,"Times New Roman",serif; font-size:1.08rem; }
+  .numbers { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin:14px 0; }
+  .number { padding:11px; border:1px solid var(--line); border-radius:7px; background:var(--soft); text-align:center; }
+  .number b { display:block; color:var(--accent); font-size:1.18rem; line-height:1.25; }
+  .number span { color:var(--muted); font-size:.77rem; }
+  figure { margin:16px 0 7px; }
+  .fig { display:block; width:100%; height:auto; border:1px solid var(--line); border-radius:7px; background:var(--bg); }
+  figcaption { margin-top:6px; color:var(--muted); font-size:.84rem; }
+  details { margin:15px 0; padding:10px 13px; border:1px solid var(--line); border-radius:7px; background:var(--soft); }
+  summary { cursor:pointer; color:var(--accent); font-size:.9rem; font-weight:700; }
+  summary:hover { color:var(--accent2); }
+  pre { margin:10px 0 0; padding:12px 14px; overflow:auto; border:1px solid #2d414a; border-radius:6px; background:var(--code); color:#e7f0f2; font-size:.75rem; line-height:1.45; }
+  code { font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace; }
+  .argument { margin:15px 0; padding:12px 15px; border:1px solid var(--line); border-radius:7px; background:linear-gradient(110deg,var(--soft),transparent); }
+  .argument strong { color:var(--accent2); }
+  a { color:var(--accent); text-underline-offset:2px; }
+  .src { padding-left:21px; font-size:.88rem; }
+  .src li { margin:9px 0; }
+  .small { color:var(--muted); font-size:.84rem; }
+  @media (max-width:640px) {
+    .wrap { padding:30px 16px 60px; }
+    h1 { font-size:1.5rem; }
+    .loop { grid-template-columns:1fr; }
+    .arrow { transform:rotate(90deg); }
+    .numbers { grid-template-columns:1fr; }
+    pre { max-height:430px; }
+  }
+  @media print {
+    body { font-size:10.5pt; }
+    .wrap { max-width:none; padding:0; }
+    .card,.loop,.number,figure,details { break-inside:avoid; }
+    details > summary { display:none; }
+    details > pre { display:block; white-space:pre-wrap; color:#111; background:#f5f5f5; border-color:#bbb; }
+  }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <h1>Week 2 — Extension: A constitutive gene can remember if it slows its own dilution</h1>
+  <p class="meta">Author: <strong>Siheng Wang</strong> · Lectures 3–4 · due 2026-09-14 · CCBS 2026</p>
+
+  <p class="card"><strong>One sentence:</strong> Combining Lecture 3's growth-dilution term with Lecture 4's three-crossing test shows that a constitutively produced protein can have two stable expression levels without cooperative transcription: enough protein slows growth, slower growth weakens dilution, and weaker dilution lets still more protein accumulate.</p>
+
+  <h2>The point I am adding</h2>
+  <p>Lecture 3 derives dilution from concentration bookkeeping: if cell volume grows at rate λ, every intracellular concentration receives the removal term −λ<em>x</em> [1]. It then leaves a precise question open: if protein burden reduces λ, can dilution feedback create more than one steady level? Lecture 4 supplies the test—two stable states require addition and removal to cross stable–unstable–stable [2]. Put the two statements together and dilution stops being a passive drain. It becomes a feedback edge.</p>
+
+  <div class="loop" role="img" aria-label="Protein burden slows growth, slower growth reduces dilution, and reduced dilution increases protein concentration">
+    <div class="node"><b>more protein</b><span>larger circuit burden</span></div>
+    <div class="arrow" aria-hidden="true">⟶</div>
+    <div class="node"><b>slower growth</b><span>λ decreases</span></div>
+    <div class="arrow" aria-hidden="true">⟶</div>
+    <div class="node"><b>weaker dilution</b><span>less −λx, so x rises</span></div>
+  </div>
+
+  <p>Use the smallest model that exposes this loop. Let <em>x</em> be a dimensionless concentration made at a constant rate α. Molecular degradation contributes δ<em>x</em>. Growth decreases ultrasensitively with burden, λ(<em>x</em>) = 1/(1+<em>x</em><sup>4</sup>). Then</p>
+
+  <div class="equation">d<em>x</em>/d<em>t</em> = <span style="color:var(--blue)">α</span> − <span style="color:var(--orange)"><em>x</em>[δ + λ(<em>x</em>)]</span>, &nbsp;&nbsp; λ(<em>x</em>) = 1/(1+<em>x</em><sup>4</sup>).</div>
+
+  <p>The promoter is deliberately unregulated: addition is the horizontal line α. All nonlinearity sits in removal. At low <em>x</em>, growth is fast and dilution rises approximately as <em>x</em>. Near the burden threshold, λ collapses faster than <em>x</em> rises, so total removal can fall. At still larger <em>x</em>, molecular degradation δ<em>x</em> wins and removal rises again. This N-shaped removal curve is enough for three crossings.</p>
+
+  <h2>Work it</h2>
+  <p>For the declared teaching values α=0.55 and δ=0.20, the model has fixed points at <em>x</em>≈0.478, 1.486 and 2.398. The slope of the net rate is negative, positive and negative respectively, so the outer crossings are stable and the middle one is the switching threshold. Starting below 1.486 reaches the low-expression, fast-growth state; starting above it reaches the high-expression, slow-growth state. History matters even though transcription itself has no Hill curve.</p>
+
+  <div class="numbers" aria-label="Fixed points of the teaching model">
+    <div class="number"><b>0.478</b><span>stable · low expression</span></div>
+    <div class="number"><b>1.486</b><span>unstable · threshold</span></div>
+    <div class="number"><b>2.398</b><span>stable · high expression</span></div>
+  </div>
+
+  <figure>
+    <svg id="growth-plot" class="fig" viewBox="0 0 760 355" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="fig-title fig-desc">
+      <title id="fig-title">Growth-mediated dilution creates three addition-removal crossings</title>
+      <desc id="fig-desc">The left panel shows constant production crossing a nonmonotonic removal curve three times. The right panel shows trajectories below the middle crossing approaching the low state and trajectories above it approaching the high state.</desc>
+      <g id="plot-layer"></g>
+    </svg>
+    <figcaption><strong>Figure 1.</strong> My calculation from the declared dimensionless model, not a fit to an experiment. Left: constant addition crosses degradation-plus-dilution three times. Right: numerical trajectories confirm the two basins predicted by the crossing slopes.</figcaption>
+  </figure>
+
+  <details>
+    <summary>Reproducible calculation embedded in this file</summary>
+    <pre><code># Python 3; no packages
+alpha, delta, n = 0.55, 0.20, 4
+
+def growth(x):
+    return 1 / (1 + x**n)
+
+def removal(x):
+    return x * (delta + growth(x))
+
+def net(x):
+    return alpha - removal(x)
+
+def bisect(a, b, steps=60):
+    for _ in range(steps):
+        m = (a + b) / 2
+        if net(a) * net(m) &lt;= 0:
+            b = m
+        else:
+            a = m
+    return (a + b) / 2
+
+roots = [bisect(a, b) for a, b in
+         [(0.4, 0.6), (1.4, 1.6), (2.3, 2.5)]]
+print(roots)  # 0.478120, 1.486450, 2.398083
+
+for x in roots:
+    h = 1e-5
+    slope = (net(x+h) - net(x-h)) / (2*h)
+    print(x, slope)  # negative, positive, negative
+
+# RK4 trajectories used in the right panel
+def step(x, dt=0.02):
+    k1 = net(x)
+    k2 = net(x + dt*k1/2)
+    k3 = net(x + dt*k2/2)
+    k4 = net(x + dt*k3)
+    return x + dt*(k1 + 2*k2 + 2*k3 + k4)/6
+
+for x0 in (0.10, 1.00, 1.70, 3.20):
+    x = x0
+    for _ in range(2000):
+        x = step(x)
+    print(x0, x)</code></pre>
+  </details>
+
+  <p>This mechanism is not only algebraic. Tan, Marguet and You built an <em>E. coli</em> circuit in which mutant T7 RNA polymerase activated its own expression noncooperatively. The circuit was nevertheless bistable; their measurements and model attributed the extra effective feedback to circuit-induced growth retardation and nonlinear dilution [3]. A later modeling study made the complementary prediction tested here: sufficiently ultrasensitive growth feedback can give a constitutive circuit bistability even without a direct positive-regulation edge [4].</p>
+
+  <div class="argument"><strong>The extension:</strong> a circuit diagram drawn only with transcriptional arrows is incomplete whenever its products measurably change host growth. The host supplies a hidden double-negative loop—protein inhibits growth, and growth dilutes protein—that can create memory or erase it depending on its shape.</div>
+
+  <h2>What I would argue against / where this breaks</h2>
+  <p>This toy model proves possibility, not typicality. Its fourth-power growth curve is an effective assumption; if λ(<em>x</em>) decreases gently, total removal stays monotone and constant production has only one crossing. The model also treats a population growth rate as the instantaneous dilution rate of one cell, holds production and degradation independent of growth, ignores resource competition and stochastic switching, and lets the high-expression branch approach very slow growth. Those omissions matter experimentally. The defensible conclusion is therefore conditional: <strong>growth feedback can create bistability when it makes the total removal curve nonmonotonic</strong>, not that burdened genes are generally bistable.</p>
+
+  <h2>Sources actually read</h2>
+  <ol class="src">
+    <li>F. Xiao. “From reactions to systems: how biochemical behavior emerges.” <em>CCBS 2026, Lecture 3 core</em> (2026). <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture03-core.html">Course page</a>. I used the derivation of −λ<em>x</em> and the stated growth-feedback extension question.</li>
+    <li>F. Xiao. “From simulations to possible behaviors.” <em>CCBS 2026, Lecture 4 core</em> (2026). <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture04-core.html">Course page</a>. I used the addition–removal crossing test and the local slope criterion for stability.</li>
+    <li>C. Tan, P. Marguet and L. You. “Emergent bistability by a growth-modulating positive feedback circuit.” <em>Nature Chemical Biology</em> 5 (2009): 842–848. <a href="https://doi.org/10.1038/nchembio.218">doi:10.1038/nchembio.218</a>. I checked the noncooperative T7 RNAP* circuit, observed bistability, and the growth-retardation/nonlinear-dilution interpretation.</li>
+    <li>J. R. Melendez-Alvarez and X.-J. Tian. “Emergence of qualitative states in synthetic circuits driven by ultrasensitive growth feedback.” <em>PLoS Computational Biology</em> 18 (2022): e1010518. <a href="https://doi.org/10.1371/journal.pcbi.1010518">doi:10.1371/journal.pcbi.1010518</a>. I checked the model-based claim that ultrasensitive growth feedback can create bistability in a constitutive circuit.</li>
+  </ol>
+  <p class="small">Single self-contained HTML file. The diagram, numerical experiment and SVG plot are original. No external image, font, stylesheet, library or script is required.</p>
+</main>
+
+<script>
+(() => {
+  const svg = document.getElementById('growth-plot');
+  const layer = document.getElementById('plot-layer');
+  const NS = 'http://www.w3.org/2000/svg';
+  const css = getComputedStyle(document.documentElement);
+  const c = name => css.getPropertyValue(name).trim();
+  const add = (tag, attrs, text='') => {
+    const el = document.createElementNS(NS, tag);
+    Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k,v));
+    if (text) el.textContent = text;
+    layer.appendChild(el); return el;
+  };
+  const alpha=.55, delta=.20, n=4;
+  const growth=x=>1/(1+x**n);
+  const removal=x=>x*(delta+growth(x));
+  const net=x=>alpha-removal(x);
+  const roots=[.478120494,1.486449991,2.398083207];
+
+  function axes(x0,y0,w,h,xmax,ymax,xlabel,ylabel){
+    const sx=x=>x0+x/xmax*w, sy=y=>y0+h-y/ymax*h;
+    for(let i=0;i<=4;i++){
+      const x=xmax*i/4, y=ymax*i/4;
+      add('line',{x1:sx(x),y1:y0,x2:sx(x),y2:y0+h,stroke:c('--grid'),'stroke-width':1});
+      add('line',{x1:x0,y1:sy(y),x2:x0+w,y2:sy(y),stroke:c('--grid'),'stroke-width':1});
+      add('text',{x:sx(x),y:y0+h+18,'text-anchor':'middle',fill:c('--muted'),'font-size':10.5},String(Number(x.toFixed(1))));
+      add('text',{x:x0-8,y:sy(y)+4,'text-anchor':'end',fill:c('--muted'),'font-size':10.5},String(Number(y.toFixed(2))));
+    }
+    add('line',{x1:x0,y1:y0+h,x2:x0+w,y2:y0+h,stroke:c('--muted'),'stroke-width':1.2});
+    add('line',{x1:x0,y1:y0,x2:x0,y2:y0+h,stroke:c('--muted'),'stroke-width':1.2});
+    add('text',{x:x0+w/2,y:y0+h+42,'text-anchor':'middle',fill:c('--muted'),'font-size':11.5,'font-weight':600},xlabel);
+    add('text',{x:x0-41,y:y0+h/2,transform:`rotate(-90 ${x0-41} ${y0+h/2})`,'text-anchor':'middle',fill:c('--muted'),'font-size':11.5,'font-weight':600},ylabel);
+    return {sx,sy};
+  }
+
+  add('text',{x:205,y:22,'text-anchor':'middle',fill:c('--accent'),'font-size':12.5,'font-weight':700},'A · balance curves');
+  const A=axes(58,38,292,240,3.2,.82,'protein level, x','rate');
+  const xs=Array.from({length:181},(_,i)=>3.2*i/180);
+  const path=(fn,S)=>xs.map((x,i)=>`${i?'L':'M'}${S.sx(x).toFixed(2)},${S.sy(fn(x)).toFixed(2)}`).join(' ');
+  add('path',{d:path(()=>alpha,A),fill:'none',stroke:c('--blue'),'stroke-width':3});
+  add('path',{d:path(removal,A),fill:'none',stroke:c('--orange'),'stroke-width':3});
+  roots.forEach((r,i)=>add('circle',{cx:A.sx(r),cy:A.sy(alpha),r:5,fill:i===1?c('--bg'):c('--accent'),stroke:c('--accent'),'stroke-width':2}));
+  add('line',{x1:80,y1:58,x2:105,y2:58,stroke:c('--blue'),'stroke-width':3});
+  add('text',{x:111,y:62,fill:c('--muted'),'font-size':10.5},'addition α');
+  add('line',{x1:80,y1:75,x2:105,y2:75,stroke:c('--orange'),'stroke-width':3});
+  add('text',{x:111,y:79,fill:c('--muted'),'font-size':10.5},'removal x[δ+λ(x)]');
+  add('text',{x:A.sx(roots[0]),y:A.sy(alpha)-11,'text-anchor':'middle',fill:c('--accent'),'font-size':10.5,'font-weight':700},'stable');
+  add('text',{x:A.sx(roots[1]),y:A.sy(alpha)+19,'text-anchor':'middle',fill:c('--muted'),'font-size':10.5},'threshold');
+  add('text',{x:A.sx(roots[2]),y:A.sy(alpha)-11,'text-anchor':'middle',fill:c('--accent'),'font-size':10.5,'font-weight':700},'stable');
+
+  add('text',{x:568,y:22,'text-anchor':'middle',fill:c('--accent'),'font-size':12.5,'font-weight':700},'B · trajectories');
+  const B=axes(423,38,292,240,20,3.3,'time','protein level, x');
+  [roots[0],roots[1],roots[2]].forEach((r,i)=>add('line',{x1:B.sx(0),y1:B.sy(r),x2:B.sx(20),y2:B.sy(r),stroke:i===1?c('--muted'):c('--grid'),'stroke-width':1.2,'stroke-dasharray':i===1?'5 4':'3 5'}));
+  const rk4=(x,dt)=>{const k1=net(x),k2=net(x+dt*k1/2),k3=net(x+dt*k2/2),k4=net(x+dt*k3);return x+dt*(k1+2*k2+2*k3+k4)/6;};
+  const starts=[.10,1.00,1.70,3.20];
+  const colors=[c('--blue'),c('--green'),c('--orange'),c('--accent2')];
+  starts.forEach((x0,i)=>{
+    let x=x0, d='';
+    for(let j=0;j<=400;j++){
+      const t=20*j/400;
+      d+=`${j?'L':'M'}${B.sx(t).toFixed(2)},${B.sy(x).toFixed(2)} `;
+      x=rk4(x,.05);
+    }
+    add('path',{d,fill:'none',stroke:colors[i],'stroke-width':2.3,'stroke-linecap':'round'});
+    add('text',{x:B.sx(0)+5,y:B.sy(x0)-5,fill:colors[i],'font-size':10},`x₀=${x0.toFixed(1)}`);
+  });
+  add('text',{x:B.sx(12.5),y:B.sy(roots[1])-6,fill:c('--muted'),'font-size':10.5},'unstable threshold');
+})();
+</script>
+</body>
+</html>
