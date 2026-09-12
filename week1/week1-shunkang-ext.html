@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Does extra energy make a cell decide faster? · CCBS 2026</title>
+<meta name="description" content="A Week 1 extension essay on the diffusion-limited ceiling of an intracellular energy module.">
+<style>
+:root{--coral:#EE8168;--peri:#5A73CE;--lime:#8FB043;--plum:#77488C;--teal:#1F9A8E;--rose:#D75567;--blush:#F5E6EB;--lavender:#E6E4F1;--powder:#D0DAE4;--lilac:#D8CDDD;--pinkf:#F8CFCD;--cream:#FAF0D5;--ink:#20201E;--gray:#877F77;--leader:#B8AEA5;--gridc:#EDE7E0;--bg:#FCFAF7;--bg2:#FFFFFF;--fg:var(--ink);--muted:#6E675F;--rule:#E3DCD3;--serif:"Iowan Old Style","Palatino Linotype",Palatino,Charter,Georgia,"Times New Roman",serif;--sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif;--mono:"SF Mono",ui-monospace,Menlo,Consolas,"Liberation Mono",monospace;--maxw:44rem}
+@media(prefers-color-scheme:dark){:root{--bg:#141513;--bg2:#1C1D1A;--fg:#EDE9E2;--muted:#A9A197;--rule:#33352F;--gridc:#2C2E28;--leader:#5C574F;--ink:#EDE9E2;--gray:#9A9289;--blush:#33262B;--lavender:#262538;--powder:#1F2A33;--lilac:#2E2634;--pinkf:#3A2626;--cream:#332F20;--coral:#F2937D;--peri:#8497E0;--lime:#A6C55C;--plum:#B183C6;--teal:#4FC0B3;--rose:#E8768A}}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--serif);font-size:18px;line-height:1.62}a{color:var(--fg);text-underline-offset:2px;text-decoration-color:var(--leader)}a:hover{text-decoration-color:var(--rose)}.wrap{max-width:78rem;margin:0 auto;padding:0 1.25rem;display:grid;grid-template-columns:15rem minmax(0,1fr);gap:3rem}nav{position:sticky;top:0;align-self:start;max-height:100vh;overflow:auto;padding:2.5rem 0 3rem;font:0.8rem/1.45 var(--sans)}nav .brand{font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--rose);font-weight:700;margin-bottom:1rem}nav h2{font-size:.7rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin:0 0 .8rem}nav ol{list-style:none;padding:0;margin:0}nav li{margin:.12rem 0}nav a{display:block;padding:.25rem .55rem;color:var(--muted);text-decoration:none;border-left:2px solid transparent}nav a:hover{color:var(--fg);background:var(--bg2);border-left-color:var(--rose)}main{padding:2.5rem 0 6rem;min-width:0}main>*{max-width:var(--maxw)}main>figure,main>.tablewrap{max-width:56rem}h1{font-size:2.5rem;line-height:1.1;letter-spacing:-.02em;margin:.4rem 0 .8rem;max-width:25ch}h2{font-size:1.05rem;font-family:var(--sans);margin:3.6rem 0 .2rem}h2 .n{color:var(--rose);margin-right:.5rem}.sub{font-size:1.18rem;color:var(--muted);margin:0 0 1.6rem;line-height:1.5}.byline{font:.8rem var(--sans);color:var(--muted);letter-spacing:.02em;margin-bottom:2.6rem;padding-bottom:1.6rem;border-bottom:1px solid var(--rule)}h2+.lede{color:var(--muted);font-size:1.02rem;margin:.1rem 0 1.1rem}p{margin:0 0 1.05rem}ul,ol{margin:0 0 1.05rem;padding-left:1.35rem}li{margin:.28rem 0}.box{border:1px solid var(--rule);background:var(--bg2);border-radius:10px;padding:1rem 1.15rem;margin:1.5rem 0;box-shadow:0 1px 2px rgba(32,32,30,.05),0 8px 28px rgba(32,32,30,.05)}.box .lbl{display:block;font:.65rem var(--sans);letter-spacing:.14em;text-transform:uppercase;font-weight:700;margin-bottom:.45rem}.box p:last-child,.box ul:last-child{margin-bottom:0}.box.key{border-left:3px solid var(--rose);background:var(--blush)}.box.key .lbl{color:var(--rose)}.box.def{border-left:3px solid var(--peri);background:var(--lavender)}.box.def .lbl{color:var(--peri)}.box.caution{border-left:3px solid var(--coral);background:var(--pinkf)}.box.caution .lbl{color:var(--coral)}.box.open{border-left:3px solid var(--plum);background:var(--lilac)}.box.open .lbl{color:var(--plum)}.eq{display:block;margin:1.3rem auto;padding:.85rem 1rem;text-align:center;font:1rem/1.9 var(--mono);background:var(--bg2);border:1px solid var(--rule);border-radius:8px;overflow-x:auto}.eq:has(math){font-family:inherit;font-size:1rem;line-height:1.4}.eq math[display="block"]{margin:0}math{font-size:1.06em;font-style:normal}math annotation{display:none}.eq .tag{float:right;color:var(--leader);font-size:.85em}figure{margin:2rem 0}figure svg{display:block;width:100%;height:auto;background:var(--bg2);border:1px solid var(--rule);border-radius:10px;box-shadow:0 1px 2px rgba(32,32,30,.05)}figure svg text{font-family:var(--sans)}figcaption{font:.8rem/1.5 var(--sans);color:var(--muted);margin-top:.7rem}figcaption b{color:var(--fg)}.tablewrap{overflow-x:auto;margin:1.6rem 0;border:1px solid var(--rule);border-radius:10px;background:var(--bg2)}table{border-collapse:collapse;width:100%;font:.84rem/1.45 var(--sans)}th,td{text-align:left;padding:.6rem .8rem;border-bottom:1px solid var(--rule);vertical-align:top}th{font-size:.68rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);background:var(--bg)}tbody tr:last-child td{border-bottom:0}.num{font-family:var(--mono);white-space:nowrap}.refs{font:.88rem/1.5 var(--sans)}.refs li{margin:.55rem 0}.small{font-size:.88rem;color:var(--muted)}pre{white-space:pre-wrap;overflow-x:auto;font:.82rem/1.6 var(--mono);background:var(--bg2);border:1px solid var(--rule);border-radius:8px;padding:.9rem 1rem}@media(max-width:1000px){.wrap{display:block}nav{position:static;max-height:none;border-bottom:1px solid var(--rule);padding:1.2rem 0;margin-bottom:1rem}main{padding-top:1rem}}@media(max-width:600px){body{font-size:17px}h1{font-size:2rem}.wrap{padding:0 .9rem}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav>
+  <div class="brand">CCBS · 2026 · WEEK 1 EXTENSION</div>
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#s1">1 · The question</a></li>
+    <li><a href="#s2">2 · The physical ceiling</a></li>
+    <li><a href="#s3">3 · Put the battery downstream</a></li>
+    <li><a href="#s4">4 · The numerical test</a></li>
+    <li><a href="#s5">5 · What this does and does not say</a></li>
+    <li><a href="#s6">6 · The next experiment</a></li>
+    <li><a href="#refs">Sources</a></li>
+  </ol>
+</nav>
+<main>
+
+<h1>Does extra energy make a cell decide faster?</h1>
+<p class="sub">A diffusion-limited ceiling for an intracellular power station</p>
+<p class="byline">CCBS · EST 5053 · extension mini-essay · on lectures 1–2 · Week 1 · 2026-09-07</p>
+
+<div class="box key">
+<span class="lbl">The claim</span>
+<p>Adding an intracellular energy source cannot make a cell's decision arbitrarily fast. In the minimal serial model below, it can shorten the downstream catalytic step, but it cannot shorten the time needed for ligand molecules to arrive at and be captured by the cell.</p>
+<p>This is a conditional result, not a claim that extra energy is useless. It says that an energy module must be connected to the actual bottleneck. If capture is limiting, more power downstream is mostly idle capacity.</p>
+</div>
+
+<h2 id="s1"><span class="n">1</span>The question</h2>
+<p class="lede">What would an extra battery buy a cell?</p>
+<p>Cells are often described as highly optimized systems. That makes an engineered intervention sound paradoxical: if a cell already uses its available energy efficiently, perhaps giving it an additional source of ATP would let it do something new. But “more energy” is not yet a mechanism. We need to say what the energy changes, and what it cannot change.</p>
+<p>Consider the smallest useful version of the idea. A ligand outside a bacterium must be captured by a receptor. The receptor event then triggers a slow intracellular commitment reaction. An auxiliary power module supplies ATP to that second step. Does the extra power reduce the total time from ligand arrival to decision?</p>
+<p>The tempting answer is yes: make the catalytic reaction faster and the cell decides faster. Lecture 2 supplies the missing check. Before a molecule can be processed, it has to arrive. A power source can change a reaction rate only after the relevant molecular encounter exists.</p>
+<p>I therefore separate the total latency from sensing to decision into four terms:</p>
+<div class="eq"><math display="block"><mrow><msub><mi>τ</mi><mi>total</mi></msub><mo>=</mo><msub><mi>τ</mi><mi>delivery</mi></msub><mo>+</mo><msub><mi>τ</mi><mi>capture</mi></msub><mo>+</mo><msub><mi>τ</mi><mi>processing</mi></msub><mo>+</mo><msub><mi>τ</mi><mi>commit</mi></msub></mrow></math><span class="tag">(0)</span></div>
+<p>This essay lets the auxiliary source change only the downstream catalytic terms. In the numerical model below, <i>τ</i><sub>delivery</sub> is folded into the waiting time represented by the diffusion-limited capture rate <i>J</i>. The result is therefore a bottleneck-localizing null model, not a step-by-step simulation of a complete sensory pathway.</p>
+
+<h2 id="s2"><span class="n">2</span>The physical ceiling</h2>
+<p class="lede">A cell with discrete receptors is not a perfectly absorbing sphere, but it can approach that limit surprisingly quickly.</p>
+<p>Lecture 2's extension uses the Berg–Purcell treatment of a spherical cell of radius <i>a</i> carrying <i>N</i> dispersed receptor patches, each with binding radius <i>s</i>. The diffusion-limited capture rate is written</p>
+<div class="eq"><math display="block"><mrow><mi>J</mi><mo>=</mo><msub><mi>J</mi><mi>max</mi></msub><mo>·</mo><mfrac><mrow><mi>N</mi><mi>s</mi></mrow><mrow><mi>N</mi><mi>s</mi><mo>+</mo><mi>π</mi><mi>a</mi></mrow></mfrac><mo>,</mo><mspace width="1em"></mspace><msub><mi>J</mi><mi>max</mi></msub><mo>=</mo><mn>4</mn><mi>π</mi><mi>D</mi><mi>a</mi><msub><mi>C</mi><mo>∞</mo></msub></mrow></math><span class="tag">(1)</span></div>
+<p>Here <i>D</i> is the ligand diffusion coefficient and <i>C</i><sub>∞</sub> is its far-field concentration. The ratio <i>J/J</i><sub>max</sub> depends on the sum of receptor radii, <i>Ns</i>, not on the total receptor area. Setting the ratio to one half gives</p>
+<div class="eq"><math display="block"><mrow><msub><mi>N</mi><mrow><mn>1</mn><mo>/</mo><mn>2</mn></mrow></msub><mo>=</mo><mfrac><mrow><mi>π</mi><mi>a</mi></mrow><mi>s</mi></mfrac></mrow></math><span class="tag">(2)</span></div>
+<p>For a cell with <i>a</i> = 1 μm and a receptor patch with <i>s</i> = 1 nm, this is about 3,142 patches. At that point the patches cover only</p>
+<div class="eq"><math display="block"><mrow><mfrac><mrow><msub><mi>N</mi><mrow><mn>1</mn><mo>/</mo><mn>2</mn></mrow></msub><msup><mi>s</mi><mn>2</mn></msup></mrow><mrow><mn>4</mn><msup><mi>a</mi><mn>2</mn></msup></mrow></mfrac><mo>=</mo><mn>7.85</mn><mo>×</mo><msup><mn>10</mn><mrow><mo>−</mo><mn>4</mn></mrow></msup><mo>=</mo><mn>0.0785</mn><mo>%</mo></mrow></math><span class="tag">(3)</span></div>
+<p>of the spherical surface. The result is counterintuitive only if each molecule gets one independent look at the cell. A molecule that has already touched the surface is likely to return. Sparse, dispersed receptors can therefore intercept repeated visits.</p>
+
+<figure>
+<svg viewBox="0 0 760 410" role="img" aria-label="Normalized capture rate versus number of dispersed receptor patches on a one micrometre cell">
+  <rect x="0" y="0" width="760" height="410" fill="var(--bg2)"/>
+  <g stroke="var(--gridc)" stroke-width="1">
+    <line x1="82" y1="55" x2="710" y2="55"/><line x1="82" y1="125" x2="710" y2="125"/><line x1="82" y1="195" x2="710" y2="195"/><line x1="82" y1="265" x2="710" y2="265"/><line x1="82" y1="335" x2="710" y2="335"/>
+    <line x1="82" y1="55" x2="82" y2="335"/><line x1="187" y1="55" x2="187" y2="335"/><line x1="292" y1="55" x2="292" y2="335"/><line x1="397" y1="55" x2="397" y2="335"/><line x1="502" y1="55" x2="502" y2="335"/><line x1="607" y1="55" x2="607" y2="335"/><line x1="710" y1="55" x2="710" y2="335"/>
+  </g>
+  <g stroke="var(--fg)" stroke-width="1.5"><line x1="82" y1="335" x2="710" y2="335"/><line x1="82" y1="55" x2="82" y2="335"/></g>
+  <polyline points="82,335 187,334 292,326 397,268 449,195 502,122 607,63 710,56" fill="none" stroke="var(--teal)" stroke-width="4"/>
+  <line x1="449" y1="195" x2="449" y2="335" stroke="var(--rose)" stroke-width="2" stroke-dasharray="6 5"/>
+  <line x1="82" y1="195" x2="449" y2="195" stroke="var(--rose)" stroke-width="2" stroke-dasharray="6 5"/>
+  <circle cx="449" cy="195" r="6" fill="var(--rose)"/>
+  <g font-family="var(--sans)" font-size="14" fill="var(--muted)">
+    <text x="55" y="340">0</text><text x="48" y="270">0.25</text><text x="48" y="200">0.50</text><text x="48" y="130">0.75</text><text x="55" y="60">1</text>
+    <text x="76" y="360">1</text><text x="176" y="360">10</text><text x="278" y="360">10²</text><text x="383" y="360">10³</text><text x="488" y="360">10⁴</text><text x="593" y="360">10⁵</text><text x="695" y="360">10⁶</text>
+    <text x="270" y="397">number of dispersed receptor patches, N</text><text transform="translate(18 270) rotate(-90)">J / Jmax</text>
+  </g>
+  <g font-family="var(--sans)" font-size="14" fill="var(--fg)"><text x="458" y="184" font-weight="700">N₁/₂ ≈ 3,142</text><text x="458" y="204" fill="var(--muted)">J/Jmax = 0.5</text></g>
+</svg>
+<figcaption><b>Figure 1. Capture saturates before the surface is covered.</b> Equation (1) evaluated for <i>a</i>/<i>s</i> = 1000. The curve is not a fit. It is the Berg–Purcell expression used in the Lecture 2 extension, with the half-maximum point computed from equation (2).</figcaption>
+</figure>
+
+<h2 id="s3"><span class="n">3</span>Put the battery downstream</h2>
+<p class="lede">A minimal serial model separates arrival from commitment.</p>
+<p>Now add the proposed power station. To keep the question honest, I will not let it change diffusion, receptor number, or ligand concentration. It only changes the rate of the downstream commitment step. If the cell needs <i>n</i><sub>req</sub> captured ligand events before committing, a simple waiting-time model is</p>
+<div class="eq"><math display="block"><mrow><msub><mi>τ</mi><mi>decision</mi></msub><mo>≈</mo><mfrac><msub><mi>n</mi><mi>req</mi></msub><mi>J</mi></mfrac><mo>+</mo><mfrac><mn>1</mn><msub><mi>k</mi><mi>commit</mi></msub></mfrac></mrow></math><span class="tag">(4)</span></div>
+<p>The first term combines delivery and receptor capture into one capture clock. The second is the catalytic clock. This is deliberately a null model: it treats the two stages as serial waiting times and ignores adaptation, feedback, molecule depletion and stochastic correlations. Its value is not precision. It makes the proposed intervention explicit.</p>
+<p>Let the auxiliary energy module increase the commitment rate by a factor α:</p>
+<div class="eq"><math display="block"><mrow><msubsup><mi>k</mi><mi>commit</mi><mo>′</mo></msubsup><mo>=</mo><mi>α</mi><msub><mi>k</mi><mi>commit</mi></msub><mo>,</mo><mspace width="1em"></mspace><msubsup><mi>τ</mi><mi>decision</mi><mo>′</mo></msubsup><mo>≈</mo><mfrac><msub><mi>n</mi><mi>req</mi></msub><mi>J</mi></mfrac><mo>+</mo><mfrac><mn>1</mn><mrow><mi>α</mi><msub><mi>k</mi><mi>commit</mi></msub></mrow></mfrac></mrow></math><span class="tag">(5)</span></div>
+<p>As α tends to infinity, the second term disappears, but the first term remains. The best possible limit of this particular energy intervention is therefore</p>
+<div class="eq"><math display="block"><mrow><msub><mi>τ</mi><mi>min</mi></msub><mo>=</mo><mfrac><msub><mi>n</mi><mi>req</mi></msub><mi>J</mi></mfrac></mrow></math><span class="tag">(6)</span></div>
+<p>This is the central point: the battery can remove a catalytic delay, but it cannot remove the time required to collect information from the outside world.</p>
+
+<h2 id="s4"><span class="n">4</span>The numerical test</h2>
+<p class="lede">How much room is there for the battery to help?</p>
+<p>To show the transition without pretending to know a real cell's complete parameter set, I use a dimensionless illustrative case. Set <i>n</i><sub>req</sub> = 1 and choose <i>J</i><sub>max</sub>/<i>k</i><sub>commit</sub> = 10. The latter is not an experimental measurement; it only places the capture and commitment clocks on comparable scales. For each receptor number, I calculate</p>
+<div class="eq"><math display="block"><mrow><msub><mi>k</mi><mi>commit</mi></msub><msub><mi>τ</mi><mi>decision</mi></msub><mo>=</mo><mfrac><msub><mi>k</mi><mi>commit</mi></msub><mi>J</mi></mfrac><mo>+</mo><mfrac><mn>1</mn><mi>α</mi></mfrac></mrow></math><span class="tag">(7)</span></div>
+<p>The values below come from the code included in the page. At <i>N</i> = 3,142, capture is at half of its maximum. The unpowered system takes 1.20 commitment-time units. Increasing α from 1 to 100 reduces this to 0.21, but the diffusion-only floor is 0.20. Nearly all of the possible benefit has already been used by α = 10.</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>N</th><th>J/Jmax</th><th>α = 1</th><th>α = 10</th><th>α = 100</th><th>α → ∞</th></tr></thead>
+<tbody>
+<tr><td class="num">100</td><td class="num">0.0309</td><td class="num">4.24</td><td class="num">3.34</td><td class="num">3.25</td><td class="num">3.24</td></tr>
+<tr><td class="num">1,000</td><td class="num">0.2415</td><td class="num">1.41</td><td class="num">0.51</td><td class="num">0.42</td><td class="num">0.41</td></tr>
+<tr><td class="num">3,142</td><td class="num">0.5000</td><td class="num">1.20</td><td class="num">0.30</td><td class="num">0.21</td><td class="num">0.20</td></tr>
+<tr><td class="num">10,000</td><td class="num">0.7610</td><td class="num">1.13</td><td class="num">0.23</td><td class="num">0.14</td><td class="num">0.13</td></tr>
+</tbody>
+</table>
+</div>
+
+<figure>
+<svg viewBox="0 0 760 410" role="img" aria-label="Normalized decision time versus receptor number for different catalytic acceleration factors">
+  <rect x="0" y="0" width="760" height="410" fill="var(--bg2)"/>
+  <g stroke="var(--gridc)" stroke-width="1"><line x1="82" y1="55" x2="710" y2="55"/><line x1="82" y1="125" x2="710" y2="125"/><line x1="82" y1="195" x2="710" y2="195"/><line x1="82" y1="265" x2="710" y2="265"/><line x1="82" y1="335" x2="710" y2="335"/><line x1="82" y1="55" x2="82" y2="335"/><line x1="292" y1="55" x2="292" y2="335"/><line x1="397" y1="55" x2="397" y2="335"/><line x1="502" y1="55" x2="502" y2="335"/><line x1="607" y1="55" x2="607" y2="335"/><line x1="710" y1="55" x2="710" y2="335"/></g>
+  <g stroke="var(--fg)" stroke-width="1.5"><line x1="82" y1="335" x2="710" y2="335"/><line x1="82" y1="55" x2="82" y2="335"/></g>
+  <polyline points="292,99 397,236 449,251 502,260 607,267" fill="none" stroke="var(--rose)" stroke-width="3"/>
+  <polyline points="292,162 397,299 449,314 502,323 607,330" fill="none" stroke="var(--peri)" stroke-width="3"/>
+  <polyline points="292,168 397,305 449,320 502,329 607,334" fill="none" stroke="var(--teal)" stroke-width="3"/>
+  <line x1="82" y1="335" x2="710" y2="335" stroke="var(--teal)" stroke-width="2" stroke-dasharray="6 5"/>
+  <g font-family="var(--sans)" font-size="14" fill="var(--muted)"><text x="49" y="340">0</text><text x="49" y="270">1</text><text x="49" y="200">2</text><text x="49" y="130">3</text><text x="49" y="60">4</text><text x="278" y="360">10²</text><text x="383" y="360">10³</text><text x="435" y="360">3×10³</text><text x="488" y="360">10⁴</text><text x="593" y="360">10⁵</text><text x="260" y="397">number of receptor patches, N</text><text transform="translate(18 270) rotate(-90)">kcommit τdecision</text></g>
+  <g font-family="var(--sans)" font-size="14" fill="var(--fg)"><text x="620" y="257" fill="var(--rose)">α = 1</text><text x="620" y="300" fill="var(--peri)">α = 10</text><text x="620" y="322" fill="var(--teal)">α = 100</text><text x="620" y="342" fill="var(--teal)">diffusion floor</text></g>
+</svg>
+<figcaption><b>Figure 2. Faster commitment meets a capture floor.</b> Illustrative calculation using <i>n</i><sub>req</sub> = 1 and <i>J</i><sub>max</sub>/<i>k</i><sub>commit</sub> = 10. The acceleration factor α changes only the catalytic term in equation (5). The horizontal floor is the limiting capture term.</figcaption>
+</figure>
+
+<pre># Reproducible arithmetic for the table and figures
+import math
+
+a_over_s = 1000
+Jmax_over_k = 10
+n_required = 1
+
+for N in [100, 1000, 3142, 10000]:
+    capture_fraction = N / (N + math.pi * a_over_s)
+    J_over_k = Jmax_over_k * capture_fraction
+    values = [1 / J_over_k + 1 / alpha for alpha in [1, 10, 100]]
+    diffusion_floor = 1 / J_over_k
+    print(N, capture_fraction, values, diffusion_floor)</pre>
+
+<h2 id="s5"><span class="n">5</span>What this does and does not say</h2>
+<p class="lede">The result is a bottleneck statement, not an anti-energy statement.</p>
+<p>The calculation supports a narrow conclusion. If receptor capture is the slow stage, adding power to a downstream catalytic commitment cannot improve the total decision time beyond the capture limit. The right intervention would have to change the upstream bottleneck: increase receptor number, alter receptor geometry, raise ligand concentration, change transport, or make the cell use each encounter more efficiently.</p>
+<p>It does not say that energy can never affect sensing. An ATP-driven receptor reset could change how many statistically useful observations are made in a fixed time. Active transport could change local delivery. An energy module could also be coupled to proofreading, adaptation or a state transition. Those are different mechanisms because they change the capture process, the sampling process or the network topology. They cannot be represented honestly by the single parameter α in equation (5).</p>
+<p>There is also a modelling boundary on equation (1). It assumes a spherical cell, a dilute external ligand, dispersed receptor patches and a steady diffusion problem. Real cells have crowding, cell walls, receptor clustering, hydrodynamic flow, finite ligand supply and time-dependent inputs. The formula is therefore a null model: useful for locating a possible ceiling, not a complete account of a cell.</p>
+
+<div class="box caution">
+<span class="lbl">The unresolved question</span>
+<p>The next step is not to add every cellular process. It is to decide whether the auxiliary energy module acts on a true catalytic bottleneck or whether it can change the number and independence of sensing events. Only the second case could move the diffusion-limited term itself.</p>
+</div>
+
+<h2 id="s6"><span class="n">6</span>The next experiment</h2>
+<p>If this were continued beyond Week 1, I would compare two interventions at matched mean energy input. In the first, ATP only accelerates a downstream commitment reaction. In the second, ATP powers a receptor reset that returns the sensor to a state capable of sampling again. The observable should not be only mean output. It should include decision time, number of independent binding events, error rate and energy consumed per decision.</p>
+<p>That comparison would tell us whether the “battery” is merely a faster motor attached after the information has arrived, or whether it changes the information-acquisition process itself. Week 1 establishes why that distinction has to be made before building a larger cell model.</p>
+
+<h2 id="refs"><span class="n">†</span>Sources</h2>
+<div class="refs">
+<ol>
+<li><strong>CCBS 2026, Lecture 1 core.</strong> <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture01-core.html">Order of magnitude: the physics</a>. Provides the order-of-magnitude method and the warning that the physical bottleneck should be identified before details are added.</li>
+<li><strong>CCBS 2026, Lecture 2 core.</strong> <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture02-core.html">From order of magnitude in biology to binding and catalysis</a>. Provides the cell-size scale, diffusion timescale, distinction between binding and catalysis, and the diffusion-limited reaction discussion.</li>
+<li><strong>CCBS 2026, Lecture 2 extension example.</strong> <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture02-extension.html">A cell needs almost no receptors</a>. Equation (1) and the numerical example in this essay use the receptor-patch expression and parameters presented there.</li>
+<li><strong>Berg, H. C. and Purcell, E. M. (1977). Physics of chemoreception. Biophysical Journal, 20, 193–219.</strong> DOI: <a href="https://doi.org/10.1016/S0006-3495(77)85544-6">10.1016/S0006-3495(77)85544-6</a>. The Berg–Purcell receptor-capture result, including its stated assumptions, underlies equation (1).</li>
+</ol>
+<p class="small">The table and the two plots are generated from the equations written above. The values are illustrative because <i>J</i><sub>max</sub>/<i>k</i><sub>commit</sub> and <i>n</i><sub>req</sub> are modelling choices, not measurements of one named cell.</p>
+</div>
+
+</main>
+</div>
+</body>
+</html>

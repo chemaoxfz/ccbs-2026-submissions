@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 1 — Extension: Why Does Hypoxia Inhibit the TCA Cycle?
+</title>
+<meta name="author" content="yanrunzi">
+<meta name="week" content="week1">
+<style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px;
+    border-bottom:1px solid var(--line); padding-bottom:5px; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:14px 18px; margin:14px 0; }
+  .fig { width:100%; border:1px solid var(--line); border-radius:6px; margin:14px 0; background:var(--bg); }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; }
+  .eqn { font-family:"Cambria Math","Georgia",serif; background:var(--soft);
+    border:1px solid var(--line); border-radius:6px; padding:10px 16px; margin:10px 0;
+    overflow-x:auto; }
+  .step:not(:last-child)::after { content:"→"; margin:0 8px; color:var(--muted); }
+  sub, sup { line-height:0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Week 1 — Extension: Why Does Hypoxia Inhibit the TCA Cycle?</h1>
+<p class="meta">Author: Runzi Yan · Week 1 (2026-09-07) · CCBS 2026</p>
+
+
+
+<h2>Why Does Low O₂ Stall Respiration?</h2>
+<p>Aerobic respiration is the main route by which most cells extract energy from
+organic carbon. Glycolysis and the TCA cycle break glucose down to CO<sub>2</sub>
+while loading electrons onto NADH (and FADH<sub>2</sub>):</p>
+
+<div class="eqn">C<sub>6</sub>H<sub>12</sub>O<sub>6</sub> + 6 O<sub>2</sub> → 6 CO<sub>2</sub> + 10 NADH + 2 FADH<sub>2</sub> + other products</div>
+
+<p>NADH then hands those electrons to the respiratory chain complexes in the inner
+mitochondrial membrane. Oxidative phosphorylation uses them to consume O<sub>2</sub>,
+make H<sub>2</sub>O and ATP, and regenerate NAD<sup>+</sup>:</p>
+
+<div class="eqn">NADH + H<sup>+</sup> + &#189; O<sub>2</sub> → NAD<sup>+</sup> + H<sub>2</sub>O</div>
+
+<p>Although the TCA cycle itself does not directly require oxygen, it is nevertheless inhibited under hypoxic conditions. This is often attributed to the inability of NADH to be efficiently oxidized back to NAD⁺ under oxygen-limited conditions, resulting in insufficient NAD⁺ to sustain the TCA cycle. This raises a basic question: <strong>under normal conditions, how fast is NADH produced and consumed within a cell, and is there a substantial difference between the two rates?</strong></p>
+
+<h2>The Calculation</h2>
+<p>Start from a measured CO<sub>2</sub> production rate for a single, well-oxygenated
+HeLa cell, reported from a live-cell fluorescent CO<sub>2</sub> probe, which gives
+J<sub>CO2</sub> = 6.40 × 10<sup>−6</sup> μg h<sup>−1</sup> cell<sup>−1</sup> [1], which
+converts to:</p>
+
+<div class="eqn">J<sub>CO2</sub> ≈ 2.4 × 10<sup>7</sup> CO<sub>2</sub> molecules s<sup>−1</sup> cell<sup>−1</sup></div>
+
+<p>Taking glucose as the dominant carbon source and reading the stoichiometry off the
+equation above (6 CO<sub>2</sub> produced alongside 10 NADH per glucose), the implied
+<strong>NADH production rate</strong> is:</p>
+
+<div class="eqn">J<sub>NADH, produced</sub> ≈ (10/6) × 2.4 × 10<sup>7</sup> ≈ 4 × 10<sup>7</sup> NADH molecules s<sup>−1</sup> cell<sup>−1</sup></div>
+
+<p>On the consumption side, an independent, classic measurement of cellular O<sub>2</sub>
+uptake under normoxia gives an O<sub>2</sub> consumption rate of J<sub>O2</sub> = 26.9
+amol O<sub>2</sub> cell<sup>−1</sup> s<sup>−1</sup> <sup>[2]</sup>, which converts to:</p>
+
+<div class="eqn">J<sub>O2</sub> ≈ 1.62 × 10<sup>7</sup> O<sub>2</sub> molecules s<sup>−1</sup> cell<sup>−1</sup> </div>
+
+<p>So,
+production (~4 × 10<sup>7</sup> s<sup>−1</sup>) and consumption
+(~3.2 × 10<sup>7</sup> s<sup>−1</sup>) sit within roughly a factor of two of each
+other — under normoxia, the NADH books are close to balanced, not wildly mismatched.</p>
+
+<figure>
+  <svg class="fig" viewBox="0 0 640 260" xmlns="http://www.w3.org/2000/svg">
+    <text x="20" y="24" font-size="13" fill="#566" font-family="Segoe UI, Arial, sans-serif">
+      Computed NADH turnover rates in a normoxic HeLa cell (molecules · s⁻¹ · cell⁻¹)
+    </text>
+    <line x1="60" y1="220" x2="600" y2="220" stroke="#999"/>
+    <line x1="60" y1="40" x2="60" y2="220" stroke="#999"/>
+    <text x="30" y="45" font-size="11" fill="#566">4×10⁷</text>
+    <text x="30" y="130" font-size="11" fill="#566">2×10⁷</text>
+    <text x="30" y="216" font-size="11" fill="#566">0</text>
+    <line x1="55" y1="40" x2="600" y2="40" stroke="#e2e6ea" stroke-dasharray="3,3"/>
+    <line x1="55" y1="130" x2="600" y2="130" stroke="#e2e6ea" stroke-dasharray="3,3"/>
+    <rect x="150" y="40" width="100" height="180" fill="#1f4e79"/>
+    <text x="200" y="235" font-size="12" text-anchor="middle" fill="#1a1a1a">NADH produced</text>
+    <text x="200" y="30" font-size="11" text-anchor="middle" fill="#1a1a1a">~4.0 × 10⁷ /s</text>
+    <rect x="330" y="76" width="100" height="144" fill="#8ab4e8"/>
+    <text x="380" y="235" font-size="12" text-anchor="middle" fill="#1a1a1a">NADH reoxidized</text>
+    <text x="380" y="66" font-size="11" text-anchor="middle" fill="#1a1a1a">~3.2 × 10⁷ /s</text>
+  </svg>
+  <figcaption>Figure 1: NADH production and consumption rates in a normoxic HeLa cell,
+    computed from literature CO<sub>2</sub> and O<sub>2</sub> fluxes. The two rates are
+    within roughly a factor of two of each other, so the NADH/NAD<sup>+</sup> balance
+    is close to steady state.</figcaption>
+</figure>
+
+<p>So under normoxia the balance holds. The literature answer to "how low does
+O<sub>2</sub> have to fall" comes from yeast respiration studies: O<sub>2</sub>
+utilization stays high while dissolved O<sub>2</sub> is above roughly 30 μM, but
+falls off once O<sub>2</sub> drops below that <sup>[3]</sup>. Tumor microenvironments routinely
+sit well under 30 μM O<sub>2</sub> <sup>[4]</sup> — which is exactly the regime where, by the
+numbers above, NADH production keeps running while its reoxidation route starts to
+choke, tipping the NADH/NAD<sup>+</sup> balance this section computed.Then, the TCA cycle can be inhibited, and more NADH is diverted toward lactate fermentation.</p>
+
+<h2>Do Cells Only Downregulate the TCA Cycle Under Anaerobic Conditions?</h2>
+<p>This picture is too clean, and tumor biology is the place that shows why: the
+Warburg effect. Many cancer cells run high rates of aerobic glycolysis — fermenting
+glucose to lactate — <em>even when O<sub>2</sub> is plentiful</em>, not only when it is
+scarce. So why would a well-oxygenated tumor cell
+still choose fermentation? This remains an open question.</p>
+
+<h2>Sources</h2>
+<ul class="src">
+  <li>[1] Chen D, Wang H, Dong L, et al. The fluorescent bioprobe with
+  aggregation-induced emission features for monitoring carbon dioxide generation rate
+  in single living cells and early identification of cancer cells. <em>Biomaterials</em>,
+  2016, 103: 67–74. — source of the measured single-cell CO<sub>2</sub> production
+  rate used in the "Work it" calculation.</li>
+  <li>[2] Wagner BA, Venkataraman S, Buettner GR. The rate of oxygen utilization by
+  cells. <em>Free Radical Biology &amp; Medicine</em>, 2011, 51(3): 700–712. — source
+  of the single-cell O<sub>2</sub> consumption rate used in the "Work it" calculation.</li>
+  <li>[3] Schäfer J, Dawitz H, Ott M, et al. Regulation of cytochrome c oxidase
+  activity by modulation of the catalytic site. <em>Scientific Reports</em>, 2018,
+  8(1): 11397. — source of the ~30 μM O<sub>2</sub> threshold for respiratory activity.</li>
+  <li>[4] Emami Nejad A, Najafgholian S, Rostami A, et al. The role of hypoxia in the
+  tumor microenvironment and development of cancer stem cells: a novel approach to
+  developing treatment. <em>Cancer Cell International</em>, 2021, 21(1): 62. — basis
+  for the claim that tumor O<sub>2</sub> levels sit well below 30 μM.</li>
+
+</ul>
+
+</div>
+</body>
+</html>
