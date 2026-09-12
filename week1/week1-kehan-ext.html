@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 1 — Why Stronger Binding Does Not Always Make a Promoter More Sensitive</title>
+<meta name="author" content="Lang Kehan">
+<meta name="week" content="week1">
+<style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px;
+    border-bottom:1px solid var(--line); padding-bottom:5px; }
+  h3 { font-size:1rem; color:var(--ink); margin:26px 0 7px; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:14px 18px; margin:14px 0; }
+  .fig { width:100%; border:1px solid var(--line); border-radius:6px; margin:14px 0; background:var(--bg); }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; }
+  code { background:var(--soft); padding:1px 4px; border-radius:3px; }
+  pre { overflow:auto; background:var(--soft); border:1px solid var(--line); padding:12px; border-radius:6px; font-size:.78rem; line-height:1.35; }
+  .eq { text-align:center; font-family:Georgia,serif; font-size:1.08rem; margin:14px 0; }
+  table { width:100%; border-collapse:collapse; margin:14px 0; font-size:.92rem; }
+  th, td { padding:8px 10px; border:1px solid var(--line); text-align:center; }
+  th { background:var(--soft); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Week 1 — Why Stronger Binding Does Not Always Make a Promoter More Sensitive</h1>
+<p class="meta">Author: Lang Kehan · Week 1 (2026-09-07) · CCBS 2026</p>
+
+<p class="card"><strong>One sentence:</strong> A promoter distinguishes two transcription-factor concentrations best when its response midpoint is centered on that range; stronger binding can instead saturate the promoter, while cooperative binding can sharpen the distinction.</p>
+
+<h2>The point I am adding</h2>
+<p>Lecture 2 warns that a Hill function is not the rate law of one elementary reaction: it compresses several molecular steps into an effective response.<sup><a href="#src-course">1</a></sup> That warning raises a useful design question. If a transcription factor binds its promoter more tightly, does the promoter always become a better sensor of that factor?</p>
+
+<p>No. A promoter that is almost always occupied cannot tell a high concentration from a slightly lower one, just as a promoter that is almost always empty cannot do so. The useful question is therefore not “how strong should binding be?” in isolation, but “which response midpoint gives the greatest contrast over the concentration range the cell needs to distinguish?” I answer that question first for one binding site, then ask what an effective Hill coefficient changes.</p>
+
+<h2>Work it</h2>
+
+<h3>From concentration to occupancy contrast</h3>
+<p>For one equilibrium binding site, the probability of promoter occupancy is the familiar Langmuir form</p>
+
+<p class="eq"><em>p</em>(<em>C</em>) = <em>C</em>/(<em>C</em> + <em>K</em><sub>d</sub>).</p>
+
+<p>Suppose a promoter must distinguish <em>C</em><sub>1</sub> = 10 nM from <em>C</em><sub>2</sub> = 20 nM. Its useful signal is not occupancy alone but the difference</p>
+
+<p class="eq">Δ<em>p</em> = <em>p</em>(<em>C</em><sub>2</sub>) − <em>p</em>(<em>C</em><sub>1</sub>) = <em>K</em><sub>d</sub>(<em>C</em><sub>2</sub> − <em>C</em><sub>1</sub>)/[(<em>C</em><sub>1</sub> + <em>K</em><sub>d</sub>)(<em>C</em><sub>2</sub> + <em>K</em><sub>d</sub>)].</p>
+
+<p>Differentiating this expression with respect to <em>K</em><sub>d</sub> gives one maximum:</p>
+
+<p class="eq"><em>K</em><sub>d</sub><sup>*</sup> = √(<em>C</em><sub>1</sub><em>C</em><sub>2</sub>) = √(10 × 20) nM ≈ 14 nM.</p>
+
+<p>This is not Lecture 1's geometric-mean guessing rule. Under this deliberately simple equilibrium model, it is an exact optimum for response contrast. At <em>K</em><sub>d</sub> = 1 nM, both inputs nearly saturate the promoter (0.91 versus 0.95 occupancy), so Δ<em>p</em> = 0.04. At <em>K</em><sub>d</sub> = 100 nM, both inputs leave it mostly empty (0.09 versus 0.17), so Δ<em>p</em> = 0.08. At the intermediate optimum, occupancy changes from 0.41 to 0.59, giving the larger Δ<em>p</em> ≈ 0.17.</p>
+
+<h3>Cooperativity sharpens a matched response</h3>
+<p>A real promoter may use several interacting factors or other hidden steps. A standard effective description is the Hill response<sup><a href="#src-bintu">2</a></sup></p>
+
+<p class="eq"><em>p</em>(<em>C</em>) = <em>C</em><sup><em>h</em></sup>/(<em>C</em><sup><em>h</em></sup> + <em>K</em><sup><em>h</em></sup>).</p>
+
+<p>Here <em>K</em> is the half-occupancy concentration and <em>h</em> is an effective Hill coefficient. For <em>h</em> = 1, this reduces to the single-site expression above. For <em>h</em> &gt; 1, it is not evidence for one elementary reaction involving <em>h</em> molecules at once; it is a compact description of a composite mechanism, exactly as Lecture 2 emphasizes.</p>
+
+<p>The same contrast calculation is maximized at <em>K</em> = √(<em>C</em><sub>1</sub><em>C</em><sub>2</sub>). With that matched value, the contrast for a twofold input change becomes</p>
+
+<p class="eq">Δ<em>p</em><sub>max</sub> = [2<sup><em>h</em>/2</sup> − 1]/[2<sup><em>h</em>/2</sup> + 1].</p>
+
+<table>
+  <thead><tr><th>Effective Hill coefficient <em>h</em></th><th>Δ<em>p</em> for 10 nM → 20 nM</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>0.17</td></tr>
+    <tr><td>2</td><td>0.33</td></tr>
+    <tr><td>4</td><td>0.60</td></tr>
+    <tr><td>6</td><td>0.78</td></tr>
+  </tbody>
+</table>
+
+<p>Thus cooperativity does not merely make binding “stronger.” When its midpoint is matched to the relevant input range, it can make a modest concentration fold-change produce a much clearer change in promoter occupancy. Figure 1 shows both requirements: matching <em>K</em> to the input range and increasing the effective steepness.</p>
+
+<figure>
+  <svg id="affinityFigure" class="fig" viewBox="0 0 700 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Affinity matching and cooperative promoter response"></svg>
+  <figcaption>Figure 1: My equilibrium toy model for 10 nM versus 20 nM input. Left: a Hill response centered at <em>K</em> = √(10 × 20) nM; larger effective Hill coefficients make the two occupancies more distinct. Right: for every shown <em>h</em>, response contrast is maximized at the same matched response midpoint, <em>K</em> ≈ 14 nM. The self-contained JavaScript below generated both curves from the equations in the text.</figcaption>
+</figure>
+
+<details>
+  <summary>Code used to generate Figure 1</summary>
+  <pre><code>const C1 = 10, C2 = 20, Kstar = Math.sqrt(C1 * C2);
+const occupancy = (C, K, h) => C ** h / (C ** h + K ** h);
+const contrast = (K, h) => occupancy(C2, K, h) - occupancy(C1, K, h);
+// h = 1, 2, 4; the executable script below maps these functions to SVG.</code></pre>
+</details>
+
+<script>
+(() => {
+  const svg = document.getElementById('affinityFigure');
+  const NS = 'http://www.w3.org/2000/svg';
+  const ink = '#1a1a1a', muted = '#566', blue = '#1f4e79', orange = '#b65a2b', green = '#3d7a61', red = '#b04a3a', grid = '#d8dee4';
+  const add = (tag, attrs = {}, value = '') => {
+    const node = document.createElementNS(NS, tag);
+    Object.entries(attrs).forEach(([key, val]) => node.setAttribute(key, val));
+    if (value) node.textContent = value;
+    svg.appendChild(node); return node;
+  };
+  const line = (x1, y1, x2, y2, attrs = {}) => add('line', {x1, y1, x2, y2, stroke: ink, ...attrs});
+  const text = (x, y, value, attrs = {}) => add('text', {x, y, fill: ink, 'font-size': 12, ...attrs}, value);
+  const C1 = 10, C2 = 20, Kstar = Math.sqrt(C1 * C2);
+  const occupancy = (C, K, h) => C ** h / (C ** h + K ** h);
+  const contrast = (K, h) => occupancy(C2, K, h) - occupancy(C1, K, h);
+  const series = [{h:1, color:blue}, {h:2, color:orange}, {h:4, color:green}];
+  const L = {x:58, y:47, w:255, h:210};
+  const R = {x:405, y:47, w:238, h:210};
+  const xL = C => L.x + C / 40 * L.w;
+  const yL = p => L.y + L.h - p / 1.0 * L.h;
+  const xR = K => R.x + Math.log10(K) / Math.log10(200) * R.w;
+  const yR = d => R.y + R.h - d / .65 * R.h;
+
+  text(L.x + L.w / 2, 24, 'A. Cooperativity sharpens a matched response', {'font-size':14, 'font-weight':'600', fill:blue, 'text-anchor':'middle'});
+  text(R.x + R.w / 2, 24, 'B. Contrast peaks at matched midpoint', {'font-size':14, 'font-weight':'600', fill:blue, 'text-anchor':'middle'});
+  [0, .25, .5, .75, 1].forEach(p => { line(L.x, yL(p), L.x + L.w, yL(p), {stroke:grid}); text(30, yL(p) + 4, p.toFixed(2), {fill:muted}); });
+  [0, 10, 20, 30, 40].forEach(C => { line(xL(C), L.y, xL(C), L.y + L.h, {stroke:grid}); text(xL(C) - 5, 276, String(C), {fill:muted}); });
+  line(L.x, L.y, L.x, L.y + L.h); line(L.x, L.y + L.h, L.x + L.w, L.y + L.h);
+  text(118, 307, 'input concentration C (nM)', {fill:muted});
+  text(13, 151, 'occupancy p', {fill:muted, transform:'rotate(-90 13 151)'});
+  [C1, C2].forEach(C => line(xL(C), L.y, xL(C), L.y + L.h, {stroke:red, 'stroke-dasharray':'4 3'}));
+  series.forEach(({h, color}) => {
+    let path = '';
+    for (let C = 0.01; C <= 40; C += .15) path += (C < .16 ? 'M' : 'L') + xL(C) + ',' + yL(occupancy(C, Kstar, h)) + ' ';
+    add('path', {d:path, fill:'none', stroke:color, 'stroke-width':3});
+    text(252, 74 + (h === 1 ? 0 : h === 2 ? 18 : 36), 'h = ' + h, {fill:color, 'font-weight':'600'});
+  });
+  text(xL(C1) - 10, 40, '10', {fill:red, 'font-weight':'600'});
+  text(xL(C2) - 10, 40, '20', {fill:red, 'font-weight':'600'});
+
+  [1, 3, 10, 30, 100, 200].forEach(K => { line(xR(K), R.y, xR(K), R.y + R.h, {stroke:grid}); text(xR(K) - (K >= 100 ? 10 : 4), 276, String(K), {fill:muted}); });
+  [0, .2, .4, .6].forEach(d => { line(R.x, yR(d), R.x + R.w, yR(d), {stroke:grid}); text(373, yR(d) + 4, d.toFixed(1), {fill:muted}); });
+  line(R.x, R.y, R.x, R.y + R.h); line(R.x, R.y + R.h, R.x + R.w, R.y + R.h);
+  text(456, 307, 'response midpoint K (nM, log scale)', {fill:muted});
+  text(359, 171, 'contrast Δp', {fill:muted, transform:'rotate(-90 359 171)'});
+  line(xR(Kstar), R.y, xR(Kstar), R.y + R.h, {stroke:red, 'stroke-dasharray':'4 3'});
+  text(xR(Kstar) + 5, 62, 'K* ≈ 14', {fill:red, 'font-weight':'600'});
+  series.forEach(({h, color}) => {
+    let path = '';
+    for (let logK = 0; logK <= Math.log10(200); logK += .01) {
+      const K = 10 ** logK;
+      path += (logK < .01 ? 'M' : 'L') + xR(K) + ',' + yR(contrast(K, h)) + ' ';
+    }
+    add('path', {d:path, fill:'none', stroke:color, 'stroke-width':3});
+    const labelK = h === 1 ? 80 : h === 2 ? 108 : 145;
+    text(xR(labelK), yR(contrast(labelK, h)) - 7, 'h = ' + h, {fill:color, 'font-weight':'600'});
+  });
+})();
+</script>
+
+<h2>What I would argue against / where this breaks</h2>
+<p>The calculation optimizes only equilibrium occupancy contrast between two chosen concentrations. A living cell may instead need a broad dynamic range, rapid switching, low output noise, or a particular response to a changing signal. Those goals need not select the same affinity or Hill coefficient. In addition, <em>h</em> above one is an effective parameter: it can arise from cooperative DNA binding, promoter states, chromatin effects, or a downstream network, rather than a literal one-step reaction.<sup><a href="#src-ackers">3</a></sup> The conclusion is therefore narrow but useful: “stronger binding” is not a self-contained design objective. Sensitivity depends on how the response curve is positioned and shaped relative to the signal the cell must read.</p>
+
+<h2>Sources</h2>
+<ul class="src">
+  <li id="src-course"><a href="https://chemaoxfz.github.io/ccbs/2026fall/">[1] CCBS 2026 course site, Lecture 2</a> — source of the distinction between elementary and composite reactions, and the discussion of Hill functions. The contrast optimization and figure are my own calculations.</li>
+  <li id="src-bintu">[2] Bintu, L. et al. “Transcriptional regulation by the numbers: models.” <em>Current Opinion in Genetics &amp; Development</em> 15, 116–124 (2005). <a href="https://doi.org/10.1016/j.gde.2005.02.007">https://doi.org/10.1016/j.gde.2005.02.007</a> — background for equilibrium occupancy models and their use in transcriptional regulation.</li>
+  <li id="src-ackers">[3] Ackers, G. K., Johnson, A. D. &amp; Shea, M. A. “Quantitative model for gene regulation by λ phage repressor.” <em>Proceedings of the National Academy of Sciences</em> 79, 1129–1133 (1982). <a href="https://doi.org/10.1073/pnas.79.4.1129">https://doi.org/10.1073/pnas.79.4.1129</a> — a mechanistic example in which multiple DNA-binding configurations produce a cooperative regulatory response.</li>
+</ul>
+
+</div>
+</body>
+</html>

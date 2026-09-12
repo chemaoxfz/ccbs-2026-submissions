@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 2 — Extension: When the cell is crowded</title>
+<meta name="author" content="20261203497-fanlipei">
+<meta name="week" content="week2">
+<style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; --teal:#1f9a8e; --rose:#d75567; }
+  @media (prefers-color-scheme: dark) { :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; --teal:#70c9bf; --rose:#ef8794; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px; border-bottom:1px solid var(--line); padding-bottom:5px; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px; padding:14px 18px; margin:14px 0; }
+  .fig { width:100%; border:1px solid var(--line); border-radius:6px; margin:14px 0; background:var(--bg); }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; }
+  .eq { text-align:center; font-size:1.08rem; padding:10px; margin:12px 0; background:var(--soft); border-left:3px solid var(--teal); }
+  svg text { font-family:"Segoe UI",Roboto,Arial,sans-serif; fill:var(--ink); }
+  svg .muted { fill:var(--muted); }
+  svg .axis { stroke:var(--muted); stroke-width:1.2; }
+  svg .grid { stroke:var(--line); stroke-width:1; }
+  svg .blue { fill:var(--accent); }
+  svg .teal { fill:var(--teal); }
+  svg .rose { fill:var(--rose); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Week 2 — Extension: When the cell is crowded</h1>
+<p class="meta">Author: 20261203497-fanlipei · Week 2 (2026-09-07) · CCBS 2026</p>
+
+<p class="card"><strong>One sentence:</strong> The diffusion-limited rate from Lecture 2 is a dilute-solution ceiling; macromolecular crowding changes both sides of the encounter: it slows motion, but it also leaves less free volume.</p>
+
+<h2>The point I am adding</h2>
+<p>Lecture 2 estimates an encounter rate with the Smoluchowski form <em>k</em> ≈ 4π(<em>D</em><sub>A</sub> + <em>D</em><sub>B</sub>)<em>R</em>. That derivation treats the solvent as a uniform liquid. Cytoplasm is not: proteins, nucleic acids and ribosomes occupy roughly 20–40% of its volume. A molecule therefore moves through a fluid that is both more viscous and geometrically obstructed.</p>
+<p>A useful first model is to separate these effects. Let <em>λ</em> be the viscosity slowdown, so <em>D</em><sub>crowded</sub> ≈ <em>D</em><sub>dilute</sub>/λ. Let <em>p</em> be the fraction of attempted encounters that are geometrically accessible. Then</p>
+<div class="eq"><strong>k<sub>crowded</sub> ≈ k<sub>dilute</sub> × p / λ</strong></div>
+<p>This does not replace a measurement: it tells us what to measure. Crowding can increase local concentration and sometimes speed a reaction through excluded volume, while the same crowding can reduce translational diffusion. The net effect is therefore not determined by volume fraction alone.</p>
+
+<h2>Work it</h2>
+<p>Use deliberately coarse numbers. Suppose crowding makes a small protein diffuse three times more slowly (<em>λ</em> = 3), and steric exclusion leaves 70% of nominal encounters usable (<em>p</em> = 0.7). The encounter ceiling becomes 0.7/3 ≈ 0.23 of the dilute value. If the dilute estimate was 10<sup>8</sup> M<sup>−1</sup> s<sup>−1</sup>, the crowded estimate is about 2 × 10<sup>7</sup> M<sup>−1</sup> s<sup>−1</sup>.</p>
+
+<figure>
+  <svg class="fig" viewBox="0 0 640 250" role="img" aria-label="Schematic comparison of dilute and crowded cytoplasm">
+    <rect x="0" y="0" width="640" height="250" fill="none"/>
+    <text x="160" y="28" text-anchor="middle" font-size="16" font-weight="700" class="blue">Dilute model</text>
+    <text x="480" y="28" text-anchor="middle" font-size="16" font-weight="700" class="rose">Crowded cell</text>
+    <rect x="35" y="45" width="250" height="125" rx="8" fill="none" stroke="var(--line)" stroke-width="2"/>
+    <rect x="355" y="45" width="250" height="125" rx="8" fill="none" stroke="var(--line)" stroke-width="2"/>
+    <circle cx="95" cy="90" r="15" class="blue" opacity=".85"/><circle cx="190" cy="125" r="15" class="blue" opacity=".85"/>
+    <circle cx="250" cy="82" r="15" class="blue" opacity=".85"/><circle cx="125" cy="145" r="15" class="blue" opacity=".85"/>
+    <circle cx="425" cy="90" r="15" class="rose" opacity=".9"/><circle cx="515" cy="125" r="15" class="rose" opacity=".9"/>
+    <circle cx="580" cy="80" r="30" class="teal" opacity=".55"/><circle cx="410" cy="145" r="27" class="teal" opacity=".55"/>
+    <circle cx="500" cy="72" r="20" class="teal" opacity=".55"/><circle cx="555" cy="155" r="24" class="teal" opacity=".55"/>
+    <path d="M95 90 C140 50 160 160 190 125" fill="none" stroke="var(--accent)" stroke-width="3" stroke-dasharray="7 5"/>
+    <path d="M425 90 C450 70 455 135 470 120" fill="none" stroke="var(--rose)" stroke-width="3" stroke-dasharray="7 5"/>
+    <text x="160" y="198" text-anchor="middle" font-size="13" class="muted">fast motion; most volume accessible</text>
+    <text x="480" y="198" text-anchor="middle" font-size="13" class="muted">slow motion; obstacles block paths</text>
+    <line x1="35" y1="222" x2="605" y2="222" class="axis"/>
+    <text x="35" y="243" font-size="13" class="muted">relative encounter ceiling</text>
+    <rect x="218" y="211" width="180" height="15" rx="3" class="blue" opacity=".75"/>
+    <rect x="218" y="211" width="42" height="15" rx="3" class="rose"/>
+    <text x="410" y="224" font-size="13" class="muted">1.0</text>
+    <text x="268" y="224" font-size="13" class="muted">0.23</text>
+  </svg>
+  <figcaption><strong>Figure 1.</strong> A schematic, not a molecular simulation. The bars use the worked estimate <em>p</em>/<em>λ</em> = 0.7/3 ≈ 0.23; the circles represent obstacles and reactants at the same time.</figcaption>
+</figure>
+
+<h2>What I would argue against / where this breaks</h2>
+<p>It would be wrong to conclude that crowding always slows biology by fourfold. The equation assumes independent diffusion, a single effective viscosity, and a reaction radius that does not change. Real cytoplasm is heterogeneous and transient: binding to a scaffold can reduce a molecule's search volume but raise its local concentration, and weak attractions can make an encounter last longer. A better experiment therefore compares the same reaction in a reconstituted crowded mixture and in dilute buffer, measuring both <em>D</em> and <em>k</em> rather than inferring one from the other.</p>
+
+<h2>Sources</h2>
+<ul class="src">
+  <li>Rivas, G. &amp; Minton, A. P. “Macromolecular crowding in vitro, in vivo, and in between.” <em>Trends in Biochemical Sciences</em> 41, 970–981 (2016). — Review of excluded-volume and interaction effects.</li>
+  <li>Phillips, R. et al. <em>Physical Biology of the Cell</em>, 2nd ed., Garland Science (2012), chapter 8. — Source for diffusion-limited encounter scaling and its assumptions.</li>
+  <li>Lecture 2, “From order of magnitude in biology to binding and catalysis,” sections 3–9. — Starting point: <em>τ</em> ≈ <em>x</em><sup>2</sup>/<em>D</em> and the diffusion-limited on-rate.</li>
+</ul>
+
+</div>
+</body>
+</html>
