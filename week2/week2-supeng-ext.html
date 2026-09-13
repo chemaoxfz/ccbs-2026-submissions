@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Week 2 — Extension: How long must fast growth last to erase memory?</title>
+<meta name="author" content="Peng Su">
+<meta name="week" content="week2">
+
+<style>
+:root {
+  --ink:#1a1a1a;
+  --muted:#566;
+  --accent:#1f4e79;
+  --line:#d8dee4;
+  --bg:#fff;
+  --soft:#f6f8fa;
+  --stable:#167d73;
+  --unstable:#c66a21;
+  --highlight:#8b2f64;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink:#e8e8e8;
+    --muted:#aab4b4;
+    --accent:#8ab4e8;
+    --line:#3a4652;
+    --bg:#15191d;
+    --soft:#1e242a;
+    --stable:#62c7ba;
+    --unstable:#f0a35e;
+    --highlight:#e18bbb;
+  }
+}
+
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  line-height:1.6;
+}
+.wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+.meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+h2 {
+  font-size:1.05rem;
+  color:var(--accent);
+  margin:34px 0 8px;
+  border-bottom:1px solid var(--line);
+  padding-bottom:5px;
+}
+h3 { font-size:.98rem; color:var(--ink); margin:24px 0 6px; }
+.card {
+  background:var(--soft);
+  border:1px solid var(--line);
+  border-radius:6px;
+  padding:14px 18px;
+  margin:14px 0;
+}
+.equation {
+  overflow-x:auto;
+  text-align:center;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:1.08rem;
+  letter-spacing:.01em;
+}
+.fig { width:100%; height:auto; border:1px solid var(--line); border-radius:6px; margin:14px 0 0; }
+figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+a { color:var(--accent); }
+.src { font-size:.9rem; padding-left:1.25rem; }
+.src li { margin:.55rem 0; }
+.result { color:var(--highlight); font-weight:650; }
+.lead { font-size:1.04rem; }
+.small { font-size:.9rem; color:var(--muted); }
+.result-grid {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin:14px 0;
+}
+.result-grid div {
+  background:var(--soft);
+  border:1px solid var(--line);
+  border-radius:6px;
+  padding:10px;
+  text-align:center;
+  font-size:.88rem;
+}
+.result-grid strong { display:block; color:var(--accent); font-size:1.02rem; }
+@media (max-width:600px) { .result-grid { grid-template-columns:1fr; } }
+details { margin-top:14px; }
+summary { cursor:pointer; color:var(--accent); font-weight:600; }
+pre {
+  background:var(--soft);
+  border:1px solid var(--line);
+  border-radius:6px;
+  padding:12px;
+  overflow-x:auto;
+  font-size:.78rem;
+  line-height:1.45;
+}
+code { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+</style>
+</head>
+
+<body>
+<div class="wrap">
+<h1>Week 2 — How long must fast growth last to erase memory?</h1>
+<p class="meta">Author: Peng Su · Week 2 (2026-09-12) · CCBS 2026</p>
+
+<p class="card"><strong>One sentence:</strong> A transient growth pulse erases a positive-feedback circuit's memory only when its strength and duration push the system across the switching threshold restored after normal growth resumes.</p>
+
+<h2>1 · The question beyond the lectures</h2>
+
+<p class="lead">Lecture 3 already supplies the demo of positive-autoregulation model, and Lecture 4 then explains its three crossings and the tangency that creates or destroys a stable-threshold pair. After recomputing those fixed points under different conditions, this mini essay further addresses the unresolved temporal question: <strong>if faster growth is only a pulse, when does a temporary loss of the ON fixed point become permanent loss of memory?</strong></p>
+
+<p>A static bifurcation diagram assumes that a parameter is held indefinitely. A bacterium instead encounters finite episodes: a nutrient upshift, recovery from stress, or transfer into fresh medium may raise growth for minutes or generations and then end. When normal growth returns, the original ON state and its unstable switching threshold also return. The cell's fate is then determined not only by whether the pulse crossed a fold, but by how far the protein concentration moved while the fold was crossed. This essay calculates that strength–duration condition.</p>
+
+<h2>2 · Make growth a pulse</h2>
+
+<p>Let <em>N</em> be protein molecule number and <em>V</em> cell volume, so the protein concentration <em>x</em> = <em>N</em>/<em>V</em>. If <em>dV</em>/<em>dt</em> = <em>μV</em>, differentiating <em>x</em> contributes the dilution term −<em>μx</em>. Molecular degradation adds −<em>γx</em>, giving the effective first-order removal coefficient <em>λ</em> = <em>γ</em> + <em>μ</em>. A transient increase in growth therefore appears as a transient increase in <em>λ</em>.</p>
+
+<p>Now take the positive-autoregulation example used in the course and expose this parameter:</p>
+
+<p class="equation"><em>dx</em>/<em>dt</em> = <em>p</em>(<em>x</em>) - <em>λx</em>, &nbsp;&nbsp; <em>p</em>(<em>x</em>) = 0.15 + 3<em>x</em><sup>4</sup>/(1 + <em>x</em><sup>4</sup>). &nbsp; (1)</p>
+
+<p>The basal term keeps OFF above zero; the saturating Hill term supplies positive feedback. The model is dimensionless and is not fitted to one bacterium. By imposed a square growth pulse <em>λ</em> = 1 before and after the pulse, and <em>λ</em> = <em>λ</em><sub>p</sub> for a duration <em>T</em>. Thus pulse strength is <em>λ</em><sub>p</sub>, pulse duration is <em>T</em>, and the regulatory production law is unchanged.</p>
+
+<p class="equation"><em>λ</em>(<em>t</em>) = 1 outside the pulse; &nbsp; <em>λ</em>(<em>t</em>) = <em>λ</em><sub>p</sub> during a pulse of duration <em>T</em>. &nbsp; (2)</p>
+
+<h2>3 · The static folds are calibration, not the new result</h2>
+
+<p>To know how strong a pulse must be, the tangency criterion from Lecture 4 was applied to the positive-autoregulation model. A steady state satisfies <em>p</em>(<em>x</em>) = <em>λx</em>. At a fold the production and removal curves also have equal slopes:</p>
+
+<p class="equation"><em>p</em>(<em>x</em>) = <em>λx</em>, &nbsp;&nbsp; <em>p</em>&prime;(<em>x</em>) = <em>λ</em>. &nbsp; (3)</p>
+
+<p>Here <em>p</em>&prime;(<em>x</em>) = 12<em>x</em><sup>3</sup>/(1 + <em>x</em><sup>4</sup>)<sup>2</sup>. Eliminating <em>λ</em> gives <em>p</em>(<em>x</em>) = <em>xp</em>&prime;(<em>x</em>); with <em>y</em> = <em>x</em><sup>4</sup>, this becomes 3.15<em>y</em><sup>2</sup> − 8.70<em>y</em> + 0.15 = 0. The resulting folds simply calibrate the pulse experiment:</p>
+
+<div class="result-grid">
+  <div><strong>λ &lt; 0.554</strong>one stable ON state</div>
+  <div><strong>0.554 &lt; λ &lt; 1.825</strong>OFF and ON memory</div>
+  <div><strong>λ &gt; 1.825</strong>one stable OFF state</div>
+</div>
+
+<p>At normal removal, <em>λ</em> = 1, the fixed points are 0.152 (stable OFF), 0.681 (unstable threshold) and 3.119 (stable ON). A pulse weaker than the upper fold, <em>λ</em><sub>p</sub> ≤ 1.825, leaves a high stable state above the restored threshold, so simply waiting cannot drive an initially ON cell across 0.681 in this deterministic model. A pulse stronger than 1.825 temporarily deletes ON, but duration still decides whether the deletion becomes permanent.</p>
+
+<figure>
+  <svg id="main-figure" class="fig" viewBox="0 0 720 330" role="img" aria-labelledby="fig-title fig-desc" xmlns="http://www.w3.org/2000/svg">
+    <title id="fig-title">Growth dilution reshapes the steady states of a positive-feedback circuit</title>
+    <desc id="fig-desc">The left panel compares the fixed production curve with three removal lines. The right panel shows stable and unstable steady states as the removal rate changes.</desc>
+  </svg>
+  <figcaption><strong>Figure 1.</strong> Static calibration using the framework already developed in Lectures 3–4. (A) The production curve is fixed while removal = <em>λx</em> becomes steeper. Filled points are stable and open points unstable. (B) Solid stable branches and the dashed unstable branch meet at folds 0.554 and 1.825. The upper fold sets the minimum pulse strength considered below. All paths and values were generated in-browser from Equation (1).</figcaption>
+</figure>
+
+<details>
+  <summary>Code used for the calculation and figure</summary>
+  <pre><code id="shown-code"></code></pre>
+</details>
+
+<h2>4 · Crossing a fold is necessary but not sufficient</h2>
+
+<p>Start at the normal ON state, <em>x</em><sub>ON</sub> = 3.119. During a supercritical pulse, <em>λ</em><sub>p</sub> &gt; 1.825, no high fixed point remains and <em>x</em> decreases. When the pulse ends, <em>λ</em> returns to 1 and all three fixed points return. If the state is still above 0.681 it lies in the restored ON basin and climbs back; if it has fallen below 0.681 it lies in the OFF basin and continues downward. Temporary deletion of an attractor is therefore not yet permanent erasure of its memory.</p>
+
+<p>For a given pulse strength, separation of variables gives the minimum time needed to move from the original ON state to the restored basin boundary:</p>
+
+<p class="equation"><em>T</em><sub>c</sub>(<em>λ</em><sub>p</sub>) = ∫<sub>0.681</sub><sup>3.119</sup> <em>dx</em> / [<em>λ</em><sub>p</sub><em>x</em> − <em>p</em>(<em>x</em>)]. &nbsp; (4)</p>
+
+<p>For <em>λ</em><sub>p</sub> = 2, Equation (4) gives <span class="result"><em>T</em><sub>c</sub> = 4.003 time units</span>. A three-unit pulse ends at <em>x</em> = 1.112 and returns ON. A seven-unit pulse ends at <em>x</em> = 0.077 and remains OFF. The same pulse amplitude therefore produces opposite long-term memories solely because its duration differs.</p>
+
+<figure>
+  <svg id="trajectory-figure" class="fig" viewBox="0 0 720 330" role="img" aria-labelledby="traj-title traj-desc" xmlns="http://www.w3.org/2000/svg">
+    <title id="traj-title">Pulse trajectories and the strength-duration boundary for memory erasure</title>
+    <desc id="traj-desc">The left panel compares three- and seven-unit pulses at strength two. The right panel shows the critical duration required for erasure as pulse strength changes.</desc>
+  </svg>
+  <figcaption><strong>Figure 2.</strong> The new result is a pulse strength–duration boundary. (A) At <em>λ</em><sub>p</sub> = 2, a three-unit pulse returns ON whereas a seven-unit pulse remains OFF. (B) Equation (4) separates pulses that retain memory from those that erase it. No finite deterministic pulse works at or below the fold; just above it, passage through the saddle-node bottleneck is extremely slow. Stronger pulses require less time. Trajectories use fourth-order Runge–Kutta integration (step 0.005); the boundary uses numerical quadrature.</figcaption>
+</figure>
+
+<details>
+  <summary>Code used for the pulse simulation and Figure 2</summary>
+  <pre><code id="trajectory-shown-code"></code></pre>
+</details>
+
+<h2>5 · The new result: strength trades against duration</h2>
+
+<p>Equation (4) converts a static fold into a finite-pulse prediction. At <em>λ</em><sub>p</sub> = 1.85, only slightly above the fold, erasure requires 11.87 time units. Raising the pulse to 2.0 lowers the boundary to 4.00; at 2.5 it is 1.60, and at 4.0 it is 0.61. Close to 1.825, the denominator in Equation (4) becomes very small near the former ON–threshold collision, so the trajectory passes through a dynamical bottleneck and <em>T</em><sub>c</sub> rises sharply. This is the finite-pulse consequence of the fold, not another calculation of where the fold lies.</p>
+
+<p>The boundary also separates two meanings of “strong enough.” A pulse must first be supercritical, <em>λ</em><sub>p</sub> &gt; 1.825, to remove the high attractor. It must then last longer than <em>T</em><sub>c</sub>(<em>λ</em><sub>p</sub>) to carry the state below the threshold that returns when normal growth resumes. Thus neither amplitude nor duration alone predicts erasure; they form a joint control variable.</p>
+
+<h2>6 · Experimental prediction and limits</h2>
+
+<p>This provides an experimental prediction. Prepare genetically identical cells in the ON state, expose them to conditions that transiently increase effective dilution, and restore the original condition. Short pulses should recover ON, whereas sufficiently long pulses should yield OFF descendants even after the environment is restored. Varying both pulse strength and duration would estimate the boundary <em>T</em><sub>c</sub>(<em>λ</em><sub>p</sub>). Measuring growth and fluorescence simultaneously would help distinguish genuine state switching from simple concentration dilution.</p>
+
+<p>The numerical values 1.825 and 4.003 are properties of this dimensionless teaching model, not universal bacterial constants. Changing basal expression, feedback strength, cooperativity or the Hill scale moves both the fold and the strength–duration curve. Noise could also switch some cells before the deterministic boundary, turning the sharp line in Figure 2B into a probability band.</p>
+
+<p>The second limit is biological. Growth does not turn only the removal line. Changes in bacterial growth alter cell size, gene dosage, RNA-polymerase allocation, ribosome abundance and translation capacity. Klumpp, Zhang and Hwa showed that even constitutive gene expression changes systematically with growth rate. In a real cell, both <em>p</em>(<em>x</em>) and <em>λx</em> may move, so the direction of the net shift must be measured rather than assumed.</p>
+
+<p>Circuit expression can itself slow growth by consuming resources or producing a toxic protein. Tan, Marguet and You constructed a T7 RNA-polymerase positive-feedback circuit in which circuit activation reduced growth and circuit–host feedback generated bistability. Growth can therefore be a state-dependent variable rather than an externally imposed square pulse. A fuller model would add an equation for <em>μ</em>(<em>x</em>) and ask how feedback reshapes the pulse boundary.</p>
+
+<h2>7 · So what?</h2>
+
+<p>The lectures establish how positive feedback makes memory and how a saddle-node destroys a stable state. The finite-pulse calculation adds a different statement: temporary destruction of the ON attractor does not guarantee permanent forgetting. The state must spend enough time in the altered landscape to cross the threshold of the landscape that will return. For synthetic circuits, that means a growth perturbation should be specified by amplitude and duration, not by growth rate alone. A bacterium forgets only when faster growth is both strong enough and long enough.</p>
+
+<h2>Sources, and what I checked</h2>
+<ul class="src">
+  <li><a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture03-core.html">CCBS 2026 Lecture 3 core, “From reactions to systems: how biochemical behavior emerges”</a> — source of the growth-dilution derivation and the positive-autoregulation model. It notes that a timed nutrient pulse breaks the autonomous description but does not calculate its memory outcome.</li>
+  <li><a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture04-core.html">CCBS 2026 Lecture 4 core, “From simulations to possible behaviors”</a> — source of the three-crossing construction, saddle-node tangency criterion, hysteresis and critical slowing. Figure 1 applies that existing framework; Equation (4) and Figure 2 ask the finite-pulse question beyond it.</li>
+  <li>S. Klumpp, Z. Zhang and T. Hwa, <a href="https://doi.org/10.1016/j.cell.2009.12.001">“Growth rate-dependent global effects on gene expression in bacteria,” <em>Cell</em> 139, 1366–1375 (2009)</a> — read the summary describing growth-dependent transcriptional and translational machinery; used only for the biological caveat, not for the numerical thresholds.</li>
+  <li>C. Tan, P. Marguet and L. You, <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC2908482/">“Emergent bistability by a growth-modulating positive feedback circuit,” <em>Nature Chemical Biology</em> 5, 842–848 (2009)</a> — read the abstract and available circuit description supporting the conclusion that host-growth feedback can generate bistability; the circuit here is a teaching model, not a refit of their data.</li>
+</ul>
+</div>
+
+<script id="analysis-code">
+(() => {
+  const svg = document.getElementById("main-figure");
+  const NS = "http://www.w3.org/2000/svg";
+  const css = getComputedStyle(document.documentElement);
+  const colors = {
+    ink: css.getPropertyValue("--ink").trim(),
+    muted: css.getPropertyValue("--muted").trim(),
+    line: css.getPropertyValue("--line").trim(),
+    stable: css.getPropertyValue("--stable").trim(),
+    unstable: css.getPropertyValue("--unstable").trim(),
+    highlight: css.getPropertyValue("--highlight").trim(),
+    bg: css.getPropertyValue("--bg").trim()
+  };
+
+  const p = x => 0.15 + 3 * x ** 4 / (1 + x ** 4);
+  const dp = x => 12 * x ** 3 / (1 + x ** 4) ** 2;
+  const net = (x, lambda) => p(x) - lambda * x;
+
+  function bisect(f, lo, hi, iterations = 60) {
+    let flo = f(lo);
+    for (let i = 0; i < iterations; i++) {
+      const mid = (lo + hi) / 2;
+      const fm = f(mid);
+      if (flo * fm <= 0) hi = mid;
+      else { lo = mid; flo = fm; }
+    }
+    return (lo + hi) / 2;
+  }
+
+  function rootsFor(lambda, xMax = 10, steps = 4000) {
+    const roots = [];
+    let x0 = 0, f0 = net(x0, lambda);
+    for (let i = 1; i <= steps; i++) {
+      const x1 = xMax * i / steps;
+      const f1 = net(x1, lambda);
+      if (f0 * f1 < 0) {
+        const root = bisect(x => net(x, lambda), x0, x1);
+        if (!roots.length || Math.abs(root - roots[roots.length - 1]) > 1e-5) roots.push(root);
+      }
+      x0 = x1; f0 = f1;
+    }
+    return roots;
+  }
+
+  function foldRoots() {
+    const g = x => p(x) - x * dp(x);
+    const roots = [];
+    let x0 = 1e-4, f0 = g(x0);
+    for (let i = 1; i <= 5000; i++) {
+      const x1 = 3 * i / 5000;
+      const f1 = g(x1);
+      if (f0 * f1 < 0) roots.push(bisect(g, x0, x1));
+      x0 = x1; f0 = f1;
+    }
+    return roots.map(x => ({x, lambda: dp(x)}));
+  }
+
+  function el(name, attrs = {}, text = "") {
+    const node = document.createElementNS(NS, name);
+    Object.entries(attrs).forEach(([k, v]) => node.setAttribute(k, v));
+    if (text) node.textContent = text;
+    svg.appendChild(node);
+    return node;
+  }
+
+  function polyline(points, attrs) {
+    if (points.length > 1) el("polyline", {points: points.map(d => d.join(",")).join(" "), fill:"none", ...attrs});
+  }
+
+  const A = {x:52, y:42, w:280, h:222, xMax:8.2, yMax:3.5};
+  const B = {x:410, y:42, w:260, h:222, xMin:0.35, xMax:2.1, yMax:8.5};
+  const ax = x => A.x + A.w * x / A.xMax;
+  const ay = y => A.y + A.h * (1 - y / A.yMax);
+  const bx = l => B.x + B.w * (l - B.xMin) / (B.xMax - B.xMin);
+  const by = x => B.y + B.h * (1 - x / B.yMax);
+
+  function axes(P, xLabel, yLabel, xTicks, yTicks, xMap, yMap) {
+    el("line", {x1:P.x, y1:P.y+P.h, x2:P.x+P.w, y2:P.y+P.h, stroke:colors.muted, "stroke-width":1});
+    el("line", {x1:P.x, y1:P.y, x2:P.x, y2:P.y+P.h, stroke:colors.muted, "stroke-width":1});
+    xTicks.forEach(t => {
+      el("line", {x1:xMap(t), y1:P.y+P.h, x2:xMap(t), y2:P.y+P.h+4, stroke:colors.muted});
+      el("text", {x:xMap(t), y:P.y+P.h+18, fill:colors.muted, "font-size":10, "text-anchor":"middle"}, String(t));
+    });
+    yTicks.forEach(t => {
+      el("line", {x1:P.x-4, y1:yMap(t), x2:P.x, y2:yMap(t), stroke:colors.muted});
+      el("text", {x:P.x-8, y:yMap(t)+3, fill:colors.muted, "font-size":10, "text-anchor":"end"}, String(t));
+    });
+    el("text", {x:P.x+P.w/2, y:P.y+P.h+36, fill:colors.ink, "font-size":11, "text-anchor":"middle"}, xLabel);
+    const yl = el("text", {x:P.x-38, y:P.y+P.h/2, fill:colors.ink, "font-size":11, "text-anchor":"middle", transform:`rotate(-90 ${P.x-38} ${P.y+P.h/2})`}, yLabel);
+    return yl;
+  }
+
+  el("text", {x:A.x, y:22, fill:colors.ink, "font-size":13, "font-weight":700}, "A  Crossings move when growth dilution changes");
+  el("text", {x:B.x, y:22, fill:colors.ink, "font-size":13, "font-weight":700}, "B  Growth rate becomes a bifurcation parameter");
+  axes(A, "protein concentration x", "rate", [0,2,4,6,8], [0,1,2,3], ax, ay);
+  axes(B, "total removal λ", "steady protein x*", [0.5,1,1.5,2], [0,2,4,6,8], bx, by);
+
+  const prod = [];
+  for (let i = 0; i <= 500; i++) { const x=A.xMax*i/500; prod.push([ax(x), ay(p(x))]); }
+  polyline(prod, {stroke:colors.ink, "stroke-width":2.4});
+  el("text", {x:ax(4.8), y:ay(p(4.8))-8, fill:colors.ink, "font-size":10}, "production p(x)");
+
+  const lineStyles = [
+    {lambda:0.4, color:"#527eb3", dash:"5 4"},
+    {lambda:1.0, color:colors.highlight, dash:"none"},
+    {lambda:2.0, color:"#b44b4b", dash:"3 3"}
+  ];
+  lineStyles.forEach(({lambda,color,dash}) => {
+    const xmax = Math.min(A.xMax, A.yMax/lambda);
+    el("line", {x1:ax(0), y1:ay(0), x2:ax(xmax), y2:ay(lambda*xmax), stroke:color, "stroke-width":1.8, "stroke-dasharray":dash});
+    const labelX = Math.min(xmax*0.84, 6.6);
+    el("text", {x:ax(labelX), y:ay(lambda*labelX)-5, fill:color, "font-size":10}, `λ = ${lambda}`);
+  });
+
+  rootsFor(1).forEach(x => {
+    const stable = dp(x)-1 < 0;
+    el("circle", {cx:ax(x), cy:ay(p(x)), r:4.4, fill:stable?colors.stable:colors.bg, stroke:stable?colors.stable:colors.unstable, "stroke-width":2});
+  });
+
+  const folds = foldRoots().sort((a,b) => a.lambda-b.lambda);
+  const low=[], middle=[], high=[];
+  for (let i=0; i<=420; i++) {
+    const lambda=B.xMin+(B.xMax-B.xMin)*i/420;
+    const r=rootsFor(lambda);
+    if (r.length===3) {
+      low.push([bx(lambda),by(r[0])]);
+      middle.push([bx(lambda),by(r[1])]);
+      high.push([bx(lambda),by(r[2])]);
+    } else if (r.length===1) {
+      (lambda < folds[0].lambda ? high : low).push([bx(lambda),by(r[0])]);
+    }
+  }
+  polyline(low,{stroke:colors.stable,"stroke-width":2.5});
+  polyline(high,{stroke:colors.stable,"stroke-width":2.5});
+  polyline(middle,{stroke:colors.unstable,"stroke-width":2.2,"stroke-dasharray":"5 4"});
+  folds.forEach((f,i) => {
+    el("line", {x1:bx(f.lambda),y1:B.y,x2:bx(f.lambda),y2:B.y+B.h,stroke:colors.line,"stroke-width":1.2,"stroke-dasharray":"2 4"});
+    el("circle", {cx:bx(f.lambda),cy:by(f.x),r:4.3,fill:colors.bg,stroke:colors.highlight,"stroke-width":2});
+    el("text", {x:bx(f.lambda)+(i? -4:4),y:B.y+12,fill:colors.highlight,"font-size":9,"text-anchor":i?"end":"start"}, f.lambda.toFixed(3));
+  });
+  el("text", {x:bx(0.82),y:by(6.2),fill:colors.stable,"font-size":10}, "ON (stable)");
+  el("text", {x:bx(1.06),y:by(1.05),fill:colors.unstable,"font-size":10}, "threshold (unstable)");
+  el("text", {x:bx(1.73),y:by(0.18)-7,fill:colors.stable,"font-size":10,"text-anchor":"middle"}, "OFF (stable)");
+
+  el("circle", {cx:60,cy:309,r:4,fill:colors.stable,stroke:colors.stable});
+  el("text", {x:69,y:312,fill:colors.muted,"font-size":10}, "stable");
+  el("circle", {cx:116,cy:309,r:4,fill:colors.bg,stroke:colors.unstable,"stroke-width":1.7});
+  el("text", {x:125,y:312,fill:colors.muted,"font-size":10}, "unstable");
+
+  // Put the exact code that generated the numbers and SVG beside the figure.
+  document.getElementById("shown-code").textContent =
+    document.getElementById("analysis-code").textContent.trim();
+})();
+</script>
+
+<script id="trajectory-code">
+(() => {
+  const svg = document.getElementById("trajectory-figure");
+  const NS = "http://www.w3.org/2000/svg";
+  const css = getComputedStyle(document.documentElement);
+  const c = {
+    ink: css.getPropertyValue("--ink").trim(),
+    muted: css.getPropertyValue("--muted").trim(),
+    line: css.getPropertyValue("--line").trim(),
+    stable: css.getPropertyValue("--stable").trim(),
+    highlight: css.getPropertyValue("--highlight").trim(),
+    bg: css.getPropertyValue("--bg").trim(),
+    short: "#3679b8"
+  };
+
+  const production = x => 0.15 + 3 * x ** 4 / (1 + x ** 4);
+  const xOn = 3.118616, threshold = 0.680990, upperFold = 1.824882;
+  const lambdaPulse = (t, duration) => (t >= 5 && t < 5 + duration) ? 2 : 1;
+  const rate = (t, x, duration) => production(x) - lambdaPulse(t, duration) * x;
+
+  // Fourth-order Runge–Kutta integration; h = 0.005 time units.
+  function simulate(duration, h = 0.005, tEnd = 25) {
+    let t = 0, x = 3.118616;
+    const out = [[t, x]];
+    for (let i = 0; i < Math.round(tEnd / h); i++) {
+      const k1 = rate(t, x, duration);
+      const k2 = rate(t + h/2, x + h*k1/2, duration);
+      const k3 = rate(t + h/2, x + h*k2/2, duration);
+      const k4 = rate(t + h, x + h*k3, duration);
+      x += h * (k1 + 2*k2 + 2*k3 + k4) / 6;
+      t += h;
+      if (i % 10 === 0) out.push([t, x]);
+    }
+    return out;
+  }
+
+  function add(name, attrs = {}, text = "") {
+    const node = document.createElementNS(NS, name);
+    Object.entries(attrs).forEach(([k,v]) => node.setAttribute(k,v));
+    if (text) node.textContent = text;
+    svg.appendChild(node);
+    return node;
+  }
+
+  function line(x1,y1,x2,y2,attrs={}) { add("line", {x1,y1,x2,y2,...attrs}); }
+  function label(x,y,text,attrs={}) { add("text", {x,y,fill:c.ink,"font-size":10,...attrs}, text); }
+
+  // Panel A: two trajectories at the same pulse strength.
+  const P = {x:48, y:48, w:285, h:210, tMax:25, xMax:3.5};
+  const sx = t => P.x + P.w * t / P.tMax;
+  const sy = x => P.y + P.h * (1 - x / P.xMax);
+
+  // Long-pulse interval, with the short-pulse stopping time marked inside it.
+  add("rect", {x:sx(5), y:P.y, width:sx(12)-sx(5), height:P.h, fill:c.line, opacity:.32});
+  add("line", {x1:sx(8), y1:P.y, x2:sx(8), y2:P.y+P.h, stroke:c.short, "stroke-width":1.2, "stroke-dasharray":"4 3"});
+  add("line", {x1:sx(12), y1:P.y, x2:sx(12), y2:P.y+P.h, stroke:c.highlight, "stroke-width":1.2, "stroke-dasharray":"4 3"});
+
+  line(P.x,P.y+P.h,P.x+P.w,P.y+P.h,{stroke:c.muted});
+  line(P.x,P.y,P.x,P.y+P.h,{stroke:c.muted});
+  [0,5,10,15,20,25].forEach(t => {
+    add("line", {x1:sx(t), y1:P.y+P.h, x2:sx(t), y2:P.y+P.h+4, stroke:c.muted});
+    add("text", {x:sx(t), y:P.y+P.h+18, fill:c.muted, "font-size":10, "text-anchor":"middle"}, String(t));
+  });
+  [0,1,2,3].forEach(x => {
+    add("line", {x1:P.x-4, y1:sy(x), x2:P.x, y2:sy(x), stroke:c.muted});
+    add("text", {x:P.x-8, y:sy(x)+3, fill:c.muted, "font-size":10, "text-anchor":"end"}, String(x));
+  });
+  label(P.x,P.y-18,"A  Same strength, different durations",{"font-size":12,"font-weight":700});
+  label(P.x+P.w/2,P.y+P.h+38,"time",{"font-size":11,"text-anchor":"middle"});
+  label(15,P.y+P.h/2,"protein x",{"font-size":11,"text-anchor":"middle",transform:`rotate(-90 15 ${P.y+P.h/2})`});
+
+  add("line", {x1:P.x, y1:sy(threshold), x2:P.x+P.w, y2:sy(threshold), stroke:c.muted, "stroke-width":1.2, "stroke-dasharray":"3 4"});
+  label(P.x+P.w-3,sy(threshold)-5,"restored threshold",{fill:c.muted,"font-size":9,"text-anchor":"end"});
+
+  const short = simulate(3), long = simulate(7);
+  const points = data => data.map(([t,x]) => `${sx(t).toFixed(2)},${sy(x).toFixed(2)}`).join(" ");
+  add("polyline", {points:points(short), fill:"none", stroke:c.short, "stroke-width":2.5});
+  add("polyline", {points:points(long), fill:"none", stroke:c.highlight, "stroke-width":2.5});
+
+  label(sx(15.0),sy(2.78),"3 units: ON",{fill:c.short,"font-size":9,"font-weight":600});
+  label(sx(15.0),sy(.28),"7 units: OFF",{fill:c.highlight,"font-size":9,"font-weight":600});
+  label(sx(5.15),P.y+12,"λp = 2",{fill:c.muted,"font-size":9});
+
+  // Numerically locate when the long-pulse trajectory first crosses the threshold.
+  const crossing = long.find(([t,x],i) => i > 0 && t >= 5 && x <= threshold);
+  if (crossing) {
+    add("circle", {cx:sx(crossing[0]), cy:sy(crossing[1]), r:4, fill:c.bg, stroke:c.highlight, "stroke-width":2});
+    label(sx(crossing[0])+5,sy(crossing[1])+14,"crossed after ≈ 4.003",{fill:c.highlight,"font-size":9});
+  }
+
+  line(55,307,76,307,{stroke:c.short,"stroke-width":2.5});
+  label(82,310,"3-unit pulse",{fill:c.muted});
+  line(164,307,185,307,{stroke:c.highlight,"stroke-width":2.5});
+  label(191,310,"7-unit pulse",{fill:c.muted});
+
+  // Panel B: calculate the critical duration for each pulse strength.
+  function criticalTime(lambda, n = 4000) {
+    if (lambda <= upperFold) return Infinity;
+    const a = threshold, b = xOn, h = (b-a)/n;
+    const integrand = x => 1 / (lambda*x - production(x));
+    let sum = integrand(a) + integrand(b);
+    for (let i=1; i<n; i++) sum += (i%2 ? 4 : 2) * integrand(a+i*h);
+    return sum*h/3;
+  }
+
+  const Q = {x:408,y:48,w:260,h:210,lMin:1.8,lMax:4,tMax:15};
+  const qx = l => Q.x + Q.w*(l-Q.lMin)/(Q.lMax-Q.lMin);
+  const qy = t => Q.y + Q.h*(1-t/Q.tMax);
+  add("rect", {x:Q.x,y:Q.y,width:qx(upperFold)-Q.x,height:Q.h,fill:c.line,opacity:.45});
+  line(Q.x,Q.y+Q.h,Q.x+Q.w,Q.y+Q.h,{stroke:c.muted});
+  line(Q.x,Q.y,Q.x,Q.y+Q.h,{stroke:c.muted});
+  [2,2.5,3,3.5,4].forEach(l => {
+    line(qx(l),Q.y+Q.h,qx(l),Q.y+Q.h+4,{stroke:c.muted});
+    label(qx(l),Q.y+Q.h+18,String(l),{fill:c.muted,"text-anchor":"middle"});
+  });
+  [0,5,10,15].forEach(t => {
+    line(Q.x-4,qy(t),Q.x,qy(t),{stroke:c.muted});
+    label(Q.x-8,qy(t)+3,String(t),{fill:c.muted,"text-anchor":"end"});
+  });
+  label(Q.x,Q.y-18,"B  Strength–duration boundary",{"font-size":12,"font-weight":700});
+  label(Q.x+Q.w/2,Q.y+Q.h+38,"pulse strength λp",{"font-size":11,"text-anchor":"middle"});
+  label(Q.x-35,Q.y+Q.h/2,"critical duration Tc",{"font-size":11,"text-anchor":"middle",transform:`rotate(-90 ${Q.x-35} ${Q.y+Q.h/2})`});
+  line(qx(upperFold),Q.y,qx(upperFold),Q.y+Q.h,{stroke:c.muted,"stroke-dasharray":"3 3"});
+
+  const boundary=[];
+  for (let i=0;i<=220;i++) {
+    const l=1.826+(4-1.826)*i/220;
+    const t=criticalTime(l);
+    if (t<=Q.tMax) boundary.push(`${qx(l).toFixed(2)},${qy(t).toFixed(2)}`);
+  }
+  add("polyline", {points:boundary.join(" "),fill:"none",stroke:c.highlight,"stroke-width":2.6});
+  label(qx(2.55),qy(10.8),"memory erased",{fill:c.highlight,"font-size":10,"font-weight":600});
+  label(qx(2.55),qy(0.9),"memory retained",{fill:c.short,"font-size":10,"font-weight":600});
+  label(qx(upperFold)+5,Q.y+13,"fold 1.825",{fill:c.muted,"font-size":8});
+
+  [[1.85,11.873],[2,4.003],[2.5,1.598],[4,0.611]].forEach(([l,t]) => {
+    add("circle", {cx:qx(l),cy:qy(t),r:3.5,fill:c.bg,stroke:c.highlight,"stroke-width":1.7});
+  });
+  label(qx(2)+5,qy(4.003)-5,"(2, 4.003)",{fill:c.highlight,"font-size":9});
+
+  document.getElementById("trajectory-shown-code").textContent =
+    document.getElementById("trajectory-code").textContent.trim();
+})();
+</script>
+</body>
+</html>

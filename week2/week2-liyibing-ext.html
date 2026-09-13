@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lecture 3 — Extension: Why enzyme rates saturate</title>
+<meta name="author" content="liyibing">
+<meta name="week" content="week2">
+<style>
+  :root { --ink:#182028; --muted:#60707b; --accent:#174f78; --warm:#d97706; --line:#d7e0e6; --bg:#fff; --soft:#f4f7f9; --code:#eef3f6; }
+  @media (prefers-color-scheme:dark) { :root { --ink:#e7edf1; --muted:#a7b4bc; --accent:#8bc0e7; --warm:#fbbf24; --line:#3b4953; --bg:#151a1e; --soft:#1d252b; --code:#11171b; } }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; font-size:16px; line-height:1.65; }
+  .toc { position:fixed; inset:0 auto 0 0; width:220px; padding:32px 22px; border-right:1px solid var(--line); background:var(--soft); }
+  .course { color:var(--muted); font-size:.75rem; letter-spacing:.09em; text-transform:uppercase; }
+  .toc h2 { margin:28px 0 12px; font-size:.9rem; color:var(--ink); border:0; }
+  .toc ol { margin:0; padding:0; list-style:none; }
+  .toc li { margin:9px 0; }
+  .toc a { color:var(--muted); text-decoration:none; font-size:.88rem; }
+  .toc a:hover { color:var(--accent); }
+  main { max-width:800px; margin-left:calc(220px + 7vw); padding:54px 28px 90px; }
+  h1 { margin:0 0 9px; color:var(--accent); font-size:2rem; line-height:1.2; }
+  .dek { margin:0 0 8px; font-size:1.08rem; color:var(--muted); }
+  .meta { margin:0 0 36px; color:var(--muted); font-size:.84rem; }
+  h2 { margin:42px 0 14px; padding-bottom:7px; border-bottom:1px solid var(--line); color:var(--accent); font-size:1.2rem; }
+  .n { display:inline-block; width:1.65rem; color:var(--muted); font-size:.82em; }
+  p { margin:0 0 15px; }
+  a { color:var(--accent); }
+  sup a { text-decoration:none; font-weight:700; }
+  .claim { margin:18px 0; padding:18px 20px; border-left:4px solid var(--accent); background:var(--soft); font-size:1.06rem; }
+  .reaction, .equation { margin:19px 0; padding:15px; text-align:center; background:var(--soft); border:1px solid var(--line); border-radius:6px; font-size:1.08rem; }
+  .steps { margin:12px 0 18px; padding-left:1.35rem; }
+  .steps li { margin:8px 0; }
+  table { width:100%; border-collapse:collapse; margin:18px 0; font-size:.92rem; }
+  th,td { padding:10px 11px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+  th { color:var(--accent); font-weight:650; }
+  figure { margin:24px 0; }
+  .fig { display:block; width:100%; border:1px solid var(--line); border-radius:6px; background:var(--soft); }
+  .fig text { fill:var(--ink); font-family:"Segoe UI",Roboto,Arial,sans-serif; }
+  .fig .muted { fill:var(--muted); }
+  .fig .grid { stroke:var(--line); }
+  .fig .curve { fill:none; stroke:var(--accent); stroke-width:4; stroke-linecap:round; stroke-linejoin:round; }
+  .fig .guide { fill:none; stroke:var(--warm); stroke-width:2; stroke-dasharray:7 6; }
+  .fig .point { fill:var(--warm); stroke:var(--bg); stroke-width:2; }
+  figcaption { margin-top:8px; color:var(--muted); font-size:.84rem; line-height:1.5; }
+  .boundary { padding:15px 18px; background:var(--soft); border:1px solid var(--line); border-radius:6px; }
+  .sources { padding-left:1.25rem; font-size:.88rem; }
+  .sources li { margin-bottom:11px; }
+  pre { margin:14px 0; padding:15px; overflow:auto; border:1px solid var(--line); border-radius:6px; background:var(--code); font-size:.8rem; line-height:1.48; }
+  code { font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace; }
+  .note { color:var(--muted); font-size:.84rem; }
+  @media (max-width:980px) { .toc { position:static; width:auto; padding:18px 22px; border-right:0; border-bottom:1px solid var(--line); } .toc h2 { display:none; } .toc ol { display:flex; flex-wrap:wrap; gap:5px 16px; margin-top:8px; } .toc li { margin:0; } main { margin:0 auto; padding-top:38px; } }
+  @media (max-width:620px) { main { padding:30px 17px 60px; } h1 { font-size:1.6rem; } th,td { padding:8px 6px; font-size:.84rem; } }
+</style>
+</head>
+<body>
+<nav class="toc" aria-label="Contents">
+  <div class="course">CCBS · 2026 · Extension</div>
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#claim">1 · The claim</a></li>
+    <li><a href="#mechanism">2 · The mechanism</a></li>
+    <li><a href="#curve">3 · The curve</a></li>
+    <li><a href="#wrong">4 · Where it is wrong</a></li>
+    <li><a href="#sources">† · Sources</a></li>
+  </ol>
+</nav>
+
+<main>
+  <header>
+    <h1>Why does an enzyme-catalysed reaction saturate?</h1>
+    <p class="dek">More substrate initially makes a reaction faster, but a finite enzyme pool imposes a ceiling.</p>
+    <p class="meta">Extension mini-essay · liyibing · Lecture 3 · CCBS 2026</p>
+  </header>
+
+  <section id="claim">
+    <h2><span class="n">1</span>The claim</h2>
+    <p>Lecture 3 reduces a multi-step enzyme mechanism to a single effective rate law.<sup><a href="#r1">1</a></sup> I want to use that reduction to explain one familiar observation: increasing substrate concentration eventually stops producing a proportional increase in reaction rate.</p>
+    <p class="claim">An enzyme reaction saturates because substrate fills a finite pool of enzyme molecules. At high substrate concentration almost every enzyme is already occupied, so the rate approaches the catalytic capacity <var>V</var><sub>max</sub>.</p>
+  </section>
+
+  <section id="mechanism">
+    <h2><span class="n">2</span>The mechanism</h2>
+    <p>For a one-substrate reaction, free enzyme <var>E</var> binds free substrate <var>S</var> to form the complex <var>ES</var>, which can either dissociate or make product:</p>
+    <div class="reaction">
+      E + S ⇌ ES → E + P<br>
+      <span class="note">binding <var>k</var><sub>+</sub> · dissociation <var>k</var><sub>−</sub> · catalysis <var>k</var><sub>cat</sub></span>
+    </div>
+    <p>The total enzyme concentration is fixed on the catalytic timescale:</p>
+    <div class="equation">E<sub>T</sub> = E + ES.</div>
+    <p>Product appears at rate <var>v</var> = <var>k</var><sub>cat</sub><var>ES</var>. The question is therefore how the occupied enzyme concentration <var>ES</var> depends on <var>S</var>.</p>
+    <p>According to the Briggs–Haldane reduction, <var>ES</var> rapidly relaxes to a quasi-steady state, so d<var>ES</var>/d<var>t</var> ≈ 0.<sup><a href="#r2">2</a></sup></p>
+    <ol class="steps">
+      <li>Write d<var>ES</var>/d<var>t</var> ≈ <var>k</var><sub>+</sub>(<var>E</var><sub>T</sub>−<var>ES</var>)<var>S</var> − (<var>k</var><sub>−</sub>+<var>k</var><sub>cat</sub>)<var>ES</var> = 0.</li>
+      <li>Define <var>K</var><sub>M</sub> = (<var>k</var><sub>−</sub>+<var>k</var><sub>cat</sub>)/<var>k</var><sub>+</sub>.</li>
+      <li>Solve for occupancy: <var>ES</var> = <var>E</var><sub>T</sub><var>S</var>/(<var>K</var><sub>M</sub>+<var>S</var>).</li>
+      <li>Multiply by <var>k</var><sub>cat</sub>. At saturating substrate concentration, <var>ES</var> approaches <var>E</var><sub>T</sub>, meaning that almost all enzyme is present as the enzyme–substrate complex. The maximum rate is therefore <var>V</var><sub>max</sub> = <var>k</var><sub>cat</sub><var>E</var><sub>T</sub>:</li>
+    </ol>
+    <div class="equation">
+      v = V<sub>max</sub> S/(K<sub>M</sub> + S),
+      &nbsp;&nbsp; V<sub>max</sub> = k<sub>cat</sub>E<sub>T</sub>.
+    </div>
+    <p>After dividing by <var>V</var><sub>max</sub> and defining <var>x</var> = <var>S</var>/<var>K</var><sub>M</sub>, every one-substrate Michaelis–Menten curve collapses onto</p>
+    <div class="equation">v/V<sub>max</sub> = x/(1+x).</div>
+  </section>
+
+  <section id="curve">
+    <h2><span class="n">3</span>The saturation curve</h2>
+    <figure>
+      <svg class="fig" viewBox="0 0 740 390" role="img" aria-labelledby="fig-title fig-desc" xmlns="http://www.w3.org/2000/svg">
+        <title id="fig-title">Michaelis–Menten saturation curve</title>
+        <desc id="fig-desc">Reaction rate v relative to Vmax plotted against substrate concentration relative to KM. At S over KM equal to one, the rate is one half Vmax. Vmax is a horizontal asymptote approached at high substrate concentration.</desc>
+
+        <line x1="86" y1="310" x2="682" y2="310" class="grid" stroke-width="2"/>
+        <line x1="86" y1="310" x2="86" y2="52" class="grid" stroke-width="2"/>
+        <line x1="86" y1="181" x2="682" y2="181" class="grid" stroke-width="1" stroke-dasharray="3 5"/>
+        <line x1="86" y1="52" x2="682" y2="52" class="guide"/>
+
+        <path class="curve" d="M86 310 C112 277,136 221,160 181 C202 137,258 111,370 91 C480 77,574 70,682 66"/>
+
+        <line x1="160" y1="310" x2="160" y2="181" class="guide"/>
+        <circle cx="160" cy="181" r="6" class="point"/>
+
+        <text x="160" y="165" text-anchor="middle" font-size="14" font-weight="700">S/K<tspan baseline-shift="sub" font-size="10">M</tspan> = 1</text>
+        <text x="174" y="202" font-size="14" font-weight="700">v = ½V<tspan baseline-shift="sub" font-size="10">max</tspan></text>
+        <text x="675" y="42" text-anchor="end" font-size="14" font-weight="700">v = V<tspan baseline-shift="sub" font-size="10">max</tspan></text>
+        <text x="675" y="80" text-anchor="end" font-size="12" class="muted">approached as S/K<tspan baseline-shift="sub" font-size="9">M</tspan> → ∞</text>
+
+        <text x="86" y="334" text-anchor="middle" font-size="12">0</text>
+        <text x="160" y="334" text-anchor="middle" font-size="12">1</text>
+        <text x="234" y="334" text-anchor="middle" font-size="12">2</text>
+        <text x="383" y="334" text-anchor="middle" font-size="12">4</text>
+        <text x="532" y="334" text-anchor="middle" font-size="12">6</text>
+        <text x="682" y="334" text-anchor="middle" font-size="12">8</text>
+
+        <text x="70" y="314" text-anchor="end" font-size="12">0</text>
+        <text x="70" y="185" text-anchor="end" font-size="12">½V<tspan baseline-shift="sub" font-size="9">max</tspan></text>
+        <text x="70" y="57" text-anchor="end" font-size="12">V<tspan baseline-shift="sub" font-size="9">max</tspan></text>
+
+        <text x="384" y="370" text-anchor="middle" font-size="15">normalized substrate concentration, S/K<tspan baseline-shift="sub" font-size="11">M</tspan></text>
+        <text x="20" y="181" text-anchor="middle" font-size="15" transform="rotate(-90 20 181)">reaction rate, v</text>
+      </svg>
+      <figcaption><strong>Figure 1.</strong> The normalized Michaelis–Menten law <var>v</var>/<var>V</var><sub>max</sub> = <var>x</var>/(1+<var>x</var>), where <var>x</var> = <var>S</var>/<var>K</var><sub>M</sub>. At <var>S</var> = <var>K</var><sub>M</sub>, half of the maximum rate is reached. <var>V</var><sub>max</sub> is a limiting value rather than a point attained at finite <var>S</var>. The curve was generated from the equation using the code below.</figcaption>
+    </figure>
+
+    <p class="note"><strong>The code behind Figure 1.</strong> The axes are normalized, so no fitted parameter or experimental dataset is used.</p>
+<pre><code>import numpy as np
+import matplotlib.pyplot as plt
+
+x = np.linspace(0, 8, 400)      # x = S / K_M
+y = x / (1 + x)                 # y = v / V_max
+
+plt.plot(x, y)
+plt.scatter([1], [0.5])
+plt.axhline(1, linestyle="--")  # v = V_max asymptote
+plt.xlabel("S / K_M")
+plt.ylabel("v / V_max")
+plt.ylim(0, 1.05)
+plt.show()</code></pre>
+
+    <table>
+      <thead><tr><th>Regime</th><th>Approximation</th><th>Interpretation</th></tr></thead>
+      <tbody>
+        <tr><td><var>S</var> ≪ <var>K</var><sub>M</sub></td><td><var>v</var> ≈ (<var>V</var><sub>max</sub>/<var>K</var><sub>M</sub>)<var>S</var></td><td>Most enzyme is free; adding substrate gives an almost proportional gain.</td></tr>
+        <tr><td><var>S</var> = <var>K</var><sub>M</sub></td><td><var>v</var> = <var>V</var><sub>max</sub>/2</td><td>Half of the catalytic capacity is used.</td></tr>
+        <tr><td><var>S</var> ≫ <var>K</var><sub>M</sub></td><td><var>v</var> ≈ <var>V</var><sub>max</sub></td><td>Almost all enzyme is occupied; enzyme turnover, not substrate supply, limits the rate.</td></tr>
+      </tbody>
+    </table>
+    <p>The curve bends because each added substrate molecule has less unoccupied enzyme left to find. Saturation is therefore a finite-capacity effect: <var>S</var> controls the fraction of enzyme occupied, whereas <var>k</var><sub>cat</sub><var>E</var><sub>T</sub> sets the ceiling.</p>
+  </section>
+
+  <section id="wrong">
+    <h2><span class="n">4</span>Where it is wrong</h2>
+    <div class="boundary">The curve assumes a one-substrate mechanism, a quasi-steady <var>ES</var> complex and free substrate <var>S</var>. The reduction is safest when <var>E</var><sub>T</sub>/(<var>K</var><sub>M</sub>+<var>S</var><sub>T</sub>) ≪ 1; otherwise binding can deplete substrate and free <var>S</var> differs from the experimentally controlled total <var>S</var><sub>T</sub>.<sup><a href="#r3">3</a></sup> In addition, <var>K</var><sub>M</sub> = (<var>k</var><sub>−</sub>+<var>k</var><sub>cat</sub>)/<var>k</var><sub>+</sub> is not generally the binding dissociation constant <var>K</var><sub>d</sub> = <var>k</var><sub>−</sub>/<var>k</var><sub>+</sub>. Cooperativity, inhibition, multiple substrates and conformational transitions can produce different curves.</div>
+  </section>
+
+  <section id="sources">
+    <h2><span class="n">†</span>Sources</h2>
+    <ol class="sources">
+      <li id="r1">Xiao, F. “Lecture 3: Reaction networks and two ways to simplify them.” <em>CCBS 2026 Core Notes</em>, §8. <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture03-core.html#s8">Course page</a>. Source for the enzyme reduction and its interpretation.</li>
+      <li id="r2">Briggs, G. E. &amp; Haldane, J. B. S. “A note on the kinetics of enzyme action.” <em>Biochemical Journal</em> 19, 338–339 (1925). <a href="https://doi.org/10.1042/bj0190338">doi:10.1042/bj0190338</a>. Original quasi-steady-state derivation.</li>
+      <li id="r3">Segel, L. A. &amp; Slemrod, M. “The quasi-steady-state assumption: a case study in perturbation.” <em>SIAM Review</em> 31, 446–477 (1989). <a href="https://doi.org/10.1137/1031091">doi:10.1137/1031091</a>. Source for the small-parameter condition underlying the approximation.</li>
+    </ol>
+
+  </section>
+</main>
+</body>
+</html>

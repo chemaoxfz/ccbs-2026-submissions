@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 1 — Extension: the 30-cm jump runs out of power below a few grams</title>
+<meta name="author" content="Zheng Haobo">
+<meta name="week" content="week1">
+<style>
+  :root {
+    --ink:#1b1f24; --muted:#57606a; --accent:#1f4e79; --accent-ink:#17456b;
+    --line:#d8dee4; --hairline:#e6eaef; --bg:#ffffff; --soft:#f6f8fa;
+    --card-border:#dbe2ea;
+    --shadow:0 1px 2px rgba(16,24,40,.05), 0 2px 8px rgba(16,24,40,.04);
+    --radius:8px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink:#e6e9ec; --muted:#9aa4ae; --accent:#8ab4e8; --accent-ink:#a9c7ef;
+      --line:#3a4652; --hairline:#2c3540; --bg:#15191d; --soft:#1c232b;
+      --card-border:#2e3944; --shadow:none;
+    }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16px; line-height:1.66; text-rendering:optimizeLegibility;
+    -webkit-font-smoothing:antialiased;
+    transition:background-color .2s ease, color .2s ease; }
+  ::selection { background:var(--accent); color:#fff; }
+  @media (prefers-color-scheme: dark) { ::selection { color:#0b0f13; } }
+  .wrap { max-width:760px; margin:0 auto; padding:52px 24px 96px; }
+
+  h1 { font-size:1.55rem; line-height:1.3; letter-spacing:-0.012em;
+    margin:0 0 8px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.9rem; letter-spacing:.01em;
+    margin:0; padding-bottom:22px; border-bottom:1px solid var(--hairline); }
+  h2 { font-size:1.06rem; letter-spacing:.012em; color:var(--accent);
+    margin:40px 0 10px; border-bottom:1px solid var(--line); padding-bottom:6px; }
+  p { margin:0 0 14px; }
+  strong { font-weight:650; }
+
+  .card { background:var(--soft); border:1px solid var(--card-border);
+    border-left:3px solid var(--accent); border-radius:var(--radius);
+    padding:14px 18px; margin:20px 0 8px; box-shadow:var(--shadow); }
+
+  em { font-family:Georgia,"Times New Roman",serif; }
+  sup, sub { line-height:0; position:relative; vertical-align:baseline; font-size:.72em; }
+  sup { top:-0.5em; } sub { top:0.22em; }
+
+  figure { margin:22px 0; }
+  .fig { display:block; width:100%; background:#fff; border:1px solid var(--card-border);
+    border-radius:var(--radius); box-shadow:var(--shadow); }
+  figcaption { font-size:.85rem; line-height:1.55; color:var(--muted); margin-top:10px; }
+
+  a { color:var(--accent-ink); text-decoration:underline; text-underline-offset:2.5px;
+    text-decoration-color:var(--hairline); overflow-wrap:break-word;
+    transition:text-decoration-color .15s ease; }
+  a:hover { text-decoration-color:currentColor; }
+  a:focus-visible { outline:2px solid var(--accent); outline-offset:2px; border-radius:2px; }
+
+  pre { background:var(--soft); border:1px solid var(--card-border);
+    border-radius:var(--radius); padding:14px 18px; margin:18px 0; overflow-x:auto;
+    box-shadow:var(--shadow);
+    font-family:ui-monospace,"Cascadia Mono","SF Mono",Menlo,Consolas,monospace;
+    font-size:.79rem; line-height:1.58; tab-size:4; }
+
+  table { border-collapse:collapse; margin:20px 0; width:100%; font-size:.88rem;
+    font-variant-numeric:tabular-nums; }
+  thead th { text-align:left; font-weight:650; border-bottom:1.5px solid var(--line);
+    padding:7px 10px 6px; }
+  tbody td { border-bottom:1px solid var(--hairline); padding:7px 10px;
+    vertical-align:top; }
+  tbody tr:last-child td { border-bottom:1.5px solid var(--line); }
+
+  ul { padding-left:1.35em; margin:12px 0 16px; }
+  li + li { margin-top:9px; }
+  li::marker { color:var(--muted); }
+  .src { font-size:.88rem; }
+  .src a { word-break:break-all; }
+
+  @media print {
+    body { background:#fff; color:#000; font-size:11pt; }
+    .wrap { max-width:none; padding:0; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Week 1 — Extension: the 30-cm jump runs out of power below a few grams</h1>
+<p class="meta">Author: Zheng Haobo · Week 1 (2026-09-07) · CCBS 2026</p>
+
+<p class="card"><strong>One sentence:</strong> the lecture's universal 30-cm jump is an
+energy argument; adding the power budget shows that direct muscle cannot deliver that jump
+below a crossover mass of a few grams, which is exactly where real animals switch to
+spring-loaded catapults.</p>
+
+<h2>The point I am adding</h2>
+<p>Lecture 1 argued that jump height does not depend on body mass. Usable muscle energy
+scales with muscle volume, muscle volume scales with body mass, and <em>h</em> =
+<em>E</em>/(<em>mg</em>) then gives <em>h</em> ∝ <em>m</em><sup>0</sup>. A 30-cm jump should hold
+from rats to fleas, and it roughly does. The lecture added, almost in passing,
+that some insects store the energy in their shell like a spring. This essay takes that one
+sentence seriously and asks why the spring has to appear at all.</p>
+<p>The energy argument has a gap: energy says nothing about how fast it is delivered. The
+push happens over a distance <em>s</em>, and under geometric similarity <em>s</em> = ℓ
+<em>m</em><sup>1/3</sup>. The constant fits the big end: a 70 kg human extends its legs by
+about 0.4 m in take-off, so ℓ ≈ 0.1 m·kg<sup>−1/3</sup>. Reaching <em>h</em> = 30 cm fixes
+the take-off speed at <em>v</em> = √(2<em>gh</em>) ≈ 2.4 m/s whatever the mass. Delivering
+<em>v</em> over <em>s</em> at constant acceleration costs a peak specific power <em>p</em> =
+<em>v</em><sup>3</sup>/(2<em>s</em>) = <em>v</em><sup>3</sup>/(2ℓ<em>m</em><sup>1/3</sup>)
+∝ <em>m</em><sup>−1/3</sup>. Each tenfold drop in mass multiplies the watts per kilogram by
+about 2.2.</p>
+<p>Muscle cannot follow that curve. Work-loop measurements on striated muscle give 76
+W/kg as a controlled cyclic maximum (Josephson 1985), and the highest in-vivo estimates
+during take-off reach roughly 390-530 W/kg (Askew et al., 2001, 2002). Setting
+<em>p</em> equal to a burst ceiling <em>P</em> gives a crossover mass <em>m</em>* =
+(<em>v</em><sup>3</sup>/2ℓ<em>P</em>)<sup>3</sup>. For <em>P</em> = 500 W/kg,
+<em>m</em>* ≈ 2.9 g; across the plausible 250-1000 W/kg it spans 0.4-23 g.</p>
+<p>Nature splits there, and the split is measured. The froghopper <em>Philaenus
+spumarius</em> (12.3 ± 0.7 mg) extends both hind legs in under 1 ms and leaves the ground
+at 2.8 ± 0.1 m/s on average; its paper reports peak outputs of 36-74 W per gram of jumping
+muscle, that is 3.6-7.4 × 10<sup>4</sup> W/kg, and states that no jumping muscle could
+supply this (Burrows 2003). My model asks 3.1 kW per kg of body mass for a 30-cm jump at
+that mass, and the paper's own energy and duration (49-100 μJ in about 1 ms over 12.3 mg)
+give a measured 4-8 kW/kg. Model and measurement agree without a fit. Above the band, a
+human jumps at 17 W/kg, fifteen to sixty times below any ceiling in that range, which is
+why we need no spring. At the boundary sits the 2 g locust, the mixed case.</p>
+<p>So the spring is a power transformer, not an energy source. It charges over about 100
+ms at muscle-grade power and releases in under 1 ms at two orders of magnitude above
+muscle's burst ceiling. The energy budget, and with it <em>h</em> ∝ <em>m</em><sup>0</sup>,
+is untouched. What changes below <em>m</em>* is only who delivers the power, so the
+lecture's universal 30 cm survives with its mechanism swapped.</p>
+
+<h2>Work it</h2>
+<p>The script computes <em>p</em><sub>req</sub> for the lecture's animals and the crossover
+mass; the figure plots it. Reading the figure: a human jumps thirty to sixty times below
+the plotted 0.5-1 kW/kg band. A flea insisting on 30 cm would need ≈9 kW/kg, an order of magnitude beyond any
+burst ceiling. At its measured 2.8 m/s take-off the froghopper needs ≈4.8 kW/kg, which is
+what its spring delivers. The crossover mass is my own derivation; every number in the
+table and figure reproduces from the embedded script.</p>
+
+<pre>
+import math
+g, h = 9.8, 0.30                  # lecture's universal jump height (m)
+v = math.sqrt(2 * g * h)          # take-off speed ~2.42 m/s, mass-independent
+ell = 0.10                        # push distance per kg^(1/3)  (m/kg^(1/3))
+P_burst = 500.0                   # burst specific-power ceiling (W/kg)
+p_req  = lambda m: v**3 / (2*ell*m**(1/3))
+m_star = (v**3 / (2*ell*P_burst))**3
+for name, m in [("human",70),("cat",4),("rat",.3),
+                ("locust",2e-3),("froghopper",12.3e-6),("flea",.45e-6)]:
+    print(f"{name:11s} p_req = {p_req(m):8.0f} W/kg")
+print(f"v = {v:.2f} m/s   m* = {m_star*1e3:.1f} g")
+for P in (250, 500, 1000):        # crossover sensitivity, the softest input
+    print(f"ceiling {P:5d} W/kg -&gt; m* = {(v**3/(2*ell*P))**3*1e3:5.1f} g")
+print("froghopper at its measured 2.8 m/s:",
+      f"{2.8**3/(2*ell*12.3e-6**(1/3)):.0f} W/kg")
+</pre>
+
+<figure>
+<svg class="fig" preserveAspectRatio="xMidYMid meet" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 237.451268 176.581193" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ 
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 176.581193 
+L 237.451268 176.581193 
+L 237.451268 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 33.449063 147.78674 
+L 221.995252 147.78674 
+L 221.995252 11.606803 
+L 33.449063 11.606803 
+z
+" style="fill: #ffffff"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 33.449063 62.331497 
+L 221.995252 62.331497 
+L 221.995252 52.800234 
+L 33.449063 52.800234 
+z
+" clip-path="url(#pa71a1190a2)" style="fill: #cfcece; opacity: 0.4; stroke: #cfcece; stroke-linejoin: miter"/>
+   </g>
+   <g id="matplotlib.axis_1">
+    <g id="xtick_1">
+     <g id="line2d_1">
+      <path d="M 44.540015 147.78674 
+L 44.540015 11.606803 
+" clip-path="url(#pa71a1190a2)" style="fill: none; stroke: #ede7e0; stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_2">
+      <defs>
+       <path id="ma55019144a" d="M 0 0 
+L 0 2.5 
+" style="stroke: #767676; stroke-width: 0.6"/>
+      </defs>
+      <g>
+       <use xlink:href="#ma55019144a" x="44.540015" y="147.78674" style="fill: #767676; stroke: #767676; stroke-width: 0.6"/>
+      </g>
+     </g>
+     <g id="text_1">
+      <text style="font-size: 5.5px; font-family: 'Arial', 'DejaVu Sans', 'Liberation Sans', sans-serif; text-anchor: middle; fill: #272727" x="44.540015" y="157.739865" transform="rotate(-0 44.540015 157.739865)">1 mg</text>
+     </g>
+    </g>
+    <g id="xtick_2">
+     <g id="line2d_3">
+      <path d="M 66.721919 147.78674 
+L 66.721919 11.606803 
+" clip-path="url(#pa71a1190a2)" style="fill: none; stroke: #ede7e0; stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_4">
+      <g>
+       <use xlink:href="#ma55019144a" x="66.721919" y="147.78674" style="fill: #767676; stroke: #767676; stroke-width: 0.6"/>
+      </g>
+     </g>
+     <g id="text_2">
+      <text style="font-size: 5.5px; font-family: 'Arial', 'DejaVu Sans', 'Liberation Sans', sans-serif; text-anchor: middle; fill: #272727" x="66.721919" y="157.739865" transform="rotate(-0 66.721919 157.739865)">10 mg</text>
+     </g>
+    </g>
+    <g id="xtick_3">
+     <g id="line2d_5">
+      <path d="M 88.903824 147.78674 
+L 88.903824 11.606803 
+" clip-path="url(#pa71a1190a2)" style="fill: none; stroke: #ede7e0; stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_6">
+      <g>
+       <use xlink:href="#ma55019144a" x="88.903824" y="147.78674" style="fill: #767676; stroke: #767676; stroke-width: 0.6"/>
+      </g>
+     </g>
+     <g id="text_3">
+      <text style="font-size: 5.5px; font-family: 'Arial', 'DejaVu Sans', 'Liberation Sans', sans-serif; text-anchor: middle; fill: #272727" x="88.903824" y="157.739865" transform="rotate(-0 88.903824 157.739865)">100 mg</text>
+     </g>
+    </g>
+    <g id="xtick_4">
+     <g id="line2d_7">
+      <path d="M 111.085729 147.78674 
+L 111.085729 11.606803 
+" clip-path="url(#pa71a1190a2)" style="fill: none; stroke: #ede7e0; stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_8">
+      <g>
+       <use xlink:href="#ma55019144a" x="111.085729" y="147.78674" style="fill: #767676; stroke: #767676; stroke-width: 0.6"/>
+      </g>
+     </g>
+     <g id="text_4">
+      <text style="font-size: 5.5px; font-family: 'Arial', 'DejaVu Sans', 'Liberation Sans', sans-serif; text-anchor: middle; fill: #272727" x="111.085729" y="157.739865" transform="rotate(-0 111.085729 157.739865)">1 g</text>
+     </g>
+    </g>
+    <g id="xtick_5">
+     <g id="line2d_9">
+      <path d="M 133.267633 147.78674 
+L 133.267633 11.606803 
+" clip-path="url(#pa71a1190a2)" style="fill: none; stroke: #ede7e0; stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_10">
+      <g>
+       <use xlink:href="#ma55019144a" x="133.267633" y="147.78674" style="fill: #767676; stroke: #767676; stroke-width: 0.6"/>
+      </g>
+     </g>
+     <g id="text_5">
+      <text style="font-size: 5.5px; font-family: 'Arial', 'DejaVu Sans', 'Liberation Sans', sans-serif; text-anchor: middle; fill: #272727" x="133.267633" y="157.739865" transform="rotate(-0 133.267633 157.739865)">10 g</text>
+     </g>
+    </g>
+    <g id="xtick_6">
+     <g id="line2d_11">
+      <path d="M 155.449538 147.78674 
+L 155.449538 11.606803 
+" clip-path="url(#pa71a1190a2)" style="fill: none; stroke: #ede7e0; stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_12">
+      <g>
+       <use xlink:href="#ma55019144a" x="155.449538" y="147.78674" style="fill: #767676; stroke: #767676; stroke-width: 0.6"/>
+      </g>
+     </g>
+     <g id="text_6">
+      <text style="font-size: 5.5px; font-family: 'Arial', 'DejaVu Sans', 'Liberation Sans', sans-serif; text-anchor: middle; fill: #272727" x="155.449538" y="157.739865" transform="rotate(-0 155.449538 157.739865)">100 g</text>
+     </g>
+    </g>
+    <g id="xtick_7">
+     <g id="line2d_13">
+      <path d="M 177.631443 147.78674 
+L 177.631443 11.606803 
+" clip-path="url(#pa71a1190a2)" style="fill: none; stroke: #ede7e0; stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_14">
+      <g>
+       <use xlink:href="#ma55019144a" x="177.631443" y="147.78674" style="fill: #767676; stroke: #767676; stroke-width: 0.6"/>
+      </g>
+     </g>
+     <g id="text_7">
+      <text style="font-size: 5.5px; font-family: 'Arial', 'DejaVu Sans', 'Liberation Sans', sans-serif; text-anchor: middle; fill: #272727" x="177.631443" y="157.739865" transform="rotate(-0 177.631443 157.739865)">1 kg</text>
+     </g>
+    </g>
+    <g id="xtick_8">
+     <g id="line2d_15">
+      <path d="M 199.813347 147.78674 
+L 199.813347 11.606803 
+" clip-path="url(#pa71a1190a2)" style="fill: none; stroke: #ede7e0; stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_16">
+      <g>
+       <use xlink:href="#ma55019144a" x="199.813347" y="147.78674" style="fill: #767676; stroke: #767676; stroke-width: 0.6"/>
+      </g>
+     </g>
+     <g id="text_8">
+      <text style="font-size: 5.5px; font-family: 'Arial', 'DejaVu Sans', 'Liberation Sans', sans-serif; text-anchor: middle; fill: #272727" x="199.813347" y="157.739865" transform="rotate(-0 199.813347 157.739865)">10 kg</text>
+     </g>
+    </g>
+    <g id="xtick_9">
+     <g id="line2d_17">
+      <path d="M 221.995252 147.78674 
+L 221.995252 11.606803 
+" clip-path="url(#pa71a1190a2)" style="fill: none; stroke: #ede7e0; stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_18">
+      <g>
+       <use xlink:href="#ma55019144a" x="221.995252" y="147.78674" style="fill: #767676; stroke: #767676; stroke-width: 0.6"/>
+      </g>
+     </g>
+     <g id="text_9">
+      <text style="font-size: 5.5px; font-family: 'Arial', 'DejaVu Sans', 'Liberation Sans', sans-serif; text-anchor: middle; fill: #272727" x="221.995252" y="157.739865" transform="rotate(-0 221.995252 157.739865)">100 kg</text>
+     </g>
+    </g>
+    <g id="text_10">
+     <text style="font-size: 7px; font-family: 'Arial', 'DejaVu Sans', 'Liberation Sans', sans-serif; text-anchor: middle; fill: #272727" x="127.722157" y="167.907912" transform="rotate(-0 127.722157 167.907912)">body mass</text>
+    </g>
+   </g>
+   <g id="matplotlib.axis_2">
+    <g id="ytick_1">
+     <g id="line2d_19">
+      <path d="M 33.449063 147.78674 
+L 221.995252 147.78674 
+" clip-path="url(#pa71a1190a2)" style="fill: none; stroke: #ede7e0; stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_20">
+      <defs>
+       <path id="m511fec5fb5" d="M 0 0 
+L -2.5 0 
+" style="stroke: #767676; stroke-width: 0.6"/>
+      </defs>
+      <g>
+       <use xlink:href="#m511fec5fb5" x="33.449063" y="147.78674" style="fill: #767676; stroke: #767676; stroke-width: 0.6"/>
+      </g>
+     </g>
+     <g id="text_11">
+      <text style="font-size: 5.5px; font-family: 'Arial', 'DejaVu Sans', 'Liberation Sans', sans-serif; text-anchor: end; fill: #272727" x="27.449063" y="149.755138" transform="rotate(-0 27.449063 149.755138)">1</text>
+     </g>
+    </g>
+    <g id="ytick_2">
+     <g id="line2d_21">
+      <path d="M 33.449063 116.124571 
+L 221.995252 116.124571 
+" clip-path="url(#pa71a1190a2)" style="fill: none; stroke: #ede7e0; stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_22">
+      <g>
+       <use xlink:href="#m511fec5fb5" x="33.449063" y="116.124571" style="fill: #767676; stroke: #767676; stroke-width: 0.6"/>
+      </g>
+     </g>
+     <g id="text_12">
+      <text style="font-size: 5.5px; font-family: 'Arial', 'DejaVu Sans', 'Liberation Sans', sans-serif; text-anchor: end; fill: #272727" x="27.449063" y="118.09297" transform="rotate(-0 27.449063 118.09297)">10</text>
+     </g>
+    </g>
+    <g id="ytick_3">
+     <g id="line2d_23">
+      <path d="M 33.449063 84.462403 
+L 221.995252 84.462403 
+" clip-path="url(#pa71a1190a2)" style="fill: none; stroke: #ede7e0; stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_24">
+      <g>
+       <use xlink:href="#m511fec5fb5" x="33.449063" y="84.462403" style="fill: #767676; stroke: #767676; stroke-width: 0.6"/>
+      </g>
+     </g>
+     <g id="text_13">
+      <text style="font-size: 5.5px; font-family: 'Arial', 'DejaVu Sans', 'Liberation Sans', sans-serif; text-anchor: end; fill: #272727" x="27.449063" y="86.430801" transform="rotate(-0 27.449063 86.430801)">100</text>
+     </g>
+    </g>
+    <g id="ytick_4">
+     <g id="line2d_25">
+      <path d="M 33.449063 52.800234 
+L 221.995252 52.800234 
+" clip-path="url(#pa71a1190a2)" style="fill: none; stroke: #ede7e0; stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_26">
+      <g>
+       <use xlink:href="#m511fec5fb5" x="33.449063" y="52.800234" style="fill: #767676; stroke: #767676; stroke-width: 0.6"/>
+      </g>
+     </g>
+     <g id="text_14">
+      <!-- $10^3$ -->
+      <g style="fill: #272727" transform="translate(17.769063 54.811172)">
+       <text>
+        <tspan x="0" y="-0.585938" style="font-size: 5.5px; font-family: 'DejaVu Sans'; fill: #272727">1</tspan>
+        <tspan x="3.499268" y="-0.585938" style="font-size: 5.5px; font-family: 'DejaVu Sans'; fill: #272727">0</tspan>
+        <tspan x="7.055957" y="-2.882812" style="font-size: 3.85px; font-family: 'DejaVu Sans'; fill: #272727">3</tspan>
+       </text>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_5">
+     <g id="line2d_27">
+      <path d="M 33.449063 21.138065 
+L 221.995252 21.138065 
+" clip-path="url(#pa71a1190a2)" style="fill: none; stroke: #ede7e0; stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_28">
+      <g>
+       <use xlink:href="#m511fec5fb5" x="33.449063" y="21.138065" style="fill: #767676; stroke: #767676; stroke-width: 0.6"/>
+      </g>
+     </g>
+     <g id="text_15">
+      <!-- $10^4$ -->
+      <g style="fill: #272727" transform="translate(17.769063 23.121503)">
+       <text>
+        <tspan x="0" y="-0.640625" style="font-size: 5.5px; font-family: 'DejaVu Sans'; fill: #272727">1</tspan>
+        <tspan x="3.499268" y="-0.640625" style="font-size: 5.5px; font-family: 'DejaVu Sans'; fill: #272727">0</tspan>
+        <tspan x="7.055957" y="-2.9375" style="font-size: 3.85px; font-family: 'DejaVu Sans'; fill: #272727">4</tspan>
+       </text>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_6">
+     <g id="line2d_29">
+      <defs>
+       <path id="m8b268ca78b" d="M 0 0 
+L -2 0 
+" style="stroke: #000000; stroke-width: 0.6"/>
+      </defs>
+      <g>
+       <use xlink:href="#m8b268ca78b" x="33.449063" y="138.255477" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_7">
+     <g id="line2d_30">
+      <g>
+       <use xlink:href="#m8b268ca78b" x="33.449063" y="132.680046" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_8">
+     <g id="line2d_31">
+      <g>
+       <use xlink:href="#m8b268ca78b" x="33.449063" y="128.724215" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_9">
+     <g id="line2d_32">
+      <g>
+       <use xlink:href="#m8b268ca78b" x="33.449063" y="125.655834" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_10">
+     <g id="line2d_33">
+      <g>
+       <use xlink:href="#m8b268ca78b" x="33.449063" y="123.148784" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_11">
+     <g id="line2d_34">
+      <g>
+       <use xlink:href="#m8b268ca78b" x="33.449063" y="121.029103" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_12">
+     <g id="line2d_35">
+      <g>
+       <use xlink:href="#m8b268ca78b" x="33.449063" y="119.192952" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_13">
+     <g id="line2d_36">
+      <g>
+       <use xlink:href="#m8b268ca78b" x="33.449063" y="117.573353" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_14">
+     <g id="line2d_37">
+      <g>
+       <use xlink:href="#m8b268ca78b" x="33.449063" y="106.593309" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_15">
+     <g id="line2d_38">
+      <g>
+       <use xlink:href="#m8b268ca78b" x="33.449063" y="101.017878" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_16">
+     <g id="line2d_39">
+      <g>
+       <use xlink:href="#m8b268ca78b" x="33.449063" y="97.062046" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_17">
+     <g id="line2d_40">
+      <g>
+       <use xlink:href="#m8b268ca78b" x="33.449063" y="93.993665" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_18">
+     <g id="line2d_41">
+      <g>
+       <use xlink:href="#m8b268ca78b" x="33.449063" y="91.486615" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_19">
+     <g id="line2d_42">
+      <g>
+       <use xlink:href="#m8b268ca78b" x="33.449063" y="89.366935" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_20">
+     <g id="line2d_43">
+      <g>
+       <use xlink:href="#m8b268ca78b" x="33.449063" y="87.530784" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_21">
+     <g id="line2d_44">
+      <g>
+       <use xlink:href="#m8b268ca78b" x="33.449063" y="85.911184" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_22">
+     <g id="line2d_45">
+      <g>
+       <use xlink:href="#m8b268ca78b" x="33.449063" y="74.93114" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_23">
+     <g id="line2d_46">
+      <g>
+       <use xlink:href="#m8b268ca78b" x="33.449063" y="69.355709" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_24">
+     <g id="line2d_47">
+      <g>
+       <use xlink:href="#m8b268ca78b" x="33.449063" y="65.399878" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_25">
+     <g id="line2d_48">
+      <g>
+       <use xlink:href="#m8b268ca78b" x="33.449063" y="62.331497" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_26">
+     <g id="line2d_49">
+      <g>
+       <use xlink:href="#m8b268ca78b" x="33.449063" y="59.824447" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_27">
+     <g id="line2d_50">
+      <g>
+       <use xlink:href="#m8b268ca78b" x="33.449063" y="57.704766" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_28">
+     <g id="line2d_51">
+      <g>
+       <use xlink:href="#m8b268ca78b" x="33.449063" y="55.868615" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_29">
+     <g id="line2d_52">
+      <g>
+       <use xlink:href="#m8b268ca78b" x="33.449063" y="54.249015" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_30">
+     <g id="line2d_53">
+      <g>
+       <use xlink:href="#m8b268ca78b" x="33.449063" y="43.268972" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_31">
+     <g id="line2d_54">
+      <g>
+       <use xlink:href="#m8b268ca78b" x="33.449063" y="37.69354" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_32">
+     <g id="line2d_55">
+      <g>
+       <use xlink:href="#m8b268ca78b" x="33.449063" y="33.737709" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_33">
+     <g id="line2d_56">
+      <g>
+       <use xlink:href="#m8b268ca78b" x="33.449063" y="30.669328" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_34">
+     <g id="line2d_57">
+      <g>
+       <use xlink:href="#m8b268ca78b" x="33.449063" y="28.162278" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_35">
+     <g id="line2d_58">
+      <g>
+       <use xlink:href="#m8b268ca78b" x="33.449063" y="26.042597" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_36">
+     <g id="line2d_59">
+      <g>
+       <use xlink:href="#m8b268ca78b" x="33.449063" y="24.206447" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_37">
+     <g id="line2d_60">
+      <g>
+       <use xlink:href="#m8b268ca78b" x="33.449063" y="22.586847" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_38">
+     <g id="line2d_61">
+      <g>
+       <use xlink:href="#m8b268ca78b" x="33.449063" y="11.606803" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="text_16">
+     <text style="font-size: 7px; font-family: 'Arial', 'DejaVu Sans', 'Liberation Sans', sans-serif; text-anchor: middle; fill: #272727" x="12.295781" y="79.696771" transform="rotate(-90 12.295781 79.696771)">peak W/kg needed for a 30 cm jump</text>
+    </g>
+   </g>
+   <g id="line2d_62">
+    <path d="M 33.449063 71.862759 
+L 221.995252 71.862759 
+" clip-path="url(#pa71a1190a2)" style="fill: none; stroke-dasharray: 2.59,1.12; stroke-dashoffset: 0; stroke: #767676; stroke-width: 0.7"/>
+   </g>
+   <g id="line2d_63">
+    <path d="M 121.33816 147.78674 
+L 121.33816 11.606803 
+" clip-path="url(#pa71a1190a2)" style="fill: none; stroke-dasharray: 0.7,1.155; stroke-dashoffset: 0; stroke: #b64342; stroke-width: 0.7"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 33.449063 147.78674 
+L 33.449063 11.606803 
+" style="fill: none; stroke: #767676; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 33.449062 147.78674 
+L 221.995252 147.78674 
+" style="fill: none; stroke: #767676; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_64">
+    <path d="M 33.449062 20.514237 
+L 35.667253 21.569642 
+L 37.885443 22.625048 
+L 40.103634 23.680453 
+L 42.321824 24.735859 
+L 44.540015 25.791265 
+L 46.758205 26.84667 
+L 48.976396 27.902076 
+L 51.194586 28.957481 
+L 53.412777 30.012887 
+L 55.630967 31.068293 
+L 57.849158 32.123698 
+L 60.067348 33.179104 
+L 62.285539 34.23451 
+L 64.503729 35.289915 
+L 66.721919 36.345321 
+L 68.94011 37.400726 
+L 71.1583 38.456132 
+L 73.376491 39.511538 
+L 75.594681 40.566943 
+L 77.812872 41.622349 
+L 80.031062 42.677755 
+L 82.249253 43.73316 
+L 84.467443 44.788566 
+L 86.685634 45.843971 
+L 88.903824 46.899377 
+L 91.122015 47.954783 
+L 93.340205 49.010188 
+L 95.558395 50.065594 
+L 97.776586 51.120999 
+L 99.994776 52.176405 
+L 102.212967 53.231811 
+L 104.431157 54.287216 
+L 106.649348 55.342622 
+L 108.867538 56.398028 
+L 111.085729 57.453433 
+L 113.303919 58.508839 
+L 115.52211 59.564244 
+L 117.7403 60.61965 
+L 119.958491 61.675056 
+L 122.176681 62.730461 
+L 124.394872 63.785867 
+L 126.613062 64.841273 
+L 128.831252 65.896678 
+L 131.049443 66.952084 
+L 133.267633 68.007489 
+L 135.485824 69.062895 
+L 137.704014 70.118301 
+L 139.922205 71.173706 
+L 142.140395 72.229112 
+L 144.358586 73.284517 
+L 146.576776 74.339923 
+L 148.794967 75.395329 
+L 151.013157 76.450734 
+L 153.231348 77.50614 
+L 155.449538 78.561546 
+L 157.667728 79.616951 
+L 159.885919 80.672357 
+L 162.104109 81.727762 
+L 164.3223 82.783168 
+L 166.54049 83.838574 
+L 168.758681 84.893979 
+L 170.976871 85.949385 
+L 173.195062 87.004791 
+L 175.413252 88.060196 
+L 177.631443 89.115602 
+L 179.849633 90.171007 
+L 182.067824 91.226413 
+L 184.286014 92.281819 
+L 186.504205 93.337224 
+L 188.722395 94.39263 
+L 190.940585 95.448035 
+L 193.158776 96.503441 
+L 195.376966 97.558847 
+L 197.595157 98.614252 
+L 199.813347 99.669658 
+L 202.031538 100.725064 
+L 204.249728 101.780469 
+L 206.467919 102.835875 
+L 208.686109 103.89128 
+L 210.9043 104.946686 
+L 213.12249 106.002092 
+L 215.340681 107.057497 
+L 217.558871 108.112903 
+L 219.777061 109.168309 
+L 221.995252 110.223714 
+" clip-path="url(#pa71a1190a2)" style="fill: none; stroke: #0f4d92; stroke-width: 1.4; stroke-linecap: square"/>
+   </g>
+   <g id="text_17">
+    <!-- $m^* pprox 2.9$ g -->
+    <g style="fill: #b64342" transform="translate(125.34816 35.287483)">
+     <text>
+      <tspan x="0" y="-0.585938" style="font-style: oblique; font-size: 6px; font-family: 'DejaVu Sans'; fill: #b64342">m</tspan>
+      <tspan x="6.941895" y="-2.882812" style="font-size: 4.2px; font-family: 'DejaVu Sans'; fill: #b64342">*</tspan>
+      <tspan x="11.193164" y="-0.585938" style="font-size: 6px; font-family: 'DejaVu Sans'; fill: #b64342">≈</tspan>
+      <tspan x="17.389453" y="-0.585938" style="font-size: 6px; font-family: 'DejaVu Sans'; fill: #b64342">2</tspan>
+      <tspan x="21.206836" y="-0.585938" style="font-size: 6px; font-family: 'DejaVu Sans'; fill: #b64342">.</tspan>
+      <tspan x="23.114062" y="-0.585938" style="font-size: 6px; font-family: 'DejaVu Sans'; fill: #b64342">9</tspan>
+      <tspan x="26.931445" y="-0.585938" style="font-size: 6px; font-family: 'Arial'; fill: #b64342"> </tspan>
+      <tspan x="28.598437" y="-0.585938" style="font-size: 6px; font-family: 'Arial'; fill: #b64342">g</tspan>
+     </text>
+    </g>
+   </g>
+   <g id="text_18">
+    <text style="font-size: 5.5px; font-family: 'Arial', 'DejaVu Sans', 'Liberation Sans', sans-serif; fill: #4d4d4d" transform="translate(52.135602 43)">burst ceiling</text>
+    <text style="font-size: 5.5px; font-family: 'Arial', 'DejaVu Sans', 'Liberation Sans', sans-serif; fill: #4d4d4d" transform="translate(52.135602 49.8)">0.5-1 kW/kg</text>
+   </g>
+   <g id="text_19">
+    <!-- sustained $pprox$ 250 W/kg -->
+    <g style="fill: #767676" transform="translate(149.895766 44)">
+     <text>
+      <tspan x="0" y="-0.625" style="font-size: 5.5px; font-family: 'Arial'; fill: #767676">s</tspan>
+      <tspan x="2.75" y="-0.625" style="font-size: 5.5px; font-family: 'Arial'; fill: #767676">u</tspan>
+      <tspan x="5.808838" y="-0.625" style="font-size: 5.5px; font-family: 'Arial'; fill: #767676">s</tspan>
+      <tspan x="8.558838" y="-0.625" style="font-size: 5.5px; font-family: 'Arial'; fill: #767676">t</tspan>
+      <tspan x="10.086914" y="-0.625" style="font-size: 5.5px; font-family: 'Arial'; fill: #767676">a</tspan>
+      <tspan x="13.145752" y="-0.625" style="font-size: 5.5px; font-family: 'Arial'; fill: #767676">i</tspan>
+      <tspan x="14.367676" y="-0.625" style="font-size: 5.5px; font-family: 'Arial'; fill: #767676">n</tspan>
+      <tspan x="17.426514" y="-0.625" style="font-size: 5.5px; font-family: 'Arial'; fill: #767676">e</tspan>
+      <tspan x="20.485352" y="-0.625" style="font-size: 5.5px; font-family: 'Arial'; fill: #767676">d</tspan>
+      <tspan x="23.544189" y="-0.625" style="font-size: 5.5px; font-family: 'Arial'; fill: #767676"> </tspan>
+      <tspan x="31.82373" y="-0.625" style="font-size: 5.5px; font-family: 'Arial'; fill: #767676"> </tspan>
+      <tspan x="33.351807" y="-0.625" style="font-size: 5.5px; font-family: 'Arial'; fill: #767676">2</tspan>
+      <tspan x="36.410645" y="-0.625" style="font-size: 5.5px; font-family: 'Arial'; fill: #767676">5</tspan>
+      <tspan x="39.469482" y="-0.625" style="font-size: 5.5px; font-family: 'Arial'; fill: #767676">0</tspan>
+      <tspan x="42.52832" y="-0.625" style="font-size: 5.5px; font-family: 'Arial'; fill: #767676"> </tspan>
+      <tspan x="44.056396" y="-0.625" style="font-size: 5.5px; font-family: 'Arial'; fill: #767676">W</tspan>
+      <tspan x="49.247559" y="-0.625" style="font-size: 5.5px; font-family: 'Arial'; fill: #767676">/</tspan>
+      <tspan x="50.775635" y="-0.625" style="font-size: 5.5px; font-family: 'Arial'; fill: #767676">k</tspan>
+      <tspan x="53.525635" y="-0.625" style="font-size: 5.5px; font-family: 'Arial'; fill: #767676">g</tspan>
+      <tspan x="26.143799" y="-0.625" style="font-size: 5.5px; font-family: 'DejaVu Sans'; fill: #767676">≈</tspan>
+     </text>
+    </g>
+   </g>
+   <g id="line2d_65">
+    <defs>
+     <path id="m57c925aebf" d="M 0 2 
+C 0.530406 2 1.03916 1.789267 1.414214 1.414214 
+C 1.789267 1.03916 2 0.530406 2 0 
+C 2 -0.530406 1.789267 -1.03916 1.414214 -1.414214 
+C 1.03916 -1.789267 0.530406 -2 0 -2 
+C -0.530406 -2 -1.03916 -1.789267 -1.414214 -1.414214 
+C -1.789267 -1.03916 -2 -0.530406 -2 0 
+C -2 0.530406 -1.789267 1.03916 -1.414214 1.414214 
+C -1.03916 1.789267 -0.530406 2 0 2 
+z
+" style="stroke: #ffffff; stroke-width: 0.9"/>
+    </defs>
+    <g clip-path="url(#pa71a1190a2)">
+     <use xlink:href="#m57c925aebf" x="218.559231" y="108.58887" style="fill: #0f4d92; stroke: #ffffff; stroke-width: 0.9"/>
+    </g>
+   </g>
+   <g id="line2d_66">
+    <g clip-path="url(#pa71a1190a2)">
+     <use xlink:href="#m57c925aebf" x="190.98628" y="95.469777" style="fill: #0f4d92; stroke: #ffffff; stroke-width: 0.9"/>
+    </g>
+   </g>
+   <g id="line2d_67">
+    <g clip-path="url(#pa71a1190a2)">
+     <use xlink:href="#m57c925aebf" x="166.032996" y="83.59711" style="fill: #0f4d92; stroke: #ffffff; stroke-width: 0.9"/>
+    </g>
+   </g>
+   <g id="line2d_68">
+    <g clip-path="url(#pa71a1190a2)">
+     <use xlink:href="#m57c925aebf" x="117.763147" y="60.630521" style="fill: #0f4d92; stroke: #ffffff; stroke-width: 0.9"/>
+    </g>
+   </g>
+   <g id="line2d_69">
+    <g clip-path="url(#pa71a1190a2)">
+     <use xlink:href="#m57c925aebf" x="68.716186" y="37.294184" style="fill: #0f4d92; stroke: #ffffff; stroke-width: 0.9"/>
+    </g>
+   </g>
+   <g id="line2d_70">
+    <g clip-path="url(#pa71a1190a2)">
+     <use xlink:href="#m57c925aebf" x="36.847608" y="22.13125" style="fill: #0f4d92; stroke: #ffffff; stroke-width: 0.9"/>
+    </g>
+   </g>
+   <g id="text_20">
+    <text style="font-size: 5.5px; font-family: 'Arial', 'DejaVu Sans', 'Liberation Sans', sans-serif; fill: #272727" transform="translate(196.743841 121.525667)">human</text>
+    <text style="font-size: 5.5px; font-family: 'Arial', 'DejaVu Sans', 'Liberation Sans', sans-serif; fill: #272727" transform="translate(200.105716 127.362542)">70 kg</text>
+   </g>
+   <g id="text_21">
+    <text style="font-size: 5.5px; font-family: 'Arial', 'DejaVu Sans', 'Liberation Sans', sans-serif; text-anchor: end; fill: #272727" x="180.98628" y="109.406574" transform="rotate(-0 180.98628 109.406574)">cat</text>
+   </g>
+   <g id="text_22">
+    <text style="font-size: 5.5px; font-family: 'Arial', 'DejaVu Sans', 'Liberation Sans', sans-serif; text-anchor: end; fill: #272727" x="156.032996" y="97.533907" transform="rotate(-0 156.032996 97.533907)">rat</text>
+   </g>
+   <g id="text_23">
+    <text style="font-size: 5.5px; font-family: 'Arial', 'DejaVu Sans', 'Liberation Sans', sans-serif; fill: #272727" transform="translate(99.396116 80)">locust</text>
+    <text style="font-size: 5.5px; font-family: 'Arial', 'DejaVu Sans', 'Liberation Sans', sans-serif; fill: #272727" transform="translate(106.118147 86)">2 g</text>
+   </g>
+   <g id="text_24">
+    <text style="font-size: 5.5px; font-family: 'Arial', 'DejaVu Sans', 'Liberation Sans', sans-serif; fill: #272727" transform="translate(70.716186 28.235278)">froghopper</text>
+    <text style="font-size: 5.5px; font-family: 'Arial', 'DejaVu Sans', 'Liberation Sans', sans-serif; fill: #272727" transform="translate(70.716186 34.136606)">12.3 mg</text>
+   </g>
+   <g id="text_25">
+    <text style="font-size: 5.5px; font-family: 'Arial', 'DejaVu Sans', 'Liberation Sans', sans-serif; fill: #272727" transform="translate(39.847608 11.136797)">flea</text>
+    <text style="font-size: 5.5px; font-family: 'Arial', 'DejaVu Sans', 'Liberation Sans', sans-serif; fill: #272727" transform="translate(39.847608 16.973672)">0.45 mg</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pa71a1190a2">
+   <rect x="33.449063" y="11.606803" width="188.546189" height="136.179937"/>
+  </clipPath>
+ </defs>
+</svg>
+
+<figcaption>Figure 1: peak specific power needed for the lecture's universal 30-cm jump,
+<em>p</em> = <em>v</em><sup>3</sup>/(2ℓ<em>m</em><sup>1/3</sup>) with <em>v</em> = 2.4 m/s
+and ℓ = 0.1 m·kg<sup>−1/3</sup>, against body mass (log-log). Grey band: burst ceiling of
+striated muscle, 0.5-1 kW/kg; dashed grey line: ≈250 W/kg sustained scale (Josephson 1985
+measures 76 W/kg under controlled cyclic loading); dotted vertical: crossover
+<em>m</em>* ≈ 2.9 g. Animal masses: human, cat, rat, locust from the lecture's own
+estimates; froghopper 12.3 mg measured (Burrows 2003); flea 0.45 mg (Bennet-Clark &amp;
+Lucey 1967). The figure was generated by a short Python script; the
+embedded code below reproduces every plotted value and also prints the crossover band
+0.4-23 g for ceilings 250-1000 W/kg.</figcaption>
+</figure>
+
+<table>
+  <thead>
+  <tr><th>animal</th><th>mass</th><th><em>p</em> needed for 30 cm (W/kg)</th><th>mechanism observed</th></tr>
+  </thead>
+  <tbody>
+  <tr><td>human</td><td>70 kg</td><td>17</td><td>muscle</td></tr>
+  <tr><td>cat</td><td>4 kg</td><td>45</td><td>muscle</td></tr>
+  <tr><td>rat</td><td>0.3 kg</td><td>106</td><td>muscle</td></tr>
+  <tr><td>locust</td><td>2 g</td><td>566</td><td>borderline, partly elastic</td></tr>
+  <tr><td>froghopper</td><td>12.3 mg</td><td>3,100 (4,800 at its measured 2.8 m/s)</td><td>catapult (Burrows 2003)</td></tr>
+  <tr><td>flea</td><td>0.45 mg</td><td>9,300</td><td>catapult (Bennet-Clark &amp; Lucey 1967)</td></tr>
+  </tbody>
+</table>
+
+<h2>What I would argue against / where this breaks</h2>
+<ul>
+  <li><em>m</em>* scales as <em>P</em><sup>−3</sup>, and the ceiling is the softest input:
+  250 W/kg gives <em>m</em>* ≈ 23 g, 1 kW/kg gives 0.4 g. The claim is an order of
+  magnitude, not a line, and the flea and froghopper sit far enough below the whole band to
+  be safe; a muscle-driven 1 g jumper at 30 cm would break it.</li>
+  <li>The 1/3 exponent in <em>s</em> = ℓ<em>m</em><sup>1/3</sup> is assumed geometric
+  similarity, not measured. Since <em>m</em>* ∝ ℓ<sup>−3</sup>, relatively longer legs
+  rescue direct muscle: legs twice as long, eight times smaller <em>m</em>*.</li>
+  <li>The argument forces a spring only if the animal insists on ≈30 cm. It could instead
+  jump lower, since <em>p</em> ∝ <em>h</em><sup>3/2</sup>: 3 cm costs thirty times less power.
+  That small animals keep <em>h</em> roughly constant and switch mechanism is a regularity
+  this scaling explains but does not predict.</li>
+  <li>Drag is ignored. At flea scale it raises the required power further, which helps the
+  argument, but it would also bend the <em>h</em> ∝ <em>m</em><sup>0</sup> universality at
+  the small end.</li>
+</ul>
+
+<h2>Sources</h2>
+<ul class="src">
+  <li>F. Xiao, "Order-of-magnitude physics", Lecture 1, EST 5053: Control and Computing
+  in Biological Systems, Westlake University, 2026,
+  <a href="https://chemaoxfz.github.io/ccbs/2026fall/">course page</a>.</li>
+  <li>M. Burrows (2003), "Froghopper insects leap to new heights", <em>Nature</em> 424:509,
+  <a href="https://doi.org/10.1038/424509a">doi:10.1038/424509a</a>.</li>
+  <li>R. K. Josephson (1985), "Mechanical power output from striated muscle during cyclic
+  contraction", <em>J. Exp. Biol.</em> 114:493-512,
+  <a href="https://doi.org/10.1242/jeb.114.1.493">doi:10.1242/jeb.114.1.493</a>.</li>
+  <li>G. N. Askew &amp; R. L. Marsh (2002), "Muscle designed for maximum short-term power
+  output: quail flight muscle", <em>J. Exp. Biol.</em> 205:2153-2160,
+  <a href="https://doi.org/10.1242/jeb.205.15.2153">doi:10.1242/jeb.205.15.2153</a>;
+  G. N. Askew, R. L. Marsh &amp; C. P. Ellington (2001), "The mechanical power output of
+  the flight muscles of blue-breasted quail (<em>Coturnix chinensis</em>) during take-off",
+  <em>J. Exp. Biol.</em> 204:3601-3619,
+  <a href="https://doi.org/10.1242/jeb.204.21.3601">doi:10.1242/jeb.204.21.3601</a>.</li>
+  <li>H. C. Bennet-Clark &amp; E. C. A. Lucey (1967), "The jump of the flea: a study of
+  the energetics and a model of the mechanism", <em>J. Exp. Biol.</em> 47:59-76,
+  <a href="https://doi.org/10.1242/jeb.47.1.59">doi:10.1242/jeb.47.1.59</a>;
+  G. P. Sutton &amp; M. Burrows (2011), "Biomechanics of jumping in the flea",
+  <em>J. Exp. Biol.</em> 214:836-847,
+  <a href="https://doi.org/10.1242/jeb.052399">doi:10.1242/jeb.052399</a>.</li>
+</ul>
+
+</div>
+</body>
+</html>

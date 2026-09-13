@@ -1,0 +1,236 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="author" content="Chengwei Jin"><meta name="week" content="week2"><meta name="description" content="A short CCBS extension: finite irreversible inhibition can leave permanent enzyme loss while substrate accumulation restores flux. Includes an interactive full-complex model."><title>Week 2: Flux can recover without enzyme recovery</title><style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px;
+    border-bottom:1px solid var(--line); padding-bottom:5px; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:14px 18px; margin:14px 0; }
+  .fig { width:100%; border:1px solid var(--line); border-radius:6px; margin:14px 0; }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; }
+.eq{font-family:'Cambria Math',Cambria,Georgia,serif;padding:12px 14px;background:var(--soft);border:1px solid var(--line);border-radius:7px;margin:14px 0;overflow-x:auto;text-align:center;line-height:1.95}.eq .row{display:block;white-space:nowrap}.frac{display:inline-flex;flex-direction:column;text-align:center;vertical-align:middle;line-height:1.3;margin:0 4px}.frac>span:first-child{border-bottom:1px solid;padding:0 4px}.frac>span:last-child{padding:0 4px}sub,sup{font-size:.72em}details{border:1px solid var(--line);border-radius:7px;padding:10px 14px;margin:14px 0}summary{cursor:pointer;color:var(--accent);font-size:.9rem;font-weight:600}pre{overflow:auto;max-height:400px;font:12px/1.6 Consolas,monospace;padding:10px;background:var(--bg)}.small{font-size:.88rem;color:var(--muted)}figure{margin:20px 0}.fig{display:block;color:var(--ink)}.legend{font:13px 'Segoe UI',sans-serif;display:flex;gap:18px;flex-wrap:wrap}.demo{border:1px solid var(--line);border-radius:12px;background:var(--soft);padding:18px;margin-top:16px}.controls{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:20px 0}.controls label{font-size:14px;display:block}.controls output{float:right;font-weight:700}input[type=range]{width:100%;accent-color:var(--teal);margin-top:12px}button{padding:8px 12px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;cursor:pointer}button:hover{border-color:var(--teal)}.buttons{display:flex;gap:8px;flex-wrap:wrap}canvas{width:100%;display:block;height:420px}.readout{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:15px}.readout div{background:var(--bg);padding:10px;border-radius:5px;font-size:12px}.readout b{display:block;font-size:18px;color:var(--accent)}#status{min-height:3em}.theme{position:fixed;right:12px;top:12px;z-index:2}table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:6px;border-bottom:1px solid var(--line);text-align:left}a{overflow-wrap:anywhere}.scrub{font:13px 'Segoe UI',sans-serif;margin:14px 0}.scrub input{display:block} @media(max-width:600px){.wrap{padding:55px 16px 45px}h1{font-size:1.65rem}.controls{grid-template-columns:1fr}.readout{grid-template-columns:1fr}canvas{height:470px}.demo{padding:10px}.eq{font-size:14px}.legend{font-size:12px}}
+
+:root {--teal:#1F9A8E;--rose:#D75567;--peri:#5A73CE;}
+:root[data-theme="light"]{--ink:#1a1a1a;--muted:#566;--accent:#1f4e79;--line:#d8dee4;--bg:#fff;--soft:#f6f8fa;}
+:root[data-theme="dark"]{--ink:#e8e8e8;--muted:#9aa;--accent:#8ab4e8;--line:#3a4652;--bg:#15191d;--soft:#1e242a;}
+body{font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-size:16px;line-height:1.6}
+.wrap{max-width:760px;padding:40px 22px 80px;margin:0 auto}
+h1{font-size:1.6rem;line-height:1.25;margin:0 0 6px;color:var(--accent)}
+.meta{color:var(--muted);font-size:.92rem;margin-bottom:26px}
+.card{border:1px solid var(--line);border-radius:6px;padding:14px 18px;margin:14px 0}
+h2{font-size:1.05rem;color:var(--accent);margin:34px 0 8px;border-bottom:1px solid var(--line);padding-bottom:5px}
+.theme{position:static;float:right;margin:0 0 12px 12px;font-size:12px}
+h1{clear:both}.demo{border-radius:6px}.fig{height:auto}
+@media(max-width:600px){.wrap{padding:28px 16px 55px}h1{font-size:1.6rem}}
+</style></head><body>
+<div class="wrap">
+<button class="theme" id="theme" aria-label="Toggle light and dark theme">◐ Theme</button>
+<h1>Week 2 Extension: Flux Can Recover without Enzyme Recovery</h1>
+<p class="meta">Author: Chengwei Jin · Week 2 (2026-09-09) · CCBS 2026</p>
+<p class="card"><strong>One sentence:</strong> After a finite irreversible inhibitor exposure, substrate accumulation can restore the original throughput despite permanent enzyme loss, provided the surviving catalytic capacity exceeds the constant supply.</p>
+
+<h2 id="point">The point I am adding</h2>
+<p>Lecture 3 holds an enzyme pool fixed and asks whether its capacity can balance input.<sup class="c"><a href="#r-course">1</a></sup> I let that pool lose activity during an externally imposed inhibitor pulse. The question is whether a recovered product flux would prove that the enzyme recovered. In this model it would not: more substrate can compensate for fewer active enzymes. This is a theoretical extension, with illustrative parameters rather than a fitted inhibitor experiment.</p>
+
+<h2 id="work">Work it</h2>
+<p>Let bare symbols denote free concentrations and let C<sub>ES</sub> denote the enzyme–substrate complex. Upstream supply is constant. H irreversibly inactivates free and bound enzyme at the same rate; inactivation of a complex releases its substrate. E<sub>inactive</sub> denotes the inactive reaction product, including the reacted inhibitor.</p>
+<div class="eq" aria-label="Reaction network">
+<span class="row">∅ ⇝ S &nbsp; (rate v<sub>in</sub>)</span>
+<span class="row">E + S ⇌ C<sub>ES</sub> → E + P</span>
+<span class="small">association k<sub>+</sub> · dissociation k<sub>−</sub> · catalysis k<sub>cat</sub></span>
+<span class="row">E + H → E<sub>inactive</sub></span>
+<span class="row">C<sub>ES</sub> + H → E<sub>inactive</sub> + S</span>
+<span class="small">both inactivation steps: k<sub>inact</sub></span></div>
+<p>Define the active enzyme pool q<sub>E</sub> = E + C<sub>ES</sub> and the unconverted substrate pool q<sub>S</sub> = S + C<sub>ES</sub>. Summing mass-action balances cancels binding terms. Substituting E = q<sub>E</sub> − C<sub>ES</sub> and S = q<sub>S</sub> − C<sub>ES</sub> closes the exact model for the declared reactions:</p>
+<div class="eq">
+<span class="row">dq<sub>E</sub>/dt = −k<sub>inact</sub>H(t)q<sub>E</sub></span>
+<span class="row">dq<sub>S</sub>/dt = v<sub>in</sub> − k<sub>cat</sub>C<sub>ES</sub></span>
+<span class="row">dC<sub>ES</sub>/dt = k<sub>+</sub>(q<sub>E</sub> − C<sub>ES</sub>)(q<sub>S</sub> − C<sub>ES</sub>)</span>
+<span class="row">− [k<sub>−</sub> + k<sub>cat</sub> + k<sub>inact</sub>H(t)]C<sub>ES</sub>.</span></div>
+<p>H(t) equals H<sub>0</sub> for an exposure lasting T, starting at t<sub>0</sub>, and is zero otherwise. This assumes excess inhibitor during exposure and selective removal afterward. Integration gives the surviving active fraction a<sub>∞</sub> = exp(−k<sub>inact</sub>H<sub>0</sub>T). Washout stops further inactivation; it does not reactivate enzyme.</p>
+<p>After washout, a finite steady state requires k<sub>cat</sub>q<sub>E,∞</sub> &gt; v<sub>in</sub>. At that state, C<sub>ES</sub><sup>*</sup> = v<sub>in</sub>/k<sub>cat</sub> and:</p>
+<div class="eq"><span class="row">S<sup>*</sup> = <span class="frac"><span>K<sub>M</sub>v<sub>in</sub></span><span>k<sub>cat</sub>q<sub>E,∞</sub> − v<sub>in</sub></span></span>, &nbsp; q<sub>S</sub><sup>*</sup> = S<sup>*</sup> + <span class="frac"><span>v<sub>in</sub></span><span>k<sub>cat</sub></span></span></span>
+<span class="small">K<sub>M</sub> = (k<sub>−</sub> + k<sub>cat</sub>)/k<sub>+</sub></span></div>
+<p>These are exact steady-state identities, not a quasi-steady approximation. With the parameters below, a 20-minute exposure at H<sub>0</sub> = 0.20 μM leaves 67.0% activity. The predicted substrate pool rises from 1.50 to 3.44 μM while flux returns to the input. At 0.50 μM, only 36.8% activity survives, leaving insufficient capacity. The calculated threshold for this exposure duration is H<sub>0</sub> &lt; 0.347 μM.</p>
+<figure><svg class="fig" viewBox="0 0 720 275" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mild exposure restores flux despite persistent enzyme loss; stronger exposure cannot restore flux.">
+<text x="48" y="23" fill="currentColor" font-size="13">Active enzyme / initial enzyme</text>
+<rect x="73.0" y="42" width="50.0" height="170" fill="#877F77" opacity="0.12"/>
+<path d="M48,212.0h300" stroke="#999" opacity=".25"/><text x="39" y="216.0" text-anchor="end" fill="currentColor" font-size="11">0</text>
+<path d="M48,134.72727272727272h300" stroke="#999" opacity=".25"/><text x="39" y="138.72727272727272" text-anchor="end" fill="currentColor" font-size="11">0.5</text>
+<path d="M48,57.45454545454546h300" stroke="#999" opacity=".25"/><text x="39" y="61.45454545454546" text-anchor="end" fill="currentColor" font-size="11">1</text>
+<path d="M48.00,57.45 L49.00,57.45 L50.00,57.45 L51.00,57.45 L52.00,57.45 L53.00,57.45 L54.00,57.45 L55.00,57.45 L56.00,57.45 L57.00,57.45 L58.00,57.45 L59.00,57.45 L60.00,57.45 L61.00,57.45 L62.00,57.45 L63.00,57.45 L64.00,57.45 L65.00,57.45 L66.00,57.45 L67.00,57.45 L68.00,57.45 L69.00,57.45 L70.00,57.45 L71.00,57.45 L72.00,57.45 L73.00,57.45 L74.00,58.69 L75.00,59.91 L76.00,61.12 L77.00,62.32 L78.00,63.51 L79.00,64.70 L80.00,65.87 L81.00,67.04 L82.00,68.19 L83.00,69.34 L84.00,70.47 L85.00,71.60 L86.00,72.72 L87.00,73.83 L88.00,74.93 L89.00,76.02 L90.00,77.11 L91.00,78.18 L92.00,79.25 L93.00,80.31 L94.00,81.35 L95.00,82.40 L96.00,83.43 L97.00,84.45 L98.00,85.47 L99.00,86.48 L100.00,87.48 L101.00,88.47 L102.00,89.45 L103.00,90.43 L104.00,91.40 L105.00,92.36 L106.00,93.31 L107.00,94.26 L108.00,95.20 L109.00,96.13 L110.00,97.05 L111.00,97.97 L112.00,98.88 L113.00,99.78 L114.00,100.67 L115.00,101.56 L116.00,102.44 L117.00,103.31 L118.00,104.18 L119.00,105.04 L120.00,105.89 L121.00,106.73 L122.00,107.57 L123.00,108.41 L124.00,108.41 L125.00,108.41 L126.00,108.41 L127.00,108.41 L128.00,108.41 L129.00,108.41 L130.00,108.41 L131.00,108.41 L132.00,108.41 L133.00,108.41 L134.00,108.41 L135.00,108.41 L136.00,108.41 L137.00,108.41 L138.00,108.41 L139.00,108.41 L140.00,108.41 L141.00,108.41 L142.00,108.41 L143.00,108.41 L144.00,108.41 L145.00,108.41 L146.00,108.41 L147.00,108.41 L148.00,108.41 L149.00,108.41 L150.00,108.41 L151.00,108.41 L152.00,108.41 L153.00,108.41 L154.00,108.41 L155.00,108.41 L156.00,108.41 L157.00,108.41 L158.00,108.41 L159.00,108.41 L160.00,108.41 L161.00,108.41 L162.00,108.41 L163.00,108.41 L164.00,108.41 L165.00,108.41 L166.00,108.41 L167.00,108.41 L168.00,108.41 L169.00,108.41 L170.00,108.41 L171.00,108.41 L172.00,108.41 L173.00,108.41 L174.00,108.41 L175.00,108.41 L176.00,108.41 L177.00,108.41 L178.00,108.41 L179.00,108.41 L180.00,108.41 L181.00,108.41 L182.00,108.41 L183.00,108.41 L184.00,108.41 L185.00,108.41 L186.00,108.41 L187.00,108.41 L188.00,108.41 L189.00,108.41 L190.00,108.41 L191.00,108.41 L192.00,108.41 L193.00,108.41 L194.00,108.41 L195.00,108.41 L196.00,108.41 L197.00,108.41 L198.00,108.41 L199.00,108.41 L200.00,108.41 L201.00,108.41 L202.00,108.41 L203.00,108.41 L204.00,108.41 L205.00,108.41 L206.00,108.41 L207.00,108.41 L208.00,108.41 L209.00,108.41 L210.00,108.41 L211.00,108.41 L212.00,108.41 L213.00,108.41 L214.00,108.41 L215.00,108.41 L216.00,108.41 L217.00,108.41 L218.00,108.41 L219.00,108.41 L220.00,108.41 L221.00,108.41 L222.00,108.41 L223.00,108.41 L224.00,108.41 L225.00,108.41 L226.00,108.41 L227.00,108.41 L228.00,108.41 L229.00,108.41 L230.00,108.41 L231.00,108.41 L232.00,108.41 L233.00,108.41 L234.00,108.41 L235.00,108.41 L236.00,108.41 L237.00,108.41 L238.00,108.41 L239.00,108.41 L240.00,108.41 L241.00,108.41 L242.00,108.41 L243.00,108.41 L244.00,108.41 L245.00,108.41 L246.00,108.41 L247.00,108.41 L248.00,108.41 L249.00,108.41 L250.00,108.41 L251.00,108.41 L252.00,108.41 L253.00,108.41 L254.00,108.41 L255.00,108.41 L256.00,108.41 L257.00,108.41 L258.00,108.41 L259.00,108.41 L260.00,108.41 L261.00,108.41 L262.00,108.41 L263.00,108.41 L264.00,108.41 L265.00,108.41 L266.00,108.41 L267.00,108.41 L268.00,108.41 L269.00,108.41 L270.00,108.41 L271.00,108.41 L272.00,108.41 L273.00,108.41 L274.00,108.41 L275.00,108.41 L276.00,108.41 L277.00,108.41 L278.00,108.41 L279.00,108.41 L280.00,108.41 L281.00,108.41 L282.00,108.41 L283.00,108.41 L284.00,108.41 L285.00,108.41 L286.00,108.41 L287.00,108.41 L288.00,108.41 L289.00,108.41 L290.00,108.41 L291.00,108.41 L292.00,108.41 L293.00,108.41 L294.00,108.41 L295.00,108.41 L296.00,108.41 L297.00,108.41 L298.00,108.41 L299.00,108.41 L300.00,108.41 L301.00,108.41 L302.00,108.41 L303.00,108.41 L304.00,108.41 L305.00,108.41 L306.00,108.41 L307.00,108.41 L308.00,108.41 L309.00,108.41 L310.00,108.41 L311.00,108.41 L312.00,108.41 L313.00,108.41 L314.00,108.41 L315.00,108.41 L316.00,108.41 L317.00,108.41 L318.00,108.41 L319.00,108.41 L320.00,108.41 L321.00,108.41 L322.00,108.41 L323.00,108.41 L324.00,108.41 L325.00,108.41 L326.00,108.41 L327.00,108.41 L328.00,108.41 L329.00,108.41 L330.00,108.41 L331.00,108.41 L332.00,108.41 L333.00,108.41 L334.00,108.41 L335.00,108.41 L336.00,108.41 L337.00,108.41 L338.00,108.41 L339.00,108.41 L340.00,108.41 L341.00,108.41 L342.00,108.41 L343.00,108.41 L344.00,108.41 L345.00,108.41 L346.00,108.41 L347.00,108.41 L348.00,108.41" fill="none" stroke="#1F9A8E" stroke-width="2.6"/>
+<path d="M48.00,57.45 L49.00,57.45 L50.00,57.45 L51.00,57.45 L52.00,57.45 L53.00,57.45 L54.00,57.45 L55.00,57.45 L56.00,57.45 L57.00,57.45 L58.00,57.45 L59.00,57.45 L60.00,57.45 L61.00,57.45 L62.00,57.45 L63.00,57.45 L64.00,57.45 L65.00,57.45 L66.00,57.45 L67.00,57.45 L68.00,57.45 L69.00,57.45 L70.00,57.45 L71.00,57.45 L72.00,57.45 L73.00,57.45 L74.00,60.51 L75.00,63.51 L76.00,66.45 L77.00,69.34 L78.00,72.16 L79.00,74.93 L80.00,77.64 L81.00,80.31 L82.00,82.91 L83.00,85.47 L84.00,87.97 L85.00,90.43 L86.00,92.84 L87.00,95.20 L88.00,97.51 L89.00,99.78 L90.00,102.00 L91.00,104.18 L92.00,106.31 L93.00,108.41 L94.00,110.46 L95.00,112.47 L96.00,114.44 L97.00,116.37 L98.00,118.26 L99.00,120.12 L100.00,121.94 L101.00,123.72 L102.00,125.47 L103.00,127.18 L104.00,128.86 L105.00,130.51 L106.00,132.12 L107.00,133.70 L108.00,135.25 L109.00,136.77 L110.00,138.26 L111.00,139.72 L112.00,141.16 L113.00,142.56 L114.00,143.93 L115.00,145.28 L116.00,146.60 L117.00,147.90 L118.00,149.17 L119.00,150.41 L120.00,151.63 L121.00,152.83 L122.00,154.00 L123.00,155.15 L124.00,155.15 L125.00,155.15 L126.00,155.15 L127.00,155.15 L128.00,155.15 L129.00,155.15 L130.00,155.15 L131.00,155.15 L132.00,155.15 L133.00,155.15 L134.00,155.15 L135.00,155.15 L136.00,155.15 L137.00,155.15 L138.00,155.15 L139.00,155.15 L140.00,155.15 L141.00,155.15 L142.00,155.15 L143.00,155.15 L144.00,155.15 L145.00,155.15 L146.00,155.15 L147.00,155.15 L148.00,155.15 L149.00,155.15 L150.00,155.15 L151.00,155.15 L152.00,155.15 L153.00,155.15 L154.00,155.15 L155.00,155.15 L156.00,155.15 L157.00,155.15 L158.00,155.15 L159.00,155.15 L160.00,155.15 L161.00,155.15 L162.00,155.15 L163.00,155.15 L164.00,155.15 L165.00,155.15 L166.00,155.15 L167.00,155.15 L168.00,155.15 L169.00,155.15 L170.00,155.15 L171.00,155.15 L172.00,155.15 L173.00,155.15 L174.00,155.15 L175.00,155.15 L176.00,155.15 L177.00,155.15 L178.00,155.15 L179.00,155.15 L180.00,155.15 L181.00,155.15 L182.00,155.15 L183.00,155.15 L184.00,155.15 L185.00,155.15 L186.00,155.15 L187.00,155.15 L188.00,155.15 L189.00,155.15 L190.00,155.15 L191.00,155.15 L192.00,155.15 L193.00,155.15 L194.00,155.15 L195.00,155.15 L196.00,155.15 L197.00,155.15 L198.00,155.15 L199.00,155.15 L200.00,155.15 L201.00,155.15 L202.00,155.15 L203.00,155.15 L204.00,155.15 L205.00,155.15 L206.00,155.15 L207.00,155.15 L208.00,155.15 L209.00,155.15 L210.00,155.15 L211.00,155.15 L212.00,155.15 L213.00,155.15 L214.00,155.15 L215.00,155.15 L216.00,155.15 L217.00,155.15 L218.00,155.15 L219.00,155.15 L220.00,155.15 L221.00,155.15 L222.00,155.15 L223.00,155.15 L224.00,155.15 L225.00,155.15 L226.00,155.15 L227.00,155.15 L228.00,155.15 L229.00,155.15 L230.00,155.15 L231.00,155.15 L232.00,155.15 L233.00,155.15 L234.00,155.15 L235.00,155.15 L236.00,155.15 L237.00,155.15 L238.00,155.15 L239.00,155.15 L240.00,155.15 L241.00,155.15 L242.00,155.15 L243.00,155.15 L244.00,155.15 L245.00,155.15 L246.00,155.15 L247.00,155.15 L248.00,155.15 L249.00,155.15 L250.00,155.15 L251.00,155.15 L252.00,155.15 L253.00,155.15 L254.00,155.15 L255.00,155.15 L256.00,155.15 L257.00,155.15 L258.00,155.15 L259.00,155.15 L260.00,155.15 L261.00,155.15 L262.00,155.15 L263.00,155.15 L264.00,155.15 L265.00,155.15 L266.00,155.15 L267.00,155.15 L268.00,155.15 L269.00,155.15 L270.00,155.15 L271.00,155.15 L272.00,155.15 L273.00,155.15 L274.00,155.15 L275.00,155.15 L276.00,155.15 L277.00,155.15 L278.00,155.15 L279.00,155.15 L280.00,155.15 L281.00,155.15 L282.00,155.15 L283.00,155.15 L284.00,155.15 L285.00,155.15 L286.00,155.15 L287.00,155.15 L288.00,155.15 L289.00,155.15 L290.00,155.15 L291.00,155.15 L292.00,155.15 L293.00,155.15 L294.00,155.15 L295.00,155.15 L296.00,155.15 L297.00,155.15 L298.00,155.15 L299.00,155.15 L300.00,155.15 L301.00,155.15 L302.00,155.15 L303.00,155.15 L304.00,155.15 L305.00,155.15 L306.00,155.15 L307.00,155.15 L308.00,155.15 L309.00,155.15 L310.00,155.15 L311.00,155.15 L312.00,155.15 L313.00,155.15 L314.00,155.15 L315.00,155.15 L316.00,155.15 L317.00,155.15 L318.00,155.15 L319.00,155.15 L320.00,155.15 L321.00,155.15 L322.00,155.15 L323.00,155.15 L324.00,155.15 L325.00,155.15 L326.00,155.15 L327.00,155.15 L328.00,155.15 L329.00,155.15 L330.00,155.15 L331.00,155.15 L332.00,155.15 L333.00,155.15 L334.00,155.15 L335.00,155.15 L336.00,155.15 L337.00,155.15 L338.00,155.15 L339.00,155.15 L340.00,155.15 L341.00,155.15 L342.00,155.15 L343.00,155.15 L344.00,155.15 L345.00,155.15 L346.00,155.15 L347.00,155.15 L348.00,155.15" fill="none" stroke="#D75567" stroke-width="2.6" stroke-dasharray="7 4"/>
+<text x="48.0" y="232" text-anchor="middle" font-size="11" fill="currentColor">0</text>
+<text x="123.0" y="232" text-anchor="middle" font-size="11" fill="currentColor">30</text>
+<text x="198.0" y="232" text-anchor="middle" font-size="11" fill="currentColor">60</text>
+<text x="273.0" y="232" text-anchor="middle" font-size="11" fill="currentColor">90</text>
+<text x="348.0" y="232" text-anchor="middle" font-size="11" fill="currentColor">120</text>
+<text x="198.0" y="252" text-anchor="middle" font-size="12" fill="currentColor">Time (min)</text>
+<text x="403" y="23" fill="currentColor" font-size="13">Product flux / input flux</text>
+<rect x="428.0" y="42" width="50.0" height="170" fill="#877F77" opacity="0.12"/>
+<path d="M403,212.0h300" stroke="#999" opacity=".25"/><text x="394" y="216.0" text-anchor="end" fill="currentColor" font-size="11">0</text>
+<path d="M403,138.08695652173913h300" stroke="#999" opacity=".25"/><text x="394" y="142.08695652173913" text-anchor="end" fill="currentColor" font-size="11">0.5</text>
+<path d="M403,64.17391304347825h300" stroke="#999" opacity=".25"/><text x="394" y="68.17391304347825" text-anchor="end" fill="currentColor" font-size="11">1</text>
+<path d="M403.00,64.17 L404.00,64.17 L405.00,64.17 L406.00,64.17 L407.00,64.17 L408.00,64.17 L409.00,64.17 L410.00,64.17 L411.00,64.17 L412.00,64.17 L413.00,64.17 L414.00,64.17 L415.00,64.17 L416.00,64.17 L417.00,64.17 L418.00,64.17 L419.00,64.17 L420.00,64.17 L421.00,64.17 L422.00,64.17 L423.00,64.17 L424.00,64.17 L425.00,64.17 L426.00,64.17 L427.00,64.17 L428.00,64.17 L429.00,65.12 L430.00,65.89 L431.00,66.53 L432.00,67.09 L433.00,67.56 L434.00,67.98 L435.00,68.34 L436.00,68.67 L437.00,68.96 L438.00,69.22 L439.00,69.46 L440.00,69.69 L441.00,69.90 L442.00,70.10 L443.00,70.29 L444.00,70.47 L445.00,70.65 L446.00,70.83 L447.00,71.00 L448.00,71.18 L449.00,71.35 L450.00,71.52 L451.00,71.70 L452.00,71.87 L453.00,72.05 L454.00,72.23 L455.00,72.41 L456.00,72.60 L457.00,72.79 L458.00,72.98 L459.00,73.18 L460.00,73.37 L461.00,73.58 L462.00,73.79 L463.00,74.00 L464.00,74.21 L465.00,74.44 L466.00,74.66 L467.00,74.89 L468.00,75.13 L469.00,75.37 L470.00,75.61 L471.00,75.87 L472.00,76.12 L473.00,76.39 L474.00,76.65 L475.00,76.93 L476.00,77.21 L477.00,77.49 L478.00,77.78 L479.00,77.08 L480.00,76.44 L481.00,75.83 L482.00,75.27 L483.00,74.75 L484.00,74.25 L485.00,73.79 L486.00,73.35 L487.00,72.94 L488.00,72.56 L489.00,72.19 L490.00,71.84 L491.00,71.52 L492.00,71.21 L493.00,70.91 L494.00,70.63 L495.00,70.37 L496.00,70.12 L497.00,69.88 L498.00,69.65 L499.00,69.43 L500.00,69.22 L501.00,69.03 L502.00,68.84 L503.00,68.66 L504.00,68.48 L505.00,68.32 L506.00,68.16 L507.00,68.01 L508.00,67.87 L509.00,67.73 L510.00,67.60 L511.00,67.47 L512.00,67.35 L513.00,67.23 L514.00,67.12 L515.00,67.01 L516.00,66.91 L517.00,66.81 L518.00,66.71 L519.00,66.62 L520.00,66.54 L521.00,66.45 L522.00,66.37 L523.00,66.29 L524.00,66.22 L525.00,66.14 L526.00,66.07 L527.00,66.01 L528.00,65.94 L529.00,65.88 L530.00,65.82 L531.00,65.76 L532.00,65.71 L533.00,65.66 L534.00,65.60 L535.00,65.56 L536.00,65.51 L537.00,65.46 L538.00,65.42 L539.00,65.37 L540.00,65.33 L541.00,65.29 L542.00,65.26 L543.00,65.22 L544.00,65.18 L545.00,65.15 L546.00,65.12 L547.00,65.08 L548.00,65.05 L549.00,65.02 L550.00,64.99 L551.00,64.97 L552.00,64.94 L553.00,64.91 L554.00,64.89 L555.00,64.86 L556.00,64.84 L557.00,64.82 L558.00,64.80 L559.00,64.78 L560.00,64.76 L561.00,64.74 L562.00,64.72 L563.00,64.70 L564.00,64.68 L565.00,64.67 L566.00,64.65 L567.00,64.63 L568.00,64.62 L569.00,64.60 L570.00,64.59 L571.00,64.57 L572.00,64.56 L573.00,64.55 L574.00,64.54 L575.00,64.52 L576.00,64.51 L577.00,64.50 L578.00,64.49 L579.00,64.48 L580.00,64.47 L581.00,64.46 L582.00,64.45 L583.00,64.44 L584.00,64.43 L585.00,64.42 L586.00,64.42 L587.00,64.41 L588.00,64.40 L589.00,64.39 L590.00,64.39 L591.00,64.38 L592.00,64.37 L593.00,64.36 L594.00,64.36 L595.00,64.35 L596.00,64.35 L597.00,64.34 L598.00,64.34 L599.00,64.33 L600.00,64.32 L601.00,64.32 L602.00,64.32 L603.00,64.31 L604.00,64.31 L605.00,64.30 L606.00,64.30 L607.00,64.29 L608.00,64.29 L609.00,64.29 L610.00,64.28 L611.00,64.28 L612.00,64.27 L613.00,64.27 L614.00,64.27 L615.00,64.27 L616.00,64.26 L617.00,64.26 L618.00,64.26 L619.00,64.25 L620.00,64.25 L621.00,64.25 L622.00,64.25 L623.00,64.24 L624.00,64.24 L625.00,64.24 L626.00,64.24 L627.00,64.24 L628.00,64.23 L629.00,64.23 L630.00,64.23 L631.00,64.23 L632.00,64.23 L633.00,64.22 L634.00,64.22 L635.00,64.22 L636.00,64.22 L637.00,64.22 L638.00,64.22 L639.00,64.21 L640.00,64.21 L641.00,64.21 L642.00,64.21 L643.00,64.21 L644.00,64.21 L645.00,64.21 L646.00,64.21 L647.00,64.21 L648.00,64.20 L649.00,64.20 L650.00,64.20 L651.00,64.20 L652.00,64.20 L653.00,64.20 L654.00,64.20 L655.00,64.20 L656.00,64.20 L657.00,64.20 L658.00,64.20 L659.00,64.19 L660.00,64.19 L661.00,64.19 L662.00,64.19 L663.00,64.19 L664.00,64.19 L665.00,64.19 L666.00,64.19 L667.00,64.19 L668.00,64.19 L669.00,64.19 L670.00,64.19 L671.00,64.19 L672.00,64.19 L673.00,64.19 L674.00,64.19 L675.00,64.19 L676.00,64.19 L677.00,64.19 L678.00,64.19 L679.00,64.18 L680.00,64.18 L681.00,64.18 L682.00,64.18 L683.00,64.18 L684.00,64.18 L685.00,64.18 L686.00,64.18 L687.00,64.18 L688.00,64.18 L689.00,64.18 L690.00,64.18 L691.00,64.18 L692.00,64.18 L693.00,64.18 L694.00,64.18 L695.00,64.18 L696.00,64.18 L697.00,64.18 L698.00,64.18 L699.00,64.18 L700.00,64.18 L701.00,64.18 L702.00,64.18 L703.00,64.18" fill="none" stroke="#1F9A8E" stroke-width="2.6"/>
+<path d="M403.00,64.17 L404.00,64.17 L405.00,64.17 L406.00,64.17 L407.00,64.17 L408.00,64.17 L409.00,64.17 L410.00,64.17 L411.00,64.17 L412.00,64.17 L413.00,64.17 L414.00,64.17 L415.00,64.17 L416.00,64.17 L417.00,64.17 L418.00,64.17 L419.00,64.17 L420.00,64.17 L421.00,64.17 L422.00,64.17 L423.00,64.17 L424.00,64.17 L425.00,64.17 L426.00,64.17 L427.00,64.17 L428.00,64.17 L429.00,66.54 L430.00,68.44 L431.00,70.05 L432.00,71.46 L433.00,72.70 L434.00,73.81 L435.00,74.83 L436.00,75.78 L437.00,76.67 L438.00,77.53 L439.00,78.37 L440.00,79.19 L441.00,80.00 L442.00,80.82 L443.00,81.64 L444.00,82.46 L445.00,83.30 L446.00,84.16 L447.00,85.04 L448.00,85.93 L449.00,86.84 L450.00,87.78 L451.00,88.74 L452.00,89.72 L453.00,90.72 L454.00,91.75 L455.00,92.80 L456.00,93.87 L457.00,94.97 L458.00,96.08 L459.00,97.22 L460.00,98.38 L461.00,99.55 L462.00,100.75 L463.00,101.96 L464.00,103.19 L465.00,104.44 L466.00,105.70 L467.00,106.97 L468.00,108.25 L469.00,109.54 L470.00,110.84 L471.00,112.15 L472.00,113.47 L473.00,114.79 L474.00,116.11 L475.00,117.44 L476.00,118.76 L477.00,120.09 L478.00,121.42 L479.00,120.96 L480.00,120.54 L481.00,120.13 L482.00,119.75 L483.00,119.38 L484.00,119.03 L485.00,118.70 L486.00,118.39 L487.00,118.09 L488.00,117.80 L489.00,117.52 L490.00,117.26 L491.00,117.00 L492.00,116.76 L493.00,116.53 L494.00,116.30 L495.00,116.09 L496.00,115.88 L497.00,115.68 L498.00,115.48 L499.00,115.29 L500.00,115.11 L501.00,114.94 L502.00,114.77 L503.00,114.60 L504.00,114.44 L505.00,114.29 L506.00,114.14 L507.00,114.00 L508.00,113.85 L509.00,113.72 L510.00,113.58 L511.00,113.45 L512.00,113.33 L513.00,113.21 L514.00,113.09 L515.00,112.97 L516.00,112.86 L517.00,112.75 L518.00,112.64 L519.00,112.53 L520.00,112.43 L521.00,112.33 L522.00,112.23 L523.00,112.14 L524.00,112.04 L525.00,111.95 L526.00,111.86 L527.00,111.78 L528.00,111.69 L529.00,111.61 L530.00,111.53 L531.00,111.45 L532.00,111.37 L533.00,111.29 L534.00,111.22 L535.00,111.14 L536.00,111.07 L537.00,111.00 L538.00,110.93 L539.00,110.86 L540.00,110.80 L541.00,110.73 L542.00,110.67 L543.00,110.60 L544.00,110.54 L545.00,110.48 L546.00,110.42 L547.00,110.36 L548.00,110.30 L549.00,110.25 L550.00,110.19 L551.00,110.14 L552.00,110.08 L553.00,110.03 L554.00,109.98 L555.00,109.92 L556.00,109.87 L557.00,109.82 L558.00,109.78 L559.00,109.73 L560.00,109.68 L561.00,109.63 L562.00,109.59 L563.00,109.54 L564.00,109.50 L565.00,109.45 L566.00,109.41 L567.00,109.37 L568.00,109.33 L569.00,109.29 L570.00,109.24 L571.00,109.20 L572.00,109.16 L573.00,109.13 L574.00,109.09 L575.00,109.05 L576.00,109.01 L577.00,108.97 L578.00,108.94 L579.00,108.90 L580.00,108.87 L581.00,108.83 L582.00,108.80 L583.00,108.76 L584.00,108.73 L585.00,108.70 L586.00,108.66 L587.00,108.63 L588.00,108.60 L589.00,108.57 L590.00,108.54 L591.00,108.51 L592.00,108.48 L593.00,108.45 L594.00,108.42 L595.00,108.39 L596.00,108.36 L597.00,108.33 L598.00,108.30 L599.00,108.27 L600.00,108.24 L601.00,108.22 L602.00,108.19 L603.00,108.16 L604.00,108.14 L605.00,108.11 L606.00,108.09 L607.00,108.06 L608.00,108.03 L609.00,108.01 L610.00,107.98 L611.00,107.96 L612.00,107.94 L613.00,107.91 L614.00,107.89 L615.00,107.87 L616.00,107.84 L617.00,107.82 L618.00,107.80 L619.00,107.77 L620.00,107.75 L621.00,107.73 L622.00,107.71 L623.00,107.69 L624.00,107.67 L625.00,107.64 L626.00,107.62 L627.00,107.60 L628.00,107.58 L629.00,107.56 L630.00,107.54 L631.00,107.52 L632.00,107.50 L633.00,107.48 L634.00,107.46 L635.00,107.44 L636.00,107.43 L637.00,107.41 L638.00,107.39 L639.00,107.37 L640.00,107.35 L641.00,107.33 L642.00,107.31 L643.00,107.30 L644.00,107.28 L645.00,107.26 L646.00,107.24 L647.00,107.23 L648.00,107.21 L649.00,107.19 L650.00,107.18 L651.00,107.16 L652.00,107.14 L653.00,107.13 L654.00,107.11 L655.00,107.10 L656.00,107.08 L657.00,107.06 L658.00,107.05 L659.00,107.03 L660.00,107.02 L661.00,107.00 L662.00,106.99 L663.00,106.97 L664.00,106.96 L665.00,106.94 L666.00,106.93 L667.00,106.91 L668.00,106.90 L669.00,106.89 L670.00,106.87 L671.00,106.86 L672.00,106.84 L673.00,106.83 L674.00,106.82 L675.00,106.80 L676.00,106.79 L677.00,106.78 L678.00,106.76 L679.00,106.75 L680.00,106.74 L681.00,106.72 L682.00,106.71 L683.00,106.70 L684.00,106.69 L685.00,106.67 L686.00,106.66 L687.00,106.65 L688.00,106.64 L689.00,106.62 L690.00,106.61 L691.00,106.60 L692.00,106.59 L693.00,106.58 L694.00,106.56 L695.00,106.55 L696.00,106.54 L697.00,106.53 L698.00,106.52 L699.00,106.51 L700.00,106.50 L701.00,106.48 L702.00,106.47 L703.00,106.46" fill="none" stroke="#D75567" stroke-width="2.6" stroke-dasharray="7 4"/>
+<text x="403.0" y="232" text-anchor="middle" font-size="11" fill="currentColor">0</text>
+<text x="478.0" y="232" text-anchor="middle" font-size="11" fill="currentColor">30</text>
+<text x="553.0" y="232" text-anchor="middle" font-size="11" fill="currentColor">60</text>
+<text x="628.0" y="232" text-anchor="middle" font-size="11" fill="currentColor">90</text>
+<text x="703.0" y="232" text-anchor="middle" font-size="11" fill="currentColor">120</text>
+<text x="553.0" y="252" text-anchor="middle" font-size="12" fill="currentColor">Time (min)</text>
+</svg><div class="legend"><span style="color:var(--teal)">━ Mild: H₀ = 0.20 μM</span><span style="color:var(--rose)">┄ Strong: H₀ = 0.50 μM</span><span>Shading: 10–30 min exposure</span></div><figcaption>Figure 1. Independently computed full-complex trajectories. Mild exposure leaves permanent enzyme loss but allows flux recovery. Strong exposure leaves capacity below supply. Parameters and runnable code are given below; this is a model calculation, not experimental data.</figcaption></figure>
+<details><summary>Step-by-step derivation and assumptions</summary>
+<p>The five internal event rates are k<sub>+</sub>ES, k<sub>−</sub>C<sub>ES</sub>, k<sub>cat</sub>C<sub>ES</sub>, k<sub>inact</sub>HE, and k<sub>inact</sub>HC<sub>ES</sub>. Each contributes a positive sign where it produces a species and a negative sign where it consumes one.</p>
+<div class="eq"><span class="row">dE/dt = −k<sub>+</sub>ES + (k<sub>−</sub> + k<sub>cat</sub>)C<sub>ES</sub> − k<sub>inact</sub>HE</span><span class="row">dS/dt = v<sub>in</sub> − k<sub>+</sub>ES + k<sub>−</sub>C<sub>ES</sub> + k<sub>inact</sub>HC<sub>ES</sub></span><span class="row">dC<sub>ES</sub>/dt = k<sub>+</sub>ES − (k<sub>−</sub> + k<sub>cat</sub> + k<sub>inact</sub>H)C<sub>ES</sub></span></div>
+<p>Add the E and complex equations to obtain dq<sub>E</sub>/dt. Add the S and complex equations to obtain dq<sub>S</sub>/dt. Inactivation cancels only from the latter because it releases, rather than destroys, the substrate. Active plus inactive enzyme is conserved. Product generation is v<sub>cat</sub> = k<sub>cat</sub>C<sub>ES</sub>; P itself would accumulate without an outlet.</p>
+<p>If inhibitor consumption were tracked, dH/dt = −k<sub>inact</sub>Hq<sub>E</sub>. We instead prescribe H(t), representing an externally maintained free concentration or the excess-inhibitor limit. Selective washout changes H without removing substrate or enzyme. A scheduled exposure makes the model nonautonomous during treatment.<sup class="c"><a href="#r-course">1</a></sup></p>
+<p>Separating dq<sub>E</sub>/q<sub>E</sub> = −k<sub>inact</sub>H(t)dt gives q<sub>E</sub>(t)/q<sub>E,0</sub> = exp[−k<sub>inact</sub>∫H(t)dt]. Rectangular exposure gives the expression in the main text.</p>
+<p>After washout, set dq<sub>S</sub>/dt = dC<sub>ES</sub>/dt = 0. Then C<sub>ES</sub><sup>*</sup> = v<sub>in</sub>/k<sub>cat</sub>, E<sup>*</sup> = q<sub>E,∞</sub> − C<sub>ES</sub><sup>*</sup>, and E<sup>*</sup>S<sup>*</sup> = K<sub>M</sub>C<sub>ES</sub><sup>*</sup>. Positive finite S<sup>*</sup> needs E<sup>*</sup> &gt; 0, giving the strict capacity condition. Equality supplies no finite steady state when K<sub>M</sub> and input are positive.</p>
+<p>The post-washout Jacobian in (q<sub>S</sub>, C<sub>ES</sub>) has entries [0, −k<sub>cat</sub>; k<sub>+</sub>E<sup>*</sup>, −k<sub>+</sub>(E<sup>*</sup> + S<sup>*</sup>) − k<sub>−</sub> − k<sub>cat</sub>]. Its trace is negative and determinant k<sub>cat</sub>k<sub>+</sub>E<sup>*</sup> is positive, proving local attraction using Lecture 4.<sup class="c"><a href="#r-dynamics">2</a></sup> Simulation demonstrates recovery from the selected exposure, not a proof for every initial state.</p>
+<p>Fast binding is not assumed in the integration. When inhibition is rapid, replacing the complex immediately by its usual Michaelis–Menten value need not be valid.</p>
+</details>
+<details><summary>Parameters, numerical method and runnable source</summary>
+<p>All parameters are chosen for demonstration. Concentrations are in μM and time in minutes. k<sub>+</sub> = 4 μM<sup>−1</sup> min<sup>−1</sup>; k<sub>−</sub> = k<sub>cat</sub> = 2 min<sup>−1</sup>; k<sub>inact</sub> = 0.1 μM<sup>−1</sup> min<sup>−1</sup>; v<sub>in</sub> = 1 μM min<sup>−1</sup>; q<sub>E,0</sub> = 1 μM. Initially C<sub>ES</sub> = 0.5 μM and q<sub>S</sub> = 1.5 μM, the untreated steady state. Exposure starts at 10 min; observation ends at 120 min.</p>
+<p>The code below is the actual browser model. Copy into model.js and run with Node, for example: <code>console.log(simulate(0.2,20));</code>. RK4 steps shrink with the fastest reaction scale and stop at pulse boundaries. Independent SciPy DOP853 checks across seven cases gave maximum absolute disagreement below 10<sup>−8</sup> μM. Positivity, complex bounds and the exact active-enzyme trajectory were checked.</p><pre><code>/* Illustrative units: concentration uM, time min. No fitted inhibitor data.
+   State: [active enzyme total qE, unconverted substrate total qS, complex C_ES]. */
+const PARAM = Object.freeze({kp:4, km:2, cat:2, kinact:0.1, input:1, enzyme:1, start:10, end:120});
+function rhs(y,H){
+  const [e,s,c]=y,p=PARAM;
+  return [-p.kinact*H*e,p.input-p.cat*c,p.kp*(e-c)*(s-c)-(p.km+p.cat+p.kinact*H)*c];
+}
+function rk4(y,h,H){
+  const a=rhs(y,H),b=rhs(y.map((v,i)=&gt;v+h*a[i]/2),H);
+  const c=rhs(y.map((v,i)=&gt;v+h*b[i]/2),H),d=rhs(y.map((v,i)=&gt;v+h*c[i]),H);
+  return y.map((v,i)=&gt;v+h*(a[i]+2*b[i]+2*c[i]+d[i])/6);
+}
+function simulate(H0=0.2,duration=20){
+  let y=[1,1.5,0.5],t=0; const out=[[0,...y]],stop=PARAM.start+duration;
+  for(let n=1;n&lt;=1200;n++){
+    const target=n/10;
+    while(t&lt;target-1e-10){
+      let boundary=target;
+      if(t&lt;PARAM.start-1e-10) boundary=Math.min(boundary,PARAM.start);
+      if(t&lt;stop-1e-10) boundary=Math.min(boundary,stop);
+      const h=Math.min(boundary-t,0.02,0.3/(PARAM.kp*(y[0]+y[1])+PARAM.km+PARAM.cat+PARAM.kinact*H0));
+      const mid=t+h/2,H=mid&gt;=PARAM.start&amp;&amp;mid&lt;stop?H0:0;
+      y=rk4(y,h,H);t+=h;
+    }
+    out.push([target,...y]);
+  }
+  return out;
+}
+if(typeof module!==&#x27;undefined&#x27;) module.exports={PARAM,rhs,rk4,simulate};
+</code></pre>
+</details>
+
+<h2 id="limits">What I would argue against / where this breaks</h2>
+<p>A recovered flux is not evidence of restored enzyme activity. Here the compensation is paid for by a larger substrate pool, and it fails at the capacity threshold. Equal susceptibility of free and bound enzyme, intact substrate release, imposed inhibitor concentration and unchanged surviving-enzyme kinetics are assumptions. This is not an EDTA model. Growth, repair, regulated supply or inhibitor depletion require additional equations; fixed volume and no replenishment are deliberate departures from a growing cell.<sup class="c"><a href="#r-course">1</a></sup></p>
+
+<h2 id="refs">Sources</h2>
+<ol class="src">
+<li id="r-course">Fangzhou Xiao. <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture03-core.html">From reactions to systems: how biochemical behavior emerges.</a> CCBS Lecture 3 core, 2026. Sections 3, 4 and 6 read in full: notation, held pools and the driven enzyme cycle. The inhibitor reactions and calculated exposure response are this essay’s extension.</li>
+<li id="r-dynamics">Fangzhou Xiao. <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture04-core.html">From simulations to possible behaviors.</a> CCBS Lecture 4 core, 2026. Sections 1, 8 and 10 read in full: simulation scope, the two-dimensional stability test and chemical positivity.</li>
+</ol>
+
+<h2 id="playground">Try it: change the inhibitor exposure</h2>
+<p class="small">Predict whether flux will recover, then move the controls. Shading marks exposure. Washout removes H, not the inactivated enzyme.</p>
+<section class="demo" aria-label="Interactive enzyme inhibition experiment">
+<div class="controls"><label for="dose">Inhibitor H<sub>0</sub> <output id="doseVal">0.20 μM</output><input id="dose" type="range" min="0" max="2" step="0.01" value="0.2"></label><label for="duration">Exposure duration T <output id="durationVal">20 min</output><input id="duration" type="range" min="0" max="40" step="1" value="20"></label></div>
+<div class="buttons"><button id="mild">Mild exposure</button><button id="strong">Strong exposure</button><button id="replay">Replay</button><button id="pause">Pause</button><button id="reset">Reset</button></div>
+<canvas id="plot" role="img" aria-label="Time courses of active enzyme, substrate pool and product flux"></canvas>
+<div class="scrub"><label for="time">Inspect time: <output id="timeVal">0.0 min</output></label><input id="time" type="range" min="0" max="120" step="0.1" value="0"></div>
+<div class="readout" aria-live="off"><div>Active enzyme q<sub>E</sub><b id="enzymeNow"></b></div><div>Substrate pool q<sub>S</sub><b id="substrateNow"></b></div><div>Product flux v<sub>cat</sub><b id="fluxNow"></b></div></div>
+<p id="status" class="small" aria-live="polite"></p>
+<p class="small">A falling enzyme trace need not force an equally large fall in flux. Use the time slider to inspect the substrate accumulation that makes the difference.</p>
+</section></div>
+<script>/* Illustrative units: concentration uM, time min. No fitted inhibitor data.
+   State: [active enzyme total qE, unconverted substrate total qS, complex C_ES]. */
+const PARAM = Object.freeze({kp:4, km:2, cat:2, kinact:0.1, input:1, enzyme:1, start:10, end:120});
+function rhs(y,H){
+  const [e,s,c]=y,p=PARAM;
+  return [-p.kinact*H*e,p.input-p.cat*c,p.kp*(e-c)*(s-c)-(p.km+p.cat+p.kinact*H)*c];
+}
+function rk4(y,h,H){
+  const a=rhs(y,H),b=rhs(y.map((v,i)=>v+h*a[i]/2),H);
+  const c=rhs(y.map((v,i)=>v+h*b[i]/2),H),d=rhs(y.map((v,i)=>v+h*c[i]),H);
+  return y.map((v,i)=>v+h*(a[i]+2*b[i]+2*c[i]+d[i])/6);
+}
+function simulate(H0=0.2,duration=20){
+  let y=[1,1.5,0.5],t=0; const out=[[0,...y]],stop=PARAM.start+duration;
+  for(let n=1;n<=1200;n++){
+    const target=n/10;
+    while(t<target-1e-10){
+      let boundary=target;
+      if(t<PARAM.start-1e-10) boundary=Math.min(boundary,PARAM.start);
+      if(t<stop-1e-10) boundary=Math.min(boundary,stop);
+      const h=Math.min(boundary-t,0.02,0.3/(PARAM.kp*(y[0]+y[1])+PARAM.km+PARAM.cat+PARAM.kinact*H0));
+      const mid=t+h/2,H=mid>=PARAM.start&&mid<stop?H0:0;
+      y=rk4(y,h,H);t+=h;
+    }
+    out.push([target,...y]);
+  }
+  return out;
+}
+if(typeof module!=='undefined') module.exports={PARAM,rhs,rk4,simulate};
+
+(()=>{
+ 'use strict';
+ const el=id=>document.getElementById(id),canvas=el('plot'),ctx=canvas.getContext('2d');
+ let data=[],time=0,playing=true,last=0;
+ const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+ function update(){
+  const h=+el('dose').value,T=+el('duration').value;
+  data=simulate(h,T); time=0;playing=true;el('pause').textContent='Pause';
+  el('doseVal').value=h.toFixed(2)+' μM';el('durationVal').value=T+' min';
+  const active=Math.exp(-PARAM.kinact*h*T),cap=PARAM.cat*active;
+  el('status').textContent=`After washout: ${(active*100).toFixed(1)}% active enzyme remains; capacity = ${cap.toFixed(3)} μM/min versus input = 1.000 μM/min. `+(cap>1+1e-10?`A finite, locally attracting steady state exists: qS* = ${(1/(cap-1)+.5).toFixed(2)} μM. Near the threshold, recovery may exceed this observation window.`:'No finite substrate steady state exists in this fixed-input model.');
+  draw();
+ }
+ function draw(){
+  const width=canvas.clientWidth,height=canvas.clientHeight,dpr=window.devicePixelRatio||1;
+  if(canvas.width!==Math.round(width*dpr)||canvas.height!==Math.round(height*dpr)){canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);}
+  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,width,height);
+  const fg=css('--ink'),muted=css('--muted'),line=css('--line');
+  const index=Math.min(1200,Math.round(time*10)),point=data[index];
+  el('time').value=time;el('timeVal').value=time.toFixed(1)+' min';
+  el('enzymeNow').textContent=point[1].toFixed(3)+' μM';el('substrateNow').textContent=point[2].toFixed(3)+' μM';el('fluxNow').textContent=(2*point[3]).toFixed(3)+' μM/min';
+  const maxS=Math.max(2,...data.map(d=>d[2]))*1.08;
+  const panels=[{name:'Active enzyme qE (μM)',col:1,scale:1,max:1.12,color:css('--teal')},{name:'Substrate pool qS (μM)',col:2,scale:1,max:maxS,color:css('--peri')},{name:'Product flux (μM/min)',col:3,scale:2,max:1.12,color:css('--rose')}];
+  panels.forEach((p,j)=>{
+   const left=47,top=25+j*(height/3),w=width-left-17,h=height/3-48;
+   const X=t=>left+w*t/120,Y=y=>top+h*(1-y/p.max);
+   ctx.fillStyle=muted;ctx.font='12px Segoe UI';ctx.textAlign='left';ctx.fillText(p.name,left,top-8);
+   ctx.fillStyle=fg;ctx.globalAlpha=.07;ctx.fillRect(X(10),top,w*(+el('duration').value)/120,h);ctx.globalAlpha=1;
+   ctx.font='10px Segoe UI';
+   for(let k=0;k<=2;k++){let v=p.max*k/2;ctx.strokeStyle=line;ctx.beginPath();ctx.moveTo(left,Y(v));ctx.lineTo(left+w,Y(v));ctx.stroke();ctx.fillStyle=muted;ctx.textAlign='right';ctx.fillText(v.toFixed(p.max>20?0:1),left-6,Y(v)+3);}
+   [0,30,60,90,120].forEach(t=>{ctx.textAlign='center';ctx.fillStyle=muted;ctx.fillText(t,X(t),top+h+14);});
+   if(j===2){ctx.setLineDash([4,4]);ctx.strokeStyle=muted;ctx.beginPath();ctx.moveTo(left,Y(1));ctx.lineTo(left+w,Y(1));ctx.stroke();ctx.setLineDash([]);ctx.textAlign='right';ctx.fillText('input',left+w-4,Y(1)+11);}
+   ctx.strokeStyle=p.color;ctx.lineWidth=2.5;ctx.beginPath();
+   for(let i=0;i<=index;i++){const d=data[i];if(!i)ctx.moveTo(X(d[0]),Y(d[p.col]*p.scale));else ctx.lineTo(X(d[0]),Y(d[p.col]*p.scale));}ctx.stroke();
+   ctx.strokeStyle=muted;ctx.lineWidth=1;ctx.setLineDash([2,4]);ctx.beginPath();ctx.moveTo(X(time),top);ctx.lineTo(X(time),top+h);ctx.stroke();ctx.setLineDash([]);
+   ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(X(point[0]),Y(point[p.col]*p.scale),3.5,0,Math.PI*2);ctx.fill();
+  });
+ }
+ function preset(h,T){el('dose').value=h;el('duration').value=T;update();}
+ el('dose').addEventListener('input',update);el('duration').addEventListener('input',update);
+ el('mild').onclick=()=>preset(.2,20);el('strong').onclick=()=>preset(.5,20);el('reset').onclick=()=>preset(.2,20);
+ el('replay').onclick=()=>{time=0;playing=true;el('pause').textContent='Pause';draw();};
+ el('pause').onclick=()=>{playing=!playing;el('pause').textContent=playing?'Pause':'Play';};
+ el('time').oninput=()=>{time=+el('time').value;playing=false;el('pause').textContent='Play';draw();};
+ el('theme').onclick=()=>{const dark=document.documentElement.dataset.theme==='dark'||(!document.documentElement.dataset.theme&&matchMedia('(prefers-color-scheme:dark)').matches);document.documentElement.dataset.theme=dark?'light':'dark';draw();};
+ window.addEventListener('resize',draw);
+ function frame(now){if(playing&&last){time=Math.min(120,time+Math.min((now-last)/1000,.1)*10);if(time===120){playing=false;el('pause').textContent='Play';}draw();}last=now;requestAnimationFrame(frame);}
+ update();requestAnimationFrame(frame);
+ window.essayTest={simulate,PARAM,getState:()=>({time,playing,dose:+el('dose').value,duration:+el('duration').value,points:data.length})};
+})();
+</script></body></html>
