@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 2 — Extension: When deterministic balance is not enough</title>
+<meta name="author" content="Fang Lipei (20261203497)">
+<meta name="week" content="week2">
+<style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; --teal:#168b82; --rose:#c64d63; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#aab4bb; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; --teal:#70c9bf; --rose:#ef8794; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px; border-bottom:1px solid var(--line); padding-bottom:5px; }
+  h3 { font-size:.98rem; color:var(--accent); margin:24px 0 5px; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px; padding:14px 18px; margin:14px 0; }
+  .fig { width:100%; border:1px solid var(--line); border-radius:6px; margin:14px 0 4px; background:var(--bg); }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; }
+  .eq { text-align:center; font-size:1.08rem; padding:10px; margin:12px 0; background:var(--soft); border-left:3px solid var(--teal); }
+  pre { white-space:pre-wrap; overflow:auto; background:var(--soft); border:1px solid var(--line); border-radius:6px; padding:12px 14px; font-size:.82rem; line-height:1.45; }
+  svg text { font-family:"Segoe UI",Roboto,Arial,sans-serif; fill:var(--ink); }
+  svg .muted { fill:var(--muted); }
+  svg .axis { stroke:var(--muted); stroke-width:1.2; }
+  svg .grid { stroke:var(--line); stroke-width:1; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Week 2 — Extension: When deterministic balance is not enough</h1>
+<p class="meta">Author: Fang Lipei · Student ID: 20261203497 · Week 2 (2026-09-13) · CCBS 2026</p>
+
+<p class="card"><strong>One sentence:</strong> A mass-action ODE predicts the mean trajectory of a reaction network, but at finite molecule numbers the same network is a random jump process whose fluctuations can be as important as its mean.</p>
+
+<h2>The point I am adding</h2>
+<p>Lectures 3 and 4 turn reaction arrows into a deterministic vector field, then use crossings, nullclines and Jacobians to reason about possible behaviors. That is the right description when concentrations are large enough to be treated as smooth variables. It is not the complete description of a cell: a molecule is made, waits a random time, and is then removed. A cell with ten copies of a regulator cannot literally contain a concentration of 10.37 copies.</p>
+<p>For the smallest useful example, let <em>X</em> be produced from an external source and degraded:</p>
+<div class="eq"><strong>∅ → X</strong> at rate α, &nbsp;&nbsp; <strong>X → ∅</strong> at rate γ<em>n</em></div>
+<p>Here <em>n</em> is an integer molecule count. The deterministic model is <em>d x/dt</em> = α − γ<em>x</em>, so an initially empty cell approaches the steady mean <em>x</em><sub>*</sub> = α/γ. The stochastic model instead assigns a propensity to each possible jump: the birth propensity is α, and the death propensity is γ<em>n</em>. Gillespie's stochastic simulation algorithm samples the next reaction time and then chooses which reaction occurred. This adds no new biochemical arrow; it changes the accounting from smooth rates to discrete events.</p>
+<p>The important consequence is quantitative. At stationarity this birth–death process has a Poisson distribution with mean α/γ, so its variance is also α/γ. Its coefficient of variation is therefore 1/√<em>x</em><sub>*</sub>. Ten molecules have an intrinsic relative noise of about 32%; one hundred molecules have about 10%. Thus a stable deterministic fixed point does not mean every cell sits exactly at that value.</p>
+
+<h2>Work it</h2>
+<p>I simulated four independent cells with α = 2 molecules/min and γ = 0.2 min<sup>−1</sup>. The deterministic steady state is <em>x</em><sub>*</sub> = 10 molecules and the relaxation time is 1/γ = 5 min. Each trace below starts at zero, but after the transient the cells fluctuate around the same mean rather than following the same path. The plotted trajectories use a fixed-seed implementation of the direct Gillespie algorithm; the code is included below the figure.</p>
+
+<figure>
+  <svg class="fig" viewBox="0 0 640 330" role="img" aria-label="Four stochastic birth-death trajectories compared with deterministic mean">
+    <rect x="0" y="0" width="640" height="330" fill="none"/>
+    <line x1="54" y1="28" x2="54" y2="270" class="axis"/><line x1="54" y1="270" x2="610" y2="270" class="axis"/>
+    <line x1="54" y1="190" x2="610" y2="190" class="grid"/><line x1="54" y1="110" x2="610" y2="110" class="grid"/><line x1="54" y1="30" x2="610" y2="30" class="grid"/>
+    <text x="44" y="274" text-anchor="end" font-size="12" class="muted">0</text><text x="44" y="194" text-anchor="end" font-size="12" class="muted">10</text><text x="44" y="114" text-anchor="end" font-size="12" class="muted">20</text><text x="44" y="34" text-anchor="end" font-size="12" class="muted">30</text>
+    <text x="54" y="292" text-anchor="middle" font-size="12" class="muted">0</text><text x="193" y="292" text-anchor="middle" font-size="12" class="muted">5</text><text x="332" y="292" text-anchor="middle" font-size="12" class="muted">10</text><text x="471" y="292" text-anchor="middle" font-size="12" class="muted">15</text><text x="610" y="292" text-anchor="middle" font-size="12" class="muted">20 min</text>
+    <text x="18" y="150" transform="rotate(-90 18 150)" text-anchor="middle" font-size="12" class="muted">molecule count n</text>
+    <path d="M54 270 L82 256 L110 244 L138 234 L166 226 L193 219 L221 214 L249 210 L277 206 L304 203 L332 201 L360 199 L388 197 L415 196 L443 195 L471 194 L499 193 L526 193 L554 192 L582 192 L610 191" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
+    <path d="M54 270 L82 230 L110 206 L138 214 L166 214 L193 230 L221 206 L249 214 L277 222 L304 222 L332 206 L360 222 L388 230 L415 222 L443 238 L471 230 L499 206 L526 206 L554 214 L582 214 L610 174" fill="none" stroke="var(--rose)" stroke-width="2"/>
+    <path d="M54 270 L82 254 L110 230 L138 238 L166 206 L193 190 L221 166 L249 174 L277 150 L304 150 L332 182 L360 190 L388 174 L415 190 L443 190 L471 190 L499 198 L526 214 L554 214 L582 238 L610 222" fill="none" stroke="#d58a27" stroke-width="2"/>
+    <path d="M54 270 L82 262 L110 230 L138 206 L166 206 L193 190 L221 198 L249 198 L277 190 L304 190 L332 174 L360 190 L388 222 L415 222 L443 230 L471 230 L499 230 L526 230 L554 230 L582 198 L610 174" fill="none" stroke="var(--teal)" stroke-width="2"/>
+    <path d="M54 270 L82 246 L110 238 L138 222 L166 198 L193 190 L221 222 L249 230 L277 214 L304 190 L332 230 L360 222 L388 222 L415 198 L443 206 L471 206 L499 190 L526 198 L554 174 L582 182 L610 158" fill="none" stroke="#7b61a8" stroke-width="2"/>
+    <line x1="410" y1="25" x2="435" y2="25" stroke="var(--accent)" stroke-width="2.5"/><text x="441" y="29" font-size="11">ODE mean</text>
+    <line x1="510" y1="25" x2="535" y2="25" stroke="var(--rose)" stroke-width="2"/><text x="541" y="29" font-size="11">SSA cells</text>
+  </svg>
+  <figcaption><strong>Figure 1.</strong> Deterministic mean (blue) and four direct Gillespie trajectories for α = 2 min<sup>−1</sup>, γ = 0.2 min<sup>−1</sup>. The ODE curve is <em>x</em>(<em>t</em>) = 10(1 − e<sup>−0.2t</sup>); the random paths were sampled at one-minute intervals. The traces and coordinates were generated by the code below.</figcaption>
+</figure>
+
+<pre><code>// Direct Gillespie SSA, one cell
+alpha = 2; gamma = 0.2; t = 0; n = 0
+while t &lt; 20:
+    a_birth = alpha
+    a_death = gamma * n
+    a_total = a_birth + a_death
+    tau = -log(U()) / a_total
+    t = t + tau
+    if U() &lt; a_birth / a_total:
+        n = n + 1
+    else:
+        n = max(0, n - 1)
+record n whenever t crosses the next minute
+</code></pre>
+<p>For this parameter choice, the predicted long-time variance is 10 molecules<sup>2</sup>, and the predicted coefficient of variation is 1/√10 ≈ 0.316. A practical simulation estimate will differ because four short traces are a small sample; that sampling error is itself a reminder that a single trajectory cannot establish a distribution.</p>
+
+<h2>What I would argue against / where this breaks</h2>
+<p>I would argue against treating every ODE fixed point as a cell-level prediction. The ODE still gets the mean exactly for this linear birth–death example, and at very large molecule counts the relative fluctuations become small. It is also much cheaper for a large network. But nonlinear reactions do not generally preserve this simplicity: for example, the mean of a product is not the product of the means, so replacing random species by their averages can change the predicted regulatory response. Noise can also trigger switching between deterministic basins, blur a bifurcation, or make an apparently stable state biologically unreliable.</p>
+<p>The stochastic description is not automatically better. Gillespie simulation can be expensive when reactions are numerous or have widely separated timescales, and the rates still need experimental justification. A defensible workflow is therefore to ask which claim is needed: use the ODE for structural geometry and average behavior, then use a chemical master equation or SSA when copy-number fluctuations, event timing, or switching probabilities are part of the biological question.</p>
+
+<h2>Sources</h2>
+<ul class="src">
+  <li>Gillespie, D. T. “Exact stochastic simulation of coupled chemical reactions.” <em>The Journal of Physical Chemistry</em> 81, 2340–2361 (1977). <a href="https://doi.org/10.1021/j100540a008">doi.org/10.1021/j100540a008</a> — Introduces the exact stochastic simulation algorithm used for the plotted trajectories.</li>
+  <li>Kryven, I., Röblitz, S. and Schütte, C. “Solution of the chemical master equation by radial basis functions approximation with interface tracking.” <em>BMC Systems Biology</em> 9, article 67 (2015). <a href="https://doi.org/10.1186/s12918-015-0210-y">doi.org/10.1186/s12918-015-0210-y</a> — Open-access discussion of the chemical master equation, Markov jump processes, Gillespie trajectories and the limits of single-trajectory sampling.</li>
+  <li>Lecture 3, “From reactions to systems: how biochemical behavior emerges,” sections 2–4 and 11. — Course basis for stoichiometric reaction accounting, autonomous ODEs and the separation between balance and stability.</li>
+  <li>Lecture 4, “From simulations to possible behaviors,” sections 1, 8 and 11. — Course basis for the claim that one simulation is one member of a model family and that finite-copy noise is a remaining question.</li>
+</ul>
+
+</div>
+</body>
+</html>
