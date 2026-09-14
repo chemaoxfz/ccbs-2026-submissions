@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What does an extra battery change? · CCBS 2026</title>
+<meta name="description" content="A CCBS Week 2 extension essay defining an intracellular battery as a stoichiometric flux and testing its effect on a cellular energy pool.">
+<style>
+:root{--coral:#EE8168;--peri:#5A73CE;--lime:#8FB043;--plum:#77488C;--teal:#1F9A8E;--rose:#D75567;--blush:#F5E6EB;--lavender:#E6E4F1;--powder:#D0DAE4;--lilac:#D8CDDD;--pinkf:#F8CFCD;--cream:#FAF0D5;--ink:#20201E;--gray:#877F77;--leader:#B8AEA5;--gridc:#EDE7E0;--bg:#FCFAF7;--bg2:#FFFFFF;--fg:var(--ink);--muted:#6E675F;--rule:#E3DCD3;--serif:"Iowan Old Style","Palatino Linotype",Palatino,Charter,Georgia,"Times New Roman",serif;--sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif;--mono:"SF Mono",ui-monospace,Menlo,Consolas,"Liberation Mono",monospace;--maxw:44rem}
+@media(prefers-color-scheme:dark){:root{--bg:#141513;--bg2:#1C1D1A;--fg:#EDE9E2;--muted:#A9A197;--rule:#33352F;--gridc:#2C2E28;--leader:#5C574F;--ink:#EDE9E2;--gray:#9A9289;--blush:#33262B;--lavender:#262538;--powder:#1F2A33;--lilac:#2E2634;--pinkf:#3A2626;--cream:#332F20;--coral:#F2937D;--peri:#8497E0;--lime:#A6C55C;--plum:#B183C6;--teal:#4FC0B3;--rose:#E8768A}}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--serif);font-size:18px;line-height:1.62}a{color:var(--fg);text-underline-offset:2px;text-decoration-color:var(--leader)}a:hover{text-decoration-color:var(--rose)}.wrap{max-width:78rem;margin:0 auto;padding:0 1.25rem;display:grid;grid-template-columns:15rem minmax(0,1fr);gap:3rem}nav{position:sticky;top:0;align-self:start;max-height:100vh;overflow:auto;padding:2.5rem 0 3rem;font:.8rem/1.45 var(--sans)}nav .brand{font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--rose);font-weight:700;margin-bottom:1rem}nav h2{font-size:.7rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin:0 0 .8rem}nav ol{list-style:none;padding:0;margin:0}nav li{margin:.12rem 0}nav a{display:block;padding:.25rem .55rem;color:var(--muted);text-decoration:none;border-left:2px solid transparent}nav a:hover{color:var(--fg);background:var(--bg2);border-left-color:var(--rose)}main{padding:2.5rem 0 6rem;min-width:0}main>*{max-width:var(--maxw)}main>figure,main>.tablewrap{max-width:56rem}h1{font-size:2.5rem;line-height:1.1;letter-spacing:-.02em;margin:.4rem 0 .8rem;max-width:25ch}h2{font-size:1.05rem;font-family:var(--sans);margin:3.6rem 0 .2rem}h2 .n{color:var(--rose);margin-right:.5rem}.sub{font-size:1.18rem;color:var(--muted);margin:0 0 1.6rem;line-height:1.5}.byline{font:.8rem var(--sans);color:var(--muted);letter-spacing:.02em;margin-bottom:2.6rem;padding-bottom:1.6rem;border-bottom:1px solid var(--rule)}h2+.lede{color:var(--muted);font-size:1.02rem;margin:.1rem 0 1.1rem}p{margin:0 0 1.05rem}ul,ol{margin:0 0 1.05rem;padding-left:1.35rem}li{margin:.28rem 0}.box{border:1px solid var(--rule);background:var(--bg2);border-radius:10px;padding:1rem 1.15rem;margin:1.5rem 0;box-shadow:0 1px 2px rgba(32,32,30,.05),0 8px 28px rgba(32,32,30,.05)}.box .lbl{display:block;font:.65rem var(--sans);letter-spacing:.14em;text-transform:uppercase;font-weight:700;margin-bottom:.45rem}.box p:last-child,.box ul:last-child{margin-bottom:0}.box.key{border-left:3px solid var(--rose);background:var(--blush)}.box.key .lbl{color:var(--rose)}.box.def{border-left:3px solid var(--peri);background:var(--lavender)}.box.def .lbl{color:var(--peri)}.box.caution{border-left:3px solid var(--coral);background:var(--pinkf)}.box.caution .lbl{color:var(--coral)}.box.open{border-left:3px solid var(--plum);background:var(--lilac)}.box.open .lbl{color:var(--plum)}.eq{display:block;margin:1.3rem auto;padding:.85rem 1rem;text-align:center;font:1rem/1.9 var(--mono);background:var(--bg2);border:1px solid var(--rule);border-radius:8px;overflow-x:auto}.eq:has(math){font-family:inherit;font-size:1rem;line-height:1.4}.eq math[display="block"]{margin:0}math{font-size:1.06em;font-style:normal}math annotation{display:none}.eq .tag{float:right;color:var(--leader);font-size:.85em}figure{margin:2rem 0}figure svg{display:block;width:100%;height:auto;background:var(--bg2);border:1px solid var(--rule);border-radius:10px;box-shadow:0 1px 2px rgba(32,32,30,.05)}figure svg text{font-family:var(--sans)}figcaption{font:.8rem/1.5 var(--sans);color:var(--muted);margin-top:.7rem}figcaption b{color:var(--fg)}.tablewrap{overflow-x:auto;margin:1.6rem 0;border:1px solid var(--rule);border-radius:10px;background:var(--bg2)}table{border-collapse:collapse;width:100%;font:.84rem/1.45 var(--sans)}th,td{text-align:left;padding:.6rem .8rem;border-bottom:1px solid var(--rule);vertical-align:top}th{font-size:.68rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);background:var(--bg)}tbody tr:last-child td{border-bottom:0}.num{font-family:var(--mono);white-space:nowrap}.refs{font:.88rem/1.5 var(--sans)}.refs li{margin:.55rem 0}.small{font-size:.88rem;color:var(--muted)}pre{white-space:pre-wrap;overflow-x:auto;font:.82rem/1.6 var(--mono);background:var(--bg2);border:1px solid var(--rule);border-radius:8px;padding:.9rem 1rem}@media(max-width:1000px){.wrap{display:block}nav{position:static;max-height:none;border-bottom:1px solid var(--rule);padding:1.2rem 0;margin-bottom:1rem}main{padding-top:1rem}}@media(max-width:600px){body{font-size:17px}h1{font-size:2rem}.wrap{padding:0 .9rem}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav>
+  <div class="brand">CCBS · 2026 · WEEK 2 EXTENSION</div>
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#s1">1 · The definition</a></li>
+    <li><a href="#s2">2 · The reaction network</a></li>
+    <li><a href="#s3">3 · The phase-line test</a></li>
+    <li><a href="#s4">4 · The numerical test</a></li>
+    <li><a href="#s5">5 · What the battery changes</a></li>
+    <li><a href="#s6">6 · The next model</a></li>
+    <li><a href="#refs">Sources, and what I checked</a></li>
+  </ol>
+</nav>
+<main>
+
+<h1>What does an extra battery change?</h1>
+<p class="sub">A stoichiometric and phase-line test of an intracellular energy module</p>
+<p class="byline">CCBS · EST 5053 · extension mini-essay · on lectures 3–4 · Week 2 · 2026-09-14</p>
+
+<div class="box key">
+<span class="lbl">The claim</span>
+<p>In this minimal adenylate-pool model, an auxiliary module shifts the stable ATP fraction and raises productive flux while the work reaction is below saturation. As that reaction approaches its maximum rate, some additional input appears as leakage.</p>
+<p>Here “battery” means one ATP-producing flux in the model. The outcome depends on where that flux is connected and on its rate law.</p>
+</div>
+
+<h2 id="s1"><span class="n">1</span>The definition</h2>
+<p class="lede">Here I define the battery as a reaction flux.</p>
+<p>Week 1 left the auxiliary energy source abstract. That was useful for locating the diffusion ceiling, but it is not yet a cell model. In a reaction network, adding a battery means adding a reaction with a stoichiometric column, a rate law, and an energy currency. I will use ATP/ADP as that currency and represent the new module as an ATP-producing reaction that consumes ADP and an external fuel.</p>
+<p>This choice makes a prediction possible. If the battery only raises the ATP pool, it should move the balance of addition and removal. If it is wired to a capacity-limited work reaction, it should raise output only until that reaction saturates. Neither effect, by itself, implies a new attractor.</p>
+
+<h2 id="s2"><span class="n">2</span>The reaction network</h2>
+<p class="lede">Stoichiometry says what each event changes; kinetics says how often it happens.</p>
+<p>Let <i>A</i> denote ATP, <i>D</i> denote ADP, and <i>Y</i> denote a productive cellular output. The minimal network contains an auxiliary generator, a useful ATP-consuming reaction, and an unproductive leak:</p>
+<div class="eq"><math display="block"><mrow><msub><mi>r</mi><mi>aux</mi></msub><mo>:</mo><mi>D</mi><mo>→</mo><mi>A</mi><mo>,</mo><mspace width="1em"></mspace><msub><mi>r</mi><mi>work</mi></msub><mo>:</mo><mi>A</mi><mo>→</mo><mi>D</mi><mo>+</mo><mi>Y</mi><mo>,</mo><mspace width="1em"></mspace><msub><mi>r</mi><mi>leak</mi></msub><mo>:</mo><mi>A</mi><mo>→</mo><mi>D</mi></mrow></math><span class="tag">(1)</span></div>
+<p>Ordering the species as (<i>A</i>, <i>D</i>, <i>Y</i>), the stoichiometric matrix is:</p>
+<div class="eq"><math display="block"><mrow><mi>S</mi><mo>=</mo><mfenced open="[" close="]"><mtable columnalign="right center center"><mtr><mtd><mn>1</mn></mtd><mtd><mo>−</mo><mn>1</mn></mtd><mtd><mo>−</mo><mn>1</mn></mtd></mtr><mtr><mtd><mo>−</mo><mn>1</mn></mtd><mtd><mn>1</mn></mtd><mtd><mn>1</mn></mtd></mtr><mtr><mtd><mn>0</mn></mtd><mtd><mn>1</mn></mtd><mtd><mn>0</mn></mtd></mtr></mtable></mfenced><mo>,</mo><mspace width="1em"></mspace><mi>v</mi><mo>=</mo><mfenced open="[" close="]"><mtable columnalign="left"><mtr><mtd><msub><mi>g</mi><mo>(</mo><mi>D</mi><mo>)</mo></msub></mtd></mtr><mtr><mtd><msub><mi>w</mi><mo>(</mo><mi>A</mi><mo>)</mo></msub></mtd></mtr><mtr><mtd><mi>ℓ</mi><mi>A</mi></mtd></mtr></mtable></mfenced></mrow></math><span class="tag">(2)</span></div>
+<p>The resulting dynamics follow the Lecture 3 accounting rule:</p>
+<div class="eq"><math display="block"><mrow><mover><mi>x</mi><mo>˙</mo></mover><mo>=</mo><mi>S</mi><mi>v</mi><mo>(</mo><mi>x</mi><mo>)</mo><mo>,</mo><mspace width="1em"></mspace><mover><mi>Y</mi><mo>˙</mo></mover><mo>=</mo><mi>w</mi><mo>(</mo><mi>A</mi><mo>)</mo></mrow></math><span class="tag">(3)</span></div>
+<p>For the short-time energy-pool calculation, I hold the adenylate total <i>Q</i> = <i>A</i> + <i>D</i> fixed and scale it to 1. This is a conserved pool for the closed chemistry on the fast timescale, not a claim that a growing cell preserves the total forever. Growth dilution and pool synthesis are deliberately postponed.</p>
+<div class="eq"><math display="block"><mrow><mi>g</mi><mo>(</mo><mi>D</mi><mo>)</mo><mo>=</mo><msub><mi>J</mi><mi>aux</mi></msub><mfrac><mi>D</mi><mrow><msub><mi>K</mi><mi>g</mi></msub><mo>+</mo><mi>D</mi></mrow></mfrac><mo>,</mo><mspace width="1em"></mspace><mi>w</mi><mo>(</mo><mi>A</mi><mo>)</mo><mo>=</mo><msub><mi>V</mi><mi>w</mi></msub><mfrac><mi>A</mi><mrow><msub><mi>K</mi><mi>w</mi></msub><mo>+</mo><mi>A</mi></mrow></mfrac></mrow></math><span class="tag">(4)</span></div>
+<p>With <i>D</i> = 1 − <i>A</i>, the ATP coordinate is governed by one addition-minus-removal function:</p>
+<div class="eq"><math display="block"><mrow><mover><mi>A</mi><mo>˙</mo></mover><mo>=</mo><mi>f</mi><mo>(</mo><mi>A</mi><mo>)</mo><mo>=</mo><mi>g</mi><mo>(</mo><mn>1</mn><mo>−</mo><mi>A</mi><mo>)</mo><mo>−</mo><mi>w</mi><mo>(</mo><mi>A</mi><mo>)</mo><mo>−</mo><mi>ℓ</mi><mi>A</mi></mrow></math><span class="tag">(5)</span></div>
+
+<figure>
+<svg viewBox="0 0 760 300" role="img" aria-label="Stoichiometric network showing auxiliary ATP generation, productive work, and leak">
+  <rect x="0" y="0" width="760" height="300" fill="var(--bg2)"/>
+  <g font-family="var(--sans)" font-size="16" fill="var(--fg)" text-anchor="middle">
+    <rect x="55" y="105" width="130" height="62" rx="9" fill="var(--lavender)" stroke="var(--peri)"/><text x="120" y="132" font-weight="700">fuel + ADP</text><text x="120" y="153" fill="var(--muted)">input side</text>
+    <rect x="315" y="105" width="130" height="62" rx="9" fill="var(--blush)" stroke="var(--rose)"/><text x="380" y="132" font-weight="700">ATP / ADP</text><text x="380" y="153" fill="var(--muted)">shared pool</text>
+    <rect x="575" y="42" width="130" height="62" rx="9" fill="var(--cream)" stroke="var(--coral)"/><text x="640" y="69" font-weight="700">productive</text><text x="640" y="90">output Y</text>
+    <rect x="575" y="196" width="130" height="62" rx="9" fill="var(--pinkf)" stroke="var(--coral)"/><text x="640" y="223" font-weight="700">leak</text><text x="640" y="244" fill="var(--muted)">no output</text>
+  </g>
+  <g fill="none" stroke-width="3"><path d="M185 136 H315" stroke="var(--peri)"/><path d="M445 120 C500 120 520 73 575 73" stroke="var(--teal)"/><path d="M445 153 C500 153 520 227 575 227" stroke="var(--coral)"/></g>
+  <g font-family="var(--sans)" font-size="15" fill="var(--muted)" text-anchor="middle"><text x="250" y="126">r_aux: D → A</text><text x="510" y="103">r_work: A → D + Y</text><text x="510" y="190">r_leak: A → D</text></g>
+  <g fill="var(--peri)"><path d="M305 130 l12 6 l-12 6 z"/></g><g fill="var(--teal)"><path d="M565 67 l12 6 l-12 6 z"/></g><g fill="var(--coral)"><path d="M565 221 l12 6 l-12 6 z"/></g>
+</svg>
+<figcaption><b>Figure 1. The battery is a stoichiometric connection.</b> The auxiliary module does not add an abstract “energy” label to the model. It converts ADP to ATP, while work and leak convert ATP back to ADP. Only the work branch produces <i>Y</i>.</figcaption>
+</figure>
+
+<h2 id="s3"><span class="n">3</span>The phase-line test</h2>
+<p class="lede">A shifted fixed point is not automatically a new state.</p>
+<p>Lecture 4 turns a one-dimensional addition-removal balance into a phase-line question. A fixed point <i>A</i><sup>*</sup> is where <i>f</i>(<i>A</i><sup>*</sup>) = 0. It is locally stable when the vector field points toward the crossing, equivalently when <i>f</i>′(<i>A</i><sup>*</sup>) &lt; 0 for a simple crossing.</p>
+<p>In this model, every term has the same directional effect. Generator activity decreases as ATP replaces ADP; work removal increases with ATP; leak removal increases linearly. The slope at any crossing is therefore:</p>
+<div class="eq"><math display="block"><mrow><msup><mi>f</mi><mo>′</mo></msup><mo>(</mo><mi>A</mi><mo>)</mo><mo>=</mo><mo>−</mo><msub><mi>J</mi><mi>aux</mi></msub><mfrac><msub><mi>K</mi><mi>g</mi></msub><msup><mrow><mo>(</mo><msub><mi>K</mi><mi>g</mi></msub><mo>+</mo><mn>1</mn><mo>−</mo><mi>A</mi><mo>)</mo></mrow><mn>2</mn></msup></mfrac><mo>−</mo><msub><mi>V</mi><mi>w</mi></msub><mfrac><msub><mi>K</mi><mi>w</mi></msub><msup><mrow><mo>(</mo><msub><mi>K</mi><mi>w</mi></msub><mo>+</mo><mi>A</mi><mo>)</mo></mrow><mn>2</mn></msup></mfrac><mo>−</mo><mi>ℓ</mi><mo>&lt;</mo><mn>0</mn></mrow></math><span class="tag">(6)</span></div>
+<p>Thus every interior crossing is stable, and the monotonicity also prevents three crossings. Increasing <i>J</i><sub>aux</sub> can move the cell along a family of stable energy states, but this particular wiring cannot create the stable–unstable–stable pattern required for one-dimensional memory.</p>
+
+<h2 id="s4"><span class="n">4</span>The numerical test</h2>
+<p class="lede">More power raises useful flux only before the work branch saturates.</p>
+<p>I set <i>K</i><sub>g</sub> = <i>K</i><sub>w</sub> = 0.1, <i>V</i><sub>w</sub> = 0.8, and ℓ = 0.05 in units where <i>Q</i> = 1. These numbers are illustrative model parameters, not measurements from a named cell. For each <i>J</i><sub>aux</sub>, I solve equation (5) for the stable ATP fraction and then evaluate the productive work flux <i>w</i>(<i>A</i><sup>*</sup>).</p>
+<div class="tablewrap">
+<table><thead><tr><th>J<sub>aux</sub></th><th>A<sup>*</sup></th><th>D<sup>*</sup></th><th>work flux w</th><th>leak ℓA</th></tr></thead>
+<tbody><tr><td class="num">0.0</td><td class="num">0.0000</td><td class="num">1.0000</td><td class="num">0.0000</td><td class="num">0.0000</td></tr><tr><td class="num">0.2</td><td class="num">0.0290</td><td class="num">0.9710</td><td class="num">0.1799</td><td class="num">0.0015</td></tr><tr><td class="num">0.6</td><td class="num">0.1904</td><td class="num">0.8096</td><td class="num">0.5245</td><td class="num">0.0095</td></tr><tr><td class="num">1.2</td><td class="num">0.8300</td><td class="num">0.1700</td><td class="num">0.7140</td><td class="num">0.0415</td></tr><tr><td class="num">2.0</td><td class="num">0.9374</td><td class="num">0.0626</td><td class="num">0.7229</td><td class="num">0.0469</td></tr></tbody></table>
+</div>
+<p>The ATP fraction changes dramatically between <i>J</i><sub>aux</sub> = 0.6 and 1.2, but useful work barely changes between 1.2 and 2.0. The extra source still changes the pool, yet the output branch is close to its capacity <i>V</i><sub>w</sub> = 0.8. At high input, the model predicts an energy-rich but not proportionally more productive cell.</p>
+
+<figure>
+<svg viewBox="0 0 760 410" role="img" aria-label="Stable ATP fraction and productive work flux versus auxiliary energy input">
+  <rect x="0" y="0" width="760" height="410" fill="var(--bg2)"/>
+  <g stroke="var(--gridc)" stroke-width="1"><line x1="82" y1="55" x2="700" y2="55"/><line x1="82" y1="125" x2="700" y2="125"/><line x1="82" y1="195" x2="700" y2="195"/><line x1="82" y1="265" x2="700" y2="265"/><line x1="82" y1="335" x2="700" y2="335"/><line x1="82" y1="55" x2="82" y2="335"/><line x1="236" y1="55" x2="236" y2="335"/><line x1="391" y1="55" x2="391" y2="335"/><line x1="545" y1="55" x2="545" y2="335"/><line x1="700" y1="55" x2="700" y2="335"/></g>
+  <g stroke="var(--fg)" stroke-width="1.5"><line x1="82" y1="335" x2="700" y2="335"/><line x1="82" y1="55" x2="82" y2="335"/></g>
+  <polyline points="82,335 144,328 206,316 267,289 329,227 391,163 453,135 515,119 576,113 638,109 700,105" fill="none" stroke="var(--rose)" stroke-width="4"/>
+  <polyline points="82,335 144,281 206,228 267,178 329,139 391,124 453,121 515,120 576,119 638,119 700,118" fill="none" stroke="var(--teal)" stroke-width="4"/>
+  <g font-family="var(--sans)" font-size="14" fill="var(--muted)"><text x="50" y="340">0</text><text x="50" y="270">0.25</text><text x="50" y="200">0.50</text><text x="50" y="130">0.75</text><text x="55" y="60">1</text><text x="76" y="360">0</text><text x="226" y="360">0.5</text><text x="381" y="360">1.0</text><text x="535" y="360">1.5</text><text x="690" y="360">2.0</text><text x="288" y="397">auxiliary input Jaux</text><text transform="translate(18 265) rotate(-90)">normalized value</text></g>
+  <g font-family="var(--sans)" font-size="14" fill="var(--fg)"><text x="545" y="91" fill="var(--rose)">ATP fraction A*</text><text x="545" y="141" fill="var(--teal)">productive flux w(A*)</text></g>
+</svg>
+<figcaption><b>Figure 2. Pool control and function separate.</b> The red curve is the stable ATP fraction; the teal curve is productive work. The pool keeps moving toward ATP-rich values, while the work flux approaches its saturation ceiling.</figcaption>
+</figure>
+
+<pre># Reproducible arithmetic for the table and Figure 2
+from scipy.optimize import brentq
+
+Kg, Kw, Vw, leak = 0.1, 0.1, 0.8, 0.05
+g = lambda A, J: J * (1 - A) / (Kg + 1 - A)
+w = lambda A: Vw * A / (Kw + A)
+f = lambda A, J: g(A, J) - w(A) - leak * A
+
+for J in [0.0, 0.2, 0.6, 1.2, 2.0]:
+    A = 0.0 if J == 0 else brentq(lambda z: f(z, J), 0, 1 - 1e-10)
+    print(J, A, 1 - A, w(A), leak * A)</pre>
+
+<h2 id="s5"><span class="n">5</span>What the battery changes</h2>
+<p class="lede">The first effect is a flux redistribution; the second is a capacity limit.</p>
+<p>This model gives three distinct meanings to “more energy.” First, <i>J</i><sub>aux</sub> changes the addition term for ATP and therefore changes the steady ATP/ADP composition. Second, because work depends on ATP, the same perturbation increases useful output. Third, work has a maximum rate and the leak grows with ATP, so the marginal benefit of the battery declines.</p>
+<p>In this network, the auxiliary source adds neither a new dimension nor a positive feedback loop. Its one-dimensional phase line has one stable crossing, not the three crossings needed for biochemical memory. Under these assumptions, the battery moves the steady state without changing the type of steady state this network can support.</p>
+<div class="box def">
+<span class="lbl">A sharper design rule</span>
+<p>To study bistability or another new behavior, the energy flux would have to enter a nonlinear feedback or a nonequilibrium cycle. Raising the input to this monotone ATP pool alone produces a continuous shift and more leakage in the present model.</p>
+</div>
+<p>This conclusion is conditional. If ATP drives receptor reset, proofreading, cooperative regulation, or a switch with feedback, the energy flux enters a different column or a different rate law. That is where a later essay could test new function. It would be incorrect to infer those behaviors from the present pool model alone.</p>
+
+<h2 id="s6"><span class="n">6</span>The next model</h2>
+<p>The next useful extension is not to add every cellular process. I would keep the same ATP/ADP pool, add one ATP-consuming receptor-reset reaction, and compare two networks at matched <i>J</i><sub>aux</sub>: a battery connected only to downstream work, and a battery connected to repeated sensing. The observables would be useful output, independent sensing events, ATP cost per event, and the stability of the downstream state.</p>
+<p>The Week 2 model makes “auxiliary battery” concrete: it is an added stoichiometric flux. Whether it changes the ATP/ADP pool, downstream throughput, or higher-level state structure depends on its connection and kinetics.</p>
+
+<h2 id="refs"><span class="n">†</span>Sources, and what I checked</h2>
+<div class="refs">
+<ol>
+<li>CCBS 2026 lecture 3, <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture03-core.html">core</a>. <strong>Read the sections</strong> that set up the modeling contract ẋ = <i>Sv</i>, the split between stoichiometry and kinetics, and the addition-removal reading; also the discussion of a held vs. a conserved pool (growth dilution). Did not read every metabolism or gene-expression example in full.</li>
+<li>CCBS 2026 lecture 4, <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture04-core.html">core</a>. <strong>Read the sections</strong> on a fixed point as a crossing, the slope-based stability test, and the construction of two stable states from three crossings. Did not work through the later bifurcation and energy sections in detail.</li>
+<li>CCBS 2026, <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/intro.html">course organization page</a>. <strong>Read the extension mini-essay and research-essay sections</strong> to confirm the required shape: one claim, one focused step past the lecture, explicit assumptions, and reproducible calculation.</li>
+</ol>
+<p class="small">What I have not done: use a published biochemical paper as evidence for the numbers. The network and its parameters are a deliberately minimal model, and the table and Figure 2 are produced by equations (4)–(5) as model output, not a measurement of any cell.</p>
+</div>
+
+</main>
+</div>
+</body>
+</html>
+
