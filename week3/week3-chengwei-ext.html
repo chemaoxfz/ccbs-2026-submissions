@@ -1,0 +1,230 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="author" content="Chengwei Jin"><meta name="week" content="week3"><title>Week 3: Can the Slower Molecular Signal Win?</title><style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px;
+    border-bottom:1px solid var(--line); padding-bottom:5px; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:14px 18px; margin:14px 0; }
+  .fig { width:100%; border:1px solid var(--line); border-radius:6px; margin:14px 0; }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; }
+figure{margin:18px 0} svg{width:100%;height:auto}svg text{fill:var(--ink);font-family:Arial,sans-serif;font-size:13px}.plot-title{font-weight:600;font-size:14px}.grid{stroke:var(--line);stroke-width:1}.small{font-size:.88rem;color:var(--muted)}details{margin:14px 0;border:1px solid var(--line);border-radius:6px;padding:10px 14px}summary{cursor:pointer;color:var(--accent);font-weight:600}pre{overflow:auto;max-height:420px;font-size:12px;line-height:1.5;background:var(--soft);padding:12px}table{width:100%;border-collapse:collapse;font-size:.86rem}th,td{text-align:left;border-bottom:1px solid var(--line);padding:8px}label{display:block}input[type=range]{width:100%;margin:10px 0 18px}button{background:var(--accent);color:var(--bg);border:0;padding:9px 15px;border-radius:5px;cursor:pointer}.equation{padding:12px;background:var(--soft);overflow:auto}sup a{padding:0 2px}</style></head><body><div class="wrap"><h1>Week 3 Extension: Can the Slower Molecular Signal Win?</h1>
+<p class="meta">Chengwei Jin · Week 3 · 2026-09-17 · CCBS 2026</p>
+<p class="card"><strong>One sentence:</strong> In a race between two independent molecular sources, raising a shared count threshold makes the faster source more likely to win, but delays the decision.</p>
+<h2>The point I am adding</h2>
+<p>Two signals start together. Signal B produces molecules faster than signal A. A smooth model puts B ahead at every positive time, but does that guarantee B reaches a trigger first? Lecture 5 distinguishes a mean trajectory from an individual history.<sup><a href="#r1">1</a></sup> I extend that distinction to a race: how reliably can a count threshold select the faster source?</p>
+<p>Consider two independent production channels, ∅ → A and ∅ → B, with constant propensities <i>a</i> and <i>b</i>. Both counts start at zero. The first species to reach <i>K</i> molecules wins, and we stop the simulation. There is no degradation, feedback or competition for resources. This is an illustrative short-window model of accumulating signals, not a fitted biological circuit.</p>
+<h2>Work it</h2>
+<p>I set <i>a</i> = 1 and <i>b</i> = 1.5 events per minute. These are chosen parameters, not rates inferred from an observed mean. Gillespie sampling draws an exponential waiting time with total rate <i>a+b</i>, then adds A with probability <i>a/(a+b)</i> or B otherwise.<sup><a href="#r2">2</a></sup> Repeating until either count reaches <i>K</i> gives a winner and a decision time. I ran 50,000 independent races at each of five thresholds.</p>
+<figure><svg class="fig" viewBox="0 0 700 400" role="img" aria-labelledby="figtitle" xmlns="http://www.w3.org/2000/svg"><title id="figtitle">Higher thresholds reduce slower-channel wins and increase decision time</title><text x="62" y="32" class="plot-title">A. Slower channel A wins (%)</text><path d="M62 324.00h260" class="grid"/><text x="53" y="328.00" text-anchor="end">0</text><path d="M62 272.40h260" class="grid"/><text x="53" y="276.40" text-anchor="end">10</text><path d="M62 220.80h260" class="grid"/><text x="53" y="224.80" text-anchor="end">20</text><path d="M62 169.20h260" class="grid"/><text x="53" y="173.20" text-anchor="end">30</text><path d="M62 117.60h260" class="grid"/><text x="53" y="121.60" text-anchor="end">40</text><path d="M62 66.00h260" class="grid"/><text x="53" y="70.00" text-anchor="end">50</text><text x="62.00" y="346" text-anchor="middle">1</text><text x="116.74" y="346" text-anchor="middle">5</text><text x="185.16" y="346" text-anchor="middle">10</text><text x="253.58" y="346" text-anchor="middle">15</text><text x="322.00" y="346" text-anchor="middle">20</text><polyline points="62.000,117.600 75.684,142.368 89.368,160.201 103.053,174.467 116.737,186.451 130.421,196.805 144.105,205.917 157.789,214.039 171.474,221.349 185.158,227.977 198.842,234.021 212.526,239.560 226.211,244.656 239.895,249.360 253.579,253.714 267.263,257.755 280.947,261.513 294.632,265.015 308.316,268.283 322.000,271.338" fill="none" stroke="#5A73CE" stroke-width="2.5"/><path d="M62.000 120.105V115.673" stroke="#b35421" stroke-width="2"/><circle cx="62.000" cy="117.889" r="3.8" fill="#b35421"/><path d="M89.368 163.049V158.839" stroke="#b35421" stroke-width="2"/><circle cx="89.368" cy="160.944" r="3.8" fill="#b35421"/><path d="M116.737 188.021V184.022" stroke="#b35421" stroke-width="2"/><circle cx="116.737" cy="186.022" r="3.8" fill="#b35421"/><path d="M185.158 230.424V226.904" stroke="#b35421" stroke-width="2"/><circle cx="185.158" cy="228.664" r="3.8" fill="#b35421"/><path d="M322.000 273.264V270.525" stroke="#b35421" stroke-width="2"/><circle cx="322.000" cy="271.894" r="3.8" fill="#b35421"/><text x="192.0" y="374" text-anchor="middle">Common threshold K (molecules)</text><text x="407" y="32" class="plot-title">B. Mean decision time (min)</text><path d="M407 324.00h260" class="grid"/><text x="398" y="328.00" text-anchor="end">0</text><path d="M407 272.40h260" class="grid"/><text x="398" y="276.40" text-anchor="end">3</text><path d="M407 220.80h260" class="grid"/><text x="398" y="224.80" text-anchor="end">6</text><path d="M407 169.20h260" class="grid"/><text x="398" y="173.20" text-anchor="end">9</text><path d="M407 117.60h260" class="grid"/><text x="398" y="121.60" text-anchor="end">12</text><path d="M407 66.00h260" class="grid"/><text x="398" y="70.00" text-anchor="end">15</text><text x="407.00" y="346" text-anchor="middle">1</text><text x="461.74" y="346" text-anchor="middle">5</text><text x="530.16" y="346" text-anchor="middle">10</text><text x="598.58" y="346" text-anchor="middle">15</text><text x="667.00" y="346" text-anchor="middle">20</text><polyline points="407.000,317.120 420.684,306.938 434.368,296.029 448.053,284.803 461.737,273.406 475.421,261.906 489.105,250.342 502.789,238.737 516.474,227.104 530.158,215.454 543.842,203.794 557.526,192.127 571.211,180.459 584.895,168.790 598.579,157.123 612.263,145.459 625.947,133.799 639.632,122.144 653.316,110.494 667.000,98.849" fill="none" stroke="#5A73CE" stroke-width="2.5"/><path d="M407.000 317.174V317.053" stroke="#b35421" stroke-width="2"/><circle cx="407.000" cy="317.113" r="3.8" fill="#b35421"/><path d="M434.368 296.208V295.948" stroke="#b35421" stroke-width="2"/><circle cx="434.368" cy="296.078" r="3.8" fill="#b35421"/><path d="M461.737 273.793V273.434" stroke="#b35421" stroke-width="2"/><circle cx="461.737" cy="273.614" r="3.8" fill="#b35421"/><path d="M530.158 215.744V215.192" stroke="#b35421" stroke-width="2"/><circle cx="530.158" cy="215.468" r="3.8" fill="#b35421"/><path d="M667.000 99.431V98.606" stroke="#b35421" stroke-width="2"/><circle cx="667.000" cy="99.018" r="3.8" fill="#b35421"/><text x="537.0" y="374" text-anchor="middle">Common threshold K (molecules)</text></svg><figcaption>Figure 1. Fixed rates, increasing threshold. Lines: exact finite-sum predictions derived below. Dots: 50,000 Gillespie races per threshold; bars: ±1.96 Monte Carlo standard errors (often smaller than the dots). Blue = theory; orange = simulation. Decision time ends when <em>either</em> species reaches K. Seeds: 20260917 + K. All results are simulated or derived, not experimental.</figcaption></figure>
+<p>At <i>K</i> = 1, slower A wins 40.0% of races in theory. At <i>K</i> = 20, it still wins 10.2%. The mean decision time rises from 0.40 to 13.09 minutes. Simulations give 39.9% and 10.1%, with mean times of 0.40 and 13.08 minutes. A higher threshold averages over more event identities, reducing accidental victories by the slower source. Waiting for more events also takes longer. The deterministic prediction that B always wins misses the finite-threshold probability.</p>
+<details><summary>Exact check, full numerical results and derivation</summary>
+<p>Let p = a/(a+b), q = 1−p, and T be the time until the first threshold crossing. Each event independently belongs to A with probability p. If A wins with j B molecules present, the final event is A, and the preceding K+j−1 events contain K−1 A events and j B events. Thus:</p>
+<div class="equation">P(A wins) = ∑<sub>j=0</sub><sup>K−1</sup> C(K+j−1, j) p<sup>K</sup>q<sup>j</sup>.</div>
+<p>Here C(n,j) = n!/[j!(n−j)!] counts the possible event orders. Swap p and q to obtain the probability that B wins with j A molecules. Write their sum as w<sub>j</sub>. The race then lasts K+j events, each with mean wait 1/(a+b), independently of the event labels. Consequently:</p>
+<div class="equation">E[T] = ∑<sub>j=0</sub><sup>K−1</sup> (K+j) w<sub>j</sub> / (a+b).</div>
+<p>These finite sums are derived here to verify the simulation. Probability depends only on the rate ratio. Multiplying both rates by the same factor leaves the winner probabilities unchanged and divides mean time by that factor. At equal rates, symmetry gives a 50% winning probability for every K. A larger threshold improves selection only when one rate really is higher. On a shared event sequence, increasing K cannot make the stopping time earlier.</p>
+<table><thead><tr><th>K</th><th>A wins: exact / simulated</th><th>Mean min: exact / simulated</th></tr></thead><tbody><tr><td>1</td><td>40.0% / 39.9%</td><td>0.40 / 0.40</td></tr><tr><td>3</td><td>31.7% / 31.6%</td><td>1.63 / 1.62</td></tr><tr><td>5</td><td>26.7% / 26.7%</td><td>2.94 / 2.93</td></tr><tr><td>10</td><td>18.6% / 18.5%</td><td>6.31 / 6.31</td></tr><tr><td>20</td><td>10.2% / 10.1%</td><td>13.09 / 13.08</td></tr></tbody></table>
+<p>Across these five thresholds, both estimates fall within five standard errors of their analytic targets. Individual ±1.96-SE intervals need not all cover their targets. No trajectories were discarded.</p></details>
+<details><summary>Reproduce the figure's numbers: complete Python source</summary><p>Save as analysis/run.py in a folder with an analysis subfolder and run with Python 3. It uses only the standard library and writes results.json. The figure plots those results. The browser implementation is shown separately below.</p><pre><code>&quot;&quot;&quot;Exact first-passage race and seeded Gillespie verification. Python standard library only.&quot;&quot;&quot;
+import json, math, random, statistics
+from pathlib import Path
+ROOT = Path(__file__).resolve().parents[1]
+
+def exact(k, a=1.0, b=1.5):
+    p, q = a/(a+b), b/(a+b)
+    awin = mean_n = second = total = 0.0
+    for j in range(k):
+        wa = math.comb(k+j-1, j)*p**k*q**j
+        wb = math.comb(k+j-1, j)*q**k*p**j
+        mass, n = wa+wb, k+j
+        awin += wa
+        total += mass
+        mean_n += n*mass
+        second += n*(n+1)*mass/(a+b)**2
+    mean = mean_n/(a+b)
+    assert abs(total-1)&lt;1e-12
+    return awin, mean, second-mean*mean
+
+def simulate(k, a, b, m, seed):
+    rng = random.Random(seed)
+    wins, times = 0, []
+    for _ in range(m):
+        na = nb = 0
+        t = 0.0
+        while na &lt; k and nb &lt; k:
+            t += -math.log(1-rng.random())/(a+b)
+            if rng.random() &lt; a/(a+b): na += 1
+            else: nb += 1
+        wins += na == k
+        times.append(t)
+    return wins/m, statistics.mean(times), statistics.stdev(times)/math.sqrt(m)
+
+def main():
+    rows=[]
+    for k in [1,3,5,10,20]:
+        p,t,v=exact(k)
+        ph,th,se=simulate(k,1,1.5,50000,20260917+k)
+        pse=math.sqrt(p*(1-p)/50000)
+        assert abs(ph-p)&lt;5*pse and abs(th-t)&lt;5*se
+        rows.append(dict(k=k,p=p,time=t,sim_p=ph,sim_time=th,p_se=pse,time_se=se))
+    # Independent checks: symmetry, K=1, and a survival-probability sum.
+    for k in [1,2,10,30]:
+        assert abs(exact(k,1,1)[0]-.5)&lt;1e-12
+        p,t,_=exact(k)
+        survival=sum(math.comb(i+j,i)*.4**i*.6**j/2.5 for i in range(k) for j in range(k))
+        assert abs(t-survival)&lt;1e-11
+        assert abs(exact(k,2,3)[1]-t/2)&lt;1e-12
+    assert abs(exact(1)[0]-.4)&lt;1e-12
+    assert abs(exact(1)[1]-.4)&lt;1e-12
+    data=dict(rates=[1,1.5],trials_per_threshold=50000,seed_rule=&#x27;20260917 + K&#x27;,rows=rows,
+              curve=[dict(k=k,p=exact(k)[0],time=exact(k)[1]) for k in range(1,21)])
+    (ROOT/&#x27;analysis/results.json&#x27;).write_text(json.dumps(data,indent=2),encoding=&#x27;utf-8&#x27;)
+    print(json.dumps(rows,indent=2))
+
+if __name__==&#x27;__main__&#x27;: main()
+</code></pre></details>
+<h2>What I would argue against / where this breaks</h2>
+<p>“Faster on average” does not mean “first every time.” But this race does not establish a universal cellular speed–accuracy law. Calling an A victory an error presumes the goal is to select the faster input. The threshold is a defined readout, not a modeled molecular switch. Degradation, bursts, unequal starting counts or coupled production change the result. Applying the model to cells would require measured rates and a justified threshold mechanism. Here, the extension is a quantitative first-passage comparison, not evidence about a particular cell fate.</p>
+<h2>Sources</h2><ol class="src">
+<li id="r1">Fangzhou Xiao. <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture05-core.html">Lecture 5: Stochastic dynamics: the master equation and Gillespie</a>. CCBS, 2026. Sections 1, 9–10 motivate the observable, direct method and independent-path estimation.</li>
+<li id="r2">Daniel T. Gillespie. <a href="https://doi.org/10.1021/j100540a008">Exact stochastic simulation of coupled chemical reactions</a>. <em>Journal of Physical Chemistry</em> 81, 2340–2361 (1977). Section III.C specifies the waiting-time and channel draws. The race and finite-sum calculations above are this essay's worked example.</li></ol>
+<h2>Try it: change the finish line</h2>
+<p class="small">A stays at 1 event/min. Adjust the common threshold and B's rate. Each change draws one new, unselected race. The probability below is exact, not estimated from the displayed trajectory.</p>
+<div class="card"><label for="threshold">Threshold K: <output id="kval">5</output></label><input id="threshold" type="range" min="1" max="30" step="1" value="5">
+<label for="rate">B rate (events/min): <output id="bval">1.5</output></label><input id="rate" type="range" min="1" max="3" step="0.1" value="1.5">
+<p id="prediction" aria-live="polite"></p><button id="again" type="button">Draw another race</button><p id="outcome" aria-live="polite"></p>
+<p class="small"><span style="color:#5A73CE">━━ A</span> &nbsp; <span style="color:#b35421">┄┄ B</span> · molecule count vs time</p>
+<svg id="raceplot" viewBox="0 0 700 250" role="img" aria-label="One simulated molecular race"></svg><noscript>Enable JavaScript for the optional demo. The essay and figure remain readable without it.</noscript></div>
+<details><summary>Browser simulation and drawing source</summary><pre><code>// Shared by the standalone page and the Node verification script.
+function seeded(seed) {
+  return function () {
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(seed ^ seed &gt;&gt;&gt; 15, 1 | seed);
+    t = t + Math.imul(t ^ t &gt;&gt;&gt; 7, 61 | t) ^ t;
+    return ((t ^ t &gt;&gt;&gt; 14) &gt;&gt;&gt; 0) / 4294967296;
+  };
+}
+function race(K, a, b, rng) {
+  let A = 0, B = 0, time = 0;
+  const path = [[0, 0, 0]];
+  while (A &lt; K &amp;&amp; B &lt; K) {
+    time += -Math.log(1 - rng()) / (a + b);
+    if (rng() &lt; a / (a + b)) A++; else B++;
+    path.push([time, A, B]);
+  }
+  return {winner: A === K ? &#x27;A&#x27; : &#x27;B&#x27;, time, path};
+}
+function theory(K, a, b) {
+  const p = a / (a + b), q = 1 - p;
+  let wa = p ** K, wb = q ** K, probability = 0, mean = 0;
+  for (let j = 0; j &lt; K; j++) {
+    probability += wa;
+    mean += (K + j) * (wa + wb) / (a + b);
+    wa *= (K + j) / (j + 1) * q;
+    wb *= (K + j) / (j + 1) * p;
+  }
+  return {probability, mean};
+}
+if (typeof module !== &#x27;undefined&#x27;) module.exports = {seeded, race, theory};
+if (typeof document !== &#x27;undefined&#x27;) {
+  let seed = 20260917;
+  const get = id =&gt; document.getElementById(id);
+  function draw() {
+    const K = +get(&#x27;threshold&#x27;).value, b = +get(&#x27;rate&#x27;).value;
+    get(&#x27;kval&#x27;).textContent = K;
+    get(&#x27;bval&#x27;).textContent = b.toFixed(1);
+    const pred = theory(K, 1, b), r = race(K, 1, b, seeded(seed++));
+    get(&#x27;prediction&#x27;).textContent = `Exact: A wins ${(100*pred.probability).toFixed(1)}% of races; mean decision time ${pred.mean.toFixed(2)} min.`;
+    get(&#x27;outcome&#x27;).textContent = `This unselected race: ${r.winner} wins at ${r.time.toFixed(2)} min. Seed ${seed-1}.`;
+    const x = t =&gt; 52 + 594*t/r.time, y = n =&gt; 207 - 168*n/K;
+    function steps(i) {
+      let d = `M52 207`;
+      for (let j=1;j&lt;r.path.length;j++) d += ` H${x(r.path[j][0]).toFixed(2)} V${y(r.path[j][i]).toFixed(2)}`;
+      return d;
+    }
+    get(&#x27;raceplot&#x27;).innerHTML = `&lt;title&gt;One molecular race until either species reaches the threshold&lt;/title&gt;
+      &lt;path d=&quot;M52 28 V207 H654&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot;/&gt;
+      &lt;path d=&quot;M52 39 H654&quot; stroke=&quot;var(--muted)&quot; stroke-dasharray=&quot;5 4&quot;/&gt;
+      &lt;text x=&quot;58&quot; y=&quot;28&quot;&gt;Threshold K = ${K}&lt;/text&gt;
+      &lt;text x=&quot;12&quot; y=&quot;43&quot;&gt;${K}&lt;/text&gt;&lt;text x=&quot;20&quot; y=&quot;212&quot;&gt;0&lt;/text&gt;
+      &lt;text x=&quot;52&quot; y=&quot;232&quot;&gt;0 min&lt;/text&gt;&lt;text x=&quot;645&quot; y=&quot;232&quot; text-anchor=&quot;end&quot;&gt;${r.time.toFixed(2)} min&lt;/text&gt;
+      &lt;path d=&quot;${steps(1)}&quot; fill=&quot;none&quot; stroke=&quot;#5A73CE&quot; stroke-width=&quot;2.5&quot;/&gt;
+      &lt;path d=&quot;${steps(2)}&quot; fill=&quot;none&quot; stroke=&quot;#b35421&quot; stroke-width=&quot;2.5&quot; stroke-dasharray=&quot;6 3&quot;/&gt;`;
+  }
+  get(&#x27;threshold&#x27;).addEventListener(&#x27;input&#x27;, draw);
+  get(&#x27;rate&#x27;).addEventListener(&#x27;input&#x27;, draw);
+  get(&#x27;again&#x27;).addEventListener(&#x27;click&#x27;, draw);
+  draw();
+}
+</code></pre></details></div><script>// Shared by the standalone page and the Node verification script.
+function seeded(seed) {
+  return function () {
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+function race(K, a, b, rng) {
+  let A = 0, B = 0, time = 0;
+  const path = [[0, 0, 0]];
+  while (A < K && B < K) {
+    time += -Math.log(1 - rng()) / (a + b);
+    if (rng() < a / (a + b)) A++; else B++;
+    path.push([time, A, B]);
+  }
+  return {winner: A === K ? 'A' : 'B', time, path};
+}
+function theory(K, a, b) {
+  const p = a / (a + b), q = 1 - p;
+  let wa = p ** K, wb = q ** K, probability = 0, mean = 0;
+  for (let j = 0; j < K; j++) {
+    probability += wa;
+    mean += (K + j) * (wa + wb) / (a + b);
+    wa *= (K + j) / (j + 1) * q;
+    wb *= (K + j) / (j + 1) * p;
+  }
+  return {probability, mean};
+}
+if (typeof module !== 'undefined') module.exports = {seeded, race, theory};
+if (typeof document !== 'undefined') {
+  let seed = 20260917;
+  const get = id => document.getElementById(id);
+  function draw() {
+    const K = +get('threshold').value, b = +get('rate').value;
+    get('kval').textContent = K;
+    get('bval').textContent = b.toFixed(1);
+    const pred = theory(K, 1, b), r = race(K, 1, b, seeded(seed++));
+    get('prediction').textContent = `Exact: A wins ${(100*pred.probability).toFixed(1)}% of races; mean decision time ${pred.mean.toFixed(2)} min.`;
+    get('outcome').textContent = `This unselected race: ${r.winner} wins at ${r.time.toFixed(2)} min. Seed ${seed-1}.`;
+    const x = t => 52 + 594*t/r.time, y = n => 207 - 168*n/K;
+    function steps(i) {
+      let d = `M52 207`;
+      for (let j=1;j<r.path.length;j++) d += ` H${x(r.path[j][0]).toFixed(2)} V${y(r.path[j][i]).toFixed(2)}`;
+      return d;
+    }
+    get('raceplot').innerHTML = `<title>One molecular race until either species reaches the threshold</title>
+      <path d="M52 28 V207 H654" fill="none" stroke="currentColor"/>
+      <path d="M52 39 H654" stroke="var(--muted)" stroke-dasharray="5 4"/>
+      <text x="58" y="28">Threshold K = ${K}</text>
+      <text x="12" y="43">${K}</text><text x="20" y="212">0</text>
+      <text x="52" y="232">0 min</text><text x="645" y="232" text-anchor="end">${r.time.toFixed(2)} min</text>
+      <path d="${steps(1)}" fill="none" stroke="#5A73CE" stroke-width="2.5"/>
+      <path d="${steps(2)}" fill="none" stroke="#b35421" stroke-width="2.5" stroke-dasharray="6 3"/>`;
+  }
+  get('threshold').addEventListener('input', draw);
+  get('rate').addEventListener('input', draw);
+  get('again').addEventListener('click', draw);
+  draw();
+}
+</script></body></html>
