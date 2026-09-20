@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 3 — Extension: Under a periodic drive, the time average over a whole cycle need not equal the fixed-phase ensemble</title>
+<meta name="author" content="Zheng Haobo">
+<meta name="week" content="week3">
+<style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4;
+    --bg:#fff; --soft:#f6f8fa;
+    --peri:#4a5fa5; --rose:#b04a5a; --teal:#2a7a72; --plum:#7a4a8a;
+    --sans:"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans CJK SC",sans-serif; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652;
+      --bg:#15191d; --soft:#1e242a;
+      --peri:#93a8e8; --rose:#e893a3; --teal:#6cc8bd; --plum:#c893d8; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:var(--sans); line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px;
+    border-bottom:1px solid var(--line); padding-bottom:5px; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:14px 18px; margin:14px 0; }
+  .fig { width:100%; border:1px solid var(--line); border-radius:6px;
+    margin:14px 0; }
+  figure { margin:18px 0; }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; }
+  ul, ol { padding-left:1.3em; }
+  li { margin:5px 0; }
+  math { font-size:.98em; }
+  math[display="block"] { margin:10px 0; }
+  details { border:1px solid var(--line); border-radius:6px; padding:10px 14px;
+    margin:16px 0; background:var(--soft); }
+  summary { cursor:pointer; color:var(--accent); font-size:.95rem; }
+  details pre { overflow-x:auto; font-size:.78rem; line-height:1.45;
+    margin:10px 0 4px; }
+  code { font-size:.92em; }
+  /* SVG classes: colours/fonts only via the page's own variables */
+  svg.fig { background:var(--bg); display:block; width:100%; height:auto; }
+  svg.fig text { font-family:var(--sans); }
+  .axtext { fill:var(--muted); font-size:13.5px; }
+  .ptitle { fill:var(--ink); font-size:14.5px; }
+  .ax { stroke:var(--muted); stroke-width:1; fill:none; }
+  .tick { stroke:var(--line); stroke-width:1; fill:none; }
+  .cycle { stroke:var(--muted); stroke-width:1; stroke-dasharray:4 4; fill:none; }
+  .haz { stroke:var(--peri); stroke-width:1.7; fill:none; }
+  .evt { fill:var(--rose); stroke:none; }
+  .pcurve { stroke:var(--accent); stroke-width:1.9; fill:none; }
+  .snap { fill:var(--plum); stroke:none; }
+  .snapeb { stroke:var(--plum); stroke-width:1.3; fill:none; }
+  .resline { stroke:var(--teal); stroke-width:1.7; stroke-dasharray:7 5;
+    fill:none; }
+  .resband { fill:var(--teal); opacity:.16; stroke:none; }
+  .mixline { stroke:var(--ink); stroke-width:1.2; stroke-dasharray:2 4;
+    fill:none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Week 3 — Extension: Under a periodic drive, the time average over a whole cycle need not equal the fixed-phase ensemble</h1>
+<p class="meta">Author: Zheng Haobo · Week 3 (2026-09-21) · CCBS 2026</p>
+<p class="card"><strong>One sentence:</strong> For a birth–removal process whose addition channel is driven periodically as <math><mi>b</mi><mo>(</mo><mi>t</mi><mo>)</mo><mo>=</mo><msub><mi>b</mi><mn>0</mn></msub><mo>[</mo><mn>1</mn><mo>+</mo><mi>ε</mi><mo>sin</mo><mo>(</mo><mi>ω</mi><mi>t</mi><mo>)</mo><mo>]</mo></math>, the residence-time average taken along a single path over complete cycles estimates a "cycle mixture" — the phase average <math><mfrac><mn>1</mn><mi>T</mi></mfrac><msubsup><mo>∫</mo><mn>0</mn><mi>T</mi></msubsup><mi>p</mi><mo>(</mo><mi>t</mi><mo>)</mo><mi>d</mi><mi>t</mi></math>, one number — whereas the threshold probability of the fixed-phase ensemble, <math><mi>p</mi><mo>(</mo><mi>φ</mi><mo>)</mo><mo>=</mo><mi>Pr</mi><mo>{</mo><mi>Poisson</mi><mo>(</mo><msub><mi>m</mi><mtext>per</mtext></msub><mo>(</mo><mi>φ</mi><mo>)</mo><mo>)</mo><mo>≥</mo><mi>θ</mi><mo>}</mo></math>, is a function of phase. The two agree only in the degenerate case ε=0, or after the phase curve is itself averaged over phase; so there is no reason for a single-path estimate of the former to reproduce the latter.</p>
+<h2>The point I am adding</h2>
+<p>The estimator contract given in Lecture 5 separates two sampling operations: M independent paths sampled at the same physical instant estimate the fixed-time ensemble E[g(N(t))] and need no stationarity or ergodicity assumption; a single path weighted by the residence times of its holding intervals gives a time average, and reading that as a stationary ensemble needs an ergodicity assumption. Every worked record in the lecture — the four-minute record (N̄₄ = 2.05, 1̄<sub>N≥3</sub> = 0.05), the 20–30 minute window of the live demo, the 5000-path numerical comparison — is a time-homogeneous, constant-propensity case. At the same time, the exactness of the direct method rests on a single hypothesis: propensities stay fixed between reaction events — the state does not change between events, so the propensity does not change, so the waiting time comes from a fixed distribution, and only then is the two-uniform loop exact.</p>
+<p>This essay adds exactly one thing: an exogenous periodic drive on the addition channel, b(t)=b₀[1+ε·sin(ωt)], while removal stays γN. That moves two layers at once. <strong>Sampling layer</strong>: the addition propensity changes between events, so the "fixed distribution" premise fails and event times must be found by solving the integrated-hazard equation (a standard repair in the literature, not a contribution here). <strong>Estimation layer</strong>: the process no longer has a single stationary distribution, so the threshold probability becomes a function of phase, p(φ), while the complete-cycle time average is "one number" whose expectation is the phase mixture by linearity alone — that step needs no cycloergodicity assumption. The two estimators therefore have different targets: one converges to the mixture (one number), the other gives a phase curve. Treating the former as the latter is precisely the estimator–target mismatch that the L5 contract warns about, now carrying periodic structure. The autonomous periodic dynamics of L4 (repressilator, Poincaré–Bendixson periodic orbits) and the stationary estimators of L5 are background; the new extension is the phase-conditioned comparison under a periodic drive.</p>
+<p>Stated boundaries: the claim is only that the two "need not agree." At ε=0 they coincide (used below as a baseline check), and averaging the phase curve over phase also gives the mixture; b(t)≥b₀(1−ε)&gt;0 keeps the process from ever absorbing, so this is the benign case — no ergodicity failure is claimed here, unlike the core autocatalytic counterexample (ensemble mean identically 1, while the path mean tends to 0 along almost every path). Every number below comes from actually running the code embedded in this page (seeds fixed), and Monte Carlo errors are reported as they are.</p>
+<h2>Work it</h2>
+<p>The model and the two estimators are stated as a six-line contract (time in min, rates in min⁻¹; the code is at the end of this section, complete and runnable, with no external dependencies):</p>
+<ul>
+<li><strong>State.</strong> N∈{0,1,2,…}, the molecule count.</li>
+<li><strong>Events.</strong> addition ∅→N with a₊(t)=b₀[1+ε·sin(ωt)]; removal N→∅ with a₋(t,N)=γN; total hazard a₀=a₊+a₋.</li>
+<li><strong>Path (sampling repair).</strong> The next event time τ solves ∫<sub>t</sub><sup>t+τ</sup>a₀(s,N)ds=−ln u₁, with closed form</li>
+</ul>
+<math display="block"><mi>H</mi><mo>(</mo><mi>τ</mi><mo>)</mo><mo>=</mo><mo>(</mo><msub><mi>b</mi><mn>0</mn></msub><mo>+</mo><mi>γ</mi><mi>N</mi><mo>)</mo><mi>τ</mi><mo>+</mo><mfrac><mrow><msub><mi>b</mi><mn>0</mn></msub><mi>ε</mi></mrow><mi>ω</mi></mfrac><mo>[</mo><mi>cos</mi><mo>(</mo><mi>ω</mi><mi>t</mi><mo>)</mo><mo>−</mo><mi>cos</mi><mo>(</mo><mi>ω</mi><mo>(</mo><mi>t</mi><mo>+</mo><mi>τ</mi><mo>)</mo><mo>)</mo><mo>]</mo></math>
+<p style="margin-top:2px">ε&lt;1 guarantees a₀&gt;0 and a strictly increasing H, so the root is found by safeguarded Newton; the event channel is drawn with probability a₊(t+τ)/a₀(t+τ) — conditional on the event time, the channel odds equal the hazard ratio at that instant.</p>
+<ul>
+<li><strong>Observable and estimators.</strong> Y=1{N≥θ}, θ=4. <strong>A (residence)</strong>: after a burn-in of 10 complete cycles (80 min≫1/γ), count the threshold occupancy with the actual holding intervals, so that any interval crossing a phase or cycle boundary is credited to the part that lies inside, over K=40 complete cycles; M=2000 independent paths give one value each, reported as mean±SE (the SE comes from the number of paths, not the number of events). <strong>B (fixed-phase snapshot)</strong>: every path is sampled exactly once per recorded cycle at phase φᵢ=2πi/8, giving a per-path frequency, and then a mean±SE over the M paths.</li>
+<li><strong>Parameters.</strong> b₀=2, ε=0.6, ω=2π/8 (period 8 min), γ=1, N(0)=0, seed=20260915.</li>
+</ul>
+<p>Analytic benchmark (specific to immigration–death, and exact): N(t) stays Poisson, its mean m(t) solves m′(t)=b(t)−γm(t), and the periodic steady state is the closed form</p>
+<math display="block"><msub><mi>m</mi><mtext>per</mtext></msub><mo>(</mo><mi>t</mi><mo>)</mo><mo>=</mo><mfrac><msub><mi>b</mi><mn>0</mn></msub><mi>γ</mi></mfrac><mo>+</mo><mfrac><mrow><msub><mi>b</mi><mn>0</mn></msub><mi>ε</mi></mrow><msqrt><msup><mi>γ</mi><mn>2</mn></msup><mo>+</mo><msup><mi>ω</mi><mn>2</mn></msup></msqrt></mfrac><mi>sin</mi><mo>(</mo><mi>ω</mi><mi>t</mi><mo>−</mo><mi>arctan</mi><mfrac><mi>ω</mi><mi>γ</mi></mfrac><mo>)</mo></math>
+<p style="margin-top:2px">The code integrates m(0)=m<sub>per</sub>(0) by RK4 over 40 cycles and compares the result with this closed form (maximum deviation 1.2e-12), and the Poisson survival function is checked against the hand-computed Pr{Pois(2)≥4}=0.14288. Both p(φ) and the phase mixture can therefore be computed exactly, independently of the simulation — each estimator's target gets its own reference answer.</p>
+<p><strong>Results</strong> (actually run, about 3.20 million events per experiment). <strong>ε=0 baseline</strong>: analytic p=0.1429; A=0.1425±0.0005, 0.7 SE away from the analytic mixture; all 8 phase snapshots lie within 1.9 SE of the analytic value — the three objects coincide, and with the drive switched off there is no phase structure. <strong>ε=0.6 main experiment</strong>: p(φ) runs from a peak of 0.3384±0.0017 (φ=3π/4) to a trough of 0.0227±0.0005 (φ=7π/4), a ratio of about 15; A=0.1619±0.0005, only 0.9 SE away from the analytic mixture 0.1624. But A differs from the peak by about 344 SE (measured in A's SE) and from the trough by about 272 SE; A also differs from the value obtained by freezing the drive at its mean, b₀/γ, which gives 0.1429 (about 38 SE — p is convex in m, so by Jensen's inequality the cycle mixture lies above the value at the mean). The peak and the trough are two points on the fixed-phase ensemble curve; A is the phase average of that curve. Two objects, and numerically there is no reason for them to be equal.</p>
+<figure>
+<svg class="fig" viewBox="0 0 760 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="periodic hazard and phase-resolved probability"><line x1="66.0" y1="244.0" x2="346.0" y2="244.0" class="ax"/><line x1="66.0" y1="48.0" x2="66.0" y2="244.0" class="ax"/><line x1="66.0" y1="204.8" x2="346.0" y2="204.8" class="tick"/><text x="60.0" y="208.8" class="axtext" text-anchor="end">2</text><line x1="66.0" y1="165.6" x2="346.0" y2="165.6" class="tick"/><text x="60.0" y="169.6" class="axtext" text-anchor="end">4</text><line x1="66.0" y1="126.4" x2="346.0" y2="126.4" class="tick"/><text x="60.0" y="130.4" class="axtext" text-anchor="end">6</text><line x1="66.0" y1="87.2" x2="346.0" y2="87.2" class="tick"/><text x="60.0" y="91.2" class="axtext" text-anchor="end">8</text><line x1="66.0" y1="48.0" x2="346.0" y2="48.0" class="tick"/><text x="60.0" y="52.0" class="axtext" text-anchor="end">10</text><line x1="66.0" y1="244.0" x2="66.0" y2="248.0" class="ax"/><text x="66.0" y="260.0" class="axtext" text-anchor="middle">0</text><line x1="136.0" y1="244.0" x2="136.0" y2="248.0" class="ax"/><text x="136.0" y="260.0" class="axtext" text-anchor="middle">4</text><line x1="206.0" y1="244.0" x2="206.0" y2="248.0" class="ax"/><text x="206.0" y="260.0" class="axtext" text-anchor="middle">8</text><line x1="276.0" y1="244.0" x2="276.0" y2="248.0" class="ax"/><text x="276.0" y="260.0" class="axtext" text-anchor="middle">12</text><line x1="346.0" y1="244.0" x2="346.0" y2="248.0" class="ax"/><text x="346.0" y="260.0" class="axtext" text-anchor="middle">16</text><line x1="206.0" y1="48.0" x2="206.0" y2="244.0" class="cycle"/><text x="206.0" y="276.0" class="axtext" text-anchor="middle">t (min)</text><text x="32.0" y="146.0" class="axtext" text-anchor="middle" transform="rotate(-90 32.0 146.0)">a₀(t) (1/min)</text><text x="68.0" y="38.0" class="ptitle" text-anchor="start">(a) total hazard along one path, with events</text><path d="M 66.00,185.20 L 66.19,185.00 L 66.37,184.80 L 66.37,165.20 L 67.14,164.40 L 67.90,163.59 L 68.67,162.79 L 69.43,161.99 L 70.19,161.20 L 70.96,160.41 L 71.72,159.63 L 72.48,158.85 L 73.25,158.08 L 73.25,177.68 L 73.96,176.98 L 74.67,176.28 L 75.38,175.59 L 76.09,174.91 L 76.81,174.24 L 77.52,173.58 L 78.23,172.93 L 78.94,172.30 L 79.65,171.67 L 80.36,171.07 L 81.08,170.47 L 81.79,169.90 L 82.50,169.33 L 83.21,168.79 L 83.21,149.19 L 83.46,149.00 L 83.72,148.81 L 83.72,168.41 L 84.51,167.83 L 85.31,167.28 L 85.31,147.68 L 86.03,147.19 L 86.76,146.72 L 87.49,146.27 L 88.22,145.85 L 88.94,145.44 L 89.67,145.06 L 90.40,144.69 L 91.13,144.35 L 91.85,144.03 L 92.58,143.74 L 93.31,143.47 L 93.31,123.87 L 93.50,123.80 L 93.69,123.73 L 93.69,143.33 L 94.42,143.10 L 95.15,142.89 L 95.88,142.70 L 96.61,142.54 L 97.33,142.40 L 98.06,142.28 L 98.79,142.20 L 98.79,122.60 L 99.61,122.53 L 100.43,122.49 L 101.26,122.48 L 101.26,142.08 L 102.00,142.10 L 102.74,142.15 L 103.48,142.23 L 104.23,142.33 L 104.97,142.45 L 105.71,142.60 L 106.45,142.78 L 107.20,142.98 L 107.94,143.21 L 108.68,143.46 L 109.43,143.74 L 110.17,144.04 L 110.17,124.44 L 111.00,124.81 L 111.83,125.20 L 111.83,144.80 L 112.56,145.17 L 113.28,145.56 L 114.01,145.98 L 114.73,146.41 L 115.46,146.86 L 116.19,147.33 L 116.91,147.83 L 117.64,148.34 L 118.36,148.87 L 118.36,129.27 L 118.93,129.69 L 119.49,130.12 L 119.49,110.52 L 119.87,110.82 L 120.25,111.13 L 120.25,130.73 L 120.33,130.79 L 120.40,130.85 L 120.40,150.45 L 121.11,151.03 L 121.83,151.63 L 122.54,152.24 L 123.26,152.87 L 123.97,153.51 L 124.68,154.16 L 125.40,154.82 L 126.11,155.50 L 126.82,156.19 L 127.54,156.88 L 128.25,157.58 L 128.96,158.30 L 129.68,159.02 L 130.39,159.74 L 130.39,140.14 L 131.19,140.96 L 131.98,141.78 L 132.78,142.61 L 133.58,143.45 L 134.37,144.28 L 135.17,145.12 L 135.96,145.96 L 135.96,165.56 L 136.65,166.29 L 137.34,167.01 L 137.34,147.41 L 138.19,148.31 L 139.04,149.20 L 139.04,168.80 L 139.18,168.95 L 139.32,169.09 L 139.32,149.49 L 139.81,150.01 L 140.31,150.52 L 140.31,130.92 L 141.15,131.78 L 141.99,132.64 L 142.82,133.49 L 143.66,134.33 L 144.50,135.16 L 144.50,154.76 L 145.23,155.47 L 145.97,156.18 L 146.70,156.87 L 147.44,157.55 L 148.17,158.22 L 148.91,158.88 L 149.65,159.52 L 150.38,160.15 L 151.12,160.76 L 151.85,161.36 L 152.59,161.93 L 153.32,162.50 L 154.06,163.04 L 154.79,163.57 L 155.53,164.07 L 156.26,164.56 L 157.00,165.03 L 157.00,184.63 L 157.91,185.17 L 158.82,185.69 L 159.73,186.17 L 159.73,205.77 L 160.46,206.14 L 161.19,206.48 L 161.92,206.79 L 162.65,207.09 L 163.38,207.36 L 164.11,207.60 L 164.83,207.83 L 165.56,208.02 L 166.29,208.20 L 167.02,208.35 L 167.75,208.47 L 167.75,188.87 L 168.38,188.96 L 169.01,189.03 L 169.01,208.63 L 169.73,208.68 L 170.44,208.71 L 171.16,208.72 L 171.88,208.70 L 172.59,208.66 L 173.31,208.59 L 174.03,208.50 L 174.74,208.39 L 175.46,208.25 L 176.18,208.09 L 176.90,207.90 L 177.61,207.69 L 178.33,207.46 L 179.05,207.20 L 179.76,206.92 L 180.48,206.62 L 181.20,206.30 L 181.91,205.95 L 182.63,205.59 L 183.35,205.20 L 184.07,204.79 L 184.78,204.36 L 185.50,203.91 L 186.22,203.45 L 186.93,202.96 L 186.93,183.36 L 187.78,182.76 L 188.62,182.14 L 189.47,181.49 L 189.47,201.09 L 190.26,200.47 L 191.04,199.83 L 191.83,199.17 L 192.61,198.50 L 193.40,197.81 L 193.40,217.41 L 193.60,217.22 L 193.80,217.04 L 193.80,197.44 L 194.55,196.76 L 195.30,196.07 L 196.04,195.37 L 196.79,194.65 L 197.53,193.93 L 198.28,193.19 L 199.02,192.45 L 199.77,191.69 L 200.51,190.93 L 201.26,190.17 L 202.00,189.40 L 202.75,188.62 L 203.49,187.84 L 203.49,168.24 L 204.27,167.42 L 205.05,166.60 L 205.83,165.78 L 206.61,164.96 L 207.39,164.13 L 208.17,163.32 L 208.17,182.92 L 208.88,182.17 L 209.59,181.42 L 210.31,180.68 L 211.02,179.94 L 211.73,179.21 L 212.45,178.49 L 213.16,177.77 L 213.87,177.06 L 214.59,176.36 L 215.30,175.67 L 216.01,174.98 L 216.73,174.31 L 217.44,173.65 L 218.15,173.00 L 218.87,172.36 L 219.58,171.74 L 219.58,152.14 L 220.30,151.52 L 221.03,150.91 L 221.75,150.32 L 222.48,149.75 L 223.20,149.19 L 223.93,148.65 L 224.65,148.13 L 225.38,147.63 L 225.38,128.03 L 226.14,127.52 L 226.91,127.03 L 227.67,126.56 L 228.44,126.12 L 229.20,125.70 L 229.97,125.30 L 229.97,144.90 L 229.97,144.90 L 229.97,144.90 L 229.97,125.30 L 230.15,125.22 L 230.32,125.13 L 230.32,105.53 L 231.07,105.18 L 231.82,104.85 L 232.57,104.54 L 232.57,124.14 L 232.68,124.10 L 232.79,124.06 L 232.79,143.66 L 233.50,143.40 L 234.21,143.16 L 234.91,142.95 L 235.62,142.76 L 236.33,142.59 L 237.04,142.45 L 237.75,142.33 L 238.46,142.23 L 239.17,142.16 L 239.88,142.11 L 240.58,142.08 L 241.29,142.08 L 242.00,142.10 L 242.71,142.15 L 243.42,142.22 L 244.13,142.31 L 244.13,122.71 L 244.53,122.77 L 244.93,122.84 L 244.93,103.24 L 245.68,103.40 L 246.43,103.58 L 246.43,83.98 L 247.40,84.24 L 248.36,84.55 L 248.36,64.95 L 249.14,65.23 L 249.93,65.55 L 250.72,65.88 L 250.72,85.48 L 251.77,85.97 L 252.81,86.51 L 252.81,106.11 L 253.67,106.58 L 254.52,107.08 L 254.52,87.48 L 255.27,87.94 L 256.02,88.42 L 256.76,88.93 L 257.51,89.45 L 258.26,89.99 L 259.01,90.55 L 259.76,91.13 L 259.76,110.73 L 260.52,111.34 L 261.28,111.97 L 262.04,112.61 L 262.81,113.27 L 262.81,132.87 L 263.51,133.49 L 264.21,134.13 L 264.91,134.77 L 265.62,135.43 L 266.32,136.10 L 267.02,136.78 L 267.72,137.46 L 268.43,138.16 L 269.13,138.86 L 269.83,139.57 L 270.53,140.29 L 271.24,141.01 L 271.94,141.74 L 272.64,142.47 L 273.34,143.20 L 274.05,143.94 L 274.75,144.68 L 275.45,145.42 L 276.15,146.16 L 276.86,146.90 L 277.56,147.64 L 278.26,148.38 L 278.96,149.12 L 279.67,149.85 L 280.37,150.58 L 280.37,170.18 L 281.12,170.96 L 281.88,171.73 L 282.63,172.50 L 283.39,173.26 L 283.39,153.66 L 284.28,154.54 L 285.17,155.41 L 286.06,156.27 L 286.06,175.87 L 286.69,176.46 L 287.32,177.04 L 287.32,196.64 L 288.03,197.29 L 288.73,197.92 L 289.43,198.54 L 290.14,199.14 L 290.84,199.73 L 291.54,200.31 L 292.25,200.87 L 292.95,201.42 L 293.66,201.95 L 294.36,202.46 L 295.06,202.96 L 295.77,203.43 L 296.47,203.89 L 297.17,204.34 L 297.88,204.76 L 298.58,205.16 L 299.28,205.54 L 299.99,205.91 L 300.69,206.25 L 301.40,206.57 L 301.40,186.97 L 301.41,186.97 L 301.42,186.98 L 301.42,206.58 L 302.14,206.88 L 302.85,207.17 L 303.57,207.42 L 304.28,207.66 L 305.00,207.87 L 305.71,208.06 L 306.42,208.23 L 307.14,208.37 L 307.85,208.49 L 307.85,228.09 L 308.57,228.18 L 309.28,228.25 L 310.00,228.30 L 310.71,228.32 L 311.43,228.32 L 312.14,228.29 L 312.86,228.24 L 313.57,228.16 L 314.29,228.06 L 315.00,227.94 L 315.72,227.80 L 316.43,227.62 L 317.15,227.43 L 317.86,227.21 L 318.57,226.97 L 319.29,226.71 L 320.00,226.43 L 320.72,226.12 L 321.43,225.79 L 322.15,225.44 L 322.86,225.06 L 323.58,224.67 L 324.29,224.26 L 325.01,223.82 L 325.72,223.37 L 326.44,222.90 L 327.15,222.41 L 327.15,202.81 L 327.98,202.21 L 328.81,201.60 L 329.64,200.96 L 330.47,200.30 L 331.30,199.62 L 331.30,180.02 L 332.04,179.39 L 332.79,178.74 L 333.53,178.09 L 334.27,177.41 L 335.02,176.73 L 335.76,176.03 L 335.76,156.43 L 336.11,156.10 L 336.46,155.77 L 336.46,175.37 L 337.44,174.41 L 338.43,173.44 L 338.43,193.04 L 339.17,192.30 L 339.91,191.55 L 340.66,190.79 L 341.40,190.02 L 342.14,189.25 L 342.88,188.48 L 343.63,187.70 L 344.37,186.92 L 345.11,186.14 L 345.86,185.35 L 345.86,165.75 L 345.93,165.68 L 346.00,165.60" class="haz"/><circle cx="66.37" cy="184.80" r="2.4" class="evt"/><circle cx="73.25" cy="158.08" r="2.4" class="evt"/><circle cx="83.21" cy="168.79" r="2.4" class="evt"/><circle cx="83.72" cy="148.81" r="2.4" class="evt"/><circle cx="85.31" cy="167.28" r="2.4" class="evt"/><circle cx="93.31" cy="143.47" r="2.4" class="evt"/><circle cx="93.69" cy="123.73" r="2.4" class="evt"/><circle cx="98.79" cy="142.20" r="2.4" class="evt"/><circle cx="101.26" cy="122.48" r="2.4" class="evt"/><circle cx="110.17" cy="144.04" r="2.4" class="evt"/><circle cx="111.83" cy="125.20" r="2.4" class="evt"/><circle cx="118.36" cy="148.87" r="2.4" class="evt"/><circle cx="119.49" cy="130.12" r="2.4" class="evt"/><circle cx="120.25" cy="111.13" r="2.4" class="evt"/><circle cx="120.40" cy="130.85" r="2.4" class="evt"/><circle cx="130.39" cy="159.74" r="2.4" class="evt"/><circle cx="135.96" cy="145.96" r="2.4" class="evt"/><circle cx="137.34" cy="167.01" r="2.4" class="evt"/><circle cx="139.04" cy="149.20" r="2.4" class="evt"/><circle cx="139.32" cy="169.09" r="2.4" class="evt"/><circle cx="140.31" cy="150.52" r="2.4" class="evt"/><circle cx="144.50" cy="135.16" r="2.4" class="evt"/><circle cx="157.00" cy="165.03" r="2.4" class="evt"/><circle cx="159.73" cy="186.17" r="2.4" class="evt"/><circle cx="167.75" cy="208.47" r="2.4" class="evt"/><circle cx="169.01" cy="189.03" r="2.4" class="evt"/><circle cx="186.93" cy="202.96" r="2.4" class="evt"/><circle cx="189.47" cy="181.49" r="2.4" class="evt"/><circle cx="193.40" cy="197.81" r="2.4" class="evt"/><circle cx="193.80" cy="217.04" r="2.4" class="evt"/><circle cx="203.49" cy="187.84" r="2.4" class="evt"/><circle cx="208.17" cy="163.32" r="2.4" class="evt"/><circle cx="219.58" cy="171.74" r="2.4" class="evt"/><circle cx="225.38" cy="147.63" r="2.4" class="evt"/><circle cx="229.97" cy="125.30" r="2.4" class="evt"/><circle cx="229.97" cy="144.90" r="2.4" class="evt"/><circle cx="230.32" cy="125.13" r="2.4" class="evt"/><circle cx="232.57" cy="104.54" r="2.4" class="evt"/><circle cx="232.79" cy="124.06" r="2.4" class="evt"/><circle cx="244.13" cy="142.31" r="2.4" class="evt"/><circle cx="244.93" cy="122.84" r="2.4" class="evt"/><circle cx="246.43" cy="103.58" r="2.4" class="evt"/><circle cx="248.36" cy="84.55" r="2.4" class="evt"/><circle cx="250.72" cy="65.88" r="2.4" class="evt"/><circle cx="252.81" cy="86.51" r="2.4" class="evt"/><circle cx="254.52" cy="107.08" r="2.4" class="evt"/><circle cx="259.76" cy="91.13" r="2.4" class="evt"/><circle cx="262.81" cy="113.27" r="2.4" class="evt"/><circle cx="280.37" cy="150.58" r="2.4" class="evt"/><circle cx="283.39" cy="173.26" r="2.4" class="evt"/><circle cx="286.06" cy="156.27" r="2.4" class="evt"/><circle cx="287.32" cy="177.04" r="2.4" class="evt"/><circle cx="301.40" cy="206.57" r="2.4" class="evt"/><circle cx="301.42" cy="186.98" r="2.4" class="evt"/><circle cx="307.85" cy="208.49" r="2.4" class="evt"/><circle cx="327.15" cy="222.41" r="2.4" class="evt"/><circle cx="331.30" cy="199.62" r="2.4" class="evt"/><circle cx="335.76" cy="176.03" r="2.4" class="evt"/><circle cx="336.46" cy="155.77" r="2.4" class="evt"/><circle cx="338.43" cy="173.44" r="2.4" class="evt"/><circle cx="345.86" cy="185.35" r="2.4" class="evt"/><line x1="448.0" y1="244.0" x2="728.0" y2="244.0" class="ax"/><line x1="448.0" y1="48.0" x2="448.0" y2="244.0" class="ax"/><line x1="448.0" y1="244.0" x2="728.0" y2="244.0" class="tick"/><text x="442.0" y="248.0" class="axtext" text-anchor="end">0.0</text><line x1="448.0" y1="195.0" x2="728.0" y2="195.0" class="tick"/><text x="442.0" y="199.0" class="axtext" text-anchor="end">0.1</text><line x1="448.0" y1="146.0" x2="728.0" y2="146.0" class="tick"/><text x="442.0" y="150.0" class="axtext" text-anchor="end">0.2</text><line x1="448.0" y1="97.0" x2="728.0" y2="97.0" class="tick"/><text x="442.0" y="101.0" class="axtext" text-anchor="end">0.3</text><line x1="448.0" y1="48.0" x2="728.0" y2="48.0" class="tick"/><text x="442.0" y="52.0" class="axtext" text-anchor="end">0.4</text><line x1="448.0" y1="244.0" x2="448.0" y2="248.0" class="ax"/><text x="448.0" y="260.0" class="axtext" text-anchor="middle">0</text><line x1="518.0" y1="244.0" x2="518.0" y2="248.0" class="ax"/><text x="518.0" y="260.0" class="axtext" text-anchor="middle">π/2</text><line x1="588.0" y1="244.0" x2="588.0" y2="248.0" class="ax"/><text x="588.0" y="260.0" class="axtext" text-anchor="middle">π</text><line x1="658.0" y1="244.0" x2="658.0" y2="248.0" class="ax"/><text x="658.0" y="260.0" class="axtext" text-anchor="middle">3π/2</text><line x1="728.0" y1="244.0" x2="728.0" y2="248.0" class="ax"/><text x="728.0" y="260.0" class="axtext" text-anchor="middle">2π</text><text x="588.0" y="276.0" class="axtext" text-anchor="middle">phase φ</text><text x="414.0" y="146.0" class="axtext" text-anchor="middle" transform="rotate(-90 414.0 146.0)">Pr{N ≥ θ}</text><text x="450.0" y="38.0" class="ptitle" text-anchor="start">(b) phase-resolved Pr{N ≥ θ}</text><rect x="448.0" y="164.4" width="280.0" height="1.0" class="resband"/><line x1="448.0" y1="164.7" x2="728.0" y2="164.7" class="resline"/><line x1="448.0" y1="164.4" x2="728.0" y2="164.4" class="mixline"/><path d="M 448.00,216.72 L 449.40,215.37 L 450.80,213.96 L 452.20,212.48 L 453.60,210.92 L 455.00,209.30 L 456.40,207.61 L 457.80,205.85 L 459.20,204.02 L 460.60,202.12 L 462.00,200.15 L 463.40,198.12 L 464.80,196.02 L 466.20,193.86 L 467.60,191.63 L 469.00,189.34 L 470.40,187.00 L 471.80,184.60 L 473.20,182.14 L 474.60,179.64 L 476.00,177.09 L 477.40,174.49 L 478.80,171.86 L 480.20,169.19 L 481.60,166.49 L 483.00,163.76 L 484.40,161.01 L 485.80,158.24 L 487.20,155.45 L 488.60,152.66 L 490.00,149.86 L 491.40,147.05 L 492.80,144.25 L 494.20,141.46 L 495.60,138.68 L 497.00,135.92 L 498.40,133.18 L 499.80,130.46 L 501.20,127.77 L 502.60,125.12 L 504.00,122.51 L 505.40,119.94 L 506.80,117.42 L 508.20,114.94 L 509.60,112.53 L 511.00,110.16 L 512.40,107.86 L 513.80,105.63 L 515.20,103.46 L 516.60,101.36 L 518.00,99.34 L 519.40,97.39 L 520.80,95.52 L 522.20,93.73 L 523.60,92.03 L 525.00,90.41 L 526.40,88.87 L 527.80,87.43 L 529.20,86.08 L 530.60,84.82 L 532.00,83.65 L 533.40,82.58 L 534.80,81.61 L 536.20,80.73 L 537.60,79.95 L 539.00,79.27 L 540.40,78.69 L 541.80,78.22 L 543.20,77.84 L 544.60,77.57 L 546.00,77.39 L 547.40,77.32 L 548.80,77.35 L 550.20,77.49 L 551.60,77.72 L 553.00,78.06 L 554.40,78.50 L 555.80,79.04 L 557.20,79.68 L 558.60,80.42 L 560.00,81.26 L 561.40,82.19 L 562.80,83.23 L 564.20,84.36 L 565.60,85.58 L 567.00,86.90 L 568.40,88.31 L 569.80,89.81 L 571.20,91.39 L 572.60,93.07 L 574.00,94.82 L 575.40,96.66 L 576.80,98.58 L 578.20,100.58 L 579.60,102.65 L 581.00,104.79 L 582.40,107.00 L 583.80,109.27 L 585.20,111.61 L 586.60,114.01 L 588.00,116.46 L 589.40,118.96 L 590.80,121.52 L 592.20,124.11 L 593.60,126.75 L 595.00,129.42 L 596.40,132.13 L 597.80,134.86 L 599.20,137.62 L 600.60,140.39 L 602.00,143.18 L 603.40,145.97 L 604.80,148.78 L 606.20,151.58 L 607.60,154.38 L 609.00,157.17 L 610.40,159.95 L 611.80,162.71 L 613.20,165.45 L 614.60,168.16 L 616.00,170.84 L 617.40,173.49 L 618.80,176.10 L 620.20,178.66 L 621.60,181.18 L 623.00,183.66 L 624.40,186.08 L 625.80,188.45 L 627.20,190.76 L 628.60,193.01 L 630.00,195.20 L 631.40,197.32 L 632.80,199.38 L 634.20,201.37 L 635.60,203.30 L 637.00,205.16 L 638.40,206.94 L 639.80,208.66 L 641.20,210.31 L 642.60,211.89 L 644.00,213.40 L 645.40,214.84 L 646.80,216.21 L 648.20,217.52 L 649.60,218.76 L 651.00,219.93 L 652.40,221.04 L 653.80,222.09 L 655.20,223.08 L 656.60,224.02 L 658.00,224.89 L 659.40,225.71 L 660.80,226.47 L 662.20,227.19 L 663.60,227.85 L 665.00,228.46 L 666.40,229.03 L 667.80,229.56 L 669.20,230.04 L 670.60,230.48 L 672.00,230.87 L 673.40,231.23 L 674.80,231.55 L 676.20,231.84 L 677.60,232.09 L 679.00,232.30 L 680.40,232.49 L 681.80,232.63 L 683.20,232.75 L 684.60,232.83 L 686.00,232.89 L 687.40,232.91 L 688.80,232.90 L 690.20,232.86 L 691.60,232.79 L 693.00,232.68 L 694.40,232.55 L 695.80,232.38 L 697.20,232.18 L 698.60,231.94 L 700.00,231.67 L 701.40,231.36 L 702.80,231.02 L 704.20,230.63 L 705.60,230.21 L 707.00,229.75 L 708.40,229.24 L 709.80,228.69 L 711.20,228.09 L 712.60,227.45 L 714.00,226.75 L 715.40,226.01 L 716.80,225.21 L 718.20,224.36 L 719.60,223.45 L 721.00,222.48 L 722.40,221.46 L 723.80,220.37 L 725.20,219.22 L 726.60,218.00" class="pcurve"/><line x1="448.0" y1="216.8" x2="448.0" y2="217.6" class="snapeb"/><line x1="445.0" y1="216.8" x2="451.0" y2="216.8" class="snapeb"/><line x1="445.0" y1="217.6" x2="451.0" y2="217.6" class="snapeb"/><line x1="483.0" y1="163.8" x2="483.0" y2="165.1" class="snapeb"/><line x1="480.0" y1="163.8" x2="486.0" y2="163.8" class="snapeb"/><line x1="480.0" y1="165.1" x2="486.0" y2="165.1" class="snapeb"/><line x1="518.0" y1="99.4" x2="518.0" y2="101.0" class="snapeb"/><line x1="515.0" y1="99.4" x2="521.0" y2="99.4" class="snapeb"/><line x1="515.0" y1="101.0" x2="521.0" y2="101.0" class="snapeb"/><line x1="553.0" y1="77.3" x2="553.0" y2="79.0" class="snapeb"/><line x1="550.0" y1="77.3" x2="556.0" y2="77.3" class="snapeb"/><line x1="550.0" y1="79.0" x2="556.0" y2="79.0" class="snapeb"/><line x1="588.0" y1="114.8" x2="588.0" y2="116.3" class="snapeb"/><line x1="585.0" y1="114.8" x2="591.0" y2="114.8" class="snapeb"/><line x1="585.0" y1="116.3" x2="591.0" y2="116.3" class="snapeb"/><line x1="623.0" y1="183.2" x2="623.0" y2="184.3" class="snapeb"/><line x1="620.0" y1="183.2" x2="626.0" y2="183.2" class="snapeb"/><line x1="620.0" y1="184.3" x2="626.0" y2="184.3" class="snapeb"/><line x1="658.0" y1="224.6" x2="658.0" y2="225.2" class="snapeb"/><line x1="655.0" y1="224.6" x2="661.0" y2="224.6" class="snapeb"/><line x1="655.0" y1="225.2" x2="661.0" y2="225.2" class="snapeb"/><line x1="693.0" y1="232.6" x2="693.0" y2="233.2" class="snapeb"/><line x1="690.0" y1="232.6" x2="696.0" y2="232.6" class="snapeb"/><line x1="690.0" y1="233.2" x2="696.0" y2="233.2" class="snapeb"/><circle cx="448.00" cy="217.22" r="2.4" class="snap"/><circle cx="483.00" cy="164.47" r="2.4" class="snap"/><circle cx="518.00" cy="100.17" r="2.4" class="snap"/><circle cx="553.00" cy="78.17" r="2.4" class="snap"/><circle cx="588.00" cy="115.58" r="2.4" class="snap"/><circle cx="623.00" cy="183.74" r="2.4" class="snap"/><circle cx="658.00" cy="224.90" r="2.4" class="snap"/><circle cx="693.00" cy="232.89" r="2.4" class="snap"/></svg>
+<figcaption>Figure 1: the ε=0.6 main experiment. (a) One example path over two cycles (8 min each) after burn-in, showing the total hazard a₀(t)=b(t)+γN(t): the curve drifts continuously between events (this is exactly the "propensity fixed between events" premise that breaks), the vertical dashed line marks the cycle boundary, and pink dots are events. (b) Phase-resolved threshold probability: the deep-blue solid line is the analytic Poisson benchmark p(φ); purple points are the fixed-phase snapshot ensemble (vertical bars are ±1 SE over 2000 independent paths); the teal dashed line is the single-path complete-cycle residence average (pale band is ±1 SE); the black dotted line is the analytic cycle mixture. The figure is generated by the code embedded in this page (seed=20260915, M=2000, K=40, θ=4).</figcaption>
+</figure>
+<figure>
+<svg class="fig" viewBox="0 0 760 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="periodic hazard and phase-resolved probability"><line x1="66.0" y1="244.0" x2="346.0" y2="244.0" class="ax"/><line x1="66.0" y1="48.0" x2="66.0" y2="244.0" class="ax"/><line x1="66.0" y1="204.8" x2="346.0" y2="204.8" class="tick"/><text x="60.0" y="208.8" class="axtext" text-anchor="end">2</text><line x1="66.0" y1="165.6" x2="346.0" y2="165.6" class="tick"/><text x="60.0" y="169.6" class="axtext" text-anchor="end">4</text><line x1="66.0" y1="126.4" x2="346.0" y2="126.4" class="tick"/><text x="60.0" y="130.4" class="axtext" text-anchor="end">6</text><line x1="66.0" y1="87.2" x2="346.0" y2="87.2" class="tick"/><text x="60.0" y="91.2" class="axtext" text-anchor="end">8</text><line x1="66.0" y1="48.0" x2="346.0" y2="48.0" class="tick"/><text x="60.0" y="52.0" class="axtext" text-anchor="end">10</text><line x1="66.0" y1="244.0" x2="66.0" y2="248.0" class="ax"/><text x="66.0" y="260.0" class="axtext" text-anchor="middle">0</text><line x1="136.0" y1="244.0" x2="136.0" y2="248.0" class="ax"/><text x="136.0" y="260.0" class="axtext" text-anchor="middle">4</text><line x1="206.0" y1="244.0" x2="206.0" y2="248.0" class="ax"/><text x="206.0" y="260.0" class="axtext" text-anchor="middle">8</text><line x1="276.0" y1="244.0" x2="276.0" y2="248.0" class="ax"/><text x="276.0" y="260.0" class="axtext" text-anchor="middle">12</text><line x1="346.0" y1="244.0" x2="346.0" y2="248.0" class="ax"/><text x="346.0" y="260.0" class="axtext" text-anchor="middle">16</text><line x1="206.0" y1="48.0" x2="206.0" y2="244.0" class="cycle"/><text x="206.0" y="276.0" class="axtext" text-anchor="middle">t (min)</text><text x="32.0" y="146.0" class="axtext" text-anchor="middle" transform="rotate(-90 32.0 146.0)">a₀(t) (1/min)</text><text x="68.0" y="38.0" class="ptitle" text-anchor="start">(a) total hazard along one path, with events</text><path d="M 66.00,185.20 L 66.73,185.20 L 67.45,185.20 L 68.18,185.20 L 68.90,185.20 L 69.63,185.20 L 70.36,185.20 L 71.08,185.20 L 71.81,185.20 L 72.53,185.20 L 73.26,185.20 L 73.99,185.20 L 74.71,185.20 L 75.44,185.20 L 75.44,204.80 L 76.16,204.80 L 76.87,204.80 L 77.59,204.80 L 78.31,204.80 L 79.03,204.80 L 79.75,204.80 L 80.47,204.80 L 81.19,204.80 L 81.91,204.80 L 82.63,204.80 L 83.34,204.80 L 84.06,204.80 L 84.78,204.80 L 85.50,204.80 L 86.22,204.80 L 86.94,204.80 L 87.66,204.80 L 88.38,204.80 L 89.09,204.80 L 89.81,204.80 L 90.53,204.80 L 91.25,204.80 L 91.97,204.80 L 92.69,204.80 L 92.69,185.20 L 93.41,185.20 L 94.13,185.20 L 94.84,185.20 L 95.56,185.20 L 96.28,185.20 L 97.00,185.20 L 97.72,185.20 L 98.44,185.20 L 99.16,185.20 L 99.87,185.20 L 100.59,185.20 L 101.31,185.20 L 102.03,185.20 L 102.75,185.20 L 103.47,185.20 L 104.19,185.20 L 104.91,185.20 L 105.62,185.20 L 106.34,185.20 L 107.06,185.20 L 107.78,185.20 L 108.50,185.20 L 109.22,185.20 L 109.94,185.20 L 110.65,185.20 L 111.37,185.20 L 111.37,204.80 L 112.11,204.80 L 112.84,204.80 L 113.57,204.80 L 114.30,204.80 L 115.03,204.80 L 115.77,204.80 L 116.50,204.80 L 117.23,204.80 L 117.96,204.80 L 118.70,204.80 L 119.43,204.80 L 120.16,204.80 L 120.89,204.80 L 121.63,204.80 L 122.36,204.80 L 123.09,204.80 L 123.09,185.20 L 123.79,185.20 L 124.50,185.20 L 125.20,185.20 L 125.90,185.20 L 126.61,185.20 L 127.31,185.20 L 128.01,185.20 L 128.71,185.20 L 129.42,185.20 L 130.12,185.20 L 130.82,185.20 L 131.53,185.20 L 132.23,185.20 L 132.93,185.20 L 133.64,185.20 L 133.64,204.80 L 134.37,204.80 L 135.11,204.80 L 135.85,204.80 L 136.58,204.80 L 137.32,204.80 L 138.06,204.80 L 138.79,204.80 L 139.53,204.80 L 140.27,204.80 L 141.01,204.80 L 141.74,204.80 L 141.74,185.20 L 142.51,185.20 L 143.27,185.20 L 144.04,185.20 L 144.81,185.20 L 145.57,185.20 L 146.34,185.20 L 147.10,185.20 L 147.10,165.60 L 147.85,165.60 L 148.60,165.60 L 149.34,165.60 L 150.09,165.60 L 150.83,165.60 L 151.58,165.60 L 152.33,165.60 L 153.07,165.60 L 153.82,165.60 L 154.57,165.60 L 155.31,165.60 L 155.31,185.20 L 155.33,185.20 L 155.34,185.20 L 155.34,165.60 L 156.12,165.60 L 156.91,165.60 L 157.69,165.60 L 158.48,165.60 L 159.27,165.60 L 160.05,165.60 L 160.05,185.20 L 160.76,185.20 L 161.46,185.20 L 162.17,185.20 L 162.87,185.20 L 163.57,185.20 L 164.28,185.20 L 164.98,185.20 L 165.69,185.20 L 166.39,185.20 L 167.10,185.20 L 167.80,185.20 L 168.51,185.20 L 169.21,185.20 L 169.91,185.20 L 170.62,185.20 L 171.32,185.20 L 172.03,185.20 L 172.73,185.20 L 172.73,165.60 L 173.50,165.60 L 174.26,165.60 L 175.03,165.60 L 175.79,165.60 L 176.56,165.60 L 177.32,165.60 L 177.32,146.00 L 178.03,146.00 L 178.73,146.00 L 179.44,146.00 L 180.14,146.00 L 180.85,146.00 L 181.56,146.00 L 182.26,146.00 L 182.97,146.00 L 183.67,146.00 L 184.38,146.00 L 185.08,146.00 L 185.79,146.00 L 186.50,146.00 L 187.20,146.00 L 187.91,146.00 L 188.61,146.00 L 189.32,146.00 L 190.02,146.00 L 190.73,146.00 L 191.44,146.00 L 192.14,146.00 L 192.85,146.00 L 193.55,146.00 L 194.26,146.00 L 194.97,146.00 L 195.67,146.00 L 196.38,146.00 L 197.08,146.00 L 197.79,146.00 L 198.49,146.00 L 199.20,146.00 L 199.91,146.00 L 199.91,126.40 L 200.67,126.40 L 201.44,126.40 L 202.21,126.40 L 202.98,126.40 L 203.75,126.40 L 204.52,126.40 L 205.29,126.40 L 206.06,126.40 L 206.06,146.00 L 206.83,146.00 L 207.61,146.00 L 208.38,146.00 L 208.38,165.60 L 208.85,165.60 L 209.31,165.60 L 209.31,185.20 L 210.23,185.20 L 211.15,185.20 L 212.07,185.20 L 212.07,165.60 L 212.89,165.60 L 213.71,165.60 L 214.52,165.60 L 215.34,165.60 L 215.34,185.20 L 216.25,185.20 L 217.17,185.20 L 218.09,185.20 L 218.09,165.60 L 218.49,165.60 L 218.88,165.60 L 218.88,146.00 L 219.60,146.00 L 220.32,146.00 L 221.04,146.00 L 221.75,146.00 L 222.47,146.00 L 223.19,146.00 L 223.91,146.00 L 223.91,165.60 L 224.35,165.60 L 224.79,165.60 L 224.79,185.20 L 225.56,185.20 L 226.32,185.20 L 227.08,185.20 L 227.84,185.20 L 228.60,185.20 L 229.36,185.20 L 230.12,185.20 L 230.12,165.60 L 230.85,165.60 L 231.58,165.60 L 232.31,165.60 L 233.05,165.60 L 233.78,165.60 L 233.78,185.20 L 234.52,185.20 L 235.26,185.20 L 236.00,185.20 L 236.75,185.20 L 237.49,185.20 L 238.23,185.20 L 238.97,185.20 L 239.71,185.20 L 240.46,185.20 L 241.20,185.20 L 241.94,185.20 L 242.68,185.20 L 243.42,185.20 L 244.16,185.20 L 244.91,185.20 L 244.91,204.80 L 245.34,204.80 L 245.77,204.80 L 245.77,185.20 L 246.55,185.20 L 247.32,185.20 L 248.10,185.20 L 248.10,165.60 L 249.02,165.60 L 249.94,165.60 L 250.85,165.60 L 250.85,146.00 L 251.77,146.00 L 252.68,146.00 L 252.68,126.40 L 252.75,126.40 L 252.82,126.40 L 252.82,146.00 L 252.87,146.00 L 252.92,146.00 L 252.92,126.40 L 253.73,126.40 L 254.53,126.40 L 255.33,126.40 L 256.14,126.40 L 256.94,126.40 L 257.75,126.40 L 257.75,146.00 L 258.48,146.00 L 259.21,146.00 L 259.93,146.00 L 260.66,146.00 L 261.39,146.00 L 262.12,146.00 L 262.85,146.00 L 263.58,146.00 L 264.31,146.00 L 264.31,165.60 L 265.06,165.60 L 265.80,165.60 L 266.55,165.60 L 267.29,165.60 L 268.04,165.60 L 268.78,165.60 L 268.78,185.20 L 269.59,185.20 L 270.40,185.20 L 271.22,185.20 L 271.22,204.80 L 271.93,204.80 L 272.63,204.80 L 273.34,204.80 L 274.05,204.80 L 274.76,204.80 L 275.47,204.80 L 276.18,204.80 L 276.89,204.80 L 277.60,204.80 L 278.31,204.80 L 279.02,204.80 L 279.73,204.80 L 280.44,204.80 L 280.44,185.20 L 281.16,185.20 L 281.87,185.20 L 282.58,185.20 L 282.58,165.60 L 283.36,165.60 L 284.14,165.60 L 284.91,165.60 L 285.69,165.60 L 286.46,165.60 L 286.46,185.20 L 287.25,185.20 L 288.04,185.20 L 288.83,185.20 L 289.62,185.20 L 290.41,185.20 L 291.20,185.20 L 291.20,204.80 L 292.01,204.80 L 292.83,204.80 L 293.65,204.80 L 294.46,204.80 L 295.28,204.80 L 296.09,204.80 L 296.09,185.20 L 296.84,185.20 L 297.58,185.20 L 298.33,185.20 L 299.07,185.20 L 299.82,185.20 L 300.56,185.20 L 301.31,185.20 L 302.05,185.20 L 302.05,165.60 L 302.81,165.60 L 303.56,165.60 L 304.31,165.60 L 305.07,165.60 L 305.82,165.60 L 306.57,165.60 L 307.33,165.60 L 308.08,165.60 L 308.83,165.60 L 308.83,185.20 L 309.42,185.20 L 310.00,185.20 L 310.00,165.60 L 310.50,165.60 L 310.99,165.60 L 310.99,146.00 L 311.36,146.00 L 311.73,146.00 L 311.73,126.40 L 312.49,126.40 L 313.25,126.40 L 314.01,126.40 L 314.77,126.40 L 315.53,126.40 L 316.28,126.40 L 316.28,106.80 L 317.25,106.80 L 318.22,106.80 L 318.22,87.20 L 318.29,87.20 L 318.37,87.20 L 318.37,67.60 L 318.67,67.60 L 318.97,67.60 L 318.97,87.20 L 319.08,87.20 L 319.19,87.20 L 319.19,106.80 L 320.02,106.80 L 320.85,106.80 L 321.68,106.80 L 321.68,126.40 L 321.95,126.40 L 322.21,126.40 L 322.21,106.80 L 322.86,106.80 L 323.51,106.80 L 323.51,126.40 L 323.58,126.40 L 323.65,126.40 L 323.65,146.00 L 324.40,146.00 L 325.14,146.00 L 325.88,146.00 L 326.62,146.00 L 327.37,146.00 L 328.11,146.00 L 328.85,146.00 L 329.60,146.00 L 329.60,165.60 L 330.51,165.60 L 331.43,165.60 L 331.43,185.20 L 331.43,185.20 L 331.43,185.20 L 331.43,204.80 L 332.46,204.80 L 333.50,204.80 L 333.50,185.20 L 333.72,185.20 L 333.94,185.20 L 333.94,165.60 L 334.65,165.60 L 335.35,165.60 L 336.05,165.60 L 336.75,165.60 L 337.45,165.60 L 338.16,165.60 L 338.86,165.60 L 339.56,165.60 L 340.26,165.60 L 340.97,165.60 L 341.67,165.60 L 342.37,165.60 L 342.37,185.20 L 343.08,185.20 L 343.80,185.20 L 344.51,185.20 L 345.23,185.20 L 345.23,165.60 L 345.61,165.60 L 346.00,165.60" class="haz"/><circle cx="75.44" cy="185.20" r="2.4" class="evt"/><circle cx="92.69" cy="204.80" r="2.4" class="evt"/><circle cx="111.37" cy="185.20" r="2.4" class="evt"/><circle cx="123.09" cy="204.80" r="2.4" class="evt"/><circle cx="133.64" cy="185.20" r="2.4" class="evt"/><circle cx="141.74" cy="204.80" r="2.4" class="evt"/><circle cx="147.10" cy="185.20" r="2.4" class="evt"/><circle cx="155.31" cy="165.60" r="2.4" class="evt"/><circle cx="155.34" cy="185.20" r="2.4" class="evt"/><circle cx="160.05" cy="165.60" r="2.4" class="evt"/><circle cx="172.73" cy="185.20" r="2.4" class="evt"/><circle cx="177.32" cy="165.60" r="2.4" class="evt"/><circle cx="199.91" cy="146.00" r="2.4" class="evt"/><circle cx="206.06" cy="126.40" r="2.4" class="evt"/><circle cx="208.38" cy="146.00" r="2.4" class="evt"/><circle cx="209.31" cy="165.60" r="2.4" class="evt"/><circle cx="212.07" cy="185.20" r="2.4" class="evt"/><circle cx="215.34" cy="165.60" r="2.4" class="evt"/><circle cx="218.09" cy="185.20" r="2.4" class="evt"/><circle cx="218.88" cy="165.60" r="2.4" class="evt"/><circle cx="223.91" cy="146.00" r="2.4" class="evt"/><circle cx="224.79" cy="165.60" r="2.4" class="evt"/><circle cx="230.12" cy="185.20" r="2.4" class="evt"/><circle cx="233.78" cy="165.60" r="2.4" class="evt"/><circle cx="244.91" cy="185.20" r="2.4" class="evt"/><circle cx="245.77" cy="204.80" r="2.4" class="evt"/><circle cx="248.10" cy="185.20" r="2.4" class="evt"/><circle cx="250.85" cy="165.60" r="2.4" class="evt"/><circle cx="252.68" cy="146.00" r="2.4" class="evt"/><circle cx="252.82" cy="126.40" r="2.4" class="evt"/><circle cx="252.92" cy="146.00" r="2.4" class="evt"/><circle cx="257.75" cy="126.40" r="2.4" class="evt"/><circle cx="264.31" cy="146.00" r="2.4" class="evt"/><circle cx="268.78" cy="165.60" r="2.4" class="evt"/><circle cx="271.22" cy="185.20" r="2.4" class="evt"/><circle cx="280.44" cy="204.80" r="2.4" class="evt"/><circle cx="282.58" cy="185.20" r="2.4" class="evt"/><circle cx="286.46" cy="165.60" r="2.4" class="evt"/><circle cx="291.20" cy="185.20" r="2.4" class="evt"/><circle cx="296.09" cy="204.80" r="2.4" class="evt"/><circle cx="302.05" cy="185.20" r="2.4" class="evt"/><circle cx="308.83" cy="165.60" r="2.4" class="evt"/><circle cx="310.00" cy="185.20" r="2.4" class="evt"/><circle cx="310.99" cy="165.60" r="2.4" class="evt"/><circle cx="311.73" cy="146.00" r="2.4" class="evt"/><circle cx="316.28" cy="126.40" r="2.4" class="evt"/><circle cx="318.22" cy="106.80" r="2.4" class="evt"/><circle cx="318.37" cy="87.20" r="2.4" class="evt"/><circle cx="318.97" cy="67.60" r="2.4" class="evt"/><circle cx="319.19" cy="87.20" r="2.4" class="evt"/><circle cx="321.68" cy="106.80" r="2.4" class="evt"/><circle cx="322.21" cy="126.40" r="2.4" class="evt"/><circle cx="323.51" cy="106.80" r="2.4" class="evt"/><circle cx="323.65" cy="126.40" r="2.4" class="evt"/><circle cx="329.60" cy="146.00" r="2.4" class="evt"/><circle cx="331.43" cy="165.60" r="2.4" class="evt"/><circle cx="331.43" cy="185.20" r="2.4" class="evt"/><circle cx="333.50" cy="204.80" r="2.4" class="evt"/><circle cx="333.94" cy="185.20" r="2.4" class="evt"/><circle cx="342.37" cy="165.60" r="2.4" class="evt"/><circle cx="345.23" cy="185.20" r="2.4" class="evt"/><line x1="448.0" y1="244.0" x2="728.0" y2="244.0" class="ax"/><line x1="448.0" y1="48.0" x2="448.0" y2="244.0" class="ax"/><line x1="448.0" y1="244.0" x2="728.0" y2="244.0" class="tick"/><text x="442.0" y="248.0" class="axtext" text-anchor="end">0.00</text><line x1="448.0" y1="195.0" x2="728.0" y2="195.0" class="tick"/><text x="442.0" y="199.0" class="axtext" text-anchor="end">0.05</text><line x1="448.0" y1="146.0" x2="728.0" y2="146.0" class="tick"/><text x="442.0" y="150.0" class="axtext" text-anchor="end">0.10</text><line x1="448.0" y1="97.0" x2="728.0" y2="97.0" class="tick"/><text x="442.0" y="101.0" class="axtext" text-anchor="end">0.15</text><line x1="448.0" y1="48.0" x2="728.0" y2="48.0" class="tick"/><text x="442.0" y="52.0" class="axtext" text-anchor="end">0.20</text><line x1="448.0" y1="244.0" x2="448.0" y2="248.0" class="ax"/><text x="448.0" y="260.0" class="axtext" text-anchor="middle">0</text><line x1="518.0" y1="244.0" x2="518.0" y2="248.0" class="ax"/><text x="518.0" y="260.0" class="axtext" text-anchor="middle">π/2</text><line x1="588.0" y1="244.0" x2="588.0" y2="248.0" class="ax"/><text x="588.0" y="260.0" class="axtext" text-anchor="middle">π</text><line x1="658.0" y1="244.0" x2="658.0" y2="248.0" class="ax"/><text x="658.0" y="260.0" class="axtext" text-anchor="middle">3π/2</text><line x1="728.0" y1="244.0" x2="728.0" y2="248.0" class="ax"/><text x="728.0" y="260.0" class="axtext" text-anchor="middle">2π</text><text x="588.0" y="276.0" class="axtext" text-anchor="middle">phase φ</text><text x="414.0" y="146.0" class="axtext" text-anchor="middle" transform="rotate(-90 414.0 146.0)">Pr{N ≥ θ}</text><text x="450.0" y="38.0" class="ptitle" text-anchor="start">(b) phase-resolved Pr{N ≥ θ}</text><rect x="448.0" y="103.8" width="280.0" height="1.0" class="resband"/><line x1="448.0" y1="104.3" x2="728.0" y2="104.3" class="resline"/><line x1="448.0" y1="104.0" x2="728.0" y2="104.0" class="mixline"/><path d="M 448.00,103.98 L 449.40,103.98 L 450.80,103.98 L 452.20,103.98 L 453.60,103.98 L 455.00,103.98 L 456.40,103.98 L 457.80,103.98 L 459.20,103.98 L 460.60,103.98 L 462.00,103.98 L 463.40,103.98 L 464.80,103.98 L 466.20,103.98 L 467.60,103.98 L 469.00,103.98 L 470.40,103.98 L 471.80,103.98 L 473.20,103.98 L 474.60,103.98 L 476.00,103.98 L 477.40,103.98 L 478.80,103.98 L 480.20,103.98 L 481.60,103.98 L 483.00,103.98 L 484.40,103.98 L 485.80,103.98 L 487.20,103.98 L 488.60,103.98 L 490.00,103.98 L 491.40,103.98 L 492.80,103.98 L 494.20,103.98 L 495.60,103.98 L 497.00,103.98 L 498.40,103.98 L 499.80,103.98 L 501.20,103.98 L 502.60,103.98 L 504.00,103.98 L 505.40,103.98 L 506.80,103.98 L 508.20,103.98 L 509.60,103.98 L 511.00,103.98 L 512.40,103.98 L 513.80,103.98 L 515.20,103.98 L 516.60,103.98 L 518.00,103.98 L 519.40,103.98 L 520.80,103.98 L 522.20,103.98 L 523.60,103.98 L 525.00,103.98 L 526.40,103.98 L 527.80,103.98 L 529.20,103.98 L 530.60,103.98 L 532.00,103.98 L 533.40,103.98 L 534.80,103.98 L 536.20,103.98 L 537.60,103.98 L 539.00,103.98 L 540.40,103.98 L 541.80,103.98 L 543.20,103.98 L 544.60,103.98 L 546.00,103.98 L 547.40,103.98 L 548.80,103.98 L 550.20,103.98 L 551.60,103.98 L 553.00,103.98 L 554.40,103.98 L 555.80,103.98 L 557.20,103.98 L 558.60,103.98 L 560.00,103.98 L 561.40,103.98 L 562.80,103.98 L 564.20,103.98 L 565.60,103.98 L 567.00,103.98 L 568.40,103.98 L 569.80,103.98 L 571.20,103.98 L 572.60,103.98 L 574.00,103.98 L 575.40,103.98 L 576.80,103.98 L 578.20,103.98 L 579.60,103.98 L 581.00,103.98 L 582.40,103.98 L 583.80,103.98 L 585.20,103.98 L 586.60,103.98 L 588.00,103.98 L 589.40,103.98 L 590.80,103.98 L 592.20,103.98 L 593.60,103.98 L 595.00,103.98 L 596.40,103.98 L 597.80,103.98 L 599.20,103.98 L 600.60,103.98 L 602.00,103.98 L 603.40,103.98 L 604.80,103.98 L 606.20,103.98 L 607.60,103.98 L 609.00,103.98 L 610.40,103.98 L 611.80,103.98 L 613.20,103.98 L 614.60,103.98 L 616.00,103.98 L 617.40,103.98 L 618.80,103.98 L 620.20,103.98 L 621.60,103.98 L 623.00,103.98 L 624.40,103.98 L 625.80,103.98 L 627.20,103.98 L 628.60,103.98 L 630.00,103.98 L 631.40,103.98 L 632.80,103.98 L 634.20,103.98 L 635.60,103.98 L 637.00,103.98 L 638.40,103.98 L 639.80,103.98 L 641.20,103.98 L 642.60,103.98 L 644.00,103.98 L 645.40,103.98 L 646.80,103.98 L 648.20,103.98 L 649.60,103.98 L 651.00,103.98 L 652.40,103.98 L 653.80,103.98 L 655.20,103.98 L 656.60,103.98 L 658.00,103.98 L 659.40,103.98 L 660.80,103.98 L 662.20,103.98 L 663.60,103.98 L 665.00,103.98 L 666.40,103.98 L 667.80,103.98 L 669.20,103.98 L 670.60,103.98 L 672.00,103.98 L 673.40,103.98 L 674.80,103.98 L 676.20,103.98 L 677.60,103.98 L 679.00,103.98 L 680.40,103.98 L 681.80,103.98 L 683.20,103.98 L 684.60,103.98 L 686.00,103.98 L 687.40,103.98 L 688.80,103.98 L 690.20,103.98 L 691.60,103.98 L 693.00,103.98 L 694.40,103.98 L 695.80,103.98 L 697.20,103.98 L 698.60,103.98 L 700.00,103.98 L 701.40,103.98 L 702.80,103.98 L 704.20,103.98 L 705.60,103.98 L 707.00,103.98 L 708.40,103.98 L 709.80,103.98 L 711.20,103.98 L 712.60,103.98 L 714.00,103.98 L 715.40,103.98 L 716.80,103.98 L 718.20,103.98 L 719.60,103.98 L 721.00,103.98 L 722.40,103.98 L 723.80,103.98 L 725.20,103.98 L 726.60,103.98" class="pcurve"/><line x1="448.0" y1="103.5" x2="448.0" y2="106.0" class="snapeb"/><line x1="445.0" y1="103.5" x2="451.0" y2="103.5" class="snapeb"/><line x1="445.0" y1="106.0" x2="451.0" y2="106.0" class="snapeb"/><line x1="483.0" y1="103.7" x2="483.0" y2="106.1" class="snapeb"/><line x1="480.0" y1="103.7" x2="486.0" y2="103.7" class="snapeb"/><line x1="480.0" y1="106.1" x2="486.0" y2="106.1" class="snapeb"/><line x1="518.0" y1="101.6" x2="518.0" y2="104.0" class="snapeb"/><line x1="515.0" y1="101.6" x2="521.0" y2="101.6" class="snapeb"/><line x1="515.0" y1="104.0" x2="521.0" y2="104.0" class="snapeb"/><line x1="553.0" y1="102.6" x2="553.0" y2="105.0" class="snapeb"/><line x1="550.0" y1="102.6" x2="556.0" y2="102.6" class="snapeb"/><line x1="550.0" y1="105.0" x2="556.0" y2="105.0" class="snapeb"/><line x1="588.0" y1="103.2" x2="588.0" y2="105.6" class="snapeb"/><line x1="585.0" y1="103.2" x2="591.0" y2="103.2" class="snapeb"/><line x1="585.0" y1="105.6" x2="591.0" y2="105.6" class="snapeb"/><line x1="623.0" y1="103.4" x2="623.0" y2="105.9" class="snapeb"/><line x1="620.0" y1="103.4" x2="626.0" y2="103.4" class="snapeb"/><line x1="620.0" y1="105.9" x2="626.0" y2="105.9" class="snapeb"/><line x1="658.0" y1="102.3" x2="658.0" y2="104.8" class="snapeb"/><line x1="655.0" y1="102.3" x2="661.0" y2="102.3" class="snapeb"/><line x1="655.0" y1="104.8" x2="661.0" y2="104.8" class="snapeb"/><line x1="693.0" y1="105.1" x2="693.0" y2="107.5" class="snapeb"/><line x1="690.0" y1="105.1" x2="696.0" y2="105.1" class="snapeb"/><line x1="690.0" y1="107.5" x2="696.0" y2="107.5" class="snapeb"/><circle cx="448.00" cy="104.75" r="2.4" class="snap"/><circle cx="483.00" cy="104.89" r="2.4" class="snap"/><circle cx="518.00" cy="102.83" r="2.4" class="snap"/><circle cx="553.00" cy="103.79" r="2.4" class="snap"/><circle cx="588.00" cy="104.44" r="2.4" class="snap"/><circle cx="623.00" cy="104.68" r="2.4" class="snap"/><circle cx="658.00" cy="103.55" r="2.4" class="snap"/><circle cx="693.00" cy="106.26" r="2.4" class="snap"/></svg>
+<figcaption>Figure 2: the ε=0 control (drive off, all other parameters as in Figure 1). (a) The hazard stays flat between events — here the "propensity fixed between events" premise does hold. (b) The analytic p(φ)=Pr{Pois(2)≥4}=0.1429 is a horizontal line; the snapshot at all 8 phases and the complete-cycle residence average both lie within Monte Carlo error of the analytic value, so the two estimators coincide at ε=0. The figure is generated by the code embedded in this page.</figcaption>
+</figure>
+<details>
+<summary>Complete source of the artifact made for this essay (simulate.py, Python 3 standard library, runs directly and reproduces every number in the text)</summary>
+<pre><code>&quot;&quot;&quot;Periodic drive on a birth-removal count process: is the complete-cycle
+time average the same number as the fixed-phase ensemble threshold probability?
+
+Model (one state, two channels)
+    N(t) in {0, 1, 2, ...}
+    addition  -&gt; N+1   a_+(t)   = b0 * (1 + eps*sin(omega*t))    [1/min]
+    removal   -&gt; N-1   a_-(t,N) = gamma * N                      [1/min]
+    total     a0(t,N)  = a_+(t) + a_-(t,N)
+
+Because a_+ depends on absolute time, propensities are NOT fixed between
+events, so the classic two-uniform loop (fixed exponential waiting time) is
+not exact here.  The exact next-event time tau solves the integrated-hazard
+equation  H(tau) = -ln(u1),  with the closed form
+
+    H(tau) = (b0 + gamma*N)*tau
+             + (b0*eps/omega)*(cos(omega*t) - cos(omega*(t+tau))) ,
+
+strictly increasing in tau because a0 &gt; 0 (0 &lt; eps &lt; 1).  Each event solves
+H(tau) = E by safeguarded Newton iterations, then the channel is drawn with
+probability a_+(t+tau)/a0(t+tau): conditional on the event time, the channel
+odds equal the hazard ratio at that instant.
+
+Estimators of the threshold indicator Y = 1{N &gt;= theta}
+  A. single-path residence-time average over K complete cycles after burn-in
+     (weights are elapsed times of holding intervals, clipped at cycle
+     boundaries); the ensemble of M such path values gives mean and standard
+     error over independent paths.
+  B. fixed-phase snapshot ensemble: every path is sampled stroboscopically at
+     the same phase of the drive, once per recorded cycle; the per-path
+     frequency over K cycles gives one value per phase, and the mean and
+     standard error are taken over the M independent paths.
+
+Exact analytic benchmark for this immigration-death process: if N(t0) is
+Poisson then N(t) stays Poisson with mean m(t) solving m&#x27; = b(t) - gamma*m.
+The periodic steady state is closed form,
+
+    m_per(t) = b0/gamma + (b0*eps/sqrt(gamma^2 + omega^2)) * sin(omega*t - delta),
+    delta = atan(omega/gamma),
+
+so the fixed-phase ensemble threshold probability is p(phi) = Pr{Poisson(
+m_per(phi)) &gt;= theta} (phase phi = omega*t) and the cycle mixture is the
+phase average of p over one period.  The simulator is checked against this
+benchmark.  Pure standard library; deterministic given SEED.  Running this
+file prints the self-test results and every number quoted in the essay;
+run_all() returns the numbers and the two SVG figure strings for inlining.
+&quot;&quot;&quot;
+
+import math
+import random
+import time
+
+# ---------------------------------------------------------------------------
+# parameters (time in minutes, rates in 1/min, counts are molecules)
+# ---------------------------------------------------------------------------
+SEED     = 20260915               # base seed; per-path seeds derive from it
+B0       = 2.0                    # mean addition rate b0           [1/min]
+EPS      = 0.6                    # drive depth, 0 &lt; eps &lt; 1 keeps b(t) &gt; 0
+OMEGA    = 2.0 * math.pi / 8.0    # angular frequency; period = 8 min
+GAMMA    = 1.0                    # per-molecule removal rate       [1/min]
+N0       = 0                      # initial count N(0)
+BURN_IN  = 10                     # burn-in cycles (80 min &gt;&gt; 1/gamma = 1 min)
+N_CYCLES = 40                     # recorded complete cycles per path
+N_PATHS  = 2000                   # independent paths M
+THETA    = 4                      # threshold in Y = 1{N &gt;= theta}
+N_PHASES = 8                      # snapshot phases per cycle
+N_BINS   = 24                     # phase bins for the residence cross-check
+SIMPSON_N = 4000                  # even subinterval count for the mixture integral
+
+
+# ---------------------------------------------------------------------------
+# model and exact time-dependent SSA
+# ---------------------------------------------------------------------------
+def b_drive(t, b0=B0, eps=EPS, omega=OMEGA):
+    &quot;&quot;&quot;Time-dependent addition propensity b(t).&quot;&quot;&quot;
+    return b0 * (1.0 + eps * math.sin(omega * t))
+
+
+def a_total(t, n, b0=B0, eps=EPS, omega=OMEGA, gamma=GAMMA):
+    &quot;&quot;&quot;Total propensity a0(t, N).&quot;&quot;&quot;
+    return b0 * (1.0 + eps * math.sin(omega * t)) + gamma * n
+
+
+def hazard_cum(tau, t, n, b0=B0, eps=EPS, omega=OMEGA, gamma=GAMMA):
+    &quot;&quot;&quot;Integral of a0 from t to t+tau (closed form).&quot;&quot;&quot;
+    return ((b0 + gamma * n) * tau
+            + (b0 * eps / omega)
+            * (math.cos(omega * t) - math.cos(omega * (t + tau))))
+
+
+def solve_tau(E, t, n, b0=B0, eps=EPS, omega=OMEGA, gamma=GAMMA):
+    &quot;&quot;&quot;Solve hazard_cum(tau) = E by safeguarded Newton (bisection bracket).
+
+    H is continuous, H(0) = 0 and strictly increasing (a0 &gt; 0), so the root
+    is unique.  The bracket upper end uses the bound |cos| &lt;= 1.
+    &quot;&quot;&quot;
+    r = b0 + gamma * n
+    w = omega
+    amp = b0 * eps / w
+    wt = w * t
+    lo, hi = 0.0, (E + 2.0 * amp) / r
+    tau = E / r                               # eps = 0 guess
+    for _ in range(60):
+        err = r * tau + amp * (math.cos(wt) - math.cos(wt + w * tau)) - E
+        if err &gt; 0.0:
+            hi = tau
+        else:
+            lo = tau
+        d = r + b0 * eps * math.sin(wt + w * tau)   # dH/dtau = a0(t+tau) &gt; 0
+        new = tau - err / d if d &gt; 0.0 else 0.5 * (lo + hi)
+        if not (lo &lt; new &lt; hi):
+            new = 0.5 * (lo + hi)
+        done = abs(new - tau) &lt;= 1e-11 * max(1.0, new)
+        tau = new
+        if done:
+            break
+    return tau
+
+
+def simulate_path(rng, t_end, b0=B0, eps=EPS, omega=OMEGA, gamma=GAMMA, n0=N0):
+    &quot;&quot;&quot;One path on [0, t_end]; returns the event list [(t_j, N after event)].
+
+    The state is constant between events, so each holding interval is
+    (t_j, t_{j+1}, N_j); the initial state n0 holds on [0, t_1).
+    &quot;&quot;&quot;
+    events = []
+    t = 0.0
+    n = n0
+    while True:
+        E = -math.log(1.0 - rng.random())     # u1 in (0, 1], E = -ln u1
+        tau = solve_tau(E, t, n, b0, eps, omega, gamma)
+        t2 = t + tau
+        if t2 &gt; t_end:
+            break
+        # channel: addition wins with probability a_+(t2)/a0(t2)
+        if rng.random() * a_total(t2, n, b0, eps, omega, gamma) \
+                &lt; b_drive(t2, b0, eps, omega):
+            n += 1
+        else:
+            n -= 1        # unreachable at n = 0, where a_- = 0
+        events.append((t2, n))
+        t = t2
+    return events
+
+
+def iter_intervals(events, n0=N0):
+    &quot;&quot;&quot;Yield (t_start, t_end, n) over the piecewise-constant path.&quot;&quot;&quot;
+    t_prev = 0.0
+    n = n0
+    for t2, n2 in events:
+        yield t_prev, t2, n
+        t_prev = t2
+        n = n2
+    yield t_prev, math.inf, n
+
+
+# ---------------------------------------------------------------------------
+# estimators
+# ---------------------------------------------------------------------------
+def residence_average(events, rec_start, rec_end, theta, n_bins,
+                      period):
+    &quot;&quot;&quot;Estimator A on one path.
+
+    Only the part of each holding interval inside [rec_start, rec_end] (K
+    complete cycles) contributes.  Returns the overall residence fraction
+    with N &gt;= theta, plus the same fraction per phase bin (pooled by
+    cycle-relative phase) for the cross-check against the analytic curve.
+    &quot;&quot;&quot;
+    num = den = 0.0
+    num_bin = [0.0] * n_bins
+    den_bin = [0.0] * n_bins
+    bw = period / n_bins
+    for t1, t2, n in iter_intervals(events):
+        if t1 &gt;= rec_end:
+            break
+        a = t1 if t1 &gt; rec_start else rec_start
+        b = t2 if t2 &lt; rec_end else rec_end
+        if b &lt;= a:
+            continue
+        dur = b - a
+        den += dur
+        hit = n &gt;= theta
+        if hit:
+            num += dur
+        k_lo = int((a - rec_start) / bw)
+        k_hi = int((b - rec_start) / bw)
+        for k in range(k_lo, k_hi + 1):
+            blo = rec_start + k * bw
+            ov = (b if b &lt; blo + bw else blo + bw) - (a if a &gt; blo else blo)
+            if ov &gt; 0.0:
+                j = k % n_bins
+                den_bin[j] += ov
+                if hit:
+                    num_bin[j] += ov
+    return num / den, num_bin, den_bin
+
+
+def stroboscopic_frequencies(events, rec_start, n_cycles, theta, n0,
+                             n_phases, period):
+    &quot;&quot;&quot;Estimator B on one path: for each snapshot phase phi_i = 2*pi*i/n_phases,
+    the fraction of the n_cycles recorded cycles in which the state covering
+    that instant has N &gt;= theta.  Returns counts[i]/n_cycles.&quot;&quot;&quot;
+    targets = sorted((rec_start + (k + i / n_phases) * period, i)
+                     for i in range(n_phases) for k in range(n_cycles))
+    counts = [0] * n_phases
+    ivals = iter_intervals(events, n0)
+    t1, t2, n = next(ivals)
+    for t_tgt, i in targets:
+        while t_tgt &gt;= t2:
+            t1, t2, n = next(ivals)
+        if n &gt;= theta:
+            counts[i] += 1
+    return [c / n_cycles for c in counts]
+
+
+# ---------------------------------------------------------------------------
+# analytic benchmark (exact for immigration-death)
+# ---------------------------------------------------------------------------
+def m_periodic(t, b0=B0, eps=EPS, omega=OMEGA, gamma=GAMMA):
+    &quot;&quot;&quot;Closed-form periodic steady state of m&#x27; = b(t) - gamma*m.&quot;&quot;&quot;
+    amp = b0 * eps / math.sqrt(gamma * gamma + omega * omega)
+    delta = math.atan2(omega, gamma)
+    return b0 / gamma + amp * math.sin(omega * t - delta)
+
+
+def m_periodic_rk4(n_out=101, n_cycles=40, b0=B0, eps=EPS, omega=OMEGA,
+                   gamma=GAMMA, steps_per_cycle=2000):
+    &quot;&quot;&quot;Integrate m&#x27; = b(t) - gamma*m by RK4 from m(0) = m_per(0); return
+    [(t, m)] at n_out evenly spaced times on [0, n_cycles*T].  Used only to
+    check the closed form.&quot;&quot;&quot;
+    T = 2.0 * math.pi / omega
+    h = T / steps_per_cycle
+    total = n_cycles * steps_per_cycle
+    stride = max(1, total // (n_out - 1))
+    m = m_periodic(0.0, b0, eps, omega, gamma)
+    out = [(0.0, m)]
+    for s in range(1, total + 1):
+        t = (s - 1) * h
+        k1 = b_drive(t, b0, eps, omega) - gamma * m
+        k2 = b_drive(t + h / 2, b0, eps, omega) - gamma * (m + h / 2 * k1)
+        k3 = b_drive(t + h / 2, b0, eps, omega) - gamma * (m + h / 2 * k2)
+        k4 = b_drive(t + h, b0, eps, omega) - gamma * (m + h * k3)
+        m += h / 6 * (k1 + 2 * k2 + 2 * k3 + k4)
+        if s % stride == 0:
+            out.append((s * h, m))
+    return out
+
+
+def poisson_sf(m, k):
+    &quot;&quot;&quot;Pr{Poisson(m) &gt;= k} for integer k &gt;= 0, by direct pmf summation.&quot;&quot;&quot;
+    if m &lt;= 0.0:
+        return 0.0
+    s = 0.0
+    for j in range(k):
+        s += math.exp(j * math.log(m) - m - math.lgamma(j + 1.0))
+    return max(0.0, 1.0 - s)
+
+
+def p_phase(t, theta=THETA, b0=B0, eps=EPS, omega=OMEGA, gamma=GAMMA):
+    &quot;&quot;&quot;Fixed-phase ensemble threshold probability Pr{N(t) &gt;= theta}.&quot;&quot;&quot;
+    return poisson_sf(m_periodic(t, b0, eps, omega, gamma), theta)
+
+
+def mixture_analytic(theta=THETA, b0=B0, eps=EPS, omega=OMEGA, gamma=GAMMA,
+                     n=SIMPSON_N):
+    &quot;&quot;&quot;Cycle-time mixture: (1/T) * integral of p_phase over one period.&quot;&quot;&quot;
+    T = 2.0 * math.pi / omega
+    h = T / n
+    s = p_phase(0.0, theta, b0, eps, omega, gamma) \
+        + p_phase(T, theta, b0, eps, omega, gamma)
+    for i in range(1, n):
+        s += (4.0 if i % 2 else 2.0) * p_phase(i * h, theta, b0, eps, omega, gamma)
+    return s * h / 3.0 / T
+
+
+# ---------------------------------------------------------------------------
+# experiment driver
+# ---------------------------------------------------------------------------
+def run_experiment(eps, seed=SEED, n_paths=N_PATHS, burn_in=BURN_IN,
+                   n_cycles=N_CYCLES, b0=B0, omega=OMEGA, gamma=GAMMA,
+                   n0=N0, theta=THETA, with_example=False):
+    &quot;&quot;&quot;Run the full estimator comparison for one drive depth.
+
+    Returns the analytic targets, the two simulated estimators (mean and
+    standard error over the M independent path-level values), and the pooled
+    per-bin residence curve used as an extra cross-check.
+    &quot;&quot;&quot;
+    T = 2.0 * math.pi / omega
+    rec_start = burn_in * T
+    rec_end = (burn_in + n_cycles) * T
+    phases = [2.0 * math.pi * i / N_PHASES for i in range(N_PHASES)]
+
+    # analytic targets as functions of phase phi = omega*t
+    amp = b0 * eps / math.sqrt(gamma * gamma + omega * omega)
+    delta = math.atan2(omega, gamma)
+    m_at = [b0 / gamma + amp * math.sin(phi - delta) for phi in phases]
+    p_at = [poisson_sf(m, theta) for m in m_at]
+    mix = mixture_analytic(theta, b0, eps, omega, gamma)
+    p_curve = [(2.0 * math.pi * i / 200.0,
+                p_phase(2.0 * math.pi * i / 200.0 / omega, theta, b0, eps,
+                        omega, gamma)) for i in range(200)]
+
+    # simulation: M independent paths
+    a_vals = []
+    snap_vals = [[] for _ in range(N_PHASES)]
+    bin_num = [0.0] * N_BINS
+    bin_den = [0.0] * N_BINS
+    tot_events = 0
+    example = None
+    clock = time.perf_counter()
+    for i in range(n_paths):
+        s = (seed * 1000003 + 7919 * i + int(round(eps * 1000)) * 104729) \
+            % (2 ** 63)
+        rng = random.Random(s)
+        ev = simulate_path(rng, rec_end, b0, eps, omega, gamma, n0)
+        tot_events += len(ev)
+        a, nb, db = residence_average(ev, rec_start, rec_end, theta,
+                                      N_BINS, T)
+        a_vals.append(a)
+        for j in range(N_BINS):
+            bin_num[j] += nb[j]
+            bin_den[j] += db[j]
+        freqs = stroboscopic_frequencies(ev, rec_start, n_cycles, theta, n0,
+                                         N_PHASES, T)
+        for j, f in enumerate(freqs):
+            snap_vals[j].append(f)
+        if with_example and i == 0:
+            example = {&quot;intervals&quot;: [(t1, t2, n)
+                                     for t1, t2, n in iter_intervals(ev, n0)
+                                     if t2 &gt; rec_start
+                                     and t1 &lt; rec_start + 2.0 * T]}
+    runtime = time.perf_counter() - clock
+
+    def mean_sd_se(xs):
+        m = sum(xs) / len(xs)
+        var = sum((x - m) ** 2 for x in xs) / (len(xs) - 1)
+        return m, math.sqrt(var), math.sqrt(var / len(xs))
+
+    a_mean, a_sd, a_se = mean_sd_se(a_vals)
+    snap_mean, snap_se = [], []
+    for j in range(N_PHASES):
+        m, _, se = mean_sd_se(snap_vals[j])
+        snap_mean.append(m)
+        snap_se.append(se)
+    bin_p = [bin_num[j] / bin_den[j] for j in range(N_BINS)]
+    # cross-check: pooled residence curve vs analytic p at the bin centres
+    bin_ref = [p_phase(rec_start + (j + 0.5) * (T / N_BINS), theta, b0, eps,
+                       omega, gamma) for j in range(N_BINS)]
+    max_dev = max(abs(bin_p[j] - bin_ref[j]) for j in range(N_BINS))
+    return {
+        &quot;params&quot;: {&quot;b0&quot;: b0, &quot;eps&quot;: eps, &quot;omega&quot;: omega, &quot;gamma&quot;: gamma,
+                   &quot;n0&quot;: n0, &quot;theta&quot;: theta, &quot;burn_in&quot;: burn_in,
+                   &quot;n_cycles&quot;: n_cycles, &quot;n_paths&quot;: n_paths, &quot;period&quot;: T,
+                   &quot;seed&quot;: seed, &quot;n_phases&quot;: N_PHASES, &quot;n_bins&quot;: N_BINS},
+        &quot;analytic&quot;: {&quot;mbar&quot;: b0 / gamma, &quot;amp&quot;: amp, &quot;delta&quot;: delta,
+                     &quot;phases&quot;: phases, &quot;m_at_phases&quot;: m_at,
+                     &quot;p_at_phases&quot;: p_at, &quot;mixture&quot;: mix, &quot;p_curve&quot;: p_curve},
+        &quot;sim&quot;: {&quot;A_mean&quot;: a_mean, &quot;A_sd&quot;: a_sd, &quot;A_se&quot;: a_se,
+                &quot;snap_mean&quot;: snap_mean, &quot;snap_se&quot;: snap_se,
+                &quot;bin_p&quot;: bin_p, &quot;bin_ref&quot;: bin_ref, &quot;max_dev_bin&quot;: max_dev,
+                &quot;n_events&quot;: tot_events, &quot;runtime_s&quot;: runtime},
+        &quot;example&quot;: example,
+    }
+
+
+# ---------------------------------------------------------------------------
+# self-tests (deterministic)
+# ---------------------------------------------------------------------------
+def self_tests():
+    &quot;&quot;&quot;Return a list of (name, passed, detail) for the numerical blocks.&quot;&quot;&quot;
+    tests = []
+
+    # Poisson survival against a hand-checked reference value
+    ref = 0.1428765395   # Pr{Pois(2) &gt;= 4} = 1 - e^-2 (1 + 2 + 2 + 4/3)
+    val = poisson_sf(2.0, 4)
+    tests.append((&quot;poisson_sf(2,4) reference&quot;, abs(val - ref) &lt; 1e-9,
+                  f&quot;got {val:.10f}, ref {ref}&quot;))
+
+    # closed-form periodic mean vs RK4 integration of m&#x27; = b - gamma m
+    num = m_periodic_rk4()
+    dev = max(abs(m_num - m_periodic(t)) for t, m_num in num)
+    tests.append((&quot;m_per closed form vs RK4&quot;, dev &lt; 1e-8, f&quot;max dev {dev:.2e}&quot;))
+
+    # root solver: residual and positivity at random states
+    rng = random.Random(20260915)
+    worst = 0.0
+    for _ in range(2000):
+        t = rng.uniform(0.0, 8.0)
+        n = rng.randrange(0, 8)
+        E = 4.0 * rng.expovariate(0.25) * 0.25
+        tau = solve_tau(E, t, n)
+        res = abs(hazard_cum(tau, t, n) - E) / max(E, 1e-12)
+        worst = max(worst, res)
+        if a_total(t + tau, n) &lt;= 0.0:
+            worst = 1.0
+    tests.append((&quot;solve_tau residual&quot;, worst &lt; 1e-9,
+                  f&quot;worst rel residual {worst:.2e}&quot;))
+
+    # residence accounting: total recorded time must equal n_cycles * period
+    T = 2.0 * math.pi / OMEGA
+    rng = random.Random(7)
+    ev = simulate_path(rng, (BURN_IN + N_CYCLES) * T)
+    _, nb, db = residence_average(ev, BURN_IN * T, (BURN_IN + N_CYCLES) * T,
+                                  THETA, N_BINS, T)
+    err = abs(sum(db) - N_CYCLES * T) / (N_CYCLES * T)
+    tests.append((&quot;residence time accounting&quot;, err &lt; 1e-9,
+                  f&quot;rel err {err:.2e}&quot;))
+    return tests
+
+
+# ---------------------------------------------------------------------------
+# figures (inline SVG; colours and fonts come from the page CSS via classes)
+# ---------------------------------------------------------------------------
+def _txt(x, y, s, cls, anchor=&quot;middle&quot;, transform=None):
+    tr = f&#x27; transform=&quot;{transform}&quot;&#x27; if transform else &quot;&quot;
+    return (f&#x27;&lt;text x=&quot;{x:.1f}&quot; y=&quot;{y:.1f}&quot; class=&quot;{cls}&quot; &#x27;
+            f&#x27;text-anchor=&quot;{anchor}&quot;{tr}&gt;{s}&lt;/text&gt;&#x27;)
+
+
+def _ln(x1, y1, x2, y2, cls):
+    return (f&#x27;&lt;line x1=&quot;{x1:.1f}&quot; y1=&quot;{y1:.1f}&quot; x2=&quot;{x2:.1f}&quot; y2=&quot;{y2:.1f}&quot; &#x27;
+            f&#x27;class=&quot;{cls}&quot;/&gt;&#x27;)
+
+
+def _poly(pts, cls):
+    d = &quot;M &quot; + &quot; L &quot;.join(f&quot;{x:.2f},{y:.2f}&quot; for x, y in pts)
+    return f&#x27;&lt;path d=&quot;{d}&quot; class=&quot;{cls}&quot;/&gt;&#x27;
+
+
+def _dots(pts, cls, r=2.4):
+    return &quot;&quot;.join(f&#x27;&lt;circle cx=&quot;{x:.2f}&quot; cy=&quot;{y:.2f}&quot; r=&quot;{r}&quot; class=&quot;{cls}&quot;/&gt;&#x27;
+                   for x, y in pts)
+
+
+def _panel_a(res, x0, y0, w, h):
+    &quot;&quot;&quot;Left panel: total hazard a0(t, N(t)) along one example path with events
+    marked.  With eps &gt; 0 the curve keeps moving between events; with eps = 0
+    it stays flat between events (the frozen-clock premise holds).&quot;&quot;&quot;
+    P = res[&quot;params&quot;]
+    T = P[&quot;period&quot;]
+    rec_start = P[&quot;burn_in&quot;] * T
+    tmax = 2.0 * T
+    X = lambda t: x0 + (t - rec_start) / tmax * w
+    Y = lambda v: y0 + h - v / vmax * h
+
+    # hazard curve, sampled finely inside each holding interval (two passes:
+    # first collect raw samples and the y-range, then map to the panel)
+    samples, dots = [], []
+    for t1, t2, n in res[&quot;example&quot;][&quot;intervals&quot;]:
+        a1, a2 = max(t1, rec_start), min(t2, rec_start + tmax)
+        if a2 &lt;= a1:
+            continue
+        nseg = max(2, int((a2 - a1) / 0.04))
+        for i in range(nseg + 1):
+            tt = a1 + (a2 - a1) * i / nseg
+            samples.append((tt, a_total(tt, n, P[&quot;b0&quot;], P[&quot;eps&quot;],
+                                        P[&quot;omega&quot;], P[&quot;gamma&quot;])))
+        if rec_start &lt; t2 &lt;= rec_start + tmax:
+            dots.append((t2, a_total(t2, n, P[&quot;b0&quot;], P[&quot;eps&quot;], P[&quot;omega&quot;],
+                                     P[&quot;gamma&quot;])))
+    vmax = math.ceil(max(v for _, v in samples) * 1.02)
+    step = next(s for s in (1.0, 2.0, 5.0, 10.0) if vmax / s &lt;= 6.0)
+
+    parts = []
+    parts.append(_ln(x0, y0 + h, x0 + w, y0 + h, &quot;ax&quot;))
+    parts.append(_ln(x0, y0, x0, y0 + h, &quot;ax&quot;))
+    v = step
+    while v &lt;= vmax + 1e-9:
+        parts.append(_ln(x0, Y(v), x0 + w, Y(v), &quot;tick&quot;))
+        parts.append(_txt(x0 - 6, Y(v) + 4, f&quot;{v:g}&quot;, &quot;axtext&quot;, &quot;end&quot;))
+        v += step
+    for tt in range(0, int(tmax) + 1, 4):
+        parts.append(_ln(X(rec_start + tt), y0 + h, X(rec_start + tt),
+                         y0 + h + 4, &quot;ax&quot;))
+        parts.append(_txt(X(rec_start + tt), y0 + h + 16, f&quot;{tt}&quot;, &quot;axtext&quot;))
+    parts.append(_ln(X(rec_start + T), y0, X(rec_start + T), y0 + h, &quot;cycle&quot;))
+    parts.append(_txt(x0 + w / 2, y0 + h + 32, &quot;t (min)&quot;, &quot;axtext&quot;))
+    yx, yy = x0 - 34, y0 + h / 2
+    parts.append(_txt(yx, yy, &quot;a\u2080(t) (1/min)&quot;, &quot;axtext&quot;, &quot;middle&quot;,
+                      f&quot;rotate(-90 {yx:.1f} {yy:.1f})&quot;))
+    parts.append(_txt(x0 + 2, y0 - 10, &quot;(a) total hazard along one path, &quot;
+                      &quot;with events&quot;, &quot;ptitle&quot;, &quot;start&quot;))
+    parts.append(_poly([(X(t), Y(v)) for t, v in samples], &quot;haz&quot;))
+    parts.append(_dots([(X(t), Y(v)) for t, v in dots], &quot;evt&quot;))
+    return &quot;&quot;.join(parts)
+
+
+def _panel_b(res, x0, y0, w, h, ymax):
+    &quot;&quot;&quot;Right panel: phase-resolved threshold probability.  Analytic p(phi)
+    curve, fixed-phase snapshot ensemble (mean +/- 1 SE over M paths), the
+    complete-cycle residence average +/- 1 SE (dashed, with band) and the
+    analytic cycle mixture (dotted).&quot;&quot;&quot;
+    A = res[&quot;analytic&quot;]
+    S = res[&quot;sim&quot;]
+    X = lambda phi: x0 + phi / (2.0 * math.pi) * w
+    Y = lambda v: y0 + h - v / ymax * h
+
+    parts = []
+    parts.append(_ln(x0, y0 + h, x0 + w, y0 + h, &quot;ax&quot;))
+    parts.append(_ln(x0, y0, x0, y0 + h, &quot;ax&quot;))
+    ystep = ymax / 4.0
+    v = 0.0
+    while v &lt;= ymax + 1e-9:
+        parts.append(_ln(x0, Y(v), x0 + w, Y(v), &quot;tick&quot;))
+        lab = f&quot;{v:.2f}&quot; if ystep &lt; 0.1 else f&quot;{v:.1f}&quot;
+        parts.append(_txt(x0 - 6, Y(v) + 4, lab, &quot;axtext&quot;, &quot;end&quot;))
+        v += ystep
+    for i, s in enumerate((&quot;0&quot;, &quot;\u03c0/2&quot;, &quot;\u03c0&quot;, &quot;3\u03c0/2&quot;, &quot;2\u03c0&quot;)):
+        xx = X(2.0 * math.pi * i / 4.0)
+        parts.append(_ln(xx, y0 + h, xx, y0 + h + 4, &quot;ax&quot;))
+        parts.append(_txt(xx, y0 + h + 16, s, &quot;axtext&quot;))
+    parts.append(_txt(x0 + w / 2, y0 + h + 32, &quot;phase φ&quot;, &quot;axtext&quot;))
+    yx, yy = x0 - 34, y0 + h / 2
+    parts.append(_txt(yx, yy, &quot;Pr{N ≥ θ}&quot;, &quot;axtext&quot;, &quot;middle&quot;,
+                      f&quot;rotate(-90 {yx:.1f} {yy:.1f})&quot;))
+    parts.append(_txt(x0 + 2, y0 - 10, &quot;(b) phase-resolved Pr{N ≥ θ}&quot;,
+                      &quot;ptitle&quot;, &quot;start&quot;))
+
+    am, ase = S[&quot;A_mean&quot;], S[&quot;A_se&quot;]
+    parts.append(f&#x27;&lt;rect x=&quot;{x0:.1f}&quot; y=&quot;{Y(am + ase):.1f}&quot; width=&quot;{w:.1f}&quot; &#x27;
+                 f&#x27;height=&quot;{max(1.0, Y(am - ase) - Y(am + ase)):.1f}&quot; &#x27;
+                 f&#x27;class=&quot;resband&quot;/&gt;&#x27;)
+    parts.append(_ln(x0, Y(am), x0 + w, Y(am), &quot;resline&quot;))
+    parts.append(_ln(x0, Y(A[&quot;mixture&quot;]), x0 + w, Y(A[&quot;mixture&quot;]), &quot;mixline&quot;))
+    parts.append(_poly([(X(p), Y(v)) for p, v in A[&quot;p_curve&quot;]], &quot;pcurve&quot;))
+    eb = []
+    for i in range(res[&quot;params&quot;][&quot;n_phases&quot;]):
+        xx, m, se = X(A[&quot;phases&quot;][i]), S[&quot;snap_mean&quot;][i], S[&quot;snap_se&quot;][i]
+        eb.append(_ln(xx, Y(m + se), xx, Y(m - se), &quot;snapeb&quot;))
+        eb.append(_ln(xx - 3, Y(m + se), xx + 3, Y(m + se), &quot;snapeb&quot;))
+        eb.append(_ln(xx - 3, Y(m - se), xx + 3, Y(m - se), &quot;snapeb&quot;))
+    parts.append(&quot;&quot;.join(eb))
+    parts.append(_dots([(X(A[&quot;phases&quot;][i]), Y(S[&quot;snap_mean&quot;][i]))
+                        for i in range(res[&quot;params&quot;][&quot;n_phases&quot;])], &quot;snap&quot;))
+    return &quot;&quot;.join(parts)
+
+
+def two_panel_svg(res):
+    &quot;&quot;&quot;Assemble the two-panel figure for one experiment as an SVG string.&quot;&quot;&quot;
+    pmax = max(max(v for _, v in res[&quot;analytic&quot;][&quot;p_curve&quot;]),
+               res[&quot;sim&quot;][&quot;A_mean&quot;] + res[&quot;sim&quot;][&quot;A_se&quot;],
+               max(res[&quot;sim&quot;][&quot;snap_mean&quot;][i] + res[&quot;sim&quot;][&quot;snap_se&quot;][i]
+                   for i in range(res[&quot;params&quot;][&quot;n_phases&quot;])))
+    ymax = math.ceil(pmax * 10.0) / 10.0
+    parts = [&#x27;&lt;svg class=&quot;fig&quot; viewBox=&quot;0 0 760 320&quot; &#x27;
+             &#x27;xmlns=&quot;http://www.w3.org/2000/svg&quot; role=&quot;img&quot; &#x27;
+             &#x27;aria-label=&quot;periodic hazard and phase-resolved probability&quot;&gt;&#x27;]
+    parts.append(_panel_a(res, 66, 48, 280, 196))
+    parts.append(_panel_b(res, 448, 48, 280, 196, ymax))
+    parts.append(&quot;&lt;/svg&gt;&quot;)
+    return &quot;&quot;.join(parts)
+
+
+# ---------------------------------------------------------------------------
+# entry points
+# ---------------------------------------------------------------------------
+def run_all():
+    &quot;&quot;&quot;Run both experiments (eps = 0 baseline, eps = 0.6 main) and return
+    (res_zero, res_pos, svg_zero, svg_pos, tests).&quot;&quot;&quot;
+    tests = self_tests()
+    res_zero = run_experiment(0.0, with_example=True)
+    res_pos = run_experiment(EPS, with_example=True)
+    svg_zero = two_panel_svg(res_zero)
+    svg_pos = two_panel_svg(res_pos)
+    return res_zero, res_pos, svg_zero, svg_pos, tests
+
+
+def _report(res, name):
+    P, A, S = res[&quot;params&quot;], res[&quot;analytic&quot;], res[&quot;sim&quot;]
+    print(f&quot;\n== {name} (eps={P[&#x27;eps&#x27;]}, b0={P[&#x27;b0&#x27;]}, &quot;
+          f&quot;omega={P[&#x27;omega&#x27;]:.4f}, gamma={P[&#x27;gamma&#x27;]}, theta={P[&#x27;theta&#x27;]}) ==&quot;)
+    print(f&quot;  m_per: mean {A[&#x27;mbar&#x27;]:.4f}, amp {A[&#x27;amp&#x27;]:.4f}, &quot;
+          f&quot;lag {A[&#x27;delta&#x27;]:.4f} rad; mixture (analytic) {A[&#x27;mixture&#x27;]:.4f}&quot;)
+    print(&quot;  phase i, phi, m_per, p_analytic, snapshot mean, snapshot SE:&quot;)
+    for i in range(P[&quot;n_phases&quot;]):
+        print(f&quot;    {i}  {A[&#x27;phases&#x27;][i]:.4f}  {A[&#x27;m_at_phases&#x27;][i]:.4f}  &quot;
+              f&quot;{A[&#x27;p_at_phases&#x27;][i]:.4f}  {S[&#x27;snap_mean&#x27;][i]:.4f}  &quot;
+              f&quot;{S[&#x27;snap_se&#x27;][i]:.4f}&quot;)
+    print(f&quot;  Estimator A (complete-cycle residence average): &quot;
+          f&quot;{S[&#x27;A_mean&#x27;]:.4f} +/- {S[&#x27;A_se&#x27;]:.4f} (sd {S[&#x27;A_sd&#x27;]:.4f})&quot;)
+    print(f&quot;  analytic mixture - A: {A[&#x27;mixture&#x27;] - S[&#x27;A_mean&#x27;]:+.4f} &quot;
+          f&quot;({(A[&#x27;mixture&#x27;] - S[&#x27;A_mean&#x27;]) / S[&#x27;A_se&#x27;]:+.1f} SE)&quot;)
+    print(f&quot;  pooled residence curve max dev vs analytic: &quot;
+          f&quot;{S[&#x27;max_dev_bin&#x27;]:.4f}&quot;)
+    print(f&quot;  events {S[&#x27;n_events&#x27;]}, runtime {S[&#x27;runtime_s&#x27;]:.1f} s&quot;)
+
+
+def main():
+    for name, ok, detail in self_tests():
+        print(f&quot;[{&#x27;PASS&#x27; if ok else &#x27;FAIL&#x27;}] {name}: {detail}&quot;)
+    res_zero, res_pos, _, _, _ = run_all()
+    _report(res_zero, &quot;baseline (drive off)&quot;)
+    _report(res_pos, &quot;main experiment (drive on)&quot;)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre>
+</details>
+<h2>What I would argue against / where this breaks</h2>
+<ol>
+<li>The effect is visible only when the period is long compared with the relaxation time: the relative modulation of m<sub>per</sub> is ε/√(1+(ω/γ)²), so for ω≫γ the phase curve p(φ) collapses to a constant and the difference between the two estimators falls into the Monte Carlo error. This example needs T=8×(1/γ) to reach a phase dynamics spanning 0.023–0.339. That is a fair criticism; but it is also exactly the regime in which exogenous periods matter most in biology (cell cycle, circadian rhythm, dosing schedule).</li>
+<li>The expectation of A equals the mixture by linearity alone; but "converges to the mixture almost surely" is a cycloergodicity-type assumption (the fraction-of-time framework of Gardner et al.). The immigration–death process here is the benign case, not like the core autocatalytic counterexample where long paths replace the ensemble wholesale — so what is shown in this essay is that the two estimators have different targets, not an ergodicity failure.</li>
+<li>The Poisson benchmark is exact only when the immigration rate does not depend on N. Any density-dependent b, burst additions or a shared promoter would break the analytic check; for a non-sinusoidal drive (a square wave, say) H is only piecewise smooth at the jumps and needs separate treatment (not tested here). The sampling repair and the estimator distinction themselves are unaffected.</li>
+<li>Snapshot samples taken at the same phase in different cycles along one path are correlated. This is controlled by taking a per-path frequency and then the SE over the M paths; with K=40 and 1/γ=1 min ≪ T=8 min the cross-cycle correlation is negligible, but slower relaxation needs clustering by path or a larger K.</li>
+<li>Both integrated-hazard root finding and thinning are standard repairs in the literature (Anderson 2007; Lewis–Shedler 1979 as the alternative route), and neither the L4 nor the L5 results are new. What is new is one sentence: under a periodic drive the phase-conditioned ensemble and the cycle mixture are two different estimation targets, and the difference can be resolved numerically.</li>
+</ol>
+<h2>Sources</h2>
+<ul class="src">
+<li>Gillespie, D. T. (1977). "Exact stochastic simulation of coupled chemical reactions." <em>The Journal of Physical Chemistry</em> 81(25): 2340–2361. <a href="https://doi.org/10.1021/j100540a008">doi:10.1021/j100540a008</a> — Relevant sections: abstract (p. 2340) and §II pp. 2343–2344, Eqs. (14), (17a)–(18); read in full text. Supports the claim that the direct method's exponential waiting time is derived conditional on the state (hence every propensity) staying fixed during (t, t+τ) — exactly the premise the periodic drive violates.</li>
+<li>Anderson, D. F. (2007). "A modified next reaction method for simulating chemical systems with time dependent propensities and delays." <em>The Journal of Chemical Physics</em> 127(21): 214107. <a href="https://doi.org/10.1063/1.2799998">doi:10.1063/1.2799998</a> — Relevant sections: abstract, §III Definition 1, §IV Eq. (5), and §V "Time dependent propensity functions" Eqs. (7), (10)–(12); read in full text (author-hosted journal PDF). Supports the integrated-hazard root solve used as the sampling repair in the artifact.</li>
+<li>Gardner, W. A., Napolitano, A., &amp; Paura, L. (2006). "Cyclostationarity: Half a century of research." <em>Signal Processing</em> 86(4): 639–697. <a href="https://doi.org/10.1016/j.sigpro.2005.06.016">doi:10.1016/j.sigpro.2005.06.016</a> — Relevant sections: §3.3 pp. 646–648 (fraction-of-time framework, temporal-expectation identities, synchronized averaging) and §4.2 pp. 657–658 (time average vs ensemble, strict-sense cycloergodicity); read in those sections only. Supports the claim that a one-path average over complete cycles targets a temporal (cycle) mixture, a different object from the fixed-phase ensemble, and that their coincidence is a cycloergodicity-type assumption rather than an identity.</li>
+<li>Lewis, P. A. W., &amp; Shedler, G. S. (1979). "Simulation of nonhomogeneous Poisson processes by thinning." <em>Naval Research Logistics Quarterly</em> 26(3): 403–413. <a href="https://doi.org/10.1002/nav.3800260304">doi:10.1002/nav.3800260304</a> — Abstract only (full text paywalled). Directional support only: thinning as the alternative route for time-varying rates; not load-bearing here.</li>
+<li>Lecture 5 core page on the course site: "Lecture 5 · Stochastic dynamics: the master equation and Gillespie · core · CCBS 2026." <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture05-core.html">lecture05-core.html</a> — Relevant sections: §9 (Eqs. (20)–(22), the two-uniform event loop and its "fixed distribution" premise), §10 (fixed-time ensemble vs residence-time weights, the ergodicity subsection and all worked records), §12–§13 (the four exactness hypotheses and the six-line contract); read in full at line level. Supports the background statements about the Lecture 5 estimators and the fixed-between-events hypothesis that this essay extends.</li>
+<li>Lecture 4 core page on the course site: "Lecture 4 · From simulations to possible behaviors · core · CCBS 2026." <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture04-core.html">lecture04-core.html</a> — Relevant sections: the scalar no-cycle theorem, the repressilator passage and the planar Poincaré–Bendixson discussion. Supports the positioning of Lecture 4's autonomous periodic dynamics as background, distinct from this essay's externally driven random process.</li>
+</ul>
+</div>
+</body>
+</html>

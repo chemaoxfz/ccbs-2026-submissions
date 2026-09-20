@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 2 — Extension: Signs decide stability exactly when there is no loop to tune</title>
+<meta name="author" content="Leo Sin">
+<meta name="week" content="week2">
+<style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .wrap { max-width:820px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px;
+    border-bottom:1px solid var(--line); padding-bottom:5px; }
+  h2 .n { display:inline-block; width:1.5em; color:var(--muted); font-weight:400; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:14px 18px; margin:14px 0; }
+  .card ol { margin:6px 0 0; padding-left:1.4em; }
+  .fig { width:100%; height:auto; border:1px solid var(--line); border-radius:6px;
+    margin:14px 0; background:var(--bg); }
+  figure { margin:22px 0; }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; }
+  .src li { margin-bottom:8px; }
+  table { border-collapse:collapse; width:100%; font-size:.87rem; margin:14px 0; }
+  th, td { border-bottom:1px solid var(--line); padding:5px 8px; text-align:right; }
+  th:first-child, td:first-child { text-align:left; }
+  th { color:var(--muted); font-weight:600; }
+  .tcap { font-size:.85rem; color:var(--muted); margin-top:-6px; }
+  pre { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:12px 14px; overflow-x:auto; font-size:.78rem; line-height:1.45; }
+  code { font-family:"SF Mono",Consolas,Menlo,monospace; }
+  eq { display:block; text-align:center; margin:14px 0; font-size:1.02rem; }
+  .wide { overflow-x:auto; }
+  details { margin:12px 0; }
+  summary { cursor:pointer; color:var(--accent); font-size:.9rem; }
+  em.q { color:var(--muted); font-style:normal; }
+  .ok { color:#2e8b57; font-weight:600; }
+  .no { color:#c0392b; font-weight:600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Signs decide stability exactly when there is no loop to tune</h1>
+<p class="meta">Leo Sin (施延庆) · Week 2, lectures 3–4 · CCBS 2026 · ~1600 words</p>
+
+<p class="card"><strong>One sentence:</strong> The sign pattern of a Jacobian settles local stability
+for <em>every</em> choice of magnitudes exactly when the wiring has no loop that magnitudes could tune
+— no mutually activating or mutually repressing pair, and no loop through three or more species —
+because the only numbers that survive giving each species its own unit are the products around loops;
+so signs alone decide precisely for the wirings that can neither remember nor keep time, and the share
+of wirings they decide falls from 7 of 9 at two species to 5% at four.</p>
+
+<h2><span class="n">1</span>The statement lecture 4 asked for</h2>
+
+<p>Lecture 4 §1 sets the target: <em class="q">"We need statements such as 'every field with this sign
+pattern is stable'."</em> §8 then supplies the tool that reads numbers, the Hurwitz test, and the
+observation that <em class="q">"the sign pattern of the Jacobian is the local wiring diagram."</em><sup>1</sup>
+What it does not say is when the wiring alone already settles the test. That question has an exact
+answer, found in economics by Quirk and Ruppert, carried into ecology by May, and completed by Jeffries,
+Klee and van den Driessche: a sign pattern is <em>sign stable</em> when every matrix carrying those
+signs, whatever the magnitudes, is Hurwitz.<sup>3–6</sup></p>
+
+<p>In the lecture's terms: at a fixed point, <em>A</em> = <em>J</em>(<em>x</em>*) with
+<em>a<sub>ij</sub></em> = ∂<em>F<sub>i</sub></em>/∂<em>x<sub>j</sub></em>, so species <em>j</em> points at
+species <em>i</em> with the sign of <em>a<sub>ij</sub></em>. Every diagonal entry starts at −<em>λ</em>
+from dilution (lecture 3 §4) and degradation only lowers it, so take <em>a<sub>ii</sub></em> &lt; 0
+throughout.<sup>1,2</sup> Then the theorem reduces to two tests on the off-diagonal signs.</p>
+
+<div class="card"><strong>Sign stability with self-removal on every species.</strong> The wiring is
+Hurwitz for every choice of magnitudes if and only if
+<ol>
+<li>no pair is mutually activating or mutually repressing: <em>a<sub>ij</sub>a<sub>ji</sub></em> ≤ 0 for all
+<em>i</em> ≠ <em>j</em>; and</li>
+<li>no directed loop runs through three or more species.</li>
+</ol>
+The other conditions of the full theorem, a nonpositive diagonal with at least one negative entry, a
+nonzero determinant and Jeffries' color test, are automatic once every <em>a<sub>ii</sub></em> &lt; 0.<sup>4–6</sup></div>
+
+<p>Figure 1 puts the nine two-species wirings through the tests. Seven pass. The two that fail are the
+two lecture 4 could build memory from: mutual activation, and the mutual repression of its toggle (12).
+For those two, and only those two, the Hurwitz rule (17) needs numbers. The trace is negative for free,
+and det <em>A</em> &gt; 0 becomes <em>a</em><sub>12</sub><em>a</em><sub>21</sub> &lt;
+<em>a</em><sub>11</sub><em>a</em><sub>22</sub>: the product of the two interaction slopes must stay below
+the product of the two removal rates. That is lecture 4 §3's slope test, addition must not outrun removal
+at the crossing, promoted to a loop.</p>
+
+<figure>
+<svg class="fig" viewBox="0 0 760 392" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Nine two-species wirings with self-removal. Seven are decided by signs alone; mutual activation and mutual repression are decided by the loop gain.">
+<style>.ax{stroke:var(--line);stroke-width:1}.tk{fill:var(--muted);font-size:10px}.lb{fill:var(--ink);font-size:11px}.ti{fill:var(--accent);font-size:11.5px;font-weight:600}.gr{stroke:var(--line);stroke-width:.5;stroke-dasharray:2 3}.nd{fill:var(--bg);stroke:var(--ink);stroke-width:1.2}.nt{fill:var(--ink);font-size:11px;font-weight:600}.ed{stroke:var(--ink);stroke-width:1.4;fill:none}.ok{fill:#2e8b57;font-size:10.5px;font-weight:600}.no{fill:#c0392b;font-size:10.5px;font-weight:600}.sm{fill:var(--muted);font-size:9.5px}.eq{fill:var(--ink);font-size:10px;font-style:italic}</style>
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--ink)"/></marker><marker id="bar" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M6,0 L6,10" stroke="var(--ink)" stroke-width="3.2" fill="none"/></marker></defs>
+<text class="sm" x="118" y="30" text-anchor="end">effect of Y on X</text>
+<text class="sm" x="118" y="42" text-anchor="end">a<tspan font-size="7" dy="3">12</tspan><tspan dy="-3"> = ∂F</tspan><tspan font-size="7" dy="3">X</tspan><tspan dy="-3">/∂Y</tspan></text>
+<text class="lb" x="232" y="30" text-anchor="middle">X represses Y</text>
+<text class="sm" x="232" y="43" text-anchor="middle">a<tspan font-size="7" dy="3">21</tspan><tspan dy="-3"> = ∂F</tspan><tspan font-size="7" dy="3">Y</tspan><tspan dy="-3">/∂X &lt; 0</tspan></text>
+<text class="lb" x="440" y="30" text-anchor="middle">X ignores Y</text>
+<text class="sm" x="440" y="43" text-anchor="middle">a<tspan font-size="7" dy="3">21</tspan><tspan dy="-3"> = ∂F</tspan><tspan font-size="7" dy="3">Y</tspan><tspan dy="-3">/∂X = 0</tspan></text>
+<text class="lb" x="648" y="30" text-anchor="middle">X activates Y</text>
+<text class="sm" x="648" y="43" text-anchor="middle">a<tspan font-size="7" dy="3">21</tspan><tspan dy="-3"> = ∂F</tspan><tspan font-size="7" dy="3">Y</tspan><tspan dy="-3">/∂X &gt; 0</tspan></text>
+<text class="lb" x="118" y="84" text-anchor="end">Y represses X</text>
+<text class="sm" x="118" y="97" text-anchor="end">a<tspan font-size="7" dy="3">12</tspan><tspan dy="-3"> &lt; 0</tspan></text>
+<rect x="132" y="56" width="200" height="100" rx="5" fill="none" stroke="var(--line)"/>
+<circle class="nd" cx="188" cy="86" r="11"/><text class="nt" x="188" y="90" text-anchor="middle">X</text>
+<circle class="nd" cx="276" cy="86" r="11"/><text class="nt" x="276" y="90" text-anchor="middle">Y</text>
+<path class="ed" d="M199.0,82.0 Q232.0,71.0 265.0,82.0" marker-end="url(#bar)"/>
+<path class="ed" d="M265.0,90.0 Q232.0,101.0 199.0,90.0" marker-end="url(#bar)"/>
+<text class="no" x="232.0" y="120" text-anchor="middle">magnitudes decide</text>
+<text class="eq" x="232.0" y="134" text-anchor="middle">Hurwitz iff a<tspan font-size="7" dy="3">12</tspan><tspan dy="-3">a</tspan><tspan font-size="7" dy="3">21</tspan><tspan dy="-3"> &lt; a</tspan><tspan font-size="7" dy="3">11</tspan><tspan dy="-3">a</tspan><tspan font-size="7" dy="3">22</tspan></text>
+<text class="sm" x="232.0" y="148" text-anchor="middle">mutual repression: the toggle of lecture 4</text>
+<rect x="340" y="56" width="200" height="100" rx="5" fill="none" stroke="var(--line)"/>
+<circle class="nd" cx="396" cy="86" r="11"/><text class="nt" x="396" y="90" text-anchor="middle">X</text>
+<circle class="nd" cx="484" cy="86" r="11"/><text class="nt" x="484" y="90" text-anchor="middle">Y</text>
+
+<path class="ed" d="M473.0,90.0 Q440.0,101.0 407.0,90.0" marker-end="url(#bar)"/>
+<text class="ok" x="440.0" y="120" text-anchor="middle">signs decide: always Hurwitz</text>
+<text class="sm" x="440.0" y="134" text-anchor="middle">one-way: block triangular, no loop</text>
+<rect x="548" y="56" width="200" height="100" rx="5" fill="none" stroke="var(--line)"/>
+<circle class="nd" cx="604" cy="86" r="11"/><text class="nt" x="604" y="90" text-anchor="middle">X</text>
+<circle class="nd" cx="692" cy="86" r="11"/><text class="nt" x="692" y="90" text-anchor="middle">Y</text>
+<path class="ed" d="M615.0,82.0 Q648.0,71.0 681.0,82.0" marker-end="url(#ah)"/>
+<path class="ed" d="M681.0,90.0 Q648.0,101.0 615.0,90.0" marker-end="url(#bar)"/>
+<text class="ok" x="648.0" y="120" text-anchor="middle">signs decide: always Hurwitz</text>
+<text class="sm" x="648.0" y="134" text-anchor="middle">a negative loop: b₁₂ = −b₂₁ after rescaling</text>
+<text class="lb" x="118" y="190" text-anchor="end">Y ignores X</text>
+<text class="sm" x="118" y="203" text-anchor="end">a<tspan font-size="7" dy="3">12</tspan><tspan dy="-3"> = 0</tspan></text>
+<rect x="132" y="162" width="200" height="100" rx="5" fill="none" stroke="var(--line)"/>
+<circle class="nd" cx="188" cy="192" r="11"/><text class="nt" x="188" y="196" text-anchor="middle">X</text>
+<circle class="nd" cx="276" cy="192" r="11"/><text class="nt" x="276" y="196" text-anchor="middle">Y</text>
+<path class="ed" d="M199.0,188.0 Q232.0,177.0 265.0,188.0" marker-end="url(#bar)"/>
+
+<text class="ok" x="232.0" y="226" text-anchor="middle">signs decide: always Hurwitz</text>
+<text class="sm" x="232.0" y="240" text-anchor="middle">one-way: block triangular, no loop</text>
+<rect x="340" y="162" width="200" height="100" rx="5" fill="none" stroke="var(--line)"/>
+<circle class="nd" cx="396" cy="192" r="11"/><text class="nt" x="396" y="196" text-anchor="middle">X</text>
+<circle class="nd" cx="484" cy="192" r="11"/><text class="nt" x="484" y="196" text-anchor="middle">Y</text>
+
+
+<text class="ok" x="440.0" y="226" text-anchor="middle">signs decide: always Hurwitz</text>
+<text class="sm" x="440.0" y="240" text-anchor="middle">no interaction</text>
+<rect x="548" y="162" width="200" height="100" rx="5" fill="none" stroke="var(--line)"/>
+<circle class="nd" cx="604" cy="192" r="11"/><text class="nt" x="604" y="196" text-anchor="middle">X</text>
+<circle class="nd" cx="692" cy="192" r="11"/><text class="nt" x="692" y="196" text-anchor="middle">Y</text>
+<path class="ed" d="M615.0,188.0 Q648.0,177.0 681.0,188.0" marker-end="url(#ah)"/>
+
+<text class="ok" x="648.0" y="226" text-anchor="middle">signs decide: always Hurwitz</text>
+<text class="sm" x="648.0" y="240" text-anchor="middle">one-way: block triangular, no loop</text>
+<text class="lb" x="118" y="296" text-anchor="end">Y activates X</text>
+<text class="sm" x="118" y="309" text-anchor="end">a<tspan font-size="7" dy="3">12</tspan><tspan dy="-3"> &gt; 0</tspan></text>
+<rect x="132" y="268" width="200" height="100" rx="5" fill="none" stroke="var(--line)"/>
+<circle class="nd" cx="188" cy="298" r="11"/><text class="nt" x="188" y="302" text-anchor="middle">X</text>
+<circle class="nd" cx="276" cy="298" r="11"/><text class="nt" x="276" y="302" text-anchor="middle">Y</text>
+<path class="ed" d="M199.0,294.0 Q232.0,283.0 265.0,294.0" marker-end="url(#bar)"/>
+<path class="ed" d="M265.0,302.0 Q232.0,313.0 199.0,302.0" marker-end="url(#ah)"/>
+<text class="ok" x="232.0" y="332" text-anchor="middle">signs decide: always Hurwitz</text>
+<text class="sm" x="232.0" y="346" text-anchor="middle">a negative loop: b₁₂ = −b₂₁ after rescaling</text>
+<rect x="340" y="268" width="200" height="100" rx="5" fill="none" stroke="var(--line)"/>
+<circle class="nd" cx="396" cy="298" r="11"/><text class="nt" x="396" y="302" text-anchor="middle">X</text>
+<circle class="nd" cx="484" cy="298" r="11"/><text class="nt" x="484" y="302" text-anchor="middle">Y</text>
+
+<path class="ed" d="M473.0,302.0 Q440.0,313.0 407.0,302.0" marker-end="url(#ah)"/>
+<text class="ok" x="440.0" y="332" text-anchor="middle">signs decide: always Hurwitz</text>
+<text class="sm" x="440.0" y="346" text-anchor="middle">one-way: block triangular, no loop</text>
+<rect x="548" y="268" width="200" height="100" rx="5" fill="none" stroke="var(--line)"/>
+<circle class="nd" cx="604" cy="298" r="11"/><text class="nt" x="604" y="302" text-anchor="middle">X</text>
+<circle class="nd" cx="692" cy="298" r="11"/><text class="nt" x="692" y="302" text-anchor="middle">Y</text>
+<path class="ed" d="M615.0,294.0 Q648.0,283.0 681.0,294.0" marker-end="url(#ah)"/>
+<path class="ed" d="M681.0,302.0 Q648.0,313.0 615.0,302.0" marker-end="url(#ah)"/>
+<text class="no" x="648.0" y="332" text-anchor="middle">magnitudes decide</text>
+<text class="eq" x="648.0" y="346" text-anchor="middle">Hurwitz iff a<tspan font-size="7" dy="3">12</tspan><tspan dy="-3">a</tspan><tspan font-size="7" dy="3">21</tspan><tspan dy="-3"> &lt; a</tspan><tspan font-size="7" dy="3">11</tspan><tspan dy="-3">a</tspan><tspan font-size="7" dy="3">22</tspan></text>
+<text class="sm" x="648.0" y="360" text-anchor="middle">mutual activation</text>
+<text class="sm" x="380" y="384" text-anchor="middle">every species also removes itself (a<tspan font-size="7" dy="3">11</tspan><tspan dy="-3">, a</tspan><tspan font-size="7" dy="3">22</tspan><tspan dy="-3"> &lt; 0: degradation or dilution) · arrowhead = activation, bar = repression</tspan></text>
+</svg>
+<figcaption>Figure 1. The nine two-species wirings, each species removing itself. Rows and columns are
+the signs of the two off-diagonal Jacobian entries. Seven wirings are Hurwitz whatever the magnitudes;
+the two positive loops are decided by the loop gain <em>a</em><sub>12</sub><em>a</em><sub>21</sub>
+against <em>a</em><sub>11</sub><em>a</em><sub>22</sub>. Drawn from the two tests above.</figcaption>
+</figure>
+
+<h2><span class="n">2</span>Why: the numbers that no unit can absorb</h2>
+
+<p>The proof I could reconstruct is a change of units, and it names the magnitudes the signs cannot
+absorb. Give each displacement its own unit: <em>z<sub>i</sub></em> = <em>d<sub>i</sub>w<sub>i</sub></em> with
+<em>d<sub>i</sub></em> &gt; 0. Then <em>ẇ</em> = <em>Bw</em> with <em>B</em> = <em>D</em><sup>−1</sup><em>AD</em>,</p>
+
+<eq><em>b<sub>ij</sub></em> = <em>a<sub>ij</sub></em> <em>d<sub>j</sub></em>/<em>d<sub>i</sub></em>.&nbsp;&nbsp;(1)</eq>
+
+<p><em>B</em> is similar to <em>A</em>, so it has the same eigenvalues and the same diagonal. The
+off-diagonal magnitudes change, but in a constrained way: <em>b<sub>ij</sub>b<sub>ji</sub></em> =
+<em>a<sub>ij</sub>a<sub>ji</sub></em>, and around any directed loop the <em>d</em>'s cancel, so every loop
+product is untouched (Figure 2B). Loop products are the unit-free magnitudes of a wiring; everything else
+about the off-diagonal entries is a choice of units.</p>
+
+<p>Now suppose tests 1 and 2 hold. Group the species into strongly connected blocks. The only loops
+allowed are negative pairs, so each block is a tree of negative pairs and the blocks feed forward into one
+another: <em>A</em> is block-triangular and its eigenvalues are those of the blocks. Inside a block, walk
+the tree from a root and on each edge set
+(<em>d<sub>j</sub></em>/<em>d<sub>i</sub></em>)<sup>2</sup> = −<em>a<sub>ji</sub></em>/<em>a<sub>ij</sub></em>, a
+positive number precisely because the pair is negative. Then <em>b<sub>ij</sub></em> = −<em>b<sub>ji</sub></em>
+on every edge: <em>B</em> = Λ + <em>S</em> with Λ = diag(<em>a<sub>ii</sub></em>) and <em>S</em>
+skew-symmetric. Take <em>V</em> = Σ<em>w<sub>i</sub></em><sup>2</sup>. Along <em>ẇ</em> = <em>Bw</em>,</p>
+
+<eq><em>V̇</em> = 2<em>w</em><sup>T</sup>Λ<em>w</em> + 2<em>w</em><sup>T</sup><em>Sw</em> = 2 Σ <em>a<sub>ii</sub></em><em>w<sub>i</sub></em><sup>2</sup> &lt; 0,&nbsp;&nbsp;(2)</eq>
+
+<p>because the skew term vanishes identically. <em>V</em> only decays, so the block is Hurwitz, so
+<em>A</em> is. This is lecture 4 §9's Lyapunov move with a quadratic <em>V</em> whose weights are the
+units, and it works for every magnitude because a tree leaves every ratio
+<em>d<sub>j</sub></em>/<em>d<sub>i</sub></em> free (Figure 2A). Where it stops is equally explicit: a
+positive pair has <em>b<sub>ij</sub>b<sub>ji</sub></em> &gt; 0 in every unit system, and a loop through
+three or more species leaves one product no <em>D</em> touches. The leftover number is a loop gain, and
+stability depends on it. That any such loop can actually be tuned into instability is the converse half,
+proved by Jeffries, Klee and van den Driessche;<sup>6</sup> I check it numerically instead.</p>
+
+<figure>
+<svg class="fig" viewBox="0 0 760 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Left: a tree of interactions; each edge ratio can be set by choosing units per species. Right: a loop of three species; the product around the loop is invariant under any choice of units.">
+<style>.ax{stroke:var(--line);stroke-width:1}.tk{fill:var(--muted);font-size:10px}.lb{fill:var(--ink);font-size:11px}.ti{fill:var(--accent);font-size:11.5px;font-weight:600}.gr{stroke:var(--line);stroke-width:.5;stroke-dasharray:2 3}.nd{fill:var(--bg);stroke:var(--ink);stroke-width:1.2}.nt{fill:var(--ink);font-size:11px;font-weight:600}.ed{stroke:var(--ink);stroke-width:1.4;fill:none}.ok{fill:#2e8b57;font-size:10.5px;font-weight:600}.no{fill:#c0392b;font-size:10.5px;font-weight:600}.sm{fill:var(--muted);font-size:9.5px}.eq{fill:var(--ink);font-size:10px;font-style:italic}</style>
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--ink)"/></marker><marker id="bar" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M6,0 L6,10" stroke="var(--ink)" stroke-width="3.2" fill="none"/></marker></defs>
+<text class="ti" x="20" y="24">A · no loop: each edge ratio is yours to set</text>
+<path class="ed" d="M90.9,119.9 Q127.0,95.2 169.1,83.1" marker-end="url(#ah)"/>
+<path class="ed" d="M169.1,83.1 Q133.0,107.8 90.9,119.9" marker-end="url(#bar)"/>
+<path class="ed" d="M90.9,130.1 Q133.0,142.2 169.1,166.9" marker-end="url(#bar)"/>
+<path class="ed" d="M169.1,166.9 Q127.0,154.8 90.9,130.1" marker-end="url(#ah)"/>
+<path class="ed" d="M192.0,78.0 Q235.0,71.0 278.0,78.0" marker-end="url(#ah)"/>
+<path class="ed" d="M278.0,78.0 Q235.0,85.0 192.0,78.0" marker-end="url(#bar)"/>
+<path class="ed" d="M192.0,172.0 Q235.0,165.0 278.0,172.0" marker-end="url(#bar)"/>
+
+<circle class="nd" cx="80" cy="125" r="12"/><text class="nt" x="80" y="129" text-anchor="middle">1</text>
+<text class="sm" x="80" y="108" text-anchor="middle">unit d<tspan font-size="7" dy="3">1</tspan></text>
+<circle class="nd" cx="180" cy="78" r="12"/><text class="nt" x="180" y="82" text-anchor="middle">2</text>
+<text class="sm" x="180" y="61" text-anchor="middle">unit d<tspan font-size="7" dy="3">2</tspan></text>
+<circle class="nd" cx="180" cy="172" r="12"/><text class="nt" x="180" y="176" text-anchor="middle">3</text>
+<text class="sm" x="180" y="155" text-anchor="middle">unit d<tspan font-size="7" dy="3">3</tspan></text>
+<circle class="nd" cx="290" cy="78" r="12"/><text class="nt" x="290" y="82" text-anchor="middle">4</text>
+<text class="sm" x="290" y="61" text-anchor="middle">unit d<tspan font-size="7" dy="3">4</tspan></text>
+<circle class="nd" cx="290" cy="172" r="12"/><text class="nt" x="290" y="176" text-anchor="middle">5</text>
+<text class="sm" x="290" y="155" text-anchor="middle">unit d<tspan font-size="7" dy="3">5</tspan></text>
+<text class="sm" x="112" y="96" text-anchor="middle">(+,−)</text>
+<text class="sm" x="112" y="162" text-anchor="middle">(−,+)</text>
+<text class="sm" x="235" y="66" text-anchor="middle">(+,−)</text>
+<text class="sm" x="235" y="160" text-anchor="middle">one-way</text>
+<text class="sm" x="20" y="192">each pair is a negative loop (or one-way), and no loop runs through three or more species</text>
+<text class="eq" x="20" y="212">rescale z<tspan font-size="7" dy="3">i</tspan><tspan dy="-3"> = d</tspan><tspan font-size="7" dy="3">i</tspan><tspan dy="-3"> w</tspan><tspan font-size="7" dy="3">i</tspan><tspan dy="-3">:  b</tspan><tspan font-size="7" dy="3">ij</tspan><tspan dy="-3"> = a</tspan><tspan font-size="7" dy="3">ij</tspan><tspan dy="-3"> d</tspan><tspan font-size="7" dy="3">j</tspan><tspan dy="-3">/d</tspan><tspan font-size="7" dy="3">i</tspan></text>
+<text class="eq" x="20" y="230">pick (d<tspan font-size="7" dy="3">j</tspan><tspan dy="-3">/d</tspan><tspan font-size="7" dy="3">i</tspan><tspan dy="-3">)² = −a</tspan><tspan font-size="7" dy="3">ji</tspan><tspan dy="-3">/a</tspan><tspan font-size="7" dy="3">ij</tspan><tspan dy="-3"> on every pair → b</tspan><tspan font-size="7" dy="3">ij</tspan><tspan dy="-3"> = −b</tspan><tspan font-size="7" dy="3">ji</tspan><tspan dy="-3"> → V = Σw² only decays</tspan></text>
+<text class="ti" x="420" y="24">B · a loop: one product no unit can touch</text>
+<path class="ed" d="M512.0,80.0 Q560.0,70.0 608.0,80.0" marker-end="url(#bar)"/>
+<path class="ed" d="M613.3,90.0 Q598.3,130.5 566.7,160.0" marker-end="url(#bar)"/>
+<path class="ed" d="M553.3,160.0 Q521.7,130.5 506.7,90.0" marker-end="url(#bar)"/>
+<circle class="nd" cx="500" cy="80" r="12"/><text class="nt" x="500" y="84" text-anchor="middle">1</text>
+<circle class="nd" cx="620" cy="80" r="12"/><text class="nt" x="620" y="84" text-anchor="middle">2</text>
+<circle class="nd" cx="560" cy="170" r="12"/><text class="nt" x="560" y="174" text-anchor="middle">3</text>
+<text class="sm" x="560" y="62" text-anchor="middle">a₂₁</text>
+<text class="sm" x="612" y="140" text-anchor="middle">a₃₂</text>
+<text class="sm" x="508" y="140" text-anchor="middle">a₁₃</text>
+<text class="sm" x="420" y="192">the ring of three repressors (the repressilator wiring); any signs would do</text>
+<text class="eq" x="420" y="212">b<tspan font-size="7" dy="3">21</tspan><tspan dy="-3">b</tspan><tspan font-size="7" dy="3">32</tspan><tspan dy="-3">b</tspan><tspan font-size="7" dy="3">13</tspan><tspan dy="-3"> = a</tspan><tspan font-size="7" dy="3">21</tspan><tspan dy="-3">a</tspan><tspan font-size="7" dy="3">32</tspan><tspan dy="-3">a</tspan><tspan font-size="7" dy="3">13</tspan><tspan dy="-3"> · (d</tspan><tspan font-size="7" dy="3">1</tspan><tspan dy="-3">/d</tspan><tspan font-size="7" dy="3">2</tspan><tspan dy="-3">)(d</tspan><tspan font-size="7" dy="3">2</tspan><tspan dy="-3">/d</tspan><tspan font-size="7" dy="3">3</tspan><tspan dy="-3">)(d</tspan><tspan font-size="7" dy="3">3</tspan><tspan dy="-3">/d</tspan><tspan font-size="7" dy="3">1</tspan><tspan dy="-3">)</tspan></text>
+<text class="eq" x="420" y="230">the units cancel: the loop gain is a magnitude the signs cannot absorb</text>
+</svg>
+<figcaption>Figure 2. The proof in one picture. <strong>A</strong>: with no loop beyond negative pairs,
+the ratio <em>d<sub>j</sub></em>/<em>d<sub>i</sub></em> on every edge is free, so units can make every
+pair equal and opposite and Σ<em>w</em><sup>2</sup> becomes a Lyapunov function. <strong>B</strong>: on a
+loop the units cancel around the ring and the loop gain survives every rescaling; it is the number the
+signs hand over to the magnitudes.</figcaption>
+</figure>
+
+<h2><span class="n">3</span>Work it</h2>
+
+<p><strong>Counting.</strong> Enumerate every off-diagonal sign pattern with a negative diagonal and apply
+the two tests: 7 of 9 wirings at <em>n</em> = 2, 223 of 729 at <em>n</em> = 3, 28,321 of 531,441 at
+<em>n</em> = 4. The share of wirings whose stability is fixed by signs alone falls from 78% to 31% to 5.3%
+(Figure 3B, Table 1). The three-species count can be done by hand: 7<sup>3</sup> = 343 patterns have no
+positive pair, 120 of those carry a directed three-loop, and 223 are left.</p>
+
+<div class="wide"><table>
+<tr><th><em>n</em></th><th>wirings, 3<sup><em>n</em>(<em>n</em>−1)</sup></th><th>without a positive pair, 7<sup><em>n</em>(<em>n</em>−1)/2</sup></th><th>sign-stable</th><th>share decided by signs</th></tr>
+<tr><td>2</td><td>9</td><td>7</td><td>7</td><td>77.8%</td></tr>
+<tr><td>3</td><td>729</td><td>343</td><td>223</td><td>30.6%</td></tr>
+<tr><td>4</td><td>531,441</td><td>117,649</td><td>28,321</td><td>5.33%</td></tr>
+</table></div>
+<p class="tcap">Table 1. The count. Every off-diagonal entry takes one of three signs; the diagonal is
+negative throughout. Enumerated by the code below.</p>
+
+<p><strong>Checking.</strong> For each of the 729 three-species wirings I drew 400 magnitude sets, every
+nonzero entry log-uniform over two decades (0.1 to 10, diagonals included), and counted how many were
+Hurwitz (Figure 3A, Table 2). The 223 sign-stable wirings gave 89,200 matrices and no failure. Each of the
+other 506 wirings failed at least once, so every wiring the tests reject is one where the numbers really
+do go either way; the median rejected wiring is Hurwitz about half the time.</p>
+
+<p><strong>The sign of the loop says how stability is lost.</strong> Table 2 also records what crossed
+the axis. In the 450 wirings with a positive loop, an unstable draw usually carries a real eigenvalue that
+has crossed zero: 80,545 draws, against 8,266 with only a complex pair. In the 56 wirings whose loops are
+all negative, 2,375 draws were unstable and not one had a real eigenvalue ≥ 0. That is a theorem, not a
+sampling accident (three lines, below): a negative-loop wiring can only lose stability through a complex
+pair, a clock, while a real crossing, the fold of lecture 4 §5 that creates or destroys a memory state,
+needs a positive loop. This is Thomas's rule read at one fixed point: a positive loop is necessary for
+multiple steady states, a negative one for sustained oscillation.<sup>7–9</sup></p>
+
+<details><summary>why only negative loops cannot produce a real crossing, in three lines</summary>
+<p class="card">Expand det(−<em>A</em>) over permutations, each a product of directed cycles. A fixed point
+contributes −<em>a<sub>ii</sub></em> &gt; 0; a cycle of length <em>k</em> contributes (−1)<sup><em>k</em>−1</sup>
+from the permutation sign times (−1)<sup><em>k</em></sup> times a negative loop product, which is positive.
+So every term is positive, and the same holds for every principal minor: −<em>A</em> is a P-matrix. A
+P-matrix has no real eigenvalue ≤ 0, since adding <em>tI</em> with <em>t</em> ≥ 0 keeps every principal
+minor positive and so never makes it singular. Hence <em>A</em> has no real eigenvalue ≥ 0.</p>
+</details>
+
+<div class="wide"><table>
+<tr><th>class of wiring</th><th>wirings</th><th>Hurwitz fraction, min / median / max</th><th>unstable draws with a real eigenvalue ≥ 0</th><th>unstable draws with only a complex pair</th></tr>
+<tr><td><span class="ok">sign-stable</span></td><td>223</td><td>1.000 / 1.000 / 1.000</td><td>0</td><td>0</td></tr>
+<tr><td><span class="no">a positive loop present</span></td><td>450</td><td>0.107 / 0.505 / 0.873</td><td>80,545</td><td>8,266</td></tr>
+<tr><td>only negative loops</td><td>56</td><td>0.805 / 0.900 / 0.943</td><td>0</td><td>2,375</td></tr>
+</table></div>
+<p class="tcap">Table 2. 729 wirings × 400 draws, magnitudes log-uniform on [0.1, 10], seed 0. A draw
+is "unstable" when some eigenvalue has nonnegative real part; it is counted in the fourth column when that
+eigenvalue is real (|Im| &lt; 10<sup>−9</sup>) and in the fifth otherwise.</p>
+
+<figure>
+<svg class="fig" viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Left: Hurwitz fraction over 400 random magnitude draws for each of the 729 three-species wirings, sorted; the 223 sign-stable wirings sit at exactly 1. Right: fraction of wirings decided by signs alone for 2, 3 and 4 species, falling from 78% to 5%.">
+<style>.ax{stroke:var(--line);stroke-width:1}.tk{fill:var(--muted);font-size:10px}.lb{fill:var(--ink);font-size:11px}.ti{fill:var(--accent);font-size:11.5px;font-weight:600}.gr{stroke:var(--line);stroke-width:.5;stroke-dasharray:2 3}.nd{fill:var(--bg);stroke:var(--ink);stroke-width:1.2}.nt{fill:var(--ink);font-size:11px;font-weight:600}.ed{stroke:var(--ink);stroke-width:1.4;fill:none}.ok{fill:#2e8b57;font-size:10.5px;font-weight:600}.no{fill:#c0392b;font-size:10.5px;font-weight:600}.sm{fill:var(--muted);font-size:9.5px}.eq{fill:var(--ink);font-size:10px;font-style:italic}</style>
+<text class="ti" x="56" y="24">A · does the wiring decide? 729 wirings × 400 magnitude draws</text>
+<line class="gr" x1="56" y1="246.0" x2="496" y2="246.0"/>
+<text class="tk" x="50" y="249.0" text-anchor="end">0.0</text>
+<line class="gr" x1="56" y1="204.8" x2="496" y2="204.8"/>
+<text class="tk" x="50" y="207.8" text-anchor="end">0.2</text>
+<line class="gr" x1="56" y1="163.6" x2="496" y2="163.6"/>
+<text class="tk" x="50" y="166.6" text-anchor="end">0.4</text>
+<line class="gr" x1="56" y1="122.4" x2="496" y2="122.4"/>
+<text class="tk" x="50" y="125.4" text-anchor="end">0.6</text>
+<line class="gr" x1="56" y1="81.2" x2="496" y2="81.2"/>
+<text class="tk" x="50" y="84.2" text-anchor="end">0.8</text>
+<line class="gr" x1="56" y1="40.0" x2="496" y2="40.0"/>
+<text class="tk" x="50" y="43.0" text-anchor="end">1.0</text>
+<line class="ax" x1="56.0" y1="246" x2="56.0" y2="250"/>
+<text class="tk" x="56.0" y="261" text-anchor="middle">0</text>
+<line class="ax" x1="176.7" y1="246" x2="176.7" y2="250"/>
+<text class="tk" x="176.7" y="261" text-anchor="middle">200</text>
+<line class="ax" x1="297.4" y1="246" x2="297.4" y2="250"/>
+<text class="tk" x="297.4" y="261" text-anchor="middle">400</text>
+<line class="ax" x1="418.1" y1="246" x2="418.1" y2="250"/>
+<text class="tk" x="418.1" y="261" text-anchor="middle">600</text>
+<line class="ax" x1="496.0" y1="246" x2="496.0" y2="250"/>
+<text class="tk" x="496.0" y="261" text-anchor="middle">729</text>
+<line class="ax" x1="56" y1="246" x2="496" y2="246"/><line class="ax" x1="56" y1="40" x2="56" y2="246"/>
+<text class="lb" x="276" y="276" text-anchor="middle">wiring, ranked by its Hurwitz fraction</text>
+<text class="lb" transform="translate(14,143) rotate(-90)" text-anchor="middle">fraction of draws that are Hurwitz</text>
+<g fill="#2e8b57" opacity=".85"><circle cx="56.3" cy="40.0" r="1.7"/><circle cx="56.9" cy="40.0" r="1.7"/><circle cx="57.5" cy="40.0" r="1.7"/><circle cx="58.1" cy="40.0" r="1.7"/><circle cx="58.7" cy="40.0" r="1.7"/><circle cx="59.3" cy="40.0" r="1.7"/><circle cx="59.9" cy="40.0" r="1.7"/><circle cx="60.5" cy="40.0" r="1.7"/><circle cx="61.1" cy="40.0" r="1.7"/><circle cx="61.7" cy="40.0" r="1.7"/><circle cx="62.3" cy="40.0" r="1.7"/><circle cx="62.9" cy="40.0" r="1.7"/><circle cx="63.5" cy="40.0" r="1.7"/><circle cx="64.1" cy="40.0" r="1.7"/><circle cx="64.8" cy="40.0" r="1.7"/><circle cx="65.4" cy="40.0" r="1.7"/><circle cx="66.0" cy="40.0" r="1.7"/><circle cx="66.6" cy="40.0" r="1.7"/><circle cx="67.2" cy="40.0" r="1.7"/><circle cx="67.8" cy="40.0" r="1.7"/><circle cx="68.4" cy="40.0" r="1.7"/><circle cx="69.0" cy="40.0" r="1.7"/><circle cx="69.6" cy="40.0" r="1.7"/><circle cx="70.2" cy="40.0" r="1.7"/><circle cx="70.8" cy="40.0" r="1.7"/><circle cx="71.4" cy="40.0" r="1.7"/><circle cx="72.0" cy="40.0" r="1.7"/><circle cx="72.6" cy="40.0" r="1.7"/><circle cx="73.2" cy="40.0" r="1.7"/><circle cx="73.8" cy="40.0" r="1.7"/><circle cx="74.4" cy="40.0" r="1.7"/><circle cx="75.0" cy="40.0" r="1.7"/><circle cx="75.6" cy="40.0" r="1.7"/><circle cx="76.2" cy="40.0" r="1.7"/><circle cx="76.8" cy="40.0" r="1.7"/><circle cx="77.4" cy="40.0" r="1.7"/><circle cx="78.0" cy="40.0" r="1.7"/><circle cx="78.6" cy="40.0" r="1.7"/><circle cx="79.2" cy="40.0" r="1.7"/><circle cx="79.8" cy="40.0" r="1.7"/><circle cx="80.4" cy="40.0" r="1.7"/><circle cx="81.0" cy="40.0" r="1.7"/><circle cx="81.7" cy="40.0" r="1.7"/><circle cx="82.3" cy="40.0" r="1.7"/><circle cx="82.9" cy="40.0" r="1.7"/><circle cx="83.5" cy="40.0" r="1.7"/><circle cx="84.1" cy="40.0" r="1.7"/><circle cx="84.7" cy="40.0" r="1.7"/><circle cx="85.3" cy="40.0" r="1.7"/><circle cx="85.9" cy="40.0" r="1.7"/><circle cx="86.5" cy="40.0" r="1.7"/><circle cx="87.1" cy="40.0" r="1.7"/><circle cx="87.7" cy="40.0" r="1.7"/><circle cx="88.3" cy="40.0" r="1.7"/><circle cx="88.9" cy="40.0" r="1.7"/><circle cx="89.5" cy="40.0" r="1.7"/><circle cx="90.1" cy="40.0" r="1.7"/><circle cx="90.7" cy="40.0" r="1.7"/><circle cx="91.3" cy="40.0" r="1.7"/><circle cx="91.9" cy="40.0" r="1.7"/><circle cx="92.5" cy="40.0" r="1.7"/><circle cx="93.1" cy="40.0" r="1.7"/><circle cx="93.7" cy="40.0" r="1.7"/><circle cx="94.3" cy="40.0" r="1.7"/><circle cx="94.9" cy="40.0" r="1.7"/><circle cx="95.5" cy="40.0" r="1.7"/><circle cx="96.1" cy="40.0" r="1.7"/><circle cx="96.7" cy="40.0" r="1.7"/><circle cx="97.3" cy="40.0" r="1.7"/><circle cx="97.9" cy="40.0" r="1.7"/><circle cx="98.6" cy="40.0" r="1.7"/><circle cx="99.2" cy="40.0" r="1.7"/><circle cx="99.8" cy="40.0" r="1.7"/><circle cx="100.4" cy="40.0" r="1.7"/><circle cx="101.0" cy="40.0" r="1.7"/><circle cx="101.6" cy="40.0" r="1.7"/><circle cx="102.2" cy="40.0" r="1.7"/><circle cx="102.8" cy="40.0" r="1.7"/><circle cx="103.4" cy="40.0" r="1.7"/><circle cx="104.0" cy="40.0" r="1.7"/><circle cx="104.6" cy="40.0" r="1.7"/><circle cx="105.2" cy="40.0" r="1.7"/><circle cx="105.8" cy="40.0" r="1.7"/><circle cx="106.4" cy="40.0" r="1.7"/><circle cx="107.0" cy="40.0" r="1.7"/><circle cx="107.6" cy="40.0" r="1.7"/><circle cx="108.2" cy="40.0" r="1.7"/><circle cx="108.8" cy="40.0" r="1.7"/><circle cx="109.4" cy="40.0" r="1.7"/><circle cx="110.0" cy="40.0" r="1.7"/><circle cx="110.6" cy="40.0" r="1.7"/><circle cx="111.2" cy="40.0" r="1.7"/><circle cx="111.8" cy="40.0" r="1.7"/><circle cx="112.4" cy="40.0" r="1.7"/><circle cx="113.0" cy="40.0" r="1.7"/><circle cx="113.6" cy="40.0" r="1.7"/><circle cx="114.2" cy="40.0" r="1.7"/><circle cx="114.8" cy="40.0" r="1.7"/><circle cx="115.5" cy="40.0" r="1.7"/><circle cx="116.1" cy="40.0" r="1.7"/><circle cx="116.7" cy="40.0" r="1.7"/><circle cx="117.3" cy="40.0" r="1.7"/><circle cx="117.9" cy="40.0" r="1.7"/><circle cx="118.5" cy="40.0" r="1.7"/><circle cx="119.1" cy="40.0" r="1.7"/><circle cx="119.7" cy="40.0" r="1.7"/><circle cx="120.3" cy="40.0" r="1.7"/><circle cx="120.9" cy="40.0" r="1.7"/><circle cx="121.5" cy="40.0" r="1.7"/><circle cx="122.1" cy="40.0" r="1.7"/><circle cx="122.7" cy="40.0" r="1.7"/><circle cx="123.3" cy="40.0" r="1.7"/><circle cx="123.9" cy="40.0" r="1.7"/><circle cx="124.5" cy="40.0" r="1.7"/><circle cx="125.1" cy="40.0" r="1.7"/><circle cx="125.7" cy="40.0" r="1.7"/><circle cx="126.3" cy="40.0" r="1.7"/><circle cx="126.9" cy="40.0" r="1.7"/><circle cx="127.5" cy="40.0" r="1.7"/><circle cx="128.1" cy="40.0" r="1.7"/><circle cx="128.7" cy="40.0" r="1.7"/><circle cx="129.3" cy="40.0" r="1.7"/><circle cx="129.9" cy="40.0" r="1.7"/><circle cx="130.5" cy="40.0" r="1.7"/><circle cx="131.1" cy="40.0" r="1.7"/><circle cx="131.7" cy="40.0" r="1.7"/><circle cx="132.4" cy="40.0" r="1.7"/><circle cx="133.0" cy="40.0" r="1.7"/><circle cx="133.6" cy="40.0" r="1.7"/><circle cx="134.2" cy="40.0" r="1.7"/><circle cx="134.8" cy="40.0" r="1.7"/><circle cx="135.4" cy="40.0" r="1.7"/><circle cx="136.0" cy="40.0" r="1.7"/><circle cx="136.6" cy="40.0" r="1.7"/><circle cx="137.2" cy="40.0" r="1.7"/><circle cx="137.8" cy="40.0" r="1.7"/><circle cx="138.4" cy="40.0" r="1.7"/><circle cx="139.0" cy="40.0" r="1.7"/><circle cx="139.6" cy="40.0" r="1.7"/><circle cx="140.2" cy="40.0" r="1.7"/><circle cx="140.8" cy="40.0" r="1.7"/><circle cx="141.4" cy="40.0" r="1.7"/><circle cx="142.0" cy="40.0" r="1.7"/><circle cx="142.6" cy="40.0" r="1.7"/><circle cx="143.2" cy="40.0" r="1.7"/><circle cx="143.8" cy="40.0" r="1.7"/><circle cx="144.4" cy="40.0" r="1.7"/><circle cx="145.0" cy="40.0" r="1.7"/><circle cx="145.6" cy="40.0" r="1.7"/><circle cx="146.2" cy="40.0" r="1.7"/><circle cx="146.8" cy="40.0" r="1.7"/><circle cx="147.4" cy="40.0" r="1.7"/><circle cx="148.0" cy="40.0" r="1.7"/><circle cx="148.6" cy="40.0" r="1.7"/><circle cx="149.3" cy="40.0" r="1.7"/><circle cx="149.9" cy="40.0" r="1.7"/><circle cx="150.5" cy="40.0" r="1.7"/><circle cx="151.1" cy="40.0" r="1.7"/><circle cx="151.7" cy="40.0" r="1.7"/><circle cx="152.3" cy="40.0" r="1.7"/><circle cx="152.9" cy="40.0" r="1.7"/><circle cx="153.5" cy="40.0" r="1.7"/><circle cx="154.1" cy="40.0" r="1.7"/><circle cx="154.7" cy="40.0" r="1.7"/><circle cx="155.3" cy="40.0" r="1.7"/><circle cx="155.9" cy="40.0" r="1.7"/><circle cx="156.5" cy="40.0" r="1.7"/><circle cx="157.1" cy="40.0" r="1.7"/><circle cx="157.7" cy="40.0" r="1.7"/><circle cx="158.3" cy="40.0" r="1.7"/><circle cx="158.9" cy="40.0" r="1.7"/><circle cx="159.5" cy="40.0" r="1.7"/><circle cx="160.1" cy="40.0" r="1.7"/><circle cx="160.7" cy="40.0" r="1.7"/><circle cx="161.3" cy="40.0" r="1.7"/><circle cx="161.9" cy="40.0" r="1.7"/><circle cx="162.5" cy="40.0" r="1.7"/><circle cx="163.1" cy="40.0" r="1.7"/><circle cx="163.7" cy="40.0" r="1.7"/><circle cx="164.3" cy="40.0" r="1.7"/><circle cx="164.9" cy="40.0" r="1.7"/><circle cx="165.5" cy="40.0" r="1.7"/><circle cx="166.2" cy="40.0" r="1.7"/><circle cx="166.8" cy="40.0" r="1.7"/><circle cx="167.4" cy="40.0" r="1.7"/><circle cx="168.0" cy="40.0" r="1.7"/><circle cx="168.6" cy="40.0" r="1.7"/><circle cx="169.2" cy="40.0" r="1.7"/><circle cx="169.8" cy="40.0" r="1.7"/><circle cx="170.4" cy="40.0" r="1.7"/><circle cx="171.0" cy="40.0" r="1.7"/><circle cx="171.6" cy="40.0" r="1.7"/><circle cx="172.2" cy="40.0" r="1.7"/><circle cx="172.8" cy="40.0" r="1.7"/><circle cx="173.4" cy="40.0" r="1.7"/><circle cx="174.0" cy="40.0" r="1.7"/><circle cx="174.6" cy="40.0" r="1.7"/><circle cx="175.2" cy="40.0" r="1.7"/><circle cx="175.8" cy="40.0" r="1.7"/><circle cx="176.4" cy="40.0" r="1.7"/><circle cx="177.0" cy="40.0" r="1.7"/><circle cx="177.6" cy="40.0" r="1.7"/><circle cx="178.2" cy="40.0" r="1.7"/><circle cx="178.8" cy="40.0" r="1.7"/><circle cx="179.4" cy="40.0" r="1.7"/><circle cx="180.0" cy="40.0" r="1.7"/><circle cx="180.6" cy="40.0" r="1.7"/><circle cx="181.2" cy="40.0" r="1.7"/><circle cx="181.8" cy="40.0" r="1.7"/><circle cx="182.4" cy="40.0" r="1.7"/><circle cx="183.1" cy="40.0" r="1.7"/><circle cx="183.7" cy="40.0" r="1.7"/><circle cx="184.3" cy="40.0" r="1.7"/><circle cx="184.9" cy="40.0" r="1.7"/><circle cx="185.5" cy="40.0" r="1.7"/><circle cx="186.1" cy="40.0" r="1.7"/><circle cx="186.7" cy="40.0" r="1.7"/><circle cx="187.3" cy="40.0" r="1.7"/><circle cx="187.9" cy="40.0" r="1.7"/><circle cx="188.5" cy="40.0" r="1.7"/><circle cx="189.1" cy="40.0" r="1.7"/><circle cx="189.7" cy="40.0" r="1.7"/><circle cx="190.3" cy="40.0" r="1.7"/></g>
+<g fill="#c0392b" opacity=".85"><circle cx="215.6" cy="66.3" r="1.7"/><circle cx="218.1" cy="66.8" r="1.7"/><circle cx="221.1" cy="71.4" r="1.7"/><circle cx="222.9" cy="72.4" r="1.7"/><circle cx="223.5" cy="72.4" r="1.7"/><circle cx="224.7" cy="73.5" r="1.7"/><circle cx="226.5" cy="74.0" r="1.7"/><circle cx="227.1" cy="74.0" r="1.7"/><circle cx="228.3" cy="77.1" r="1.7"/><circle cx="228.9" cy="77.1" r="1.7"/><circle cx="230.1" cy="78.1" r="1.7"/><circle cx="230.7" cy="79.1" r="1.7"/><circle cx="231.3" cy="79.7" r="1.7"/><circle cx="232.5" cy="80.7" r="1.7"/><circle cx="233.1" cy="81.7" r="1.7"/><circle cx="233.8" cy="81.7" r="1.7"/><circle cx="234.4" cy="82.2" r="1.7"/><circle cx="235.0" cy="82.2" r="1.7"/><circle cx="235.6" cy="82.7" r="1.7"/><circle cx="236.2" cy="82.7" r="1.7"/><circle cx="236.8" cy="82.7" r="1.7"/><circle cx="237.4" cy="83.8" r="1.7"/><circle cx="238.0" cy="83.8" r="1.7"/><circle cx="238.6" cy="84.3" r="1.7"/><circle cx="239.2" cy="84.3" r="1.7"/><circle cx="239.8" cy="84.3" r="1.7"/><circle cx="240.4" cy="84.8" r="1.7"/><circle cx="241.0" cy="85.3" r="1.7"/><circle cx="241.6" cy="85.8" r="1.7"/><circle cx="242.2" cy="86.3" r="1.7"/><circle cx="242.8" cy="87.4" r="1.7"/><circle cx="243.4" cy="91.5" r="1.7"/><circle cx="244.0" cy="97.2" r="1.7"/><circle cx="244.6" cy="100.3" r="1.7"/><circle cx="245.2" cy="100.3" r="1.7"/><circle cx="245.8" cy="100.8" r="1.7"/><circle cx="246.4" cy="102.3" r="1.7"/><circle cx="247.0" cy="103.9" r="1.7"/><circle cx="247.6" cy="103.9" r="1.7"/><circle cx="248.2" cy="104.4" r="1.7"/><circle cx="248.8" cy="104.4" r="1.7"/><circle cx="249.4" cy="104.4" r="1.7"/><circle cx="250.0" cy="104.9" r="1.7"/><circle cx="250.7" cy="104.9" r="1.7"/><circle cx="251.3" cy="104.9" r="1.7"/><circle cx="251.9" cy="105.4" r="1.7"/><circle cx="252.5" cy="105.4" r="1.7"/><circle cx="253.1" cy="105.4" r="1.7"/><circle cx="253.7" cy="105.9" r="1.7"/><circle cx="254.3" cy="105.9" r="1.7"/><circle cx="254.9" cy="105.9" r="1.7"/><circle cx="255.5" cy="106.4" r="1.7"/><circle cx="256.1" cy="106.4" r="1.7"/><circle cx="256.7" cy="106.9" r="1.7"/><circle cx="257.3" cy="106.9" r="1.7"/><circle cx="257.9" cy="106.9" r="1.7"/><circle cx="258.5" cy="106.9" r="1.7"/><circle cx="259.1" cy="106.9" r="1.7"/><circle cx="259.7" cy="106.9" r="1.7"/><circle cx="260.3" cy="107.5" r="1.7"/><circle cx="260.9" cy="108.0" r="1.7"/><circle cx="261.5" cy="108.5" r="1.7"/><circle cx="262.1" cy="108.5" r="1.7"/><circle cx="262.7" cy="109.0" r="1.7"/><circle cx="263.3" cy="109.0" r="1.7"/><circle cx="263.9" cy="109.0" r="1.7"/><circle cx="264.5" cy="109.0" r="1.7"/><circle cx="265.1" cy="109.5" r="1.7"/><circle cx="265.7" cy="109.5" r="1.7"/><circle cx="266.3" cy="110.0" r="1.7"/><circle cx="266.9" cy="110.0" r="1.7"/><circle cx="267.6" cy="110.0" r="1.7"/><circle cx="268.2" cy="110.0" r="1.7"/><circle cx="268.8" cy="110.0" r="1.7"/><circle cx="269.4" cy="110.6" r="1.7"/><circle cx="270.0" cy="111.1" r="1.7"/><circle cx="270.6" cy="111.1" r="1.7"/><circle cx="271.2" cy="111.1" r="1.7"/><circle cx="271.8" cy="111.1" r="1.7"/><circle cx="272.4" cy="111.1" r="1.7"/><circle cx="273.0" cy="111.6" r="1.7"/><circle cx="273.6" cy="111.6" r="1.7"/><circle cx="274.2" cy="111.6" r="1.7"/><circle cx="274.8" cy="111.6" r="1.7"/><circle cx="275.4" cy="111.6" r="1.7"/><circle cx="276.0" cy="111.6" r="1.7"/><circle cx="276.6" cy="111.6" r="1.7"/><circle cx="277.2" cy="111.6" r="1.7"/><circle cx="277.8" cy="111.6" r="1.7"/><circle cx="278.4" cy="112.1" r="1.7"/><circle cx="279.0" cy="112.1" r="1.7"/><circle cx="279.6" cy="112.1" r="1.7"/><circle cx="280.2" cy="112.1" r="1.7"/><circle cx="280.8" cy="112.1" r="1.7"/><circle cx="281.4" cy="112.1" r="1.7"/><circle cx="282.0" cy="112.6" r="1.7"/><circle cx="282.6" cy="112.6" r="1.7"/><circle cx="283.2" cy="112.6" r="1.7"/><circle cx="283.8" cy="112.6" r="1.7"/><circle cx="284.4" cy="113.1" r="1.7"/><circle cx="285.1" cy="113.1" r="1.7"/><circle cx="285.7" cy="113.1" r="1.7"/><circle cx="286.3" cy="113.6" r="1.7"/><circle cx="286.9" cy="113.6" r="1.7"/><circle cx="287.5" cy="113.6" r="1.7"/><circle cx="288.1" cy="113.6" r="1.7"/><circle cx="288.7" cy="113.6" r="1.7"/><circle cx="289.3" cy="113.6" r="1.7"/><circle cx="289.9" cy="113.6" r="1.7"/><circle cx="290.5" cy="114.2" r="1.7"/><circle cx="291.1" cy="114.7" r="1.7"/><circle cx="291.7" cy="114.7" r="1.7"/><circle cx="292.3" cy="114.7" r="1.7"/><circle cx="292.9" cy="115.2" r="1.7"/><circle cx="293.5" cy="115.2" r="1.7"/><circle cx="294.1" cy="115.2" r="1.7"/><circle cx="294.7" cy="115.2" r="1.7"/><circle cx="295.3" cy="115.7" r="1.7"/><circle cx="295.9" cy="115.7" r="1.7"/><circle cx="296.5" cy="116.2" r="1.7"/><circle cx="297.1" cy="116.2" r="1.7"/><circle cx="297.7" cy="116.2" r="1.7"/><circle cx="298.3" cy="116.7" r="1.7"/><circle cx="298.9" cy="116.7" r="1.7"/><circle cx="299.5" cy="116.7" r="1.7"/><circle cx="300.1" cy="117.2" r="1.7"/><circle cx="300.7" cy="117.8" r="1.7"/><circle cx="301.3" cy="117.8" r="1.7"/><circle cx="302.0" cy="117.8" r="1.7"/><circle cx="302.6" cy="117.8" r="1.7"/><circle cx="303.2" cy="118.8" r="1.7"/><circle cx="303.8" cy="118.8" r="1.7"/><circle cx="304.4" cy="119.3" r="1.7"/><circle cx="305.0" cy="119.3" r="1.7"/><circle cx="305.6" cy="119.8" r="1.7"/><circle cx="306.2" cy="119.8" r="1.7"/><circle cx="306.8" cy="121.9" r="1.7"/><circle cx="307.4" cy="121.9" r="1.7"/><circle cx="308.0" cy="123.9" r="1.7"/><circle cx="308.6" cy="126.5" r="1.7"/><circle cx="309.2" cy="129.1" r="1.7"/><circle cx="309.8" cy="129.6" r="1.7"/><circle cx="310.4" cy="130.1" r="1.7"/><circle cx="311.0" cy="130.6" r="1.7"/><circle cx="311.6" cy="130.6" r="1.7"/><circle cx="312.2" cy="131.2" r="1.7"/><circle cx="312.8" cy="132.7" r="1.7"/><circle cx="313.4" cy="132.7" r="1.7"/><circle cx="314.0" cy="133.2" r="1.7"/><circle cx="314.6" cy="133.2" r="1.7"/><circle cx="315.2" cy="133.2" r="1.7"/><circle cx="315.8" cy="133.7" r="1.7"/><circle cx="316.4" cy="133.7" r="1.7"/><circle cx="317.0" cy="133.7" r="1.7"/><circle cx="317.6" cy="134.2" r="1.7"/><circle cx="318.2" cy="134.2" r="1.7"/><circle cx="318.9" cy="134.2" r="1.7"/><circle cx="319.5" cy="134.2" r="1.7"/><circle cx="320.1" cy="134.2" r="1.7"/><circle cx="320.7" cy="134.8" r="1.7"/><circle cx="321.3" cy="135.3" r="1.7"/><circle cx="321.9" cy="135.3" r="1.7"/><circle cx="322.5" cy="135.3" r="1.7"/><circle cx="323.1" cy="135.3" r="1.7"/><circle cx="323.7" cy="135.8" r="1.7"/><circle cx="324.3" cy="135.8" r="1.7"/><circle cx="324.9" cy="135.8" r="1.7"/><circle cx="325.5" cy="135.8" r="1.7"/><circle cx="326.1" cy="135.8" r="1.7"/><circle cx="326.7" cy="135.8" r="1.7"/><circle cx="327.3" cy="136.3" r="1.7"/><circle cx="327.9" cy="136.3" r="1.7"/><circle cx="328.5" cy="136.3" r="1.7"/><circle cx="329.1" cy="136.3" r="1.7"/><circle cx="329.7" cy="136.3" r="1.7"/><circle cx="330.3" cy="136.3" r="1.7"/><circle cx="330.9" cy="136.8" r="1.7"/><circle cx="331.5" cy="136.8" r="1.7"/><circle cx="332.1" cy="136.8" r="1.7"/><circle cx="332.7" cy="136.8" r="1.7"/><circle cx="333.3" cy="136.8" r="1.7"/><circle cx="333.9" cy="137.3" r="1.7"/><circle cx="334.5" cy="137.3" r="1.7"/><circle cx="335.1" cy="137.3" r="1.7"/><circle cx="335.8" cy="137.3" r="1.7"/><circle cx="336.4" cy="137.3" r="1.7"/><circle cx="337.0" cy="137.8" r="1.7"/><circle cx="337.6" cy="138.4" r="1.7"/><circle cx="338.2" cy="138.4" r="1.7"/><circle cx="338.8" cy="138.4" r="1.7"/><circle cx="339.4" cy="138.4" r="1.7"/><circle cx="340.0" cy="138.9" r="1.7"/><circle cx="340.6" cy="138.9" r="1.7"/><circle cx="341.2" cy="138.9" r="1.7"/><circle cx="341.8" cy="139.4" r="1.7"/><circle cx="342.4" cy="139.4" r="1.7"/><circle cx="343.0" cy="139.4" r="1.7"/><circle cx="343.6" cy="139.4" r="1.7"/><circle cx="344.2" cy="139.4" r="1.7"/><circle cx="344.8" cy="139.4" r="1.7"/><circle cx="345.4" cy="139.4" r="1.7"/><circle cx="346.0" cy="139.9" r="1.7"/><circle cx="346.6" cy="139.9" r="1.7"/><circle cx="347.2" cy="139.9" r="1.7"/><circle cx="347.8" cy="139.9" r="1.7"/><circle cx="348.4" cy="139.9" r="1.7"/><circle cx="349.0" cy="139.9" r="1.7"/><circle cx="349.6" cy="139.9" r="1.7"/><circle cx="350.2" cy="140.4" r="1.7"/><circle cx="350.8" cy="140.4" r="1.7"/><circle cx="351.4" cy="140.4" r="1.7"/><circle cx="352.0" cy="140.4" r="1.7"/><circle cx="352.7" cy="140.4" r="1.7"/><circle cx="353.3" cy="140.9" r="1.7"/><circle cx="353.9" cy="140.9" r="1.7"/><circle cx="354.5" cy="141.5" r="1.7"/><circle cx="355.1" cy="141.5" r="1.7"/><circle cx="355.7" cy="141.5" r="1.7"/><circle cx="356.3" cy="141.5" r="1.7"/><circle cx="356.9" cy="141.5" r="1.7"/><circle cx="357.5" cy="141.5" r="1.7"/><circle cx="358.1" cy="142.0" r="1.7"/><circle cx="358.7" cy="142.0" r="1.7"/><circle cx="359.3" cy="142.0" r="1.7"/><circle cx="359.9" cy="142.0" r="1.7"/><circle cx="360.5" cy="142.0" r="1.7"/><circle cx="361.1" cy="142.0" r="1.7"/><circle cx="361.7" cy="142.0" r="1.7"/><circle cx="362.3" cy="142.0" r="1.7"/><circle cx="362.9" cy="142.0" r="1.7"/><circle cx="363.5" cy="142.0" r="1.7"/><circle cx="364.1" cy="142.5" r="1.7"/><circle cx="364.7" cy="142.5" r="1.7"/><circle cx="365.3" cy="142.5" r="1.7"/><circle cx="365.9" cy="142.5" r="1.7"/><circle cx="366.5" cy="142.5" r="1.7"/><circle cx="367.1" cy="142.5" r="1.7"/><circle cx="367.7" cy="142.5" r="1.7"/><circle cx="368.3" cy="143.0" r="1.7"/><circle cx="368.9" cy="143.0" r="1.7"/><circle cx="369.6" cy="143.0" r="1.7"/><circle cx="370.2" cy="143.0" r="1.7"/><circle cx="370.8" cy="143.0" r="1.7"/><circle cx="371.4" cy="143.0" r="1.7"/><circle cx="372.0" cy="143.0" r="1.7"/><circle cx="372.6" cy="143.0" r="1.7"/><circle cx="373.2" cy="143.5" r="1.7"/><circle cx="373.8" cy="143.5" r="1.7"/><circle cx="374.4" cy="143.5" r="1.7"/><circle cx="375.0" cy="143.5" r="1.7"/><circle cx="375.6" cy="144.0" r="1.7"/><circle cx="376.2" cy="144.0" r="1.7"/><circle cx="376.8" cy="144.0" r="1.7"/><circle cx="377.4" cy="144.0" r="1.7"/><circle cx="378.0" cy="144.5" r="1.7"/><circle cx="378.6" cy="144.5" r="1.7"/><circle cx="379.2" cy="144.5" r="1.7"/><circle cx="379.8" cy="144.5" r="1.7"/><circle cx="380.4" cy="144.5" r="1.7"/><circle cx="381.0" cy="144.5" r="1.7"/><circle cx="381.6" cy="144.5" r="1.7"/><circle cx="382.2" cy="145.1" r="1.7"/><circle cx="382.8" cy="145.1" r="1.7"/><circle cx="383.4" cy="145.1" r="1.7"/><circle cx="384.0" cy="145.1" r="1.7"/><circle cx="384.6" cy="145.1" r="1.7"/><circle cx="385.2" cy="145.1" r="1.7"/><circle cx="385.8" cy="145.6" r="1.7"/><circle cx="386.5" cy="145.6" r="1.7"/><circle cx="387.1" cy="145.6" r="1.7"/><circle cx="387.7" cy="145.6" r="1.7"/><circle cx="388.3" cy="145.6" r="1.7"/><circle cx="388.9" cy="146.1" r="1.7"/><circle cx="389.5" cy="146.1" r="1.7"/><circle cx="390.1" cy="146.1" r="1.7"/><circle cx="390.7" cy="146.1" r="1.7"/><circle cx="391.3" cy="146.1" r="1.7"/><circle cx="391.9" cy="146.6" r="1.7"/><circle cx="392.5" cy="146.6" r="1.7"/><circle cx="393.1" cy="146.6" r="1.7"/><circle cx="393.7" cy="146.6" r="1.7"/><circle cx="394.3" cy="147.1" r="1.7"/><circle cx="394.9" cy="147.1" r="1.7"/><circle cx="395.5" cy="147.1" r="1.7"/><circle cx="396.1" cy="147.1" r="1.7"/><circle cx="396.7" cy="147.1" r="1.7"/><circle cx="397.3" cy="147.1" r="1.7"/><circle cx="397.9" cy="147.1" r="1.7"/><circle cx="398.5" cy="147.1" r="1.7"/><circle cx="399.1" cy="147.6" r="1.7"/><circle cx="399.7" cy="147.6" r="1.7"/><circle cx="400.3" cy="147.6" r="1.7"/><circle cx="400.9" cy="147.6" r="1.7"/><circle cx="401.5" cy="147.6" r="1.7"/><circle cx="402.1" cy="147.6" r="1.7"/><circle cx="402.7" cy="148.2" r="1.7"/><circle cx="403.4" cy="148.2" r="1.7"/><circle cx="404.0" cy="148.2" r="1.7"/><circle cx="404.6" cy="148.2" r="1.7"/><circle cx="405.2" cy="148.2" r="1.7"/><circle cx="405.8" cy="148.7" r="1.7"/><circle cx="406.4" cy="148.7" r="1.7"/><circle cx="407.0" cy="148.7" r="1.7"/><circle cx="407.6" cy="148.7" r="1.7"/><circle cx="408.2" cy="148.7" r="1.7"/><circle cx="408.8" cy="149.2" r="1.7"/><circle cx="409.4" cy="149.7" r="1.7"/><circle cx="410.0" cy="149.7" r="1.7"/><circle cx="410.6" cy="149.7" r="1.7"/><circle cx="411.2" cy="150.2" r="1.7"/><circle cx="411.8" cy="150.2" r="1.7"/><circle cx="412.4" cy="150.2" r="1.7"/><circle cx="413.0" cy="150.2" r="1.7"/><circle cx="413.6" cy="150.2" r="1.7"/><circle cx="414.2" cy="150.7" r="1.7"/><circle cx="414.8" cy="150.7" r="1.7"/><circle cx="415.4" cy="151.2" r="1.7"/><circle cx="416.0" cy="151.8" r="1.7"/><circle cx="416.6" cy="151.8" r="1.7"/><circle cx="417.2" cy="151.8" r="1.7"/><circle cx="417.8" cy="152.3" r="1.7"/><circle cx="418.4" cy="152.3" r="1.7"/><circle cx="419.0" cy="152.3" r="1.7"/><circle cx="419.6" cy="152.8" r="1.7"/><circle cx="420.3" cy="152.8" r="1.7"/><circle cx="420.9" cy="153.3" r="1.7"/><circle cx="421.5" cy="153.3" r="1.7"/><circle cx="422.1" cy="153.3" r="1.7"/><circle cx="422.7" cy="153.3" r="1.7"/><circle cx="423.3" cy="154.8" r="1.7"/><circle cx="423.9" cy="154.8" r="1.7"/><circle cx="424.5" cy="157.9" r="1.7"/><circle cx="425.1" cy="157.9" r="1.7"/><circle cx="425.7" cy="159.5" r="1.7"/><circle cx="426.3" cy="160.5" r="1.7"/><circle cx="426.9" cy="162.1" r="1.7"/><circle cx="427.5" cy="163.6" r="1.7"/><circle cx="428.1" cy="163.6" r="1.7"/><circle cx="428.7" cy="163.6" r="1.7"/><circle cx="429.3" cy="163.6" r="1.7"/><circle cx="429.9" cy="163.6" r="1.7"/><circle cx="430.5" cy="164.1" r="1.7"/><circle cx="431.1" cy="164.6" r="1.7"/><circle cx="431.7" cy="165.1" r="1.7"/><circle cx="432.3" cy="166.2" r="1.7"/><circle cx="432.9" cy="166.2" r="1.7"/><circle cx="433.5" cy="166.2" r="1.7"/><circle cx="434.1" cy="166.7" r="1.7"/><circle cx="434.7" cy="167.2" r="1.7"/><circle cx="435.3" cy="167.2" r="1.7"/><circle cx="435.9" cy="167.7" r="1.7"/><circle cx="436.5" cy="167.7" r="1.7"/><circle cx="437.2" cy="168.8" r="1.7"/><circle cx="437.8" cy="169.3" r="1.7"/><circle cx="438.4" cy="169.3" r="1.7"/><circle cx="439.0" cy="169.8" r="1.7"/><circle cx="439.6" cy="169.8" r="1.7"/><circle cx="440.2" cy="170.3" r="1.7"/><circle cx="440.8" cy="170.8" r="1.7"/><circle cx="441.4" cy="170.8" r="1.7"/><circle cx="442.0" cy="170.8" r="1.7"/><circle cx="442.6" cy="172.9" r="1.7"/><circle cx="443.2" cy="172.9" r="1.7"/><circle cx="443.8" cy="173.4" r="1.7"/><circle cx="444.4" cy="173.4" r="1.7"/><circle cx="445.0" cy="173.9" r="1.7"/><circle cx="445.6" cy="173.9" r="1.7"/><circle cx="446.2" cy="173.9" r="1.7"/><circle cx="446.8" cy="174.4" r="1.7"/><circle cx="447.4" cy="174.4" r="1.7"/><circle cx="448.0" cy="174.4" r="1.7"/><circle cx="448.6" cy="174.4" r="1.7"/><circle cx="449.2" cy="174.9" r="1.7"/><circle cx="449.8" cy="175.4" r="1.7"/><circle cx="450.4" cy="175.4" r="1.7"/><circle cx="451.0" cy="175.4" r="1.7"/><circle cx="451.6" cy="175.4" r="1.7"/><circle cx="452.2" cy="176.0" r="1.7"/><circle cx="452.8" cy="176.0" r="1.7"/><circle cx="453.4" cy="176.0" r="1.7"/><circle cx="454.1" cy="176.5" r="1.7"/><circle cx="454.7" cy="177.0" r="1.7"/><circle cx="455.3" cy="177.0" r="1.7"/><circle cx="455.9" cy="177.5" r="1.7"/><circle cx="456.5" cy="178.0" r="1.7"/><circle cx="457.1" cy="178.5" r="1.7"/><circle cx="457.7" cy="179.1" r="1.7"/><circle cx="458.3" cy="179.1" r="1.7"/><circle cx="458.9" cy="179.6" r="1.7"/><circle cx="459.5" cy="179.6" r="1.7"/><circle cx="460.1" cy="180.1" r="1.7"/><circle cx="460.7" cy="180.1" r="1.7"/><circle cx="461.3" cy="181.6" r="1.7"/><circle cx="461.9" cy="181.6" r="1.7"/><circle cx="462.5" cy="182.1" r="1.7"/><circle cx="463.1" cy="182.1" r="1.7"/><circle cx="463.7" cy="182.7" r="1.7"/><circle cx="464.3" cy="183.2" r="1.7"/><circle cx="464.9" cy="183.7" r="1.7"/><circle cx="465.5" cy="183.7" r="1.7"/><circle cx="466.1" cy="184.2" r="1.7"/><circle cx="466.7" cy="184.2" r="1.7"/><circle cx="467.3" cy="184.2" r="1.7"/><circle cx="467.9" cy="184.7" r="1.7"/><circle cx="468.5" cy="186.3" r="1.7"/><circle cx="469.1" cy="188.3" r="1.7"/><circle cx="469.7" cy="188.3" r="1.7"/><circle cx="470.3" cy="189.9" r="1.7"/><circle cx="471.0" cy="191.4" r="1.7"/><circle cx="471.6" cy="191.9" r="1.7"/><circle cx="472.2" cy="193.5" r="1.7"/><circle cx="472.8" cy="193.5" r="1.7"/><circle cx="473.4" cy="195.0" r="1.7"/><circle cx="474.0" cy="195.0" r="1.7"/><circle cx="474.6" cy="196.6" r="1.7"/><circle cx="475.2" cy="197.1" r="1.7"/><circle cx="475.8" cy="197.1" r="1.7"/><circle cx="476.4" cy="197.6" r="1.7"/><circle cx="477.0" cy="197.6" r="1.7"/><circle cx="477.6" cy="198.1" r="1.7"/><circle cx="478.2" cy="199.1" r="1.7"/><circle cx="478.8" cy="199.1" r="1.7"/><circle cx="479.4" cy="199.1" r="1.7"/><circle cx="480.0" cy="199.7" r="1.7"/><circle cx="480.6" cy="200.7" r="1.7"/><circle cx="481.2" cy="201.2" r="1.7"/><circle cx="481.8" cy="201.2" r="1.7"/><circle cx="482.4" cy="201.2" r="1.7"/><circle cx="483.0" cy="202.7" r="1.7"/><circle cx="483.6" cy="202.7" r="1.7"/><circle cx="484.2" cy="203.8" r="1.7"/><circle cx="484.8" cy="203.8" r="1.7"/><circle cx="485.4" cy="203.8" r="1.7"/><circle cx="486.0" cy="204.3" r="1.7"/><circle cx="486.6" cy="204.8" r="1.7"/><circle cx="487.2" cy="204.8" r="1.7"/><circle cx="487.9" cy="205.3" r="1.7"/><circle cx="488.5" cy="205.8" r="1.7"/><circle cx="489.1" cy="205.8" r="1.7"/><circle cx="489.7" cy="206.9" r="1.7"/><circle cx="490.3" cy="206.9" r="1.7"/><circle cx="490.9" cy="208.4" r="1.7"/><circle cx="491.5" cy="209.4" r="1.7"/><circle cx="492.1" cy="209.9" r="1.7"/><circle cx="492.7" cy="210.5" r="1.7"/><circle cx="493.3" cy="212.0" r="1.7"/><circle cx="493.9" cy="212.0" r="1.7"/><circle cx="494.5" cy="218.7" r="1.7"/><circle cx="495.1" cy="222.3" r="1.7"/><circle cx="495.7" cy="223.9" r="1.7"/></g>
+<g fill="#e67e22" opacity=".85"><circle cx="190.9" cy="51.8" r="1.7"/><circle cx="191.5" cy="51.8" r="1.7"/><circle cx="192.1" cy="51.8" r="1.7"/><circle cx="192.7" cy="52.9" r="1.7"/><circle cx="193.3" cy="52.9" r="1.7"/><circle cx="193.9" cy="53.4" r="1.7"/><circle cx="194.5" cy="53.9" r="1.7"/><circle cx="195.1" cy="53.9" r="1.7"/><circle cx="195.7" cy="53.9" r="1.7"/><circle cx="196.3" cy="53.9" r="1.7"/><circle cx="196.9" cy="53.9" r="1.7"/><circle cx="197.5" cy="53.9" r="1.7"/><circle cx="198.1" cy="54.9" r="1.7"/><circle cx="198.7" cy="54.9" r="1.7"/><circle cx="199.3" cy="55.4" r="1.7"/><circle cx="200.0" cy="56.0" r="1.7"/><circle cx="200.6" cy="56.0" r="1.7"/><circle cx="201.2" cy="56.0" r="1.7"/><circle cx="201.8" cy="56.0" r="1.7"/><circle cx="202.4" cy="56.5" r="1.7"/><circle cx="203.0" cy="57.0" r="1.7"/><circle cx="203.6" cy="57.0" r="1.7"/><circle cx="204.2" cy="58.5" r="1.7"/><circle cx="204.8" cy="59.1" r="1.7"/><circle cx="205.4" cy="60.1" r="1.7"/><circle cx="206.0" cy="60.1" r="1.7"/><circle cx="206.6" cy="60.6" r="1.7"/><circle cx="207.2" cy="60.6" r="1.7"/><circle cx="207.8" cy="61.6" r="1.7"/><circle cx="208.4" cy="62.7" r="1.7"/><circle cx="209.0" cy="62.7" r="1.7"/><circle cx="209.6" cy="63.2" r="1.7"/><circle cx="210.2" cy="63.2" r="1.7"/><circle cx="210.8" cy="64.2" r="1.7"/><circle cx="211.4" cy="64.2" r="1.7"/><circle cx="212.0" cy="64.7" r="1.7"/><circle cx="212.6" cy="64.7" r="1.7"/><circle cx="213.2" cy="64.7" r="1.7"/><circle cx="213.8" cy="65.2" r="1.7"/><circle cx="214.4" cy="66.3" r="1.7"/><circle cx="215.0" cy="66.3" r="1.7"/><circle cx="216.2" cy="66.3" r="1.7"/><circle cx="216.9" cy="66.8" r="1.7"/><circle cx="217.5" cy="66.8" r="1.7"/><circle cx="218.7" cy="67.3" r="1.7"/><circle cx="219.3" cy="67.8" r="1.7"/><circle cx="219.9" cy="68.3" r="1.7"/><circle cx="220.5" cy="70.9" r="1.7"/><circle cx="221.7" cy="71.9" r="1.7"/><circle cx="222.3" cy="71.9" r="1.7"/><circle cx="224.1" cy="73.5" r="1.7"/><circle cx="225.3" cy="73.5" r="1.7"/><circle cx="225.9" cy="73.5" r="1.7"/><circle cx="227.7" cy="76.6" r="1.7"/><circle cx="229.5" cy="77.6" r="1.7"/><circle cx="231.9" cy="80.2" r="1.7"/></g>
+<rect x="80" y="183" width="9" height="9" fill="#2e8b57"/>
+<text class="lb" x="94" y="191">223 sign-stable wirings, all at 1.000</text>
+<rect x="80" y="199" width="9" height="9" fill="#c0392b"/>
+<text class="lb" x="94" y="207">450 wirings with a positive loop</text>
+<rect x="80" y="215" width="9" height="9" fill="#e67e22"/>
+<text class="lb" x="94" y="223">56 wirings with only negative loops</text>
+<text class="ti" x="556" y="24">B · how much signs decide</text>
+<line class="gr" x1="570" y1="246.0" x2="740" y2="246.0"/>
+<text class="tk" x="564" y="249.0" text-anchor="end">1%</text>
+<line class="gr" x1="570" y1="143.0" x2="740" y2="143.0"/>
+<text class="tk" x="564" y="146.0" text-anchor="end">10%</text>
+<line class="gr" x1="570" y1="40.0" x2="740" y2="40.0"/>
+<text class="tk" x="564" y="43.0" text-anchor="end">100%</text>
+<line class="ax" x1="570" y1="246" x2="740" y2="246"/><line class="ax" x1="570" y1="40" x2="570" y2="246"/>
+<rect x="590" y="51.2" width="34" height="194.8" fill="#2e8b57" opacity=".85"/>
+<text class="lb" x="607" y="45.2" text-anchor="middle">77.8%</text>
+<text class="tk" x="607" y="261" text-anchor="middle">n = 2</text>
+<text class="sm" x="607" y="273" text-anchor="middle">7/9</text>
+<rect x="642" y="93.0" width="34" height="153.0" fill="#2e8b57" opacity=".85"/>
+<text class="lb" x="659" y="87.0" text-anchor="middle">30.6%</text>
+<text class="tk" x="659" y="261" text-anchor="middle">n = 3</text>
+<text class="sm" x="659" y="273" text-anchor="middle">223/729</text>
+<rect x="694" y="171.2" width="34" height="74.8" fill="#2e8b57" opacity=".85"/>
+<text class="lb" x="711" y="165.2" text-anchor="middle">5.33%</text>
+<text class="tk" x="711" y="261" text-anchor="middle">n = 4</text>
+<text class="sm" x="711" y="273" text-anchor="middle">28321/531441</text>
+<text class="lb" x="655" y="290" text-anchor="middle">species in the wiring</text>
+</svg>
+<figcaption>Figure 3. <strong>A</strong>: each dot is one of the 729 three-species wirings, ranked by
+the fraction of its 400 random-magnitude Jacobians that are Hurwitz. The 223 sign-stable wirings sit at
+exactly 1; every rejected wiring is below it. Wirings with only negative loops are the hardest to
+destabilize. <strong>B</strong>: the share of wirings decided by signs alone, Table 1, on a log axis.</figcaption>
+</figure>
+
+<p><strong>The named wirings.</strong> Lecture 4's toggle has <em>a</em><sub>11</sub> = <em>a</em><sub>22</sub>
+= −1, so its criterion is a loop gain <em>a</em><sub>12</sub><em>a</em><sub>21</sub> &lt; 1. At the two
+stable states the loop gain is 0.250; at the saddle it is 1.718. The eigenvalues
+−1 ± √(<em>a</em><sub>12</sub><em>a</em><sub>21</sub>) are then −0.5, −1.5 and +0.311, −2.311, the
+lecture's table without diagonalizing anything.<sup>1</sup> For a ring of three with
+<em>a<sub>ii</sub></em> = −1 and loop product <em>P</em> = <em>a</em><sub>21</sub><em>a</em><sub>32</sub><em>a</em><sub>13</sub>,
+the characteristic polynomial is (<em>λ</em>+1)<sup>3</sup> = <em>P</em>, so the eigenvalues are
+−1 + <em>P</em><sup>1/3</sup> times the cube roots of unity. A negative ring, the repressilator's
+wiring,<sup>10</sup> holds until |<em>P</em>| = 8 and then loses stability through a pair at ±<em>i</em>√3;
+a positive ring already fails at |<em>P</em>| = 1, through a real eigenvalue (Table 3). Same three species,
+same removal rates: the sign of the loop chooses between a clock and a switch, and its magnitude sets the
+price, eightfold higher for the clock.</p>
+
+<div class="wide"><table>
+<tr><th>ring loop product <em>P</em></th><th>leading eigenvalue, Re</th><th>Im</th><th>what happens</th></tr>
+<tr><td>−7.9</td><td>−0.0042</td><td>1.725</td><td>stable, damped oscillation</td></tr>
+<tr><td>−8.0</td><td>0</td><td>1.732</td><td>complex pair on the axis</td></tr>
+<tr><td>−8.1</td><td>+0.0041</td><td>1.739</td><td>lost through a pair: a clock</td></tr>
+<tr><td>+0.9</td><td>−0.0345</td><td>0</td><td>stable</td></tr>
+<tr><td>+1.0</td><td>0</td><td>0</td><td>real eigenvalue at zero</td></tr>
+<tr><td>+1.1</td><td>+0.0323</td><td>0</td><td>lost through a real root: a fold</td></tr>
+</table></div>
+<p class="tcap">Table 3. The ring, computed by the code below. √3 = 1.732 is the imaginary part at
+<em>P</em> = −8, as (<em>λ</em>+1)<sup>3</sup> = −8 predicts.</p>
+
+<details><summary>the code, in full (Python 3, numpy; ~20 s)</summary>
+<pre><code>import itertools, math, numpy as np
+
+# --- the two sign tests, every diagonal entry negative (self-removal) ---
+def long_loop(S):                       # a directed loop through &gt;= 3 species; j -&gt; i iff S[i][j] != 0
+    n = len(S)
+    return any(all(S[v[(m+1) % k]][v[m]] != 0 for m in range(k))
+               for k in range(3, n+1) for v in itertools.permutations(range(n), k) if v[0] == min(v))
+
+def sign_stable(S):
+    n = len(S)
+    if any(S[i][j] * S[j][i] &gt; 0 for i in range(n) for j in range(i+1, n)):
+        return False                    # a positive pair: mutual activation or mutual repression
+    return not long_loop(S)
+
+def wirings(n):                         # every sign pattern on the off-diagonal, diagonal fixed at -1
+    off = [(i, j) for i in range(n) for j in range(n) if i != j]
+    for signs in itertools.product((-1, 0, 1), repeat=len(off)):
+        S = [[-1 if i == j else 0 for j in range(n)] for i in range(n)]
+        for (i, j), s in zip(off, signs): S[i][j] = s
+        yield S
+
+for n in (2, 3, 4):
+    tot = sum(1 for _ in wirings(n)); ok = sum(sign_stable(S) for S in wirings(n))
+    print(f"n={n}: {ok} of {tot} wirings are sign-stable ({100*ok/tot:.2f}%)")
+
+# --- Monte Carlo: give every nonzero entry a random magnitude, two decades log-uniform ---
+rng = np.random.default_rng(0)
+def draw(S):
+    return np.array(S, float) * 10 ** rng.uniform(-1, 1, size=np.shape(S))
+
+def loop_signs(S):                      # sign of every directed loop, length 2..n
+    n = len(S); out = []
+    for k in range(2, n+1):
+        for v in itertools.permutations(range(n), k):
+            if v[0] != min(v): continue
+            p = math.prod(S[v[(m+1) % k]][v[m]] for m in range(k))
+            if p: out.append(p)
+    return out
+
+N, rows = 400, []
+for S in wirings(3):
+    cls = ("sign-stable" if sign_stable(S) else
+           "positive loop" if any(p &gt; 0 for p in loop_signs(S)) else "only negative loops")
+    hur = re_bad = im_bad = 0
+    for _ in range(N):
+        ev = np.linalg.eigvals(draw(S)); bad = ev[ev.real &gt;= 0]
+        if len(bad) == 0: hur += 1
+        elif np.any(abs(bad.imag) &lt; 1e-9): re_bad += 1      # a real eigenvalue crossed zero
+        else: im_bad += 1                                    # only a complex pair crossed
+    rows.append((cls, hur / N, re_bad, im_bad))
+
+for cls in ("sign-stable", "positive loop", "only negative loops"):
+    fr = sorted(r[1] for r in rows if r[0] == cls)
+    print(f"{cls:20s} {len(fr):3d} wirings  Hurwitz fraction min/median/max = "
+          f"{fr[0]:.3f}/{fr[len(fr)//2]:.3f}/{fr[-1]:.3f}  unstable draws: real {sum(r[2] for r in rows if r[0]==cls)}, "
+          f"complex {sum(r[3] for r in rows if r[0]==cls)}")
+
+# --- the toggle of lecture 4, eq (12): loop gain a12*a21 against a11*a22 = 1 ---
+g = lambda x: 4 / (1 + (4 / (1 + x*x))**2) - x            # x-nullcline evaluated on the y-nullcline
+xs = np.linspace(0, 5, 50001); v = g(xs)
+for k in np.flatnonzero(v[:-1] * v[1:] &lt; 0):
+    a, b = xs[k], xs[k+1]
+    for _ in range(60): m = (a+b)/2; a, b = (a, m) if g(a)*g(m) &lt;= 0 else (m, b)
+    x, y = (a+b)/2, 4/(1+((a+b)/2)**2)
+    a12, a21 = -8*y/(1+y*y)**2, -8*x/(1+x*x)**2
+    print(f"toggle ({x:.4f},{y:.4f}): loop gain {a12*a21:.4f}, eigenvalues {-1-math.sqrt(a12*a21):+.4f} {-1+math.sqrt(a12*a21):+.4f}")
+
+# --- a ring of three, a_ii = -1, loop product P: eigenvalues -1 + P^(1/3) * cube roots of unity ---
+for P in (-7.9, -8.0, -8.1, 0.9, 1.0, 1.1):
+    A = -np.eye(3) + np.sign(P) * abs(P)**(1/3) * np.roll(np.eye(3), 1, axis=0)
+    ev = np.linalg.eigvals(A); lead = ev[np.argmax(ev.real)]
+    print(f"ring P={P:+.1f}: max Re = {lead.real:+.4f}, Im = {abs(lead.imag):.3f}")
+
+import json                              # hand the per-wiring fractions to the figure script
+json.dump({"counts": {2: (7, 9), 3: (223, 729), 4: (28321, 531441)},
+           "rows": sorted([(r[1], r[0]) for r in rows], key=lambda t: -t[0])}, open("signstab_out.json", "w"))</code></pre>
+</details>
+
+<h2><span class="n">4</span>Where this breaks</h2>
+
+<p><strong>Failing the tests is not instability.</strong> Sign stability is a statement about a family;
+for one fixed point with one set of numbers it says nothing. About half of the draws for the rejected
+wirings were Hurwitz, and the toggle's two memory states are Hurwitz at loop gain 0.25 with the same wiring
+that is a saddle at 1.72. The tests say when you may stop computing, never that a fixed point is unstable.</p>
+
+<p><strong>The signs belong to the fixed point, not to the network.</strong> A Hill law has one sign
+everywhere, but a substrate-inhibited enzyme, or lecture 3 §9's PFK, flips the sign of a slope with the
+state, and positive autoregulation makes <em>a<sub>ii</sub></em> &gt; 0 at the middle crossing of lecture 4
+§4, a positive loop of length one. Species with no removal at all, a closed phosphorylation cycle or a
+conserved pool (lecture 3 §10), have <em>a<sub>ii</sub></em> = 0; then the color test and the determinant
+condition matter, and a zero eigenvalue may be a conserved total rather than a failure of recovery, the
+slice Kehan's essay takes this week. Read the Jacobian at each fixed point before reading its signs.</p>
+
+<p><strong>"For every magnitude" is not "robust", and my range is a choice.</strong> A sign-stable wiring
+can recover arbitrarily slowly, and it inherits the Jacobian's limits from lecture 4 §8: local, one fixed
+point, silent on basins. The fractions in Figure 3A and Table 2 depend on sampling two decades; widen it
+and every rejected wiring fails more often. Only the 1.000 of the sign-stable class, the zero real
+crossings of the negative-loop class, and the counts are range-free.</p>
+
+<p>What I take from it: lecture 4's structure-to-function map has a first row that can be filled exactly.
+No loop, or only negative pairs: stable, numbers never needed. Only negative loops: stable or a clock,
+never a switch. A positive loop anywhere: the loop gain decides, and the one-dimensional slope test is its
+simplest case. The map is complete for the wirings that do nothing and empties out for the ones that
+compute, which is what "structural" has to mean.</p>
+
+<h2>† Sources</h2>
+<ul class="src">
+<li>F. Xiao, <em>CCBS Lecture 4 · From simulations to possible behaviors</em>, core page, 2026-09-10,
+<a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture04-core.html">lecture04-core.html</a>
+— the §1 and §8 quotations, the Hurwitz rule (17), the toggle (12), its Jacobian (18) and the
+fixed-point table that §3's loop gains reproduce; §5 for the fold, §9 for the Lyapunov step.</li>
+<li>F. Xiao, <em>CCBS Lecture 3 · From reactions to systems</em>, core page, 2026-09-08,
+<a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture03-core.html">lecture03-core.html</a>
+— §4, dilution as a −<em>λ</em> on every species; §9, PFK's opposed nucleotide sites; §10, conserved pools.</li>
+<li>J. Quirk and R. Ruppert, "Qualitative economics and the stability of equilibrium," <em>Review of
+Economic Studies</em> 32, 311–326 (1965). <a href="https://doi.org/10.2307/2295838">DOI</a> — the origin
+of sign (qualitative) stability.</li>
+<li>R. M. May, "Qualitative stability in model ecosystems," <em>Ecology</em> 54, 638–641 (1973).
+<a href="https://doi.org/10.2307/1935352">DOI</a> — the Quirk–Ruppert conditions in the five-part form
+used here: nonpositive diagonal, no positive pair, no product around three or more indices, and two
+conditions that are automatic with a negative diagonal.</li>
+<li>C. Jeffries, "Qualitative stability and digraphs in model ecosystems," <em>Ecology</em> 55,
+1415–1419 (1974). <a href="https://doi.org/10.2307/1935470">DOI</a> — the color test that handles
+species with no self-removal.</li>
+<li>C. Jeffries, V. Klee and P. van den Driessche, "When is a matrix sign stable?" <em>Canadian Journal
+of Mathematics</em> 29, 315–326 (1977). <a href="https://doi.org/10.4153/CJM-1977-035-3">DOI</a> — the
+complete characterization, including the converse checked numerically in Table 2.</li>
+<li>R. Thomas, "On the relation between the logical structure of systems and their ability to generate
+multiple steady states or sustained oscillations," <em>Springer Series in Synergetics</em> 9, 180–193
+(1981). <a href="https://doi.org/10.1007/978-3-642-81703-8_24">DOI</a> — the two loop rules, stated as
+conjectures.</li>
+<li>E. H. Snoussi, "Necessary conditions for multistationarity and stable periodicity," <em>Journal of
+Biological Systems</em> 6, 3–9 (1998), <a href="https://doi.org/10.1142/S0218339098000042">DOI</a>;
+J.-L. Gouzé, "Positive and negative circuits in dynamical systems," <em>Journal of Biological Systems</em>
+6, 11–15 (1998), <a href="https://doi.org/10.1142/S0218339098000054">DOI</a> — proofs of the loop rules
+for differential systems.</li>
+<li>C. Soulé, "Graphic requirements for multistationarity," <em>ComPlexUs</em> 1, 123–133 (2003).
+<a href="https://doi.org/10.1159/000076100">DOI</a> — the positive-loop rule in its general form.</li>
+<li>M. B. Elowitz and S. Leibler, "A synthetic oscillatory network of transcriptional regulators,"
+<em>Nature</em> 403, 335–338 (2000). <a href="https://doi.org/10.1038/35002125">DOI</a> — the ring of
+three repressors whose wiring Table 3 prices; T. S. Gardner, C. R. Cantor and J. J. Collins,
+"Construction of a genetic toggle switch in <em>Escherichia coli</em>," <em>Nature</em> 403, 339–342
+(2000). <a href="https://doi.org/10.1038/35002131">DOI</a> — the mutual-repression pair.</li>
+<li>Everything computed here comes from the script above (numpy 1.26, seed 0); the figures are generated
+from its output and drawn as inline SVG.</li>
+</ul>
+
+</div>
+</body>
+</html>
