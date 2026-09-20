@@ -1,0 +1,1611 @@
+<!DOCTYPE html>
+<!-- saved from url=(0086)file://wsl.localhost/Ubuntu/home/yanrz/projects/CCBS/lecture6-rna-packet-homework.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Eliminating an RNA lifetime</title>
+<meta name="description" content="Homework: use two competing clocks to derive the geometric protein packet of a translating RNA, then decide what survives under two parameter limits.">
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+<link href="./week3-yanrunzi-ext_files/css2" rel="stylesheet">
+<style>
+  :root{
+    --ground:#F7F8F9;
+    --surface:#FFFFFF;
+    --surface-2:#F1F3F5;
+    --ink:#16181D;
+    --ink-soft:#4A505B;
+    --ink-faint:#8A909C;
+    --rule:#E1E4E9;
+    --rule-strong:#C9CDD5;
+    --accent:#0F766E;          /* ink-teal: the signal that survives */
+    --accent-ink:#0B5A54;
+    --accent-soft:#E6F2F0;
+    --lost:#B04A58;            /* rose: what is eliminated */
+    --lost-soft:#F7E9EB;
+    --chip-bg:rgba(15,118,110,.08);
+    --mono-shadow:#F3D9B0;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#121417;
+      --surface:#191C20;
+      --surface-2:#1F2328;
+      --ink:#EAECEF;
+      --ink-soft:#A9AFBA;
+      --ink-faint:#6E7580;
+      --rule:#2A2E35;
+      --rule-strong:#3A3F48;
+      --accent:#2FBF9C;
+      --accent-ink:#7FE0C6;
+      --accent-soft:#14323A;
+      --lost:#E08A94;
+      --lost-soft:#3A1E24;
+      --chip-bg:rgba(47,191,156,.14);
+      --mono-shadow:#3A2E16;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#121417;
+    --surface:#191C20;
+    --surface-2:#1F2328;
+    --ink:#EAECEF;
+    --ink-soft:#A9AFBA;
+    --ink-faint:#6E7580;
+    --rule:#2A2E35;
+    --rule-strong:#3A3F48;
+    --accent:#2FBF9C;
+    --accent-ink:#7FE0C6;
+    --accent-soft:#14323A;
+    --lost:#E08A94;
+    --lost-soft:#3A1E24;
+    --chip-bg:rgba(47,191,156,.14);
+    --mono-shadow:#3A2E16;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-size:16px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:980px;margin:0 auto;padding-inline:clamp(16px,4vw,40px);padding-block:env(safe-area-inset-top,0px) 96px}
+
+  /* ------- Masthead ------- */
+  .course{
+    display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;
+    font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--ink-faint);
+    padding-block:22px 0;
+  }
+  .course b{color:var(--ink-soft);font-weight:600}
+  .dot{color:var(--rule-strong)}
+  .tag{
+    font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.05em;
+    color:var(--accent-ink);background:var(--accent-soft);
+    border:1px solid var(--rule);border-radius:999px;padding:2px 10px;
+  }
+  h1{
+    font-size:clamp(30px,5.2vw,46px);line-height:1.04;letter-spacing:-.015em;
+    margin:22px 0 10px;font-weight:650;text-wrap:balance;
+  }
+  .lede{
+    font-size:18px;line-height:1.55;color:var(--ink-soft);
+    max-width:66ch;text-wrap:balance;margin:0 0 26px;
+  }
+  .brief{
+    border:1px solid var(--rule);border-left:3px solid var(--accent);
+    background:var(--surface);border-radius:10px;padding:18px 22px;margin:0 0 8px;
+    box-shadow:0 1px 2px rgba(20,24,30,.04);
+  }
+  .brief .kicker{
+    font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--ink-faint);margin-bottom:6px;
+  }
+  .brief p{margin:0;color:var(--ink)}
+  .brief p + p{margin-top:10px}
+  .brief i{font-family:"IBM Plex Mono",monospace;font-size:.92em;color:var(--ink-soft)}
+  .meta{
+    display:flex;flex-wrap:wrap;gap:6px 18px;font-family:"IBM Plex Mono",monospace;
+    font-size:12px;color:var(--ink-faint);padding-block:6px 2px;
+  }
+
+  /* ------- Sections ------- */
+  section{padding-block:52px 8px}
+  .eyebrow{
+    display:flex;align-items:baseline;gap:12px;
+    font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--ink-faint);margin-bottom:12px;
+  }
+  .eyebrow .no{color:var(--accent);font-weight:600}
+  .eyebrow::after{content:"";flex:1;height:1px;background:var(--rule)}
+  h2{
+    font-size:clamp(23px,3.4vw,30px);font-weight:650;letter-spacing:-.01em;
+    margin:0 0 6px;text-wrap:balance;
+  }
+  .sub{color:var(--ink-soft);max-width:70ch;margin:4px 0 22px;text-wrap:balance}
+  .formula{
+    font-family:"IBM Plex Mono",monospace;font-feature-settings:"tnum";
+  }
+  .lead em, .sub em{font-family:"IBM Plex Mono",monospace;font-style:normal;font-size:.94em;color:var(--ink)}
+
+  /* ------- Reaction object table ------- */
+  .objtable{
+    border:1px solid var(--rule-strong);border-radius:10px;overflow:hidden;
+    background:var(--surface);margin:6px 0 20px;
+  }
+  .objtable .rhead{
+    display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:0;
+    background:var(--surface-2);border-bottom:1px solid var(--rule-strong);
+    font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.09em;
+    text-transform:uppercase;color:var(--ink-faint);
+  }
+  .objtable .rhead > div{padding:10px 16px}
+  .objtable .row{
+    display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:0;
+    border-bottom:1px solid var(--rule);
+  }
+  .objtable .row:last-child{border-bottom:0}
+  .objtable .row > div{padding:11px 16px}
+  .objtable .row > div + div{border-left:1px solid var(--rule)}
+  .objtable b{font-weight:600}
+  .reaction{font-family:"IBM Plex Mono",monospace;font-size:.86rem}
+  .clock{font-family:"IBM Plex Mono",monospace;font-size:.86rem;color:var(--ink-soft)}
+  .clock b{color:var(--ink)}
+
+  /* ------- Equations ------- */
+  .eq-block{
+    margin:14px 0 18px;background:var(--surface);border:1px solid var(--rule);
+    border-radius:10px;padding:6px 18px;overflow-x:auto;
+  }
+  .eq-label{
+    font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.06em;
+    color:var(--ink-faint);margin:10px 0 2px;
+  }
+  .note{font-size:14px;color:var(--ink-soft);max-width:70ch;margin:10px 0 0}
+  .note b{color:var(--ink);font-weight:600}
+
+  .grid{display:grid;gap:16px;margin:18px 0}
+  .g2{grid-template-columns:1fr 1fr}
+  @media(max-width:760px){.g2{grid-template-columns:1fr}}
+
+  .card{border:1px solid var(--rule);background:var(--surface);border-radius:10px;padding:18px 20px}
+  .card h3{font-size:16px;font-weight:650;margin:0 0 8px;letter-spacing:-.005em}
+  .card .mono-label{
+    font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--ink-faint);margin:12px 0 6px;
+  }
+  .card p{font-size:14.5px;margin:8px 0;color:var(--ink-soft)}
+  .card p b{color:var(--ink)}
+
+  /* ------- Race strip ------- */
+  .race{
+    border:1px solid var(--rule);border-radius:10px;overflow:hidden;background:var(--surface);
+  }
+  .race .rail{display:grid;grid-template-columns:1fr 1fr;height:44px}
+  .race .lane{display:flex;align-items:center;justify-content:center;gap:8px;
+    font-family:"IBM Plex Mono",monospace;font-size:12.5px;font-weight:500}
+  .race .lane.trans{background:var(--accent-soft);color:var(--accent-ink)}
+  .race .lane.deg{background:var(--lost-soft);color:var(--lost)}
+  .race .scale{display:flex;height:12px}
+  .race .scale .s{transition:width .25s ease}
+  .race .scale .s.trans{background:var(--accent)}
+  .race .scale .s.deg{background:var(--lost)}
+  .race .legends{display:flex;flex-wrap:wrap;gap:10px 22px;padding:12px 16px;
+    font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-soft)}
+  .race .legends b{color:var(--ink)}
+  .race .keys{display:flex;gap:14px;padding:0 16px 14px;font-size:12.5px;color:var(--ink-soft)}
+
+  /* ------- Wait, a small stat tile ------- */
+  .statrow{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0}
+  @media(max-width:760px){.statrow{grid-template-columns:repeat(2,1fr)}}
+  .stat{border:1px solid var(--rule);background:var(--surface);border-radius:10px;padding:13px 15px}
+  .stat .lbl{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--ink-faint);margin-bottom:6px}
+  .stat .val{font-family:"IBM Plex Mono",monospace;font-size:24px;font-weight:600;
+    font-feature-settings:"tnum";color:var(--ink);line-height:1.1}
+  .stat .val.small{font-size:17px}
+  .stat .unit{font-size:11px;color:var(--ink-faint);font-family:"IBM Plex Mono",monospace}
+  .stat.kept .val{color:var(--accent)}
+  .stat.lost .val{color:var(--lost)}
+
+  /* ------- Controls ------- */
+  .panel{border:1px solid var(--rule-strong);border-radius:10px;background:var(--surface);overflow:hidden;margin:20px 0}
+  .panel .phead{
+    display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;
+    padding:13px 18px;border-bottom:1px solid var(--rule);background:var(--surface-2);
+  }
+  .panel .ptitle{font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.09em;
+    text-transform:uppercase;color:var(--ink-soft)}
+  .panel .pbody{padding:18px}
+  .ctrl{display:flex;flex-direction:column;gap:16px}
+  .slider-row{display:grid;grid-template-columns:1fr 200px;gap:18px;align-items:center}
+  @media(max-width:760px){.slider-row{grid-template-columns:1fr}}
+  .slider-row .slabel{font-size:13.5px;color:var(--ink)}
+  .slider-row .slabel .sub{display:block;color:var(--ink-faint);font-size:12px;margin:0;font-family:"IBM Plex Mono",monospace}
+  .slider-row .sval{font-family:"IBM Plex Mono",monospace;font-size:19px;font-weight:600;
+    font-feature-settings:"tnum";color:var(--accent);text-align:right;min-width:70px}
+  input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer}
+  .seg{display:flex;gap:8px}
+  .seg button{
+    font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.02em;
+    padding:7px 12px;border:1px solid var(--rule-strong);border-radius:8px;
+    background:var(--surface);color:var(--ink-soft);cursor:pointer;transition:all .12s ease;
+  }
+  .seg button:hover{border-color:var(--accent);color:var(--accent-ink)}
+  .seg button.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+
+  .chartbox{border:1px solid var(--rule);border-radius:10px;padding:16px 18px;background:var(--surface);margin-top:16px}
+  .chartbox .cap{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;
+    font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.05em;
+    text-transform:uppercase;color:var(--ink-faint);margin-bottom:10px}
+  svg.chart{display:block;width:100%;height:auto}
+  svg.chart text{font-family:"IBM Plex Mono",monospace;font-size:11px;fill:var(--ink-faint)}
+  svg.chart .ak{stroke:var(--ink-faint)}
+
+  /* ------- Survive / lose cards ------- */
+  .limit{border:1px solid var(--rule-strong);border-radius:10px;overflow:hidden;background:var(--surface)}
+  .limit .lhead{padding:14px 20px;border-bottom:1px solid var(--rule)}
+  .limit .lhead .which{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--ink-faint);margin-bottom:4px}
+  .limit .lhead h3{margin:0;font-size:19px;font-weight:650;letter-spacing:-.01em}
+  .limit .lbody{padding:16px 20px}
+  .limit .lbody p{font-size:14.5px;color:var(--ink-soft);margin:6px 0}
+  .split{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+  .outs{display:flex;gap:10px;flex-wrap:wrap}
+  .pill{font-family:"IBM Plex Mono",monospace;font-size:11.5px;padding:4px 11px;border-radius:999px;letter-spacing:.02em}
+  .pill.kept{background:var(--accent-soft);color:var(--accent-ink);border:1px solid var(--accent)}
+  .pill.lost{background:var(--lost-soft);color:var(--lost);border:1px solid var(--lost)}
+
+  /* ------- Contract checklist ------- */
+  .contract{border:1px solid var(--rule-strong);border-radius:10px;background:var(--surface);overflow:hidden}
+  .contract .row{display:grid;grid-template-columns:84px 1fr;border-bottom:1px solid var(--rule)}
+  .contract .row:last-child{border-bottom:0}
+  .contract .row .taglab{
+    padding:14px 18px;background:var(--surface-2);font-family:"IBM Plex Mono",monospace;
+    font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--accent-ink);border-right:1px solid var(--rule)}
+  .contract .row .bod{padding:14px 18px;font-size:14.5px;color:var(--ink-soft)}
+  .contract .row .bod b{color:var(--ink)}
+  @media(max-width:600px){.contract .row{grid-template-columns:1fr}.contract .row .taglab{border-right:0;border-bottom:1px solid var(--rule)}}
+
+  .figure-note{font-size:13px;color:var(--ink-faint);margin-top:12px;font-style:italic}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--accent);margin:0 0 6px}
+
+  footer{
+    margin-top:70px;padding-top:22px;border-top:1px solid var(--rule);
+    font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-faint);line-height:1.9;
+  }
+  footer a{color:var(--accent-ink);text-decoration:none}
+  footer a:hover{text-decoration:underline}
+  .note-line{color:var(--ink-soft)}
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+  }
+</style>
+<style type="text/css">.CtxtMenu_InfoClose {  top:.2em; right:.2em;}
+.CtxtMenu_InfoContent {  overflow:auto; text-align:left; font-size:80%;  padding:.4em .6em; border:1px inset; margin:1em 0px;  max-height:20em; max-width:30em; background-color:#EEEEEE;  white-space:normal;}
+.CtxtMenu_Info.CtxtMenu_MousePost {outline:none;}
+.CtxtMenu_Info {  position:fixed; left:50%; width:auto; text-align:center;  border:3px outset; padding:1em 2em; background-color:#DDDDDD;  color:black;  cursor:default; font-family:message-box; font-size:120%;  font-style:normal; text-indent:0; text-transform:none;  line-height:normal; letter-spacing:normal; word-spacing:normal;  word-wrap:normal; white-space:nowrap; float:none; z-index:201;  border-radius: 15px;                     /* Opera 10.5 and IE9 */  -webkit-border-radius:15px;               /* Safari and Chrome */  -moz-border-radius:15px;                  /* Firefox */  -khtml-border-radius:15px;                /* Konqueror */  box-shadow:0px 10px 20px #808080;         /* Opera 10.5 and IE9 */  -webkit-box-shadow:0px 10px 20px #808080; /* Safari 3 & Chrome */  -moz-box-shadow:0px 10px 20px #808080;    /* Forefox 3.5 */  -khtml-box-shadow:0px 10px 20px #808080;  /* Konqueror */  filter:progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color="gray", Positive="true"); /* IE */}
+</style><style type="text/css">.CtxtMenu_MenuClose {  position:absolute;  cursor:pointer;  display:inline-block;  border:2px solid #AAA;  border-radius:18px;  -webkit-border-radius: 18px;             /* Safari and Chrome */  -moz-border-radius: 18px;                /* Firefox */  -khtml-border-radius: 18px;              /* Konqueror */  font-family: "Courier New", Courier;  font-size:24px;  color:#F0F0F0}
+.CtxtMenu_MenuClose span {  display:block; background-color:#AAA; border:1.5px solid;  border-radius:18px;  -webkit-border-radius: 18px;             /* Safari and Chrome */  -moz-border-radius: 18px;                /* Firefox */  -khtml-border-radius: 18px;              /* Konqueror */  line-height:0;  padding:8px 0 6px     /* may need to be browser-specific */}
+.CtxtMenu_MenuClose:hover {  color:white!important;  border:2px solid #CCC!important}
+.CtxtMenu_MenuClose:hover span {  background-color:#CCC!important}
+.CtxtMenu_MenuClose:hover:focus {  outline:none}
+</style><style type="text/css">.CtxtMenu_Menu {  position:absolute;  background-color:white;  color:black;  width:auto; padding:5px 0px;  border:1px solid #CCCCCC; margin:0; cursor:default;  font: menu; text-align:left; text-indent:0; text-transform:none;  line-height:normal; letter-spacing:normal; word-spacing:normal;  word-wrap:normal; white-space:nowrap; float:none; z-index:201;  border-radius: 5px;                     /* Opera 10.5 and IE9 */  -webkit-border-radius: 5px;             /* Safari and Chrome */  -moz-border-radius: 5px;                /* Firefox */  -khtml-border-radius: 5px;              /* Konqueror */  box-shadow:0px 10px 20px #808080;         /* Opera 10.5 and IE9 */  -webkit-box-shadow:0px 10px 20px #808080; /* Safari 3 & Chrome */  -moz-box-shadow:0px 10px 20px #808080;    /* Forefox 3.5 */  -khtml-box-shadow:0px 10px 20px #808080;  /* Konqueror */}
+.CtxtMenu_MenuItem {  padding: 1px 2em;  background:transparent;}
+.CtxtMenu_MenuArrow {  position:absolute; right:.5em; padding-top:.25em; color:#666666;  font-family: null; font-size: .75em}
+.CtxtMenu_MenuActive .CtxtMenu_MenuArrow {color:white}
+.CtxtMenu_MenuArrow.CtxtMenu_RTL {left:.5em; right:auto}
+.CtxtMenu_MenuCheck {  position:absolute; left:.7em;  font-family: null}
+.CtxtMenu_MenuCheck.CtxtMenu_RTL { right:.7em; left:auto }
+.CtxtMenu_MenuRadioCheck {  position:absolute; left: .7em;}
+.CtxtMenu_MenuRadioCheck.CtxtMenu_RTL {  right: .7em; left:auto}
+.CtxtMenu_MenuInputBox {  padding-left: 1em; right:.5em; color:#666666;  font-family: null;}
+.CtxtMenu_MenuInputBox.CtxtMenu_RTL {  left: .1em;}
+.CtxtMenu_MenuComboBox {  left:.1em; padding-bottom:.5em;}
+.CtxtMenu_MenuSlider {  left: .1em;}
+.CtxtMenu_SliderValue {  position:absolute; right:.1em; padding-top:.25em; color:#333333;  font-size: .75em}
+.CtxtMenu_SliderBar {  outline: none; background: #d3d3d3}
+.CtxtMenu_MenuLabel {  padding: 1px 2em 3px 1.33em;  font-style:italic}
+.CtxtMenu_MenuRule {  border-top: 1px solid #DDDDDD;  margin: 4px 3px;}
+.CtxtMenu_MenuDisabled {  color:GrayText}
+.CtxtMenu_MenuActive {  background-color: #606872;  color: white;}
+.CtxtMenu_MenuDisabled:focus {  background-color: #E8E8E8}
+.CtxtMenu_MenuLabel:focus {  background-color: #E8E8E8}
+.CtxtMenu_ContextMenu:focus {  outline:none}
+.CtxtMenu_ContextMenu .CtxtMenu_MenuItem:focus {  outline:none}
+.CtxtMenu_SelectionMenu {  position:relative; float:left;  border-bottom: none; -webkit-box-shadow:none; -webkit-border-radius:0px; }
+.CtxtMenu_SelectionItem {  padding-right: 1em;}
+.CtxtMenu_Selection {  right: 40%; width:50%; }
+.CtxtMenu_SelectionBox {  padding: 0em; max-height:20em; max-width: none;  background-color:#FFFFFF;}
+.CtxtMenu_SelectionDivider {  clear: both; border-top: 2px solid #000000;}
+.CtxtMenu_Menu .CtxtMenu_MenuClose {  top:-10px; left:-10px}
+</style><style id="MJX-CHTML-styles">
+mjx-container[jax="CHTML"] {
+  line-height: 0;
+}
+
+mjx-container [space="1"] {
+  margin-left: .111em;
+}
+
+mjx-container [space="2"] {
+  margin-left: .167em;
+}
+
+mjx-container [space="3"] {
+  margin-left: .222em;
+}
+
+mjx-container [space="4"] {
+  margin-left: .278em;
+}
+
+mjx-container [space="5"] {
+  margin-left: .333em;
+}
+
+mjx-container [rspace="1"] {
+  margin-right: .111em;
+}
+
+mjx-container [rspace="2"] {
+  margin-right: .167em;
+}
+
+mjx-container [rspace="3"] {
+  margin-right: .222em;
+}
+
+mjx-container [rspace="4"] {
+  margin-right: .278em;
+}
+
+mjx-container [rspace="5"] {
+  margin-right: .333em;
+}
+
+mjx-container [size="s"] {
+  font-size: 70.7%;
+}
+
+mjx-container [size="ss"] {
+  font-size: 50%;
+}
+
+mjx-container [size="Tn"] {
+  font-size: 60%;
+}
+
+mjx-container [size="sm"] {
+  font-size: 85%;
+}
+
+mjx-container [size="lg"] {
+  font-size: 120%;
+}
+
+mjx-container [size="Lg"] {
+  font-size: 144%;
+}
+
+mjx-container [size="LG"] {
+  font-size: 173%;
+}
+
+mjx-container [size="hg"] {
+  font-size: 207%;
+}
+
+mjx-container [size="HG"] {
+  font-size: 249%;
+}
+
+mjx-container [width="full"] {
+  width: 100%;
+}
+
+mjx-box {
+  display: inline-block;
+}
+
+mjx-block {
+  display: block;
+}
+
+mjx-itable {
+  display: inline-table;
+}
+
+mjx-row {
+  display: table-row;
+}
+
+mjx-row > * {
+  display: table-cell;
+}
+
+mjx-mtext {
+  display: inline-block;
+}
+
+mjx-mstyle {
+  display: inline-block;
+}
+
+mjx-merror {
+  display: inline-block;
+  color: red;
+  background-color: yellow;
+}
+
+mjx-mphantom {
+  visibility: hidden;
+}
+
+_::-webkit-full-page-media, _:future, :root mjx-container {
+  will-change: opacity;
+}
+
+mjx-assistive-mml {
+  position: absolute !important;
+  top: 0px;
+  left: 0px;
+  clip: rect(1px, 1px, 1px, 1px);
+  padding: 1px 0px 0px 0px !important;
+  border: 0px !important;
+  display: block !important;
+  width: auto !important;
+  overflow: hidden !important;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+mjx-assistive-mml[display="block"] {
+  width: 100% !important;
+}
+
+mjx-math {
+  display: inline-block;
+  text-align: left;
+  line-height: 0;
+  text-indent: 0;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 100%;
+  font-size-adjust: none;
+  letter-spacing: normal;
+  border-collapse: collapse;
+  word-wrap: normal;
+  word-spacing: normal;
+  white-space: nowrap;
+  direction: ltr;
+  padding: 1px 0;
+}
+
+mjx-container[jax="CHTML"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="CHTML"][display="true"][width="full"] {
+  display: flex;
+}
+
+mjx-container[jax="CHTML"][display="true"] mjx-math {
+  padding: 0;
+}
+
+mjx-container[jax="CHTML"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="CHTML"][justify="right"] {
+  text-align: right;
+}
+
+mjx-mi {
+  display: inline-block;
+  text-align: left;
+}
+
+mjx-c {
+  display: inline-block;
+}
+
+mjx-utext {
+  display: inline-block;
+  padding: .75em 0 .2em 0;
+}
+
+mjx-mspace {
+  display: inline-block;
+  text-align: left;
+}
+
+mjx-mo {
+  display: inline-block;
+  text-align: left;
+}
+
+mjx-stretchy-h {
+  display: inline-table;
+  width: 100%;
+}
+
+mjx-stretchy-h > * {
+  display: table-cell;
+  width: 0;
+}
+
+mjx-stretchy-h > * > mjx-c {
+  display: inline-block;
+  transform: scalex(1.0000001);
+}
+
+mjx-stretchy-h > * > mjx-c::before {
+  display: inline-block;
+  width: initial;
+}
+
+mjx-stretchy-h > mjx-ext {
+  /* IE */ overflow: hidden;
+  /* others */ overflow: clip visible;
+  width: 100%;
+}
+
+mjx-stretchy-h > mjx-ext > mjx-c::before {
+  transform: scalex(500);
+}
+
+mjx-stretchy-h > mjx-ext > mjx-c {
+  width: 0;
+}
+
+mjx-stretchy-h > mjx-beg > mjx-c {
+  margin-right: -.1em;
+}
+
+mjx-stretchy-h > mjx-end > mjx-c {
+  margin-left: -.1em;
+}
+
+mjx-stretchy-v {
+  display: inline-block;
+}
+
+mjx-stretchy-v > * {
+  display: block;
+}
+
+mjx-stretchy-v > mjx-beg {
+  height: 0;
+}
+
+mjx-stretchy-v > mjx-end > mjx-c {
+  display: block;
+}
+
+mjx-stretchy-v > * > mjx-c {
+  transform: scaley(1.0000001);
+  transform-origin: left center;
+  overflow: hidden;
+}
+
+mjx-stretchy-v > mjx-ext {
+  display: block;
+  height: 100%;
+  box-sizing: border-box;
+  border: 0px solid transparent;
+  /* IE */ overflow: hidden;
+  /* others */ overflow: visible clip;
+}
+
+mjx-stretchy-v > mjx-ext > mjx-c::before {
+  width: initial;
+  box-sizing: border-box;
+}
+
+mjx-stretchy-v > mjx-ext > mjx-c {
+  transform: scaleY(500) translateY(.075em);
+  overflow: visible;
+}
+
+mjx-mark {
+  display: inline-block;
+  height: 0px;
+}
+
+mjx-mfrac {
+  display: inline-block;
+  text-align: left;
+}
+
+mjx-frac {
+  display: inline-block;
+  vertical-align: 0.17em;
+  padding: 0 .22em;
+}
+
+mjx-frac[type="d"] {
+  vertical-align: .04em;
+}
+
+mjx-frac[delims] {
+  padding: 0 .1em;
+}
+
+mjx-frac[atop] {
+  padding: 0 .12em;
+}
+
+mjx-frac[atop][delims] {
+  padding: 0;
+}
+
+mjx-dtable {
+  display: inline-table;
+  width: 100%;
+}
+
+mjx-dtable > * {
+  font-size: 2000%;
+}
+
+mjx-dbox {
+  display: block;
+  font-size: 5%;
+}
+
+mjx-num {
+  display: block;
+  text-align: center;
+}
+
+mjx-den {
+  display: block;
+  text-align: center;
+}
+
+mjx-mfrac[bevelled] > mjx-num {
+  display: inline-block;
+}
+
+mjx-mfrac[bevelled] > mjx-den {
+  display: inline-block;
+}
+
+mjx-den[align="right"], mjx-num[align="right"] {
+  text-align: right;
+}
+
+mjx-den[align="left"], mjx-num[align="left"] {
+  text-align: left;
+}
+
+mjx-nstrut {
+  display: inline-block;
+  height: .054em;
+  width: 0;
+  vertical-align: -.054em;
+}
+
+mjx-nstrut[type="d"] {
+  height: .217em;
+  vertical-align: -.217em;
+}
+
+mjx-dstrut {
+  display: inline-block;
+  height: .505em;
+  width: 0;
+}
+
+mjx-dstrut[type="d"] {
+  height: .726em;
+}
+
+mjx-line {
+  display: block;
+  box-sizing: border-box;
+  min-height: 1px;
+  height: .06em;
+  border-top: .06em solid;
+  margin: .06em -.1em;
+  overflow: hidden;
+}
+
+mjx-line[type="d"] {
+  margin: .18em -.1em;
+}
+
+mjx-msub {
+  display: inline-block;
+  text-align: left;
+}
+
+mjx-mrow {
+  display: inline-block;
+  text-align: left;
+}
+
+mjx-mn {
+  display: inline-block;
+  text-align: left;
+}
+
+mjx-msup {
+  display: inline-block;
+  text-align: left;
+}
+
+mjx-TeXAtom {
+  display: inline-block;
+  text-align: left;
+}
+
+mjx-mover {
+  display: inline-block;
+  text-align: left;
+}
+
+mjx-mover:not([limits="false"]) {
+  padding-top: .1em;
+}
+
+mjx-mover:not([limits="false"]) > * {
+  display: block;
+  text-align: left;
+}
+
+mjx-c::before {
+  display: block;
+  width: 0;
+}
+
+.MJX-TEX {
+  font-family: MJXZERO, MJXTEX;
+}
+
+.TEX-B {
+  font-family: MJXZERO, MJXTEX-B;
+}
+
+.TEX-I {
+  font-family: MJXZERO, MJXTEX-I;
+}
+
+.TEX-MI {
+  font-family: MJXZERO, MJXTEX-MI;
+}
+
+.TEX-BI {
+  font-family: MJXZERO, MJXTEX-BI;
+}
+
+.TEX-S1 {
+  font-family: MJXZERO, MJXTEX-S1;
+}
+
+.TEX-S2 {
+  font-family: MJXZERO, MJXTEX-S2;
+}
+
+.TEX-S3 {
+  font-family: MJXZERO, MJXTEX-S3;
+}
+
+.TEX-S4 {
+  font-family: MJXZERO, MJXTEX-S4;
+}
+
+.TEX-A {
+  font-family: MJXZERO, MJXTEX-A;
+}
+
+.TEX-C {
+  font-family: MJXZERO, MJXTEX-C;
+}
+
+.TEX-CB {
+  font-family: MJXZERO, MJXTEX-CB;
+}
+
+.TEX-FR {
+  font-family: MJXZERO, MJXTEX-FR;
+}
+
+.TEX-FRB {
+  font-family: MJXZERO, MJXTEX-FRB;
+}
+
+.TEX-SS {
+  font-family: MJXZERO, MJXTEX-SS;
+}
+
+.TEX-SSB {
+  font-family: MJXZERO, MJXTEX-SSB;
+}
+
+.TEX-SSI {
+  font-family: MJXZERO, MJXTEX-SSI;
+}
+
+.TEX-SC {
+  font-family: MJXZERO, MJXTEX-SC;
+}
+
+.TEX-T {
+  font-family: MJXZERO, MJXTEX-T;
+}
+
+.TEX-V {
+  font-family: MJXZERO, MJXTEX-V;
+}
+
+.TEX-VB {
+  font-family: MJXZERO, MJXTEX-VB;
+}
+
+mjx-stretchy-v mjx-c, mjx-stretchy-h mjx-c {
+  font-family: MJXZERO, MJXTEX-S1, MJXTEX-S4, MJXTEX, MJXTEX-A ! important;
+}
+
+@font-face /* 0 */ {
+  font-family: MJXZERO;
+  src: url("https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/output/chtml/fonts/woff-v2/MathJax_Zero.woff") format("woff");
+}
+
+@font-face /* 1 */ {
+  font-family: MJXTEX;
+  src: url("https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/output/chtml/fonts/woff-v2/MathJax_Main-Regular.woff") format("woff");
+}
+
+@font-face /* 2 */ {
+  font-family: MJXTEX-B;
+  src: url("https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/output/chtml/fonts/woff-v2/MathJax_Main-Bold.woff") format("woff");
+}
+
+@font-face /* 3 */ {
+  font-family: MJXTEX-I;
+  src: url("https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/output/chtml/fonts/woff-v2/MathJax_Math-Italic.woff") format("woff");
+}
+
+@font-face /* 4 */ {
+  font-family: MJXTEX-MI;
+  src: url("https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/output/chtml/fonts/woff-v2/MathJax_Main-Italic.woff") format("woff");
+}
+
+@font-face /* 5 */ {
+  font-family: MJXTEX-BI;
+  src: url("https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/output/chtml/fonts/woff-v2/MathJax_Math-BoldItalic.woff") format("woff");
+}
+
+@font-face /* 6 */ {
+  font-family: MJXTEX-S1;
+  src: url("https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/output/chtml/fonts/woff-v2/MathJax_Size1-Regular.woff") format("woff");
+}
+
+@font-face /* 7 */ {
+  font-family: MJXTEX-S2;
+  src: url("https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/output/chtml/fonts/woff-v2/MathJax_Size2-Regular.woff") format("woff");
+}
+
+@font-face /* 8 */ {
+  font-family: MJXTEX-S3;
+  src: url("https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/output/chtml/fonts/woff-v2/MathJax_Size3-Regular.woff") format("woff");
+}
+
+@font-face /* 9 */ {
+  font-family: MJXTEX-S4;
+  src: url("https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/output/chtml/fonts/woff-v2/MathJax_Size4-Regular.woff") format("woff");
+}
+
+@font-face /* 10 */ {
+  font-family: MJXTEX-A;
+  src: url("https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/output/chtml/fonts/woff-v2/MathJax_AMS-Regular.woff") format("woff");
+}
+
+@font-face /* 11 */ {
+  font-family: MJXTEX-C;
+  src: url("https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/output/chtml/fonts/woff-v2/MathJax_Calligraphic-Regular.woff") format("woff");
+}
+
+@font-face /* 12 */ {
+  font-family: MJXTEX-CB;
+  src: url("https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/output/chtml/fonts/woff-v2/MathJax_Calligraphic-Bold.woff") format("woff");
+}
+
+@font-face /* 13 */ {
+  font-family: MJXTEX-FR;
+  src: url("https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/output/chtml/fonts/woff-v2/MathJax_Fraktur-Regular.woff") format("woff");
+}
+
+@font-face /* 14 */ {
+  font-family: MJXTEX-FRB;
+  src: url("https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/output/chtml/fonts/woff-v2/MathJax_Fraktur-Bold.woff") format("woff");
+}
+
+@font-face /* 15 */ {
+  font-family: MJXTEX-SS;
+  src: url("https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/output/chtml/fonts/woff-v2/MathJax_SansSerif-Regular.woff") format("woff");
+}
+
+@font-face /* 16 */ {
+  font-family: MJXTEX-SSB;
+  src: url("https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/output/chtml/fonts/woff-v2/MathJax_SansSerif-Bold.woff") format("woff");
+}
+
+@font-face /* 17 */ {
+  font-family: MJXTEX-SSI;
+  src: url("https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/output/chtml/fonts/woff-v2/MathJax_SansSerif-Italic.woff") format("woff");
+}
+
+@font-face /* 18 */ {
+  font-family: MJXTEX-SC;
+  src: url("https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/output/chtml/fonts/woff-v2/MathJax_Script-Regular.woff") format("woff");
+}
+
+@font-face /* 19 */ {
+  font-family: MJXTEX-T;
+  src: url("https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/output/chtml/fonts/woff-v2/MathJax_Typewriter-Regular.woff") format("woff");
+}
+
+@font-face /* 20 */ {
+  font-family: MJXTEX-V;
+  src: url("https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/output/chtml/fonts/woff-v2/MathJax_Vector-Regular.woff") format("woff");
+}
+
+@font-face /* 21 */ {
+  font-family: MJXTEX-VB;
+  src: url("https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/output/chtml/fonts/woff-v2/MathJax_Vector-Bold.woff") format("woff");
+}
+
+mjx-c.mjx-c1D45E.TEX-I::before {
+  padding: 0.442em 0.46em 0.194em 0;
+  content: "q";
+}
+
+mjx-c.mjx-c3D::before {
+  padding: 0.583em 0.778em 0.082em 0;
+  content: "=";
+}
+
+mjx-c.mjx-c1D458.TEX-I::before {
+  padding: 0.694em 0.521em 0.011em 0;
+  content: "k";
+}
+
+mjx-c.mjx-c1D45D.TEX-I::before {
+  padding: 0.442em 0.503em 0.194em 0;
+  content: "p";
+}
+
+mjx-c.mjx-c2B::before {
+  padding: 0.583em 0.778em 0.082em 0;
+  content: "+";
+}
+
+mjx-c.mjx-c1D6FE.TEX-I::before {
+  padding: 0.441em 0.543em 0.216em 0;
+  content: "\3B3";
+}
+
+mjx-c.mjx-c1D45A.TEX-I::before {
+  padding: 0.442em 0.878em 0.011em 0;
+  content: "m";
+}
+
+mjx-c.mjx-c2C::before {
+  padding: 0.121em 0.278em 0.194em 0;
+  content: ",";
+}
+
+mjx-c.mjx-c31::before {
+  padding: 0.666em 0.5em 0 0;
+  content: "1";
+}
+
+mjx-c.mjx-c2212::before {
+  padding: 0.583em 0.778em 0.082em 0;
+  content: "\2212";
+}
+
+mjx-c.mjx-c2E::before {
+  padding: 0.12em 0.278em 0 0;
+  content: ".";
+}
+
+mjx-c.mjx-c50::before {
+  padding: 0.683em 0.681em 0 0;
+  content: "P";
+}
+
+mjx-c.mjx-c72::before {
+  padding: 0.442em 0.392em 0 0;
+  content: "r";
+}
+
+mjx-c.mjx-c28::before {
+  padding: 0.75em 0.389em 0.25em 0;
+  content: "(";
+}
+
+mjx-c.mjx-c1D435.TEX-I::before {
+  padding: 0.683em 0.759em 0 0;
+  content: "B";
+}
+
+mjx-c.mjx-c1D457.TEX-I::before {
+  padding: 0.661em 0.412em 0.204em 0;
+  content: "j";
+}
+
+mjx-c.mjx-c29::before {
+  padding: 0.75em 0.389em 0.25em 0;
+  content: ")";
+}
+
+mjx-c.mjx-c30::before {
+  padding: 0.666em 0.5em 0.022em 0;
+  content: "0";
+}
+
+mjx-c.mjx-c32::before {
+  padding: 0.666em 0.5em 0 0;
+  content: "2";
+}
+
+mjx-c.mjx-c2026::before {
+  padding: 0.12em 1.172em 0 0;
+  content: "\2026";
+}
+
+mjx-c.mjx-c45::before {
+  padding: 0.68em 0.681em 0 0;
+  content: "E";
+}
+
+mjx-c.mjx-c5B::before {
+  padding: 0.75em 0.278em 0.25em 0;
+  content: "[";
+}
+
+mjx-c.mjx-c5D::before {
+  padding: 0.75em 0.278em 0.25em 0;
+  content: "]";
+}
+
+mjx-c.mjx-c56::before {
+  padding: 0.683em 0.75em 0.022em 0;
+  content: "V";
+}
+
+mjx-c.mjx-c61::before {
+  padding: 0.448em 0.5em 0.011em 0;
+  content: "a";
+}
+
+mjx-c.mjx-cAF::before {
+  padding: 0.59em 0.5em 0 0;
+  content: "\AF";
+}
+</style></head>
+<body>
+<div class="wrap">
+
+  <!-- ================= MASTHEAD ================= -->
+  <header>
+    <div class="course">
+      <span>CCBS · EST 5053 · Fall 2026</span>
+      <span class="dot">—</span>
+      <span>Lectures 5 &amp; 6 · Stochastic dynamics &amp; time-scale separation</span>
+      <span class="tag">Problem set · geometric packet</span>
+    </div>
+    <h1>Eliminating an RNA lifetime</h1>
+    <p class="lede">Two clocks race on a single transcript — translation at <em>k<sub>p</sub></em>, degradation at <em>γ<sub>m</sub></em>. Whichever wins first decides how many proteins it leaves behind, and the answer is a <b>geometric packet</b>. This worksheet derives that packet from the two clocks, then asks which of its features survive when the rates are pushed into their limits.</p>
+
+    <div class="brief">
+      <div class="kicker">Assignment · Lecture 6, Playground C</div>
+      <p><i style="font-family:'IBM Plex Mono',monospace">Eliminate an RNA lifetime.</i> Let an RNA translate at rate <i>k<sub>p</sub></i> and disappear at <i>γ<sub>m</sub></i>. Use competing clocks to derive its geometric protein packet. Decide what survives if both rates increase at fixed ratio, and what survives if translation stays fixed.</p>
+    </div>
+    <div class="meta">
+      <span>Routes in: Lecture 5 §3 &amp; burst addendum</span>
+      <span>·</span>
+      <span>Lecture 6 §9a (fast stochastic elimination)</span>
+      <span>·</span>
+      <span>Estimator: Gillespie direct method</span>
+    </div>
+  </header>
+
+  <!-- ================= 01 OBJECT ================= -->
+  <section id="object">
+    <div class="eyebrow"><span class="no">01</span><span>The object · one transcript, two clocks</span></div>
+    <h2>An RNA is a race between two exponential clocks</h2>
+    <p class="sub">A single transcript is born at time zero. While it lives it translates — each event deposits one protein with rate <b>k<sub>p</sub></b> — and it is destroyed at rate <b>γ<sub>m</sub></b>. Nothing else is resolved: these are composite channels with declared clocks, exactly as Lecture 3's squiggle arrows and Lecture 5's propensity table treat them.</p>
+
+    <div class="objtable">
+      <div class="rhead"><div>Channel</div><div>Integer jump</div><div>Clock (events / time)</div></div>
+      <div class="row">
+        <div class="reaction">M ⇝ M + P &nbsp;<em style="color:var(--ink-faint);font-style:normal">(translation)</em></div>
+        <div class="clock"><b>P : +1</b></div>
+        <div class="clock">a<sub>+</sub> = <b>k<sub>p</sub></b> · 1<sub>{M alive}</sub></div>
+      </div>
+      <div class="row">
+        <div class="reaction">M ⇝ ∅ &nbsp;<em style="color:var(--ink-faint);font-style:normal">(degradation)</em></div>
+        <div class="clock"><b>M : −1</b></div>
+        <div class="clock">a<sub>−</sub> = <b>γ<sub>m</sub></b> · 1<sub>{M alive}</sub></div>
+      </div>
+    </div>
+
+    <div class="race">
+      <div class="rail">
+        <div class="lane trans" id="raceTrans">translation&nbsp;<b id="raceTransPct">89%</b></div>
+        <div class="lane deg" id="raceDeg">degradation&nbsp;<b id="raceDegPct">11%</b></div>
+      </div>
+      <div class="scale">
+        <div class="s trans" id="scaleTrans" style="width: 89%;"></div>
+        <div class="s deg" id="scaleDeg" style="width: 11%;"></div>
+      </div>
+      <div class="legends">
+        <span>translation wins each race with p<sub>q</sub> = k<sub>p</sub>/(k<sub>p</sub>+γ<sub>m</sub>)</span>
+        <span>mean packet E[B] = k<sub>p</sub>/γ<sub>m</sub> = <b id="raceMean">7.7 proteins</b></span>
+        <span>lifetime 1/γ<sub>m</sub> = <b id="raceLife">1.69 min</b></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 02 CLOCKS ================= -->
+  <section id="clocks">
+    <div class="eyebrow"><span class="no">02</span><span>Derivation · the geometric packet</span></div>
+    <h2>Run the clocks independently, then read the ladder</h2>
+    <p class="sub">Each event that happens to the live RNA is a draw from a race. Translation wins a single race with probability <b>q</b>, after which the race restarts with unchanged clocks (the transcript remembers nothing). The number of translation wins before the first degradation is therefore geometric.</p>
+
+    <div class="eq-label">(1) · race probability — exponential clocks tie only with probability zero</div>
+    <div class="eq-block">
+      <mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" display="true" tabindex="0" ctxtmenu_counter="0" style="font-size: 122.1%; position: relative;"><mjx-math display="true" class="MJX-TEX" aria-hidden="true" style="margin-left: 0px; margin-right: 0px;"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D45E TEX-I"></mjx-c></mjx-mi><mjx-mstyle><mjx-mspace style="width: 0.278em;"></mjx-mspace></mjx-mstyle><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mstyle><mjx-mspace style="width: 0.278em;"></mjx-mspace></mjx-mstyle><mjx-mfrac space="4"><mjx-frac type="d"><mjx-num><mjx-nstrut type="d"></mjx-nstrut><mjx-msub><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D458 TEX-I"></mjx-c></mjx-mi><mjx-script style="vertical-align: -0.15em;"><mjx-mi class="mjx-i" size="s"><mjx-c class="mjx-c1D45D TEX-I"></mjx-c></mjx-mi></mjx-script></mjx-msub></mjx-num><mjx-dbox><mjx-dtable><mjx-line type="d"></mjx-line><mjx-row><mjx-den><mjx-dstrut type="d"></mjx-dstrut><mjx-mrow><mjx-msub><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D458 TEX-I"></mjx-c></mjx-mi><mjx-script style="vertical-align: -0.15em;"><mjx-mi class="mjx-i" size="s"><mjx-c class="mjx-c1D45D TEX-I"></mjx-c></mjx-mi></mjx-script></mjx-msub><mjx-mo class="mjx-n" space="3"><mjx-c class="mjx-c2B"></mjx-c></mjx-mo><mjx-msub space="3"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D6FE TEX-I"></mjx-c></mjx-mi><mjx-script style="vertical-align: -0.15em; margin-left: -0.025em;"><mjx-mi class="mjx-i" size="s"><mjx-c class="mjx-c1D45A TEX-I"></mjx-c></mjx-mi></mjx-script></mjx-msub></mjx-mrow></mjx-den></mjx-row></mjx-dtable></mjx-dbox></mjx-frac></mjx-mfrac><mjx-mo class="mjx-n"><mjx-c class="mjx-c2C"></mjx-c></mjx-mo><mjx-mstyle><mjx-mspace style="width: 2em;"></mjx-mspace></mjx-mstyle><mjx-mn class="mjx-n" space="2"><mjx-c class="mjx-c31"></mjx-c></mjx-mn><mjx-mo class="mjx-n" space="3"><mjx-c class="mjx-c2212"></mjx-c></mjx-mo><mjx-mi class="mjx-i" space="3"><mjx-c class="mjx-c1D45E TEX-I"></mjx-c></mjx-mi><mjx-mstyle><mjx-mspace style="width: 0.278em;"></mjx-mspace></mjx-mstyle><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mstyle><mjx-mspace style="width: 0.278em;"></mjx-mspace></mjx-mstyle><mjx-mfrac space="4"><mjx-frac type="d"><mjx-num><mjx-nstrut type="d"></mjx-nstrut><mjx-msub><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D6FE TEX-I"></mjx-c></mjx-mi><mjx-script style="vertical-align: -0.15em; margin-left: -0.025em;"><mjx-mi class="mjx-i" size="s"><mjx-c class="mjx-c1D45A TEX-I"></mjx-c></mjx-mi></mjx-script></mjx-msub></mjx-num><mjx-dbox><mjx-dtable><mjx-line type="d"></mjx-line><mjx-row><mjx-den><mjx-dstrut type="d"></mjx-dstrut><mjx-mrow><mjx-msub><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D458 TEX-I"></mjx-c></mjx-mi><mjx-script style="vertical-align: -0.15em;"><mjx-mi class="mjx-i" size="s"><mjx-c class="mjx-c1D45D TEX-I"></mjx-c></mjx-mi></mjx-script></mjx-msub><mjx-mo class="mjx-n" space="3"><mjx-c class="mjx-c2B"></mjx-c></mjx-mo><mjx-msub space="3"><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D6FE TEX-I"></mjx-c></mjx-mi><mjx-script style="vertical-align: -0.15em; margin-left: -0.025em;"><mjx-mi class="mjx-i" size="s"><mjx-c class="mjx-c1D45A TEX-I"></mjx-c></mjx-mi></mjx-script></mjx-msub></mjx-mrow></mjx-den></mjx-row></mjx-dtable></mjx-dbox></mjx-frac></mjx-mfrac><mjx-mo class="mjx-n"><mjx-c class="mjx-c2E"></mjx-c></mjx-mo></mjx-math><mjx-assistive-mml unselectable="on" display="block"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mi>q</mi><mstyle scriptlevel="0"><mspace width="0.278em"></mspace></mstyle><mo>=</mo><mstyle scriptlevel="0"><mspace width="0.278em"></mspace></mstyle><mfrac><msub><mi>k</mi><mi>p</mi></msub><mrow><msub><mi>k</mi><mi>p</mi></msub><mo>+</mo><msub><mi>γ</mi><mi>m</mi></msub></mrow></mfrac><mo>,</mo><mstyle scriptlevel="0"><mspace width="2em"></mspace></mstyle><mn>1</mn><mo>−</mo><mi>q</mi><mstyle scriptlevel="0"><mspace width="0.278em"></mspace></mstyle><mo>=</mo><mstyle scriptlevel="0"><mspace width="0.278em"></mspace></mstyle><mfrac><msub><mi>γ</mi><mi>m</mi></msub><mrow><msub><mi>k</mi><mi>p</mi></msub><mo>+</mo><msub><mi>γ</mi><mi>m</mi></msub></mrow></mfrac><mo>.</mo></math></mjx-assistive-mml></mjx-container>
+    </div>
+
+    <div class="eq-label">(2) · the packet — B independent races, terminate on degradation</div>
+    <div class="eq-block">
+      <mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" display="true" tabindex="0" ctxtmenu_counter="1" style="font-size: 122.1%; position: relative;"><mjx-math display="true" class="MJX-TEX" aria-hidden="true" style="margin-left: 0px; margin-right: 0px;"><mjx-mo class="mjx-n"><mjx-c class="mjx-c50"></mjx-c><mjx-c class="mjx-c72"></mjx-c></mjx-mo><mjx-mo class="mjx-n"><mjx-c class="mjx-c28"></mjx-c></mjx-mo><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D435 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mi class="mjx-i" space="4"><mjx-c class="mjx-c1D457 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n"><mjx-c class="mjx-c29"></mjx-c></mjx-mo><mjx-mstyle><mjx-mspace style="width: 0.278em;"></mjx-mspace></mjx-mstyle><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mstyle><mjx-mspace style="width: 0.278em;"></mjx-mspace></mjx-mstyle><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c28"></mjx-c></mjx-mo><mjx-mn class="mjx-n"><mjx-c class="mjx-c31"></mjx-c></mjx-mn><mjx-mo class="mjx-n" space="3"><mjx-c class="mjx-c2212"></mjx-c></mjx-mo><mjx-mi class="mjx-i" space="3"><mjx-c class="mjx-c1D45E TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n"><mjx-c class="mjx-c29"></mjx-c></mjx-mo><mjx-mstyle><mjx-mspace style="width: 0.167em;"></mjx-mspace></mjx-mstyle><mjx-msup><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D45E TEX-I"></mjx-c></mjx-mi><mjx-script style="vertical-align: 0.413em; margin-left: 0.051em;"><mjx-texatom size="s" texclass="ORD"><mjx-mstyle style="font-size: 141.4%;"><mjx-mspace style="width: 0.167em;"></mjx-mspace></mjx-mstyle><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D457 TEX-I"></mjx-c></mjx-mi></mjx-texatom></mjx-script></mjx-msup><mjx-mo class="mjx-n"><mjx-c class="mjx-c2C"></mjx-c></mjx-mo><mjx-mstyle><mjx-mspace style="width: 2em;"></mjx-mspace></mjx-mstyle><mjx-mi class="mjx-i" space="2"><mjx-c class="mjx-c1D457 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="4"><mjx-c class="mjx-c30"></mjx-c></mjx-mn><mjx-mo class="mjx-n"><mjx-c class="mjx-c2C"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="2"><mjx-c class="mjx-c31"></mjx-c></mjx-mn><mjx-mo class="mjx-n"><mjx-c class="mjx-c2C"></mjx-c></mjx-mo><mjx-mn class="mjx-n" space="2"><mjx-c class="mjx-c32"></mjx-c></mjx-mn><mjx-mo class="mjx-n"><mjx-c class="mjx-c2C"></mjx-c></mjx-mo><mjx-mo class="mjx-n" space="2"><mjx-c class="mjx-c2026"></mjx-c></mjx-mo></mjx-math><mjx-assistive-mml unselectable="on" display="block"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mo data-mjx-texclass="OP" movablelimits="true">Pr</mo><mo stretchy="false">(</mo><mi>B</mi><mo>=</mo><mi>j</mi><mo stretchy="false">)</mo><mstyle scriptlevel="0"><mspace width="0.278em"></mspace></mstyle><mo>=</mo><mstyle scriptlevel="0"><mspace width="0.278em"></mspace></mstyle><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>q</mi><mo stretchy="false">)</mo><mstyle scriptlevel="0"><mspace width="0.167em"></mspace></mstyle><msup><mi>q</mi><mrow data-mjx-texclass="ORD"><mstyle scriptlevel="0"><mspace width="0.167em"></mspace></mstyle><mi>j</mi></mrow></msup><mo>,</mo><mstyle scriptlevel="0"><mspace width="2em"></mspace></mstyle><mi>j</mi><mo>=</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mo>…</mo></math></mjx-assistive-mml></mjx-container>
+    </div>
+
+    <div class="eq-label">(3) · moments of the geometric law</div>
+    <div class="eq-block">
+      <mjx-container class="MathJax CtxtMenu_Attached_0" jax="CHTML" display="true" tabindex="0" ctxtmenu_counter="2" style="font-size: 122.1%; position: relative;"><mjx-math display="true" class="MJX-TEX" aria-hidden="true" style="margin-left: 0px; margin-right: 0px;"><mjx-texatom texclass="ORD"><mjx-mi class="mjx-n"><mjx-c class="mjx-c45"></mjx-c></mjx-mi></mjx-texatom><mjx-mo class="mjx-n"><mjx-c class="mjx-c5B"></mjx-c></mjx-mo><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D435 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n"><mjx-c class="mjx-c5D"></mjx-c></mjx-mo><mjx-mstyle><mjx-mspace style="width: 0.278em;"></mjx-mspace></mjx-mstyle><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mstyle><mjx-mspace style="width: 0.278em;"></mjx-mspace></mjx-mstyle><mjx-mfrac space="4"><mjx-frac type="d"><mjx-num><mjx-nstrut type="d"></mjx-nstrut><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D45E TEX-I"></mjx-c></mjx-mi></mjx-num><mjx-dbox><mjx-dtable><mjx-line type="d"></mjx-line><mjx-row><mjx-den><mjx-dstrut type="d"></mjx-dstrut><mjx-mrow><mjx-mn class="mjx-n"><mjx-c class="mjx-c31"></mjx-c></mjx-mn><mjx-mo class="mjx-n" space="3"><mjx-c class="mjx-c2212"></mjx-c></mjx-mo><mjx-mi class="mjx-i" space="3"><mjx-c class="mjx-c1D45E TEX-I"></mjx-c></mjx-mi></mjx-mrow></mjx-den></mjx-row></mjx-dtable></mjx-dbox></mjx-frac></mjx-mfrac><mjx-mstyle><mjx-mspace style="width: 0.278em;"></mjx-mspace></mjx-mstyle><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mstyle><mjx-mspace style="width: 0.278em;"></mjx-mspace></mjx-mstyle><mjx-mfrac space="4"><mjx-frac type="d"><mjx-num><mjx-nstrut type="d"></mjx-nstrut><mjx-msub><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D458 TEX-I"></mjx-c></mjx-mi><mjx-script style="vertical-align: -0.15em;"><mjx-mi class="mjx-i" size="s"><mjx-c class="mjx-c1D45D TEX-I"></mjx-c></mjx-mi></mjx-script></mjx-msub></mjx-num><mjx-dbox><mjx-dtable><mjx-line type="d"></mjx-line><mjx-row><mjx-den><mjx-dstrut type="d"></mjx-dstrut><mjx-msub><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D6FE TEX-I"></mjx-c></mjx-mi><mjx-script style="vertical-align: -0.15em; margin-left: -0.025em;"><mjx-mi class="mjx-i" size="s"><mjx-c class="mjx-c1D45A TEX-I"></mjx-c></mjx-mi></mjx-script></mjx-msub></mjx-den></mjx-row></mjx-dtable></mjx-dbox></mjx-frac></mjx-mfrac><mjx-mo class="mjx-n"><mjx-c class="mjx-c2C"></mjx-c></mjx-mo><mjx-mstyle><mjx-mspace style="width: 2em;"></mjx-mspace></mjx-mstyle><mjx-mi class="mjx-n" space="2"><mjx-c class="mjx-c56"></mjx-c><mjx-c class="mjx-c61"></mjx-c><mjx-c class="mjx-c72"></mjx-c></mjx-mi><mjx-mo class="mjx-n"><mjx-c class="mjx-c28"></mjx-c></mjx-mo><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D435 TEX-I"></mjx-c></mjx-mi><mjx-mo class="mjx-n"><mjx-c class="mjx-c29"></mjx-c></mjx-mo><mjx-mstyle><mjx-mspace style="width: 0.278em;"></mjx-mspace></mjx-mstyle><mjx-mo class="mjx-n" space="4"><mjx-c class="mjx-c3D"></mjx-c></mjx-mo><mjx-mstyle><mjx-mspace style="width: 0.278em;"></mjx-mspace></mjx-mstyle><mjx-texatom space="4" texclass="ORD"><mjx-mover><mjx-over style="padding-bottom: 0.105em; padding-left: 0.463em; margin-bottom: -0.544em;"><mjx-mo class="mjx-n" style="width: 0px; margin-left: -0.25em;"><mjx-c class="mjx-cAF"></mjx-c></mjx-mo></mjx-over><mjx-base><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D435 TEX-I"></mjx-c></mjx-mi></mjx-base></mjx-mover></mjx-texatom><mjx-mo class="mjx-n"><mjx-c class="mjx-c28"></mjx-c></mjx-mo><mjx-mn class="mjx-n"><mjx-c class="mjx-c31"></mjx-c></mjx-mn><mjx-mo class="mjx-n" space="3"><mjx-c class="mjx-c2B"></mjx-c></mjx-mo><mjx-texatom space="3" texclass="ORD"><mjx-mover><mjx-over style="padding-bottom: 0.105em; padding-left: 0.463em; margin-bottom: -0.544em;"><mjx-mo class="mjx-n" style="width: 0px; margin-left: -0.25em;"><mjx-c class="mjx-cAF"></mjx-c></mjx-mo></mjx-over><mjx-base><mjx-mi class="mjx-i"><mjx-c class="mjx-c1D435 TEX-I"></mjx-c></mjx-mi></mjx-base></mjx-mover></mjx-texatom><mjx-mo class="mjx-n"><mjx-c class="mjx-c29"></mjx-c></mjx-mo><mjx-mo class="mjx-n"><mjx-c class="mjx-c2E"></mjx-c></mjx-mo></mjx-math><mjx-assistive-mml unselectable="on" display="block"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow data-mjx-texclass="ORD"><mi mathvariant="normal">E</mi></mrow><mo stretchy="false">[</mo><mi>B</mi><mo stretchy="false">]</mo><mstyle scriptlevel="0"><mspace width="0.278em"></mspace></mstyle><mo>=</mo><mstyle scriptlevel="0"><mspace width="0.278em"></mspace></mstyle><mfrac><mi>q</mi><mrow><mn>1</mn><mo>−</mo><mi>q</mi></mrow></mfrac><mstyle scriptlevel="0"><mspace width="0.278em"></mspace></mstyle><mo>=</mo><mstyle scriptlevel="0"><mspace width="0.278em"></mspace></mstyle><mfrac><msub><mi>k</mi><mi>p</mi></msub><msub><mi>γ</mi><mi>m</mi></msub></mfrac><mo>,</mo><mstyle scriptlevel="0"><mspace width="2em"></mspace></mstyle><mi>Var</mi><mo stretchy="false">(</mo><mi>B</mi><mo stretchy="false">)</mo><mstyle scriptlevel="0"><mspace width="0.278em"></mspace></mstyle><mo>=</mo><mstyle scriptlevel="0"><mspace width="0.278em"></mspace></mstyle><mrow data-mjx-texclass="ORD"><mover><mi>B</mi><mo stretchy="false">¯</mo></mover></mrow><mo stretchy="false">(</mo><mn>1</mn><mo>+</mo><mrow data-mjx-texclass="ORD"><mover><mi>B</mi><mo stretchy="false">¯</mo></mover></mrow><mo stretchy="false">)</mo><mo>.</mo></math></mjx-assistive-mml></mjx-container>
+    </div>
+
+    <div class="grid g2">
+      <div class="card">
+        <h3>Why it is geometric, in one line</h3>
+        <p>Condition on the transcript surviving <i>j</i> consecutive races: that is <i>q<sup>j</sup></i>. End with one degradation race: <i>1−q</i>. Multiply — the geometric ladder of the lecture's count-ladder figure, standing on its side.</p>
+        <p class="note"><b>Completeness check:</b> Σ&nbsp;<i>(1−q)q<sup>j</sup></i> = 1, so a <i>finite</i> packet is guaranteed; degradation is reached almost surely. There is no catastrophic "no packet" outcome with missing probability.</p>
+      </div>
+      <div class="card">
+        <h3>Relationship to the lectures</h3>
+        <p>This is Lecture 5's burst addendum (<i>B̄<sub>tl</sub> = k<sub>tl</sub>/d<sub>m</sub></i>) written as a race, and the exact mechanism behind Lecture 6 §9a's <i>"an ON period produces a geometric packet of mean ρ/β."</i> Averaging out a <i>fast promoter state</i> (Lecture 6) and averaging out a <i>fast RNA lifetime</i> (here) are the same operation applied to different hidden clocks.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 03 LAB ================= -->
+  <section id="lab">
+    <div class="eyebrow"><span class="no">03</span><span>Live lab · watch the two clocks</span></div>
+    <h2>Set the rates, read the packet and a history</h2>
+    <p class="sub">Drag the two clocks. The left plot is the exact geometric packet law from equations (1)–(3); the right is a Gillespie trajectory of protein count fed by a constant transcript source at rate <b>r<sub>m</sub></b> (transcripts removed at γ<sub>m</sub>, degrading protein at d<sub>p</sub>). Both are generated from the same two-clock table.</p>
+
+    <div class="panel">
+      <div class="phead"><span class="ptitle">Inputs — basal transcript</span><span class="meta" style="padding:0">source r<sub>m</sub> = <b id="inRm">0.20</b> /min · protein removal d<sub>p</sub> = <b id="inDp">0.20</b> /min</span></div>
+      <div class="pbody">
+        <div class="ctrl">
+          <div class="slider-row">
+            <div class="slabel">translation rate <span class="sub">k<sub>p</sub> — protein per transcript per minute</span></div>
+            <input type="range" id="slKp" min="0.1" max="8" step="0.05" value="2">
+            <div class="sval" id="valKp">4.55</div>
+          </div>
+          <div class="slider-row">
+            <div class="slabel">degradation rate <span class="sub">γ<sub>m</sub> — transcript lifetime 1/γ<sub>m</sub></span></div>
+            <input type="range" id="slGm" min="0.05" max="1.2" step="0.01" value="0.20">
+            <div class="sval" id="valGm">0.59</div>
+          </div>
+          <div class="seg">
+            <button data-dur="60">window 60 min</button>
+            <button data-dur="120" class="on">window 120 min</button>
+            <button data-dur="240">window 240 min</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="statrow">
+      <div class="stat"><div class="lbl">Mean packet E[B]</div><div class="val" id="stE">7.7</div></div>
+      <div class="stat"><div class="lbl">Packet CV</div><div class="val" id="stCV">1.06</div></div>
+      <div class="stat kept"><div class="lbl">Mean protein ⟨P⟩</div><div class="val small" id="stMean">5.8</div></div>
+      <div class="stat"><div class="lbl">Protein Fano (sampled)</div><div class="val small" id="stFano">3.48</div></div>
+    </div>
+
+    <div class="grid g2">
+      <div class="chartbox">
+        <div class="cap"><span>Packet law Pr(B=j)</span><span id="capPacket">geometric, E=7.7, CV=1.06</span></div>
+        <svg class="chart" id="packetPlot" viewBox="0 0 460 220" preserveAspectRatio="xMidYMid meet"><line class="ak" x1="34" y1="130" x2="460" y2="130"></line><line class="ak" x1="34" y1="4" x2="34" y2="130"></line><rect x="36.261538461538464" y="21.1" width="11.6" height="108.9" rx="1.5" fill="var(--accent)"></rect><text x="34" y="145" text-anchor="middle">0</text><rect x="52.41538461538462" y="33.6" width="11.6" height="96.4" rx="1.5" fill="var(--accent)"></rect><text x="50" y="145" text-anchor="middle">1</text><rect x="68.56923076923077" y="44.6" width="11.6" height="85.4" rx="1.5" fill="var(--accent)"></rect><rect x="84.72307692307692" y="54.4" width="11.6" height="75.6" rx="1.5" fill="var(--accent)"></rect><rect x="100.87692307692308" y="63.1" width="11.6" height="66.9" rx="1.5" fill="var(--accent)"></rect><text x="99" y="145" text-anchor="middle">4</text><rect x="117.03076923076924" y="70.8" width="11.6" height="59.2" rx="1.5" fill="var(--accent)"></rect><rect x="133.18461538461537" y="77.6" width="11.6" height="52.4" rx="1.5" fill="var(--accent)"></rect><rect x="149.33846153846153" y="83.6" width="11.6" height="46.4" rx="1.5" fill="var(--accent)"></rect><rect x="165.4923076923077" y="88.9" width="11.6" height="41.1" rx="1.5" fill="var(--accent)"></rect><text x="163" y="145" text-anchor="middle">8</text><rect x="181.64615384615385" y="93.6" width="11.6" height="36.4" rx="1.5" fill="var(--accent)"></rect><rect x="197.8" y="97.8" width="11.6" height="32.2" rx="1.5" fill="var(--accent)"></rect><rect x="213.95384615384614" y="101.5" width="11.6" height="28.5" rx="1.5" fill="var(--accent)"></rect><rect x="230.1076923076923" y="104.8" width="11.6" height="25.2" rx="1.5" fill="var(--accent)"></rect><text x="228" y="145" text-anchor="middle">12</text><rect x="246.26153846153846" y="107.7" width="11.6" height="22.3" rx="1.5" fill="var(--accent)"></rect><rect x="262.4153846153846" y="110.2" width="11.6" height="19.8" rx="1.5" fill="var(--accent)"></rect><rect x="278.5692307692307" y="112.5" width="11.6" height="17.5" rx="1.5" fill="var(--accent)"></rect><rect x="294.7230769230769" y="114.5" width="11.6" height="15.5" rx="1.5" fill="var(--accent)"></rect><text x="292" y="145" text-anchor="middle">16</text><rect x="310.87692307692305" y="116.3" width="11.6" height="13.7" rx="1.5" fill="var(--accent)"></rect><rect x="327.03076923076924" y="117.9" width="11.6" height="12.1" rx="1.5" fill="var(--accent)"></rect><rect x="343.18461538461537" y="119.3" width="11.6" height="10.7" rx="1.5" fill="var(--accent)"></rect><rect x="359.33846153846156" y="120.5" width="11.6" height="9.5" rx="1.5" fill="var(--accent)"></rect><text x="357" y="145" text-anchor="middle">20</text><rect x="375.4923076923077" y="121.6" width="11.6" height="8.4" rx="1.5" fill="var(--accent)"></rect><rect x="391.6461538461538" y="122.5" width="11.6" height="7.5" rx="1.5" fill="var(--accent)"></rect><rect x="407.8" y="123.4" width="11.6" height="6.6" rx="1.5" fill="var(--accent)"></rect><rect x="423.95384615384614" y="124.2" width="11.6" height="5.8" rx="1.5" fill="var(--accent)"></rect><text x="422" y="145" text-anchor="middle">24</text><rect x="440.1076923076923" y="124.8" width="11.6" height="5.2" rx="1.5" fill="var(--accent)"></rect></svg>
+      </div>
+      <div class="chartbox">
+        <div class="cap"><span>Protein count history P(t)</span><span id="capTrace">Gillespie · ⟨P⟩ sampled 5.8 · Fano 3.48</span></div>
+        <svg class="chart" id="tracePlot" viewBox="0 0 460 220" preserveAspectRatio="xMidYMid meet"><line class="ak" x1="40" y1="198" x2="460" y2="198"></line><text x="34" y="202" text-anchor="end">0</text><text x="34" y="150" text-anchor="end">7</text><text x="34" y="106" text-anchor="end">13</text><text x="34" y="54" text-anchor="end">20</text><text x="34" y="10" text-anchor="end">26</text><text x="40" y="213" text-anchor="middle">0</text><text x="122" y="213" text-anchor="middle">24</text><text x="205" y="213" text-anchor="middle">48</text><text x="287" y="213" text-anchor="middle">72</text><text x="370" y="213" text-anchor="middle">96</text><text x="452" y="213" text-anchor="middle">120</text><line x1="40" y1="141.1" x2="460" y2="141.1" style="stroke:var(--ink-faint);stroke-width:1;stroke-dasharray:3 4;opacity:.6"></line><path d="M40.0,198.0 L40.0,198.0 L52.7,198.0 L52.7,190.6 L52.9,190.6 L52.9,183.2 L53.4,183.2 L53.4,183.2 L53.5,183.2 L53.5,190.6 L60.7,190.6 L60.7,198.0 L62.5,198.0 L62.5,198.0 L85.6,198.0 L85.6,190.6 L85.9,190.6 L85.9,190.6 L86.2,190.6 L86.2,183.2 L86.2,183.2 L86.2,175.8 L86.6,175.8 L86.6,183.2 L87.0,183.2 L87.0,175.8 L87.2,175.8 L87.2,168.5 L87.4,168.5 L87.4,161.1 L87.5,161.1 L87.5,153.7 L89.0,153.7 L89.0,153.7 L89.0,153.7 L89.0,146.3 L89.1,146.3 L89.1,138.9 L90.2,138.9 L90.2,131.5 L90.4,131.5 L90.4,138.9 L91.4,138.9 L91.4,131.5 L91.6,131.5 L91.6,131.5 L92.7,131.5 L92.7,138.9 L92.8,138.9 L92.8,131.5 L93.3,131.5 L93.3,124.2 L93.7,124.2 L93.7,116.8 L93.9,116.8 L93.9,109.4 L93.9,109.4 L93.9,116.8 L94.3,116.8 L94.3,109.4 L94.3,109.4 L94.3,102.0 L94.6,102.0 L94.6,94.6 L95.8,94.6 L95.8,87.2 L96.0,87.2 L96.0,79.8 L96.3,79.8 L96.3,72.5 L96.7,72.5 L96.7,72.5 L97.0,72.5 L97.0,65.1 L97.5,65.1 L97.5,72.5 L98.0,72.5 L98.0,79.8 L98.4,79.8 L98.4,87.2 L98.4,87.2 L98.4,94.6 L99.5,94.6 L99.5,102.0 L100.0,102.0 L100.0,109.4 L100.1,109.4 L100.1,102.0 L100.4,102.0 L100.4,94.6 L101.0,94.6 L101.0,87.2 L101.5,87.2 L101.5,79.8 L102.8,79.8 L102.8,72.5 L103.2,72.5 L103.2,79.8 L103.4,79.8 L103.4,72.5 L104.5,72.5 L104.5,65.1 L105.4,65.1 L105.4,57.7 L105.5,57.7 L105.5,65.1 L105.5,65.1 L105.5,72.5 L105.5,72.5 L105.5,72.5 L105.6,72.5 L105.6,65.1 L105.7,65.1 L105.7,72.5 L106.3,72.5 L106.3,65.1 L106.4,65.1 L106.4,65.1 L106.4,65.1 L106.4,57.7 L107.5,57.7 L107.5,50.3 L108.4,50.3 L108.4,57.7 L109.4,57.7 L109.4,50.3 L109.8,50.3 L109.8,57.7 L110.6,57.7 L110.6,57.7 L110.9,57.7 L110.9,57.7 L111.8,57.7 L111.8,65.1 L112.2,65.1 L112.2,65.1 L112.8,65.1 L112.8,72.5 L114.5,72.5 L114.5,79.8 L114.8,79.8 L114.8,87.2 L115.2,87.2 L115.2,94.6 L116.4,94.6 L116.4,102.0 L116.7,102.0 L116.7,109.4 L117.0,109.4 L117.0,116.8 L117.8,116.8 L117.8,124.2 L118.2,124.2 L118.2,131.5 L118.9,131.5 L118.9,138.9 L120.8,138.9 L120.8,138.9 L121.4,138.9 L121.4,131.5 L121.7,131.5 L121.7,124.2 L121.9,124.2 L121.9,116.8 L122.2,116.8 L122.2,124.2 L122.4,124.2 L122.4,116.8 L122.5,116.8 L122.5,109.4 L122.7,109.4 L122.7,102.0 L123.0,102.0 L123.0,102.0 L123.2,102.0 L123.2,109.4 L124.4,109.4 L124.4,116.8 L124.6,116.8 L124.6,124.2 L125.9,124.2 L125.9,131.5 L126.0,131.5 L126.0,138.9 L127.2,138.9 L127.2,146.3 L127.5,146.3 L127.5,146.3 L137.4,146.3 L137.4,153.7 L137.6,153.7 L137.6,146.3 L138.0,146.3 L138.0,153.7 L138.4,153.7 L138.4,146.3 L138.7,146.3 L138.7,138.9 L138.7,138.9 L138.7,138.9 L139.3,138.9 L139.3,146.3 L140.0,146.3 L140.0,153.7 L146.6,153.7 L146.6,161.1 L150.7,161.1 L150.7,168.5 L155.6,168.5 L155.6,168.5 L156.5,168.5 L156.5,161.1 L157.0,161.1 L157.0,153.7 L157.1,153.7 L157.1,146.3 L157.3,146.3 L157.3,138.9 L157.6,138.9 L157.6,131.5 L157.7,131.5 L157.7,138.9 L159.1,138.9 L159.1,131.5 L159.3,131.5 L159.3,124.2 L160.6,124.2 L160.6,116.8 L161.2,116.8 L161.2,109.4 L162.5,109.4 L162.5,102.0 L162.6,102.0 L162.6,102.0 L162.8,102.0 L162.8,109.4 L163.3,109.4 L163.3,109.4 L164.2,109.4 L164.2,102.0 L164.2,102.0 L164.2,94.6 L164.4,94.6 L164.4,87.2 L164.4,87.2 L164.4,79.8 L165.5,79.8 L165.5,72.5 L165.6,72.5 L165.6,65.1 L165.6,65.1 L165.6,72.5 L166.1,72.5 L166.1,65.1 L166.2,65.1 L166.2,72.5 L166.6,72.5 L166.6,72.5 L166.7,72.5 L166.7,79.8 L170.4,79.8 L170.4,87.2 L170.5,87.2 L170.5,94.6 L174.6,94.6 L174.6,102.0 L175.2,102.0 L175.2,109.4 L175.3,109.4 L175.3,116.8 L177.3,116.8 L177.3,124.2 L177.7,124.2 L177.7,131.5 L180.1,131.5 L180.1,138.9 L183.2,138.9 L183.2,146.3 L184.6,146.3 L184.6,153.7 L185.0,153.7 L185.0,161.1 L187.2,161.1 L187.2,168.5 L187.3,168.5 L187.3,175.8 L198.8,175.8 L198.8,175.8 L200.8,175.8 L200.8,175.8 L201.8,175.8 L201.8,183.2 L202.9,183.2 L202.9,190.6 L204.3,190.6 L204.3,198.0 L206.2,198.0 L206.2,198.0 L212.4,198.0 L212.4,190.6 L212.5,190.6 L212.5,183.2 L213.5,183.2 L213.5,175.8 L213.6,175.8 L213.6,168.5 L215.0,168.5 L215.0,168.5 L215.5,168.5 L215.5,161.1 L216.7,161.1 L216.7,153.7 L216.9,153.7 L216.9,146.3 L217.5,146.3 L217.5,138.9 L217.8,138.9 L217.8,131.5 L217.9,131.5 L217.9,124.2 L218.0,124.2 L218.0,131.5 L218.2,131.5 L218.2,138.9 L218.5,138.9 L218.5,131.5 L218.6,131.5 L218.6,124.2 L218.7,124.2 L218.7,116.8 L218.7,116.8 L218.7,109.4 L218.8,109.4 L218.8,102.0 L219.2,102.0 L219.2,102.0 L219.2,102.0 L219.2,109.4 L219.4,109.4 L219.4,116.8 L219.9,116.8 L219.9,109.4 L220.2,109.4 L220.2,116.8 L220.4,116.8 L220.4,109.4 L220.4,109.4 L220.4,102.0 L220.8,102.0 L220.8,109.4 L221.0,109.4 L221.0,109.4 L221.4,109.4 L221.4,116.8 L222.7,116.8 L222.7,109.4 L222.7,109.4 L222.7,102.0 L223.0,102.0 L223.0,109.4 L223.2,109.4 L223.2,102.0 L223.6,102.0 L223.6,94.6 L223.8,94.6 L223.8,87.2 L223.8,87.2 L223.8,79.8 L225.7,79.8 L225.7,72.5 L225.9,72.5 L225.9,65.1 L226.0,65.1 L226.0,57.7 L226.0,57.7 L226.0,50.3 L226.5,50.3 L226.5,42.9 L228.2,42.9 L228.2,50.3 L228.4,50.3 L228.4,42.9 L229.0,42.9 L229.0,35.5 L229.0,35.5 L229.0,28.2 L229.4,28.2 L229.4,35.5 L229.4,35.5 L229.4,42.9 L229.5,42.9 L229.5,35.5 L230.0,35.5 L230.0,28.2 L230.4,28.2 L230.4,20.8 L230.7,20.8 L230.7,28.2 L231.0,28.2 L231.0,20.8 L231.0,20.8 L231.0,28.2 L231.1,28.2 L231.1,20.8 L231.3,20.8 L231.3,20.8 L231.4,20.8 L231.4,13.4 L231.7,13.4 L231.7,20.8 L232.1,20.8 L232.1,20.8 L232.1,20.8 L232.1,28.2 L232.3,28.2 L232.3,35.5 L232.3,35.5 L232.3,28.2 L232.4,28.2 L232.4,20.8 L232.8,20.8 L232.8,13.4 L233.5,13.4 L233.5,20.8 L233.7,20.8 L233.7,20.8 L234.9,20.8 L234.9,13.4 L235.7,13.4 L235.7,6.0 L235.9,6.0 L235.9,13.4 L236.4,13.4 L236.4,13.4 L236.5,13.4 L236.5,20.8 L236.7,20.8 L236.7,28.2 L236.7,28.2 L236.7,35.5 L239.4,35.5 L239.4,42.9 L242.2,42.9 L242.2,50.3 L242.2,50.3 L242.2,57.7 L242.3,57.7 L242.3,65.1 L242.6,65.1 L242.6,72.5 L243.9,72.5 L243.9,79.8 L245.7,79.8 L245.7,87.2 L246.7,87.2 L246.7,94.6 L246.7,94.6 L246.7,102.0 L248.1,102.0 L248.1,109.4 L252.7,109.4 L252.7,116.8 L252.8,116.8 L252.8,124.2 L253.4,124.2 L253.4,131.5 L253.6,131.5 L253.6,138.9 L254.3,138.9 L254.3,146.3 L254.4,146.3 L254.4,153.7 L256.1,153.7 L256.1,161.1 L260.4,161.1 L260.4,168.5 L261.5,168.5 L261.5,175.8 L270.0,175.8 L270.0,175.8 L272.6,175.8 L272.6,168.5 L272.6,168.5 L272.6,168.5 L272.8,168.5 L272.8,175.8 L274.5,175.8 L274.5,175.8 L277.0,175.8 L277.0,175.8 L277.2,175.8 L277.2,175.8 L277.4,175.8 L277.4,175.8 L277.5,175.8 L277.5,168.5 L277.8,168.5 L277.8,161.1 L278.0,161.1 L278.0,168.5 L278.5,168.5 L278.5,161.1 L278.7,161.1 L278.7,161.1 L279.0,161.1 L279.0,168.5 L279.2,168.5 L279.2,161.1 L280.1,161.1 L280.1,153.7 L280.5,153.7 L280.5,146.3 L281.7,146.3 L281.7,153.7 L281.9,153.7 L281.9,153.7 L282.1,153.7 L282.1,146.3 L282.1,146.3 L282.1,138.9 L282.4,138.9 L282.4,131.5 L282.8,131.5 L282.8,124.2 L282.8,124.2 L282.8,116.8 L283.1,116.8 L283.1,109.4 L283.5,109.4 L283.5,109.4 L283.8,109.4 L283.8,102.0 L284.0,102.0 L284.0,94.6 L284.5,94.6 L284.5,94.6 L285.3,94.6 L285.3,102.0 L285.4,102.0 L285.4,109.4 L286.6,109.4 L286.6,116.8 L288.2,116.8 L288.2,124.2 L288.5,124.2 L288.5,131.5 L289.2,131.5 L289.2,138.9 L291.8,138.9 L291.8,146.3 L296.1,146.3 L296.1,153.7 L301.7,153.7 L301.7,161.1 L302.4,161.1 L302.4,168.5 L307.0,168.5 L307.0,175.8 L315.1,175.8 L315.1,183.2 L318.1,183.2 L318.1,183.2 L333.7,183.2 L333.7,183.2 L333.8,183.2 L333.8,183.2 L350.2,183.2 L350.2,183.2 L350.9,183.2 L350.9,190.6 L356.0,190.6 L356.0,198.0 L361.0,198.0 L361.0,198.0 L378.3,198.0 L378.3,190.6 L378.9,190.6 L378.9,183.2 L380.3,183.2 L380.3,175.8 L380.5,175.8 L380.5,168.5 L382.3,168.5 L382.3,161.1 L382.6,161.1 L382.6,153.7 L382.7,153.7 L382.7,161.1 L382.8,161.1 L382.8,153.7 L383.1,153.7 L383.1,146.3 L383.3,146.3 L383.3,138.9 L383.4,138.9 L383.4,131.5 L383.7,131.5 L383.7,131.5 L384.4,131.5 L384.4,138.9 L387.2,138.9 L387.2,146.3 L389.1,146.3 L389.1,153.7 L394.1,153.7 L394.1,153.7 L403.6,153.7 L403.6,161.1 L403.6,161.1 L403.6,153.7 L403.7,153.7 L403.7,146.3 L404.9,146.3 L404.9,138.9 L405.3,138.9 L405.3,138.9 L406.5,138.9 L406.5,146.3 L407.6,146.3 L407.6,153.7 L410.5,153.7 L410.5,161.1 L410.8,161.1 L410.8,168.5 L420.2,168.5 L420.2,175.8 L422.1,175.8 L422.1,175.8 L424.5,175.8 L424.5,168.5 L424.5,168.5 L424.5,161.1 L424.7,161.1 L424.7,153.7 L424.9,153.7 L424.9,146.3 L425.1,146.3 L425.1,138.9 L425.3,138.9 L425.3,131.5 L425.4,131.5 L425.4,124.2 L425.7,124.2 L425.7,116.8 L425.9,116.8 L425.9,124.2 L427.1,124.2 L427.1,116.8 L428.1,116.8 L428.1,109.4 L429.3,109.4 L429.3,102.0 L429.9,102.0 L429.9,94.6 L430.8,94.6 L430.8,102.0 L430.8,102.0 L430.8,102.0 L431.6,102.0 L431.6,94.6 L432.2,94.6 L432.2,87.2 L432.4,87.2 L432.4,79.8 L432.4,79.8 L432.4,72.5 L432.8,72.5 L432.8,65.1 L432.8,65.1 L432.8,57.7 L433.0,57.7 L433.0,65.1 L433.1,65.1 L433.1,57.7 L433.2,57.7 L433.2,65.1 L433.2,65.1 L433.2,57.7 L433.3,57.7 L433.3,50.3 L433.8,50.3 L433.8,42.9 L433.8,42.9 L433.8,50.3 L434.0,50.3 L434.0,57.7 L434.3,57.7 L434.3,57.7 L434.6,57.7 L434.6,50.3 L434.6,50.3 L434.6,57.7 L435.1,57.7 L435.1,50.3 L435.5,50.3 L435.5,57.7 L435.5,57.7 L435.5,50.3 L436.0,50.3 L436.0,57.7 L436.2,57.7 L436.2,57.7 L436.4,57.7 L436.4,65.1 L436.5,65.1 L436.5,72.5 L436.7,72.5 L436.7,79.8 L436.9,79.8 L436.9,87.2 L437.4,87.2 L437.4,94.6 L438.1,94.6 L438.1,102.0 L438.5,102.0 L438.5,109.4 L439.7,109.4 L439.7,116.8 L440.8,116.8 L440.8,116.8 L441.9,116.8 L441.9,109.4 L442.9,109.4 L442.9,116.8 L443.2,116.8 L443.2,109.4 L444.0,109.4 L444.0,116.8 L444.1,116.8 L444.1,109.4 L444.4,109.4 L444.4,102.0 L444.7,102.0 L444.7,94.6 L445.5,94.6 L445.5,102.0 L445.8,102.0 L445.8,94.6 L445.9,94.6 L445.9,87.2 L446.1,87.2 L446.1,79.8 L446.5,79.8 L446.5,79.8 L446.8,79.8 L446.8,87.2 L448.3,87.2 L448.3,94.6 L448.9,94.6 L448.9,102.0 L449.0,102.0 L449.0,109.4 L449.5,109.4 L449.5,109.4 L450.8,109.4 L450.8,116.8 L450.9,116.8 L450.9,109.4 L452.0,109.4" fill="none" stroke="var(--accent)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"></path></svg>
+      </div>
+    </div>
+    <p class="figure-note">Packet histogram: exact probability mass from (1)–(3). Trajectory: direct-method Gillespie of {∅⇝M, r<sub>m</sub>; M⇝M+P, k<sub>p</sub>·M; M⇝∅, γ<sub>m</sub>·M; P⇝∅, d<sub>p</sub>·P}. The sampled Fano is a time-weighted estimate over the plotted window.</p>
+  </section>
+
+  <!-- ================= 04 LIMITS ================= -->
+  <section id="limits">
+    <div class="eyebrow"><span class="no">04</span><span>The two limits · what survives, what is eliminated</span></div>
+    <h2>Speed nothing up in isolation — hold the mean, change the noise</h2>
+    <p class="sub">The assignment asks for a judgement in two directions. Both keep the mean protein production <i>k<sub>p</sub>·⟨M⟩</i> fixed; they differ in which clock is left to set the noise. Watch the packet law and the trajectory as each knob is turned.</p>
+
+    <div class="grid g2">
+      <!-- LIMIT A -->
+      <div class="limit" data-limit="A">
+        <div class="lhead">
+          <div class="which">Limit A · both rates up, fixed ratio</div>
+          <h3>k<sub>p</sub>, γ<sub>m</sub> → ∞ with k<sub>p</sub>/γ<sub>m</sub> held fixed</h3>
+        </div>
+        <div class="lbody">
+          <p>Scale the two clocks together so the ratio — the mean packet — never moves. Source and protein removal stay put.</p>
+          <div class="slider-row" style="grid-template-columns:1fr 160px;gap:14px">
+            <input type="range" id="slA" min="0" max="1000" step="1" value="0">
+            <div class="sval" id="valA">×1.0</div>
+          </div>
+          <div class="split">
+            <div><div class="mono-label" style="text-transform:none;letter-spacing:.02em">Packet law</div>
+              <svg class="chart" id="packetPlotA" viewBox="0 0 460 150" preserveAspectRatio="xMidYMid meet"><line class="ak" x1="34" y1="130" x2="460" y2="130"></line><line class="ak" x1="34" y1="4" x2="34" y2="130"></line><rect x="36.261538461538464" y="21.1" width="11.6" height="108.9" rx="1.5" fill="var(--accent)"></rect><text x="34" y="145" text-anchor="middle">0</text><rect x="52.41538461538462" y="33.6" width="11.6" height="96.4" rx="1.5" fill="var(--accent)"></rect><text x="50" y="145" text-anchor="middle">1</text><rect x="68.56923076923077" y="44.6" width="11.6" height="85.4" rx="1.5" fill="var(--accent)"></rect><rect x="84.72307692307692" y="54.4" width="11.6" height="75.6" rx="1.5" fill="var(--accent)"></rect><rect x="100.87692307692308" y="63.1" width="11.6" height="66.9" rx="1.5" fill="var(--accent)"></rect><text x="99" y="145" text-anchor="middle">4</text><rect x="117.03076923076924" y="70.8" width="11.6" height="59.2" rx="1.5" fill="var(--accent)"></rect><rect x="133.18461538461537" y="77.6" width="11.6" height="52.4" rx="1.5" fill="var(--accent)"></rect><rect x="149.33846153846153" y="83.6" width="11.6" height="46.4" rx="1.5" fill="var(--accent)"></rect><rect x="165.4923076923077" y="88.9" width="11.6" height="41.1" rx="1.5" fill="var(--accent)"></rect><text x="163" y="145" text-anchor="middle">8</text><rect x="181.64615384615385" y="93.6" width="11.6" height="36.4" rx="1.5" fill="var(--accent)"></rect><rect x="197.8" y="97.8" width="11.6" height="32.2" rx="1.5" fill="var(--accent)"></rect><rect x="213.95384615384614" y="101.5" width="11.6" height="28.5" rx="1.5" fill="var(--accent)"></rect><rect x="230.1076923076923" y="104.8" width="11.6" height="25.2" rx="1.5" fill="var(--accent)"></rect><text x="228" y="145" text-anchor="middle">12</text><rect x="246.26153846153846" y="107.7" width="11.6" height="22.3" rx="1.5" fill="var(--accent)"></rect><rect x="262.4153846153846" y="110.2" width="11.6" height="19.8" rx="1.5" fill="var(--accent)"></rect><rect x="278.5692307692307" y="112.5" width="11.6" height="17.5" rx="1.5" fill="var(--accent)"></rect><rect x="294.7230769230769" y="114.5" width="11.6" height="15.5" rx="1.5" fill="var(--accent)"></rect><text x="292" y="145" text-anchor="middle">16</text><rect x="310.87692307692305" y="116.3" width="11.6" height="13.7" rx="1.5" fill="var(--accent)"></rect><rect x="327.03076923076924" y="117.9" width="11.6" height="12.1" rx="1.5" fill="var(--accent)"></rect><rect x="343.18461538461537" y="119.3" width="11.6" height="10.7" rx="1.5" fill="var(--accent)"></rect><rect x="359.33846153846156" y="120.5" width="11.6" height="9.5" rx="1.5" fill="var(--accent)"></rect><text x="357" y="145" text-anchor="middle">20</text><rect x="375.4923076923077" y="121.6" width="11.6" height="8.4" rx="1.5" fill="var(--accent)"></rect><rect x="391.6461538461538" y="122.5" width="11.6" height="7.5" rx="1.5" fill="var(--accent)"></rect><rect x="407.8" y="123.4" width="11.6" height="6.6" rx="1.5" fill="var(--accent)"></rect><rect x="423.95384615384614" y="124.2" width="11.6" height="5.8" rx="1.5" fill="var(--accent)"></rect><text x="422" y="145" text-anchor="middle">24</text><rect x="440.1076923076923" y="124.8" width="11.6" height="5.2" rx="1.5" fill="var(--accent)"></rect></svg></div>
+            <div style="margin-top:14px"><div class="mono-label" style="text-transform:none;letter-spacing:.02em">Protein history P(t)</div>
+              <svg class="chart" id="tracePlotA" viewBox="0 0 460 150" preserveAspectRatio="xMidYMid meet"><line class="ak" x1="40" y1="128" x2="460" y2="128"></line><text x="34" y="132" text-anchor="end">0</text><text x="34" y="101" text-anchor="end">7</text><text x="34" y="71" text-anchor="end">14</text><text x="34" y="40" text-anchor="end">21</text><text x="34" y="10" text-anchor="end">28</text><text x="40" y="143" text-anchor="middle">0</text><text x="122" y="143" text-anchor="middle">24</text><text x="205" y="143" text-anchor="middle">48</text><text x="287" y="143" text-anchor="middle">72</text><text x="370" y="143" text-anchor="middle">96</text><text x="452" y="143" text-anchor="middle">120</text><line x1="40" y1="94.4" x2="460" y2="94.4" style="stroke:var(--ink-faint);stroke-width:1;stroke-dasharray:3 4;opacity:.6"></line><path d="M40.0,128.0 L40.0,128.0 L58.1,128.0 L58.1,128.0 L58.6,128.0 L58.6,128.0 L70.9,128.0 L70.9,123.6 L71.5,123.6 L71.5,119.3 L72.4,119.3 L72.4,114.9 L73.2,114.9 L73.2,110.6 L73.4,110.6 L73.4,106.2 L74.0,106.2 L74.0,110.6 L74.0,110.6 L74.0,106.2 L74.3,106.2 L74.3,101.9 L76.1,101.9 L76.1,97.5 L77.1,97.5 L77.1,97.5 L77.1,97.5 L77.1,101.9 L77.3,101.9 L77.3,106.2 L78.1,106.2 L78.1,110.6 L78.5,110.6 L78.5,114.9 L81.7,114.9 L81.7,119.3 L87.1,119.3 L87.1,123.6 L90.8,123.6 L90.8,128.0 L91.6,128.0 L91.6,128.0 L132.2,128.0 L132.2,123.6 L132.3,123.6 L132.3,119.3 L133.2,119.3 L133.2,114.9 L133.2,114.9 L133.2,110.6 L134.5,110.6 L134.5,114.9 L134.6,114.9 L134.6,110.6 L135.5,110.6 L135.5,106.2 L135.5,106.2 L135.5,101.9 L135.9,101.9 L135.9,101.9 L136.6,101.9 L136.6,106.2 L139.5,106.2 L139.5,110.6 L150.2,110.6 L150.2,114.9 L155.5,114.9 L155.5,119.3 L158.8,119.3 L158.8,119.3 L160.4,119.3 L160.4,114.9 L160.7,114.9 L160.7,110.6 L161.1,110.6 L161.1,106.2 L161.4,106.2 L161.4,106.2 L161.7,106.2 L161.7,110.6 L163.0,110.6 L163.0,114.9 L168.1,114.9 L168.1,119.3 L170.3,119.3 L170.3,123.6 L175.1,123.6 L175.1,123.6 L176.9,123.6 L176.9,119.3 L177.2,119.3 L177.2,114.9 L177.3,114.9 L177.3,110.6 L177.4,110.6 L177.4,114.9 L177.6,114.9 L177.6,110.6 L177.7,110.6 L177.7,110.6 L177.9,110.6 L177.9,114.9 L180.1,114.9 L180.1,119.3 L187.9,119.3 L187.9,123.6 L199.3,123.6 L199.3,123.6 L201.7,123.6 L201.7,119.3 L201.7,119.3 L201.7,123.6 L202.6,123.6 L202.6,119.3 L203.5,119.3 L203.5,114.9 L204.3,114.9 L204.3,110.6 L207.0,110.6 L207.0,106.2 L207.7,106.2 L207.7,101.9 L207.7,101.9 L207.7,101.9 L208.2,101.9 L208.2,106.2 L210.6,106.2 L210.6,106.2 L215.4,106.2 L215.4,106.2 L215.7,106.2 L215.7,106.2 L216.9,106.2 L216.9,101.9 L218.3,101.9 L218.3,97.5 L218.6,97.5 L218.6,101.9 L219.1,101.9 L219.1,106.2 L219.8,106.2 L219.8,106.2 L220.3,106.2 L220.3,110.6 L222.0,110.6 L222.0,110.6 L225.0,110.6 L225.0,106.2 L225.1,106.2 L225.1,101.9 L225.8,101.9 L225.8,97.5 L225.9,97.5 L225.9,97.5 L226.4,97.5 L226.4,101.9 L226.6,101.9 L226.6,101.9 L232.3,101.9 L232.3,101.9 L232.5,101.9 L232.5,101.9 L232.8,101.9 L232.8,101.9 L233.3,101.9 L233.3,97.5 L233.8,97.5 L233.8,93.1 L234.4,93.1 L234.4,88.8 L235.3,88.8 L235.3,84.4 L235.8,84.4 L235.8,80.1 L235.8,80.1 L235.8,75.7 L236.1,75.7 L236.1,80.1 L236.1,80.1 L236.1,75.7 L236.8,75.7 L236.8,71.4 L237.3,71.4 L237.3,67.0 L238.5,67.0 L238.5,62.6 L238.7,62.6 L238.7,58.3 L238.8,58.3 L238.8,53.9 L239.4,53.9 L239.4,49.6 L239.7,49.6 L239.7,45.2 L239.8,45.2 L239.8,40.9 L240.4,40.9 L240.4,36.5 L240.6,36.5 L240.6,32.1 L240.8,32.1 L240.8,32.1 L240.9,32.1 L240.9,36.5 L242.0,36.5 L242.0,40.9 L242.1,40.9 L242.1,36.5 L242.6,36.5 L242.6,32.1 L243.2,32.1 L243.2,27.8 L243.2,27.8 L243.2,23.4 L243.4,23.4 L243.4,27.8 L243.7,27.8 L243.7,32.1 L243.9,32.1 L243.9,27.8 L244.0,27.8 L244.0,23.4 L245.3,23.4 L245.3,19.1 L245.4,19.1 L245.4,14.7 L245.5,14.7 L245.5,10.4 L246.0,10.4 L246.0,6.0 L246.1,6.0 L246.1,10.4 L246.1,10.4 L246.1,14.7 L246.3,14.7 L246.3,19.1 L247.1,19.1 L247.1,23.4 L247.7,23.4 L247.7,27.8 L248.0,27.8 L248.0,23.4 L248.7,23.4 L248.7,27.8 L249.3,27.8 L249.3,32.1 L249.6,32.1 L249.6,36.5 L249.8,36.5 L249.8,40.9 L250.4,40.9 L250.4,45.2 L250.5,45.2 L250.5,40.9 L250.6,40.9 L250.6,36.5 L250.9,36.5 L250.9,40.9 L250.9,40.9 L250.9,45.2 L251.0,45.2 L251.0,40.9 L251.3,40.9 L251.3,45.2 L251.4,45.2 L251.4,40.9 L252.2,40.9 L252.2,36.5 L252.5,36.5 L252.5,32.1 L252.6,32.1 L252.6,36.5 L252.8,36.5 L252.8,40.9 L253.6,40.9 L253.6,36.5 L253.6,36.5 L253.6,32.1 L254.2,32.1 L254.2,27.8 L254.9,27.8 L254.9,23.4 L255.4,23.4 L255.4,27.8 L255.6,27.8 L255.6,23.4 L256.3,23.4 L256.3,19.1 L257.1,19.1 L257.1,14.7 L257.2,14.7 L257.2,19.1 L257.4,19.1 L257.4,23.4 L257.6,23.4 L257.6,27.8 L258.2,27.8 L258.2,23.4 L258.3,23.4 L258.3,19.1 L259.2,19.1 L259.2,19.1 L260.0,19.1 L260.0,23.4 L260.8,23.4 L260.8,27.8 L261.0,27.8 L261.0,32.1 L261.2,32.1 L261.2,36.5 L261.3,36.5 L261.3,40.9 L261.7,40.9 L261.7,45.2 L265.7,45.2 L265.7,49.6 L269.3,49.6 L269.3,49.6 L271.2,49.6 L271.2,45.2 L271.4,45.2 L271.4,49.6 L271.7,49.6 L271.7,53.9 L272.1,53.9 L272.1,58.3 L273.4,58.3 L273.4,53.9 L273.8,53.9 L273.8,49.6 L274.0,49.6 L274.0,45.2 L274.0,45.2 L274.0,40.9 L274.5,40.9 L274.5,45.2 L274.5,45.2 L274.5,49.6 L275.0,49.6 L275.0,45.2 L275.1,45.2 L275.1,49.6 L275.7,49.6 L275.7,49.6 L275.7,49.6 L275.7,53.9 L276.5,53.9 L276.5,58.3 L277.8,58.3 L277.8,62.6 L278.4,62.6 L278.4,67.0 L278.6,67.0 L278.6,71.4 L279.1,71.4 L279.1,75.7 L284.3,75.7 L284.3,80.1 L284.4,80.1 L284.4,84.4 L284.7,84.4 L284.7,88.8 L285.3,88.8 L285.3,93.1 L287.4,93.1 L287.4,97.5 L287.5,97.5 L287.5,101.9 L290.4,101.9 L290.4,106.2 L295.3,106.2 L295.3,110.6 L299.9,110.6 L299.9,114.9 L302.2,114.9 L302.2,119.3 L310.5,119.3 L310.5,123.6 L320.4,123.6 L320.4,123.6 L333.3,123.6 L333.3,119.3 L333.5,119.3 L333.5,119.3 L334.4,119.3 L334.4,123.6 L336.1,123.6 L336.1,128.0 L358.3,128.0 L358.3,128.0 L378.1,128.0 L378.1,123.6 L378.2,123.6 L378.2,128.0 L378.4,128.0 L378.4,123.6 L379.7,123.6 L379.7,123.6 L379.8,123.6 L379.8,123.6 L387.1,123.6 L387.1,119.3 L388.0,119.3 L388.0,114.9 L388.4,114.9 L388.4,110.6 L389.7,110.6 L389.7,106.2 L390.2,106.2 L390.2,101.9 L390.4,101.9 L390.4,106.2 L390.9,106.2 L390.9,101.9 L392.5,101.9 L392.5,97.5 L392.5,97.5 L392.5,93.1 L392.9,93.1 L392.9,88.8 L393.4,88.8 L393.4,84.4 L393.6,84.4 L393.6,80.1 L393.7,80.1 L393.7,75.7 L394.0,75.7 L394.0,80.1 L395.2,80.1 L395.2,84.4 L395.2,84.4 L395.2,80.1 L397.5,80.1 L397.5,84.4 L397.8,84.4 L397.8,80.1 L398.3,80.1 L398.3,80.1 L398.6,80.1 L398.6,84.4 L398.9,84.4 L398.9,88.8 L399.8,88.8 L399.8,93.1 L402.6,93.1 L402.6,97.5 L403.3,97.5 L403.3,101.9 L408.5,101.9 L408.5,101.9 L410.4,101.9 L410.4,97.5 L410.6,97.5 L410.6,93.1 L410.9,93.1 L410.9,97.5 L410.9,97.5 L410.9,101.9 L411.0,101.9 L411.0,97.5 L411.5,97.5 L411.5,101.9 L411.7,101.9 L411.7,106.2 L412.2,106.2 L412.2,101.9 L413.5,101.9 L413.5,101.9 L413.6,101.9 L413.6,106.2 L414.7,106.2 L414.7,110.6 L414.7,110.6 L414.7,114.9 L419.9,114.9 L419.9,119.3 L421.0,119.3 L421.0,119.3 L421.2,119.3 L421.2,114.9 L421.4,114.9 L421.4,110.6 L421.7,110.6 L421.7,106.2 L421.7,106.2 L421.7,101.9 L421.9,101.9 L421.9,97.5 L422.5,97.5 L422.5,101.9 L422.8,101.9 L422.8,97.5 L423.4,97.5 L423.4,93.1 L424.3,93.1 L424.3,88.8 L424.4,88.8 L424.4,84.4 L424.5,84.4 L424.5,88.8 L425.0,88.8 L425.0,88.8 L425.0,88.8 L425.0,93.1 L426.8,93.1 L426.8,93.1 L427.7,93.1 L427.7,88.8 L428.8,88.8 L428.8,93.1 L429.9,93.1 L429.9,93.1 L430.3,93.1 L430.3,97.5 L431.7,97.5 L431.7,97.5 L433.9,97.5 L433.9,93.1 L434.1,93.1 L434.1,97.5 L435.8,97.5 L435.8,97.5 L436.4,97.5 L436.4,101.9 L438.2,101.9 L438.2,106.2 L438.7,106.2 L438.7,106.2 L440.4,106.2 L440.4,101.9 L441.5,101.9 L441.5,101.9 L441.7,101.9 L441.7,106.2 L442.5,106.2 L442.5,110.6 L446.8,110.6 L446.8,114.9 L448.2,114.9 L448.2,114.9 L452.0,114.9" fill="none" stroke="var(--accent)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"></path></svg></div>
+          </div>
+          <div class="outs">
+            <span class="pill kept" id="pillA1">geometric packet survives · E=7.7, F=1+B̄=8.71</span>
+            <span class="pill lost" id="pillA2">RNA lifetime 1/γ = 1.695 min eliminated</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- LIMIT B -->
+      <div class="limit" data-limit="B">
+        <div class="lhead">
+          <div class="which">Limit B · translation fixed, RNA short-lived</div>
+          <h3>γ<sub>m</sub> → ∞, k<sub>p</sub> fixed</h3>
+        </div>
+        <div class="lbody">
+          <p>Kill the transcript faster and faster, holding k<sub>p</sub>. To keep the mean protein production rate, the source r<sub>m</sub> rises to compensate (more, shorter-lived transcripts).</p>
+          <div class="slider-row" style="grid-template-columns:1fr 160px;gap:14px">
+            <input type="range" id="slB" min="0" max="1000" step="1" value="0">
+            <div class="sval" id="valB">×1.0</div>
+          </div>
+          <div class="split">
+            <div><div class="mono-label" style="text-transform:none;letter-spacing:.02em">Packet law</div>
+              <svg class="chart" id="packetPlotB" viewBox="0 0 460 150" preserveAspectRatio="xMidYMid meet"><line class="ak" x1="34" y1="130" x2="460" y2="130"></line><line class="ak" x1="34" y1="4" x2="34" y2="130"></line><rect x="36.261538461538464" y="21.1" width="11.6" height="108.9" rx="1.5" fill="var(--lost)"></rect><text x="34" y="145" text-anchor="middle">0</text><rect x="52.41538461538462" y="33.6" width="11.6" height="96.4" rx="1.5" fill="var(--lost)"></rect><text x="50" y="145" text-anchor="middle">1</text><rect x="68.56923076923077" y="44.6" width="11.6" height="85.4" rx="1.5" fill="var(--lost)"></rect><rect x="84.72307692307692" y="54.4" width="11.6" height="75.6" rx="1.5" fill="var(--lost)"></rect><rect x="100.87692307692308" y="63.1" width="11.6" height="66.9" rx="1.5" fill="var(--lost)"></rect><text x="99" y="145" text-anchor="middle">4</text><rect x="117.03076923076924" y="70.8" width="11.6" height="59.2" rx="1.5" fill="var(--lost)"></rect><rect x="133.18461538461537" y="77.6" width="11.6" height="52.4" rx="1.5" fill="var(--lost)"></rect><rect x="149.33846153846153" y="83.6" width="11.6" height="46.4" rx="1.5" fill="var(--lost)"></rect><rect x="165.4923076923077" y="88.9" width="11.6" height="41.1" rx="1.5" fill="var(--lost)"></rect><text x="163" y="145" text-anchor="middle">8</text><rect x="181.64615384615385" y="93.6" width="11.6" height="36.4" rx="1.5" fill="var(--lost)"></rect><rect x="197.8" y="97.8" width="11.6" height="32.2" rx="1.5" fill="var(--lost)"></rect><rect x="213.95384615384614" y="101.5" width="11.6" height="28.5" rx="1.5" fill="var(--lost)"></rect><rect x="230.1076923076923" y="104.8" width="11.6" height="25.2" rx="1.5" fill="var(--lost)"></rect><text x="228" y="145" text-anchor="middle">12</text><rect x="246.26153846153846" y="107.7" width="11.6" height="22.3" rx="1.5" fill="var(--lost)"></rect><rect x="262.4153846153846" y="110.2" width="11.6" height="19.8" rx="1.5" fill="var(--lost)"></rect><rect x="278.5692307692307" y="112.5" width="11.6" height="17.5" rx="1.5" fill="var(--lost)"></rect><rect x="294.7230769230769" y="114.5" width="11.6" height="15.5" rx="1.5" fill="var(--lost)"></rect><text x="292" y="145" text-anchor="middle">16</text><rect x="310.87692307692305" y="116.3" width="11.6" height="13.7" rx="1.5" fill="var(--lost)"></rect><rect x="327.03076923076924" y="117.9" width="11.6" height="12.1" rx="1.5" fill="var(--lost)"></rect><rect x="343.18461538461537" y="119.3" width="11.6" height="10.7" rx="1.5" fill="var(--lost)"></rect><rect x="359.33846153846156" y="120.5" width="11.6" height="9.5" rx="1.5" fill="var(--lost)"></rect><text x="357" y="145" text-anchor="middle">20</text><rect x="375.4923076923077" y="121.6" width="11.6" height="8.4" rx="1.5" fill="var(--lost)"></rect><rect x="391.6461538461538" y="122.5" width="11.6" height="7.5" rx="1.5" fill="var(--lost)"></rect><rect x="407.8" y="123.4" width="11.6" height="6.6" rx="1.5" fill="var(--lost)"></rect><rect x="423.95384615384614" y="124.2" width="11.6" height="5.8" rx="1.5" fill="var(--lost)"></rect><text x="422" y="145" text-anchor="middle">24</text><rect x="440.1076923076923" y="124.8" width="11.6" height="5.2" rx="1.5" fill="var(--lost)"></rect></svg></div>
+            <div style="margin-top:14px"><div class="mono-label" style="text-transform:none;letter-spacing:.02em">Protein history P(t)</div>
+              <svg class="chart" id="tracePlotB" viewBox="0 0 460 150" preserveAspectRatio="xMidYMid meet"><line class="ak" x1="40" y1="128" x2="460" y2="128"></line><text x="34" y="132" text-anchor="end">0</text><text x="34" y="102" text-anchor="end">8</text><text x="34" y="69" text-anchor="end">17</text><text x="34" y="39" text-anchor="end">25</text><text x="34" y="10" text-anchor="end">33</text><text x="40" y="143" text-anchor="middle">0</text><text x="122" y="143" text-anchor="middle">24</text><text x="205" y="143" text-anchor="middle">48</text><text x="287" y="143" text-anchor="middle">72</text><text x="370" y="143" text-anchor="middle">96</text><text x="452" y="143" text-anchor="middle">120</text><line x1="40" y1="99.5" x2="460" y2="99.5" style="stroke:var(--ink-faint);stroke-width:1;stroke-dasharray:3 4;opacity:.6"></line><path d="M40.0,128.0 L40.0,128.0 L52.7,128.0 L52.7,124.3 L52.9,124.3 L52.9,120.6 L53.7,120.6 L53.7,116.9 L54.0,116.9 L54.0,113.2 L54.6,113.2 L54.6,109.5 L54.9,109.5 L54.9,109.5 L55.1,109.5 L55.1,105.8 L55.4,105.8 L55.4,109.5 L55.4,109.5 L55.4,113.2 L56.2,113.2 L56.2,109.5 L56.4,109.5 L56.4,105.8 L56.7,105.8 L56.7,102.1 L57.0,102.1 L57.0,98.4 L57.1,98.4 L57.1,94.7 L57.3,94.7 L57.3,91.0 L57.7,91.0 L57.7,87.3 L58.0,87.3 L58.0,83.6 L58.1,83.6 L58.1,83.6 L58.2,83.6 L58.2,79.9 L58.4,79.9 L58.4,76.2 L58.5,76.2 L58.5,76.2 L58.7,76.2 L58.7,79.9 L59.0,79.9 L59.0,83.6 L59.3,83.6 L59.3,87.3 L60.7,87.3 L60.7,91.0 L62.8,91.0 L62.8,94.7 L63.7,94.7 L63.7,98.4 L65.1,98.4 L65.1,102.1 L66.0,102.1 L66.0,105.8 L70.6,105.8 L70.6,109.5 L70.7,109.5 L70.7,113.2 L73.7,113.2 L73.7,116.9 L74.1,116.9 L74.1,116.9 L79.3,116.9 L79.3,116.9 L79.5,116.9 L79.5,116.9 L84.5,116.9 L84.5,113.2 L84.8,113.2 L84.8,109.5 L84.9,109.5 L84.9,105.8 L84.9,105.8 L84.9,102.1 L85.2,102.1 L85.2,102.1 L85.5,102.1 L85.5,105.8 L88.2,105.8 L88.2,109.5 L90.6,109.5 L90.6,109.5 L92.3,109.5 L92.3,113.2 L92.9,113.2 L92.9,116.9 L93.1,116.9 L93.1,113.2 L93.9,113.2 L93.9,109.5 L95.0,109.5 L95.0,105.8 L95.1,105.8 L95.1,102.1 L95.2,102.1 L95.2,105.8 L95.4,105.8 L95.4,102.1 L95.9,102.1 L95.9,102.1 L95.9,102.1 L95.9,105.8 L96.4,105.8 L96.4,109.5 L96.8,109.5 L96.8,113.2 L97.8,113.2 L97.8,116.9 L102.5,116.9 L102.5,120.6 L113.8,120.6 L113.8,120.6 L121.5,120.6 L121.5,116.9 L121.6,116.9 L121.6,113.2 L122.1,113.2 L122.1,113.2 L125.4,113.2 L125.4,116.9 L126.0,116.9 L126.0,120.6 L126.1,120.6 L126.1,124.3 L131.3,124.3 L131.3,124.3 L136.7,124.3 L136.7,120.6 L139.0,120.6 L139.0,116.9 L139.0,116.9 L139.0,113.2 L139.0,113.2 L139.0,109.5 L140.1,109.5 L140.1,105.8 L142.0,105.8 L142.0,105.8 L142.6,105.8 L142.6,105.8 L144.2,105.8 L144.2,102.1 L144.4,102.1 L144.4,98.4 L144.8,98.4 L144.8,94.7 L145.1,94.7 L145.1,91.0 L147.8,91.0 L147.8,94.7 L147.8,94.7 L147.8,94.7 L147.9,94.7 L147.9,98.4 L150.4,98.4 L150.4,102.1 L151.3,102.1 L151.3,105.8 L154.3,105.8 L154.3,109.5 L155.8,109.5 L155.8,113.2 L159.6,113.2 L159.6,116.9 L160.7,116.9 L160.7,116.9 L168.2,116.9 L168.2,116.9 L168.3,116.9 L168.3,113.2 L168.9,113.2 L168.9,109.5 L168.9,109.5 L168.9,109.5 L168.9,109.5 L168.9,105.8 L169.5,105.8 L169.5,102.1 L170.3,102.1 L170.3,98.4 L170.4,98.4 L170.4,102.1 L170.6,102.1 L170.6,98.4 L171.5,98.4 L171.5,94.7 L171.6,94.7 L171.6,91.0 L172.1,91.0 L172.1,87.3 L172.3,87.3 L172.3,83.6 L172.9,83.6 L172.9,79.9 L173.0,79.9 L173.0,76.2 L173.5,76.2 L173.5,72.5 L173.6,72.5 L173.6,76.2 L173.8,76.2 L173.8,79.9 L173.8,79.9 L173.8,83.6 L174.0,83.6 L174.0,79.9 L174.3,79.9 L174.3,76.2 L175.2,76.2 L175.2,76.2 L175.6,76.2 L175.6,72.5 L175.7,72.5 L175.7,68.8 L176.0,68.8 L176.0,72.5 L176.2,72.5 L176.2,68.8 L176.2,68.8 L176.2,65.2 L176.5,65.2 L176.5,68.8 L176.5,68.8 L176.5,72.5 L177.5,72.5 L177.5,68.8 L178.1,68.8 L178.1,72.5 L178.3,72.5 L178.3,68.8 L179.5,68.8 L179.5,65.2 L180.3,65.2 L180.3,61.5 L180.5,61.5 L180.5,65.2 L180.6,65.2 L180.6,61.5 L181.0,61.5 L181.0,57.8 L181.2,57.8 L181.2,54.1 L181.4,54.1 L181.4,50.4 L181.4,50.4 L181.4,46.7 L181.7,46.7 L181.7,43.0 L181.9,43.0 L181.9,39.3 L182.3,39.3 L182.3,43.0 L182.3,43.0 L182.3,39.3 L182.5,39.3 L182.5,35.6 L182.8,35.6 L182.8,31.9 L182.8,31.9 L182.8,28.2 L183.0,28.2 L183.0,24.5 L183.1,24.5 L183.1,20.8 L183.2,20.8 L183.2,17.1 L183.3,17.1 L183.3,20.8 L183.5,20.8 L183.5,24.5 L183.7,24.5 L183.7,20.8 L183.8,20.8 L183.8,17.1 L184.3,17.1 L184.3,20.8 L184.3,20.8 L184.3,17.1 L184.5,17.1 L184.5,13.4 L184.5,13.4 L184.5,13.4 L184.6,13.4 L184.6,17.1 L185.0,17.1 L185.0,20.8 L185.8,20.8 L185.8,17.1 L185.9,17.1 L185.9,13.4 L187.2,13.4 L187.2,9.7 L188.4,9.7 L188.4,6.0 L188.7,6.0 L188.7,9.7 L188.7,9.7 L188.7,6.0 L189.8,6.0 L189.8,9.7 L190.0,9.7 L190.0,13.4 L190.1,13.4 L190.1,17.1 L190.3,17.1 L190.3,13.4 L190.6,13.4 L190.6,17.1 L191.1,17.1 L191.1,20.8 L191.4,20.8 L191.4,24.5 L191.5,24.5 L191.5,20.8 L192.0,20.8 L192.0,24.5 L192.8,24.5 L192.8,28.2 L193.1,28.2 L193.1,24.5 L193.4,24.5 L193.4,20.8 L193.4,20.8 L193.4,17.1 L194.2,17.1 L194.2,20.8 L194.2,20.8 L194.2,24.5 L194.4,24.5 L194.4,28.2 L194.4,28.2 L194.4,24.5 L194.7,24.5 L194.7,28.2 L195.0,28.2 L195.0,31.9 L195.2,31.9 L195.2,28.2 L195.7,28.2 L195.7,24.5 L196.6,24.5 L196.6,28.2 L197.0,28.2 L197.0,24.5 L197.1,24.5 L197.1,28.2 L197.6,28.2 L197.6,31.9 L197.8,31.9 L197.8,28.2 L198.0,28.2 L198.0,24.5 L198.4,24.5 L198.4,20.8 L198.5,20.8 L198.5,24.5 L198.6,24.5 L198.6,28.2 L198.8,28.2 L198.8,31.9 L199.1,31.9 L199.1,35.6 L199.2,35.6 L199.2,31.9 L199.2,31.9 L199.2,35.6 L199.4,35.6 L199.4,31.9 L199.4,31.9 L199.4,28.2 L199.5,28.2 L199.5,31.9 L199.5,31.9 L199.5,31.9 L199.5,31.9 L199.5,35.6 L200.5,35.6 L200.5,39.3 L200.5,39.3 L200.5,43.0 L200.9,43.0 L200.9,46.7 L201.6,46.7 L201.6,50.4 L202.9,50.4 L202.9,54.1 L206.1,54.1 L206.1,57.8 L207.6,57.8 L207.6,61.5 L208.2,61.5 L208.2,65.2 L211.3,65.2 L211.3,68.8 L214.0,68.8 L214.0,72.5 L214.3,72.5 L214.3,76.2 L214.6,76.2 L214.6,79.9 L215.1,79.9 L215.1,83.6 L215.1,83.6 L215.1,87.3 L215.8,87.3 L215.8,91.0 L217.4,91.0 L217.4,94.7 L217.4,94.7 L217.4,98.4 L218.1,98.4 L218.1,102.1 L219.4,102.1 L219.4,105.8 L219.6,105.8 L219.6,109.5 L222.2,109.5 L222.2,113.2 L225.5,113.2 L225.5,113.2 L243.6,113.2 L243.6,109.5 L243.8,109.5 L243.8,109.5 L244.4,109.5 L244.4,113.2 L250.5,113.2 L250.5,116.9 L252.2,116.9 L252.2,120.6 L253.0,120.6 L253.0,120.6 L269.3,120.6 L269.3,116.9 L269.4,116.9 L269.4,113.2 L270.7,113.2 L270.7,109.5 L270.7,109.5 L270.7,109.5 L271.7,109.5 L271.7,109.5 L274.6,109.5 L274.6,105.8 L274.9,105.8 L274.9,102.1 L275.5,102.1 L275.5,102.1 L276.7,102.1 L276.7,105.8 L278.4,105.8 L278.4,109.5 L285.4,109.5 L285.4,113.2 L288.1,113.2 L288.1,116.9 L291.6,116.9 L291.6,120.6 L295.0,120.6 L295.0,124.3 L296.1,124.3 L296.1,128.0 L299.5,128.0 L299.5,128.0 L310.9,128.0 L310.9,124.3 L311.4,124.3 L311.4,120.6 L311.6,120.6 L311.6,116.9 L312.6,116.9 L312.6,113.2 L312.9,113.2 L312.9,109.5 L313.9,109.5 L313.9,113.2 L313.9,113.2 L313.9,113.2 L314.9,113.2 L314.9,116.9 L316.0,116.9 L316.0,120.6 L317.6,120.6 L317.6,120.6 L320.4,120.6 L320.4,120.6 L320.6,120.6 L320.6,124.3 L327.1,124.3 L327.1,124.3 L333.6,124.3 L333.6,124.3 L334.6,124.3 L334.6,124.3 L336.0,124.3 L336.0,120.6 L338.2,120.6 L338.2,116.9 L338.8,116.9 L338.8,113.2 L341.8,113.2 L341.8,109.5 L341.9,109.5 L341.9,105.8 L343.9,105.8 L343.9,102.1 L345.2,102.1 L345.2,98.4 L345.4,98.4 L345.4,98.4 L345.9,98.4 L345.9,98.4 L360.5,98.4 L360.5,102.1 L360.8,102.1 L360.8,98.4 L361.2,98.4 L361.2,94.7 L361.4,94.7 L361.4,91.0 L361.4,91.0 L361.4,87.3 L361.6,87.3 L361.6,91.0 L362.0,91.0 L362.0,87.3 L362.2,87.3 L362.2,83.6 L362.2,83.6 L362.2,79.9 L362.2,79.9 L362.2,76.2 L362.4,76.2 L362.4,79.9 L363.0,79.9 L363.0,79.9 L363.3,79.9 L363.3,83.6 L363.6,83.6 L363.6,87.3 L365.8,87.3 L365.8,91.0 L366.6,91.0 L366.6,94.7 L366.9,94.7 L366.9,98.4 L370.5,98.4 L370.5,102.1 L371.7,102.1 L371.7,105.8 L372.8,105.8 L372.8,109.5 L376.9,109.5 L376.9,113.2 L378.6,113.2 L378.6,116.9 L379.5,116.9 L379.5,120.6 L383.3,120.6 L383.3,120.6 L392.8,120.6 L392.8,116.9 L393.7,116.9 L393.7,116.9 L394.8,116.9 L394.8,120.6 L395.7,120.6 L395.7,124.3 L442.7,124.3 L442.7,124.3 L445.0,124.3 L445.0,120.6 L445.5,120.6 L445.5,116.9 L447.4,116.9 L447.4,113.2 L448.5,113.2 L448.5,116.9 L449.1,116.9 L449.1,113.2 L450.0,113.2 L450.0,109.5 L450.3,109.5 L450.3,105.8 L451.0,105.8 L451.0,102.1 L451.6,102.1 L451.6,105.8 L451.8,105.8 L451.8,102.1 L452.0,102.1" fill="none" stroke="var(--lost)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"></path></svg></div>
+          </div>
+          <div class="outs">
+            <span class="pill kept" id="pillB1">mean production rate survives · ⟨P⟩=7.7</span>
+            <span class="pill lost" id="pillB2">packet → 0/1 · Fano → 8.71</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid g2" style="margin-top:20px">
+      <div class="card">
+        <h3 style="color:var(--accent)">What survives in Limit A</h3>
+        <p>The packet is the survivor. Because <i>E[B]=k<sub>p</sub>/γ<sub>m</sub></i> is a function of the <i>ratio</i> alone, the entire geometric law — mean, width, and the excess protein Fano <i>1 + E[B]</i> — is unchanged as both clocks accelerate. The system is a <b>burst process</b>: Poisson-arriving packets of a fixed mean, presentable <i>without</i> resolving any transcript. That is Lecture 6 §9a's burst limit, and Lecture 5's geometric-packet Fano <i>F = 1 + B̄</i>.</p>
+        <p><b>What is eliminated:</b> the RNA lifetime 1/γ<sub>m</sub> and every <i>temporal</i> feature of a burst. Each packet is pressed toward an instant — the transcript's history is averaged out, never its size. Bursts stop being visible episodes on the protein timescale.</p>
+      </div>
+      <div class="card">
+        <h3 style="color:var(--accent)">What survives in Limit B</h3>
+        <p>The survivor is the <b>mean production rate</b> <i>k<sub>p</sub>·⟨M⟩</i> and the elementary translation event itself. As γ<sub>m</sub>→∞ with k<sub>p</sub> fixed, <i>E[B]=k<sub>p</sub>/γ<sub>m</sub>→0</i>: the geometric packet degenerates to <i>zero (almost always) or one (rarely)</i>. Compensating r<sub>m</sub> keeps protein produced — but now nearly every protein is its own lone event, so arrivals become Poisson and the Fano factor falls to 1.</p>
+        <p><b>What is eliminated:</b> the packet and its excess noise. A large <i>width</i> that a mean alone could never reveal (Lecture 5's standing warning) is exactly what dies here. This is Lecture 6 §9a's fast-fixed-rate switching → Fano-one limit.</p>
+      </div>
+    </div>
+    <p class="figure-note">Both limits preserve the mean protein production rate; they differ in which source of <i>noise</i> is retained. Agreement in the mean cannot distinguish the two reductions — only a Fano factor or a waiting-time statistic can (Lecture 6 §9a).</p>
+  </section>
+
+  <!-- ================= 05 CLAIM ================= -->
+  <section id="claim">
+    <div class="eyebrow"><span class="no">05</span><span>Close the contract</span></div>
+    <h2>Make the observable choose the model</h2>
+    <p class="sub">A model is finished when it names what it predicts and what would reject it. The state, event, and observable language of the two lectures closes this problem exactly as the core pages ask.</p>
+
+    <div class="contract">
+      <div class="row"><div class="taglab">State</div><div class="bod"><b>M ∈ {0,1}</b> (transcript alive) and <b>P ∈ ℤ<sub>≥0</sub></b> (protein count). The live transcript is one molecule; zero is a genuine state with no translation clock.</div></div>
+      <div class="row"><div class="taglab">Events</div><div class="bod">M⇝M+P (jump <b>+1</b>, clock <b>k<sub>p</sub></b>); M⇝∅ (jump <b>−1</b>, clock <b>γ<sub>m</sub></b>). Both composite channels with declared clocks.</div></div>
+      <div class="row"><div class="taglab">Probability</div><div class="bod">The packet is geometric, <b>Pr(B=j)=(1−q)q<sup>j</sup></b> with q = k<sub>p</sub>/(k<sub>p</sub>+γ<sub>m</sub>). No CME needed: the two-clock race makes the distribution in one pass.</div></div>
+      <div class="row"><div class="taglab">View &amp; estimator</div><div class="bod">Three views, three operations: the <b>packet law</b> (exact), the <b>mean &amp; Fano</b> (analytical E[B]=k<sub>p</sub>/γ<sub>m</sub>; F=1+E[B] in the fast-mRNA limit), and a <b>path</b> (Gillespie). Fano is a time-weighted residence average, reported with its window.</div></div>
+      <div class="row"><div class="taglab">Falsifier</div><div class="bod">A measured protein Fano plainly <b>below</b> 1 (sub-Poisson) at fixed fast-mRNA rates rejects this model outright — no choice of k<sub>p</sub>, γ<sub>m</sub> permits it. A Fano above <i>1+E[B]</i> rejects the geometric-packet assumption (e.g. true promoter bursts, not an RNA-lifetime race). The two limits share every mean, so only a <b>second-moment or timing</b> observable can tell them apart.</div></div>
+    </div>
+  </section>
+
+  <footer>
+    <span class="note-line">CCBS 2026 · problem set accompanying Lectures 5–6 · stochastic master equation, Gillespie direct method, and time-scale separation of a hidden clock.</span><br>
+    Sources: <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture05-core.html">Lecture 5 (burst addendum, geometric packets)</a> ·
+    <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture06-core.html">Lecture 6 §9a (fast stochastic elimination)</a> ·
+    Shahrezaei &amp; Swain (2008) geometric bursts.<br>
+    Prepared with Claude Code. All trajectories are seeded Gillespie runs of the stated model — illustrative model time units, not universal minutes.
+  </footer>
+</div>
+
+<script>
+/* MathJax for static equations */
+window.MathJax = {tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},chtml:{}};
+</script>
+<script src="./week3-yanrunzi-ext_files/tex-chtml.js.下载"></script>
+<script>
+(function(){
+"use strict";
+
+/* -------------- model state -------------- */
+var P = {kp:2, gm:0.20, rm:0.20, dp:0.20, T:120};
+var seed = 20260917;
+
+/* -------------- sliders -------------- */
+var slKp=document.getElementById('slKp'),
+    slGm=document.getElementById('slGm'),
+    slA =document.getElementById('slA'),
+    slB =document.getElementById('slB');
+var valKp=document.getElementById('valKp'),
+    valGm=document.getElementById('valGm'),
+    valA =document.getElementById('valA'),
+    valB =document.getElementById('valB');
+
+/* duration segments */
+var durBtns=Array.prototype.slice.call(document.querySelectorAll('.seg button'));
+var traces=new Array(3).fill(null);
+function pickSeed(){seed=(seed*9301+49297)%233280;}
+
+/* -------------- helpers -------------- */
+function fmt(x,d){ if(x===null||x===undefined||!isFinite(x)) return '—'; d=(d===undefined?2:d); return Number(x).toFixed(d);}
+function fmtPct(x){ return Math.round(x*100)+'%'; }
+
+function geomPmf(q,j){ return (1-q)*Math.pow(q,j); }
+function geomMean(q){ return q/(1-q); }
+function geomVar(q){ var m=geomMean(q); return m*(1+m); }
+function qFrom(kp,gm){ return kp/(kp+gm); }
+
+/* geometric pmf array up to some jmax */
+function geomArray(q){
+  var m=geomMean(q);
+  var jmax=Math.max(3, Math.max(2, Math.ceil(m*3.2)));
+  var arr=new Array(jmax+1);
+  for(var j=0;j<=jmax;j++) arr[j]=geomPmf(q,j);
+  return arr;
+}
+
+/* -------------- bar chart renderer (packet law) -------------- */
+function renderBars(svg, q, color){
+  var arr=geomArray(q);
+  var W=460,H=152, padL=34,padB=22,padT=8,padR=6;
+  var iw=W-padL-padR, ih=H-padT-padB;
+  var max=0; for(var i=0;i<arr.length;i++) if(arr[i]>max)max=arr[i];
+  max*=1.12;
+  var n=arr.length;
+  var bw = Math.min(iw/n*0.72, 34);
+  var step= iw/n;
+  var html='';
+  // axes
+  html+='<line class="ak" x1="'+padL+'" y1="'+(H-padB)+'" x2="'+W+'" y2="'+(H-padB)+'"/>';
+  html+='<line class="ak" x1="'+padL+'" y1="'+(padT*0.5)+'" x2="'+padL+'" y2="'+(H-padB)+'"/>';
+  for(var j=0;j<arr.length;j++){
+    var x=padL+j*step;
+    var h=arr[j]/max*ih;
+    if(h>0.0001){
+      var y=H-padB-h;
+      html+='<rect x="'+(x+(step-bw)/2)+'" y="'+y.toFixed(1)+'" width="'+bw.toFixed(1)+
+            '" height="'+h.toFixed(1)+'" rx="1.5" fill="'+color+'"/>';
+    }
+    // tick labels at 0,1,2,...(sparse)
+    if(j%1===0 && (j===0 || j===1 || arr.length<=24 || j%Math.ceil(arr.length/8)===0)){
+      html+='<text x="'+(padL+j*step).toFixed(0)+'" y="'+(H-padB+15)+'" text-anchor="middle">'+j+'</text>';
+    }
+  }
+  svg.innerHTML=html;
+}
+
+/* -------------- line/step trace renderer -------------- */
+function renderTrace(svg, ts, ps, mean, accentColor, rna){
+  var W=460, padL=40,padB=22,padT=6,padR=8;
+  var vbH = svg.getAttribute('viewBox').split(' ')[3], H=parseFloat(vbH);
+  var t0=ts[0], t1=ts[ts.length-1];
+  function tX(t){return padL+(t-t0)/(t1-t0)*(W-padL-padR);}
+  var maxP=1; for(var i=0;i<ps.length;i++) if(ps[i]>maxP)maxP=ps[i];
+  maxP=Math.max(maxP, mean*1.6, 4);
+  function pY(p){return H-padB - (p/maxP)*(H-padT-padB);}
+  var html='';
+  html+='<line class="ak" x1="'+padL+'" y1="'+(H-padB)+'" x2="'+W+'" y2="'+(H-padB)+'"/>';
+  // y ticks
+  var nt=4;
+  for(var k=0;k<=nt;k++){
+    var v=Math.round(maxP*k/nt);
+    var y=pY(v);
+    html+='<text x="'+(padL-6)+'" y="'+(y+3.5).toFixed(0)+'" text-anchor="end">'+v+'</text>';
+  }
+  // time labels
+  var steps=5;
+  for(var kt=0;kt<=steps;kt++){
+    var tv=t0+(t1-t0)*kt/steps;
+    html+='<text x="'+tX(tv).toFixed(0)+'" y="'+(H-padB+15)+'" text-anchor="middle">'+tv.toFixed(0)+'</text>';
+  }
+  // mean line
+  var my=pY(mean);
+  html+='<line x1="'+padL+'" y1="'+my.toFixed(1)+'" x2="'+W+'" y2="'+my.toFixed(1)+
+        '" style="stroke:var(--ink-faint);stroke-width:1;stroke-dasharray:3 4;opacity:.6"/>';
+  // protein step path
+  if(ts.length>1){
+    var d='M'+tX(ts[0]).toFixed(1)+','+pY(ps[0]).toFixed(1);
+    for(var i=1;i<ts.length;i++){
+      d+=' L'+tX(ts[i-1]).toFixed(1)+','+pY(ps[i]).toFixed(1);
+      d+=' L'+tX(ts[i]).toFixed(1)+','+pY(ps[i]).toFixed(1);
+    }
+    html+='<path d="'+d+'" fill="none" stroke="'+accentColor+'" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>';
+  }
+  svg.innerHTML=html;
+}
+
+/* -------------- Gillespie -------------- */
+function gillespie(kp,gm,rm,dp,T){
+  // species: 0 = M (mRNA), 1 = P (protein)
+  var N=[0,0];
+  var t=0;
+  var ts=[0], ps=[0], ms=[0];
+  var maxSteps=600000;
+  var steps=0;
+  while(t<T && steps<maxSteps){
+    var af = rm;                    // 0: 0 -> M
+    var a1 = kp*N[0];               // 1: M -> M+P
+    var a2 = gm*N[0];               // 2: M -> 0
+    var a3 = dp*N[1];               // 3: P -> 0
+    var a0 = af+a1+a2+a3;
+    if(a0<=0){ break; }
+    var dt = -Math.log(1-Math.random()+1e-12)/a0;
+    var r = Math.random()*a0;
+    t += dt;
+    if(t>T) t=T;
+    if(r<af){ N[0]++; }
+    else if(r<af+a1){ N[1]++; }
+    else if(r<af+a1+a2){ N[0]--; if(N[0]<0)N[0]=0; }
+    else { N[1]--; if(N[1]<0)N[1]=0; }
+    ts.push(t); ps.push(N[1]); ms.push(N[0]);
+    steps++;
+  }
+  return {ts:ts, ps:ps, ms:ms};
+}
+
+/* time-weighted sampled mean & fano over [T/2,T] */
+function sampleStats(ts,ps,fracStart){
+  var t0=ts[0], t1=ts[ts.length-1];
+  var start = t0 + (t1-t0)* (fracStart||0.5);
+  var sum=0, sum2=0, total=0;
+  for(var i=1;i<ts.length;i++){
+    var a=ts[i-1], b=ts[i];
+    var lo=Math.max(a,start), hi=Math.min(b,t1);
+    if(hi>lo){ var w=hi-lo; sum+=ps[i-1]*w; sum2+=ps[i-1]*ps[i-1]*w; total+=w; }
+  }
+  if(total<=0) return {mean:null, fano:null};
+  var m=sum/total, m2=sum2/total;
+  var var_=m2-m*m; if(var_<0)var_=0;
+  return {mean:m, fano: m>0 ? var_/m : null};
+}
+
+/* -------------- main draw (basal lab) -------------- */
+function drawBasal(){
+  var kp=P.kp, gm=P.gm, rm=P.rm, dp=P.dp, T=P.T;
+  var q=qFrom(kp,gm);
+  var mB=geomMean(q); // E[B]
+  valKp.textContent=fmt(kp);
+  valGm.textContent=fmt(gm);
+
+  // race strip
+  var pt=fmtPct(q), pd=fmtPct(1-q);
+  document.getElementById('raceTransPct').textContent=pt;
+  document.getElementById('raceDegPct').textContent=pd;
+  document.getElementById('scaleTrans').style.width=Math.round(q*100)+'%';
+  document.getElementById('scaleDeg').style.width=Math.round((1-q)*100)+'%';
+  document.getElementById('raceMean').textContent=fmt(mB,1)+' proteins';
+  document.getElementById('raceLife').textContent=fmt(1/gm,2)+' min';
+
+  // stats
+  var cv=Math.sqrt(mB*(1+mB))/mB;
+  document.getElementById('stE').textContent=fmt(mB,1);
+  document.getElementById('stCV').textContent=fmt(cv,2);
+
+  // packet histogram
+  renderBars(document.getElementById('packetPlot'), q, 'var(--accent)');
+  document.getElementById('capPacket').textContent='geometric, E='+fmt(mB,1)+', CV='+fmt(cv,2);
+
+  // trajectory
+  var r=gillespie(kp,gm,rm,dp,T);
+  var ss=sampleStats(r.ts,r.ps,0.5);
+  var meanP= rm*mB/dp; // analytic
+  renderTrace(document.getElementById('tracePlot'), r.ts, r.ps, meanP, 'var(--accent)', r.ms);
+  document.getElementById('stMean').textContent=fmt(ss.mean,1);
+  document.getElementById('stFano').textContent = ss.fano? fmt(ss.fano,2) : '—';
+  document.getElementById('capTrace').textContent='Gillespie · ⟨P⟩ sampled '+fmt(ss.mean,1)+' · Fano '+ (ss.fano?fmt(ss.fano,2):'—');
+}
+
+/* -------------- Limit A draw -------------- */
+function drawLimitA(){
+  var s=Math.pow(10, parseInt(slA.value,10)/3); // 1..1000 on log
+  valA.textContent='×'+ (s<10?fmt(s,1):Math.round(s));
+  var kp=P.kp*s, gm=P.gm*s;
+  var q=qFrom(kp,gm);
+  renderBars(document.getElementById('packetPlotA'), q, 'var(--accent)');
+  var mB=geomMean(q);
+  // trajectory with scaled rates, basal source
+  var r=gillespie(kp,gm,P.rm,P.dp,P.T);
+  var meanP=P.rm*mB/P.dp;
+  renderTrace(document.getElementById('tracePlotA'), r.ts, r.ps, meanP, 'var(--accent)');
+  document.getElementById('pillA1').textContent='geometric packet survives · E='+fmt(mB,1)+', F=1+B̄='+fmt(1+mB,2);
+  document.getElementById('pillA2').textContent='RNA lifetime 1/γ = '+fmt(1/gm,3)+' min eliminated';
+}
+
+/* -------------- Limit B draw -------------- */
+function drawLimitB(){
+  var s=Math.pow(10, parseInt(slB.value,10)/3);
+  valB.textContent='×'+ (s<10?fmt(s,1):Math.round(s));
+  var gm=P.gm*s;             // degrade faster
+  var rm=P.rm*s;             // more transcripts to hold mean production
+  var kp=P.kp;               // translation stays fixed
+  var q=qFrom(kp,gm);
+  renderBars(document.getElementById('packetPlotB'), q, 'var(--lost)');
+  var mB=geomMean(q);
+  var r=gillespie(kp,gm,rm,P.dp,P.T);
+  var meanP= rm*mB/P.dp;     // == basal rm*B̄/dp, constant
+  renderTrace(document.getElementById('tracePlotB'), r.ts, r.ps, meanP, 'var(--lost)');
+  document.getElementById('pillB1').textContent='mean production rate survives · ⟨P⟩='+fmt(meanP,1);
+  document.getElementById('pillB2').textContent='packet → 0/1 · Fano → '+fmt(1+mB,2);
+}
+
+/* ------- durations ------- */
+durBtns.forEach(function(b){
+  b.addEventListener('click',function(){
+    durBtns.forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on');
+    P.T=parseInt(b.getAttribute('data-dur'),10);
+    drawBasal(); drawLimitA(); drawLimitB();
+    if(window.MathJax) window.MathJax.typesetPromise && window.MathJax.typesetPromise();
+  });
+});
+
+/* ------- inputs ------- */
+slKp.addEventListener('input',function(){ P.kp=parseFloat(slKp.value); drawBasal(); drawLimitA(); drawLimitB(); });
+slGm.addEventListener('input',function(){ P.gm=parseFloat(slGm.value); drawBasal(); drawLimitA(); drawLimitB(); });
+slA.addEventListener('input',function(){ drawLimitA(); });
+slB.addEventListener('input',function(){ drawLimitB(); });
+
+/* ------- boot ------- */
+function start(){
+  drawBasal(); drawLimitA(); drawLimitB();
+  if(window.MathJax && window.MathJax.typesetPromise) window.MathJax.typesetPromise();
+}
+if(window.claude && window.claude.hot && window.claude.hot.ready){
+  window.claude.hot.ready(start);
+} else {
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', start);
+  else start();
+}
+})();
+</script>
+
+
+</body></html>
