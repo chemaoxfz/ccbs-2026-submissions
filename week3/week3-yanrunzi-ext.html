@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Eliminating an RNA lifetime</title>
 <meta name="author" content="yanrunzi">
-<meta name="week" content="week3"><style>
+<meta name="week" content="week3">
+<style>
 :root{
   /* Sunset-Sky marks */
   --coral:#EE8168; --peri:#5A73CE; --lime:#8FB043; --plum:#77488C; --teal:#1F9A8E; --rose:#D75567;
@@ -71,9 +72,7 @@ main > *{max-width:var(--maxw)}
 main > figure, main > .wide, main > .tablewrap{max-width:60rem}
 
 h1{font-size:2.5rem;line-height:1.1;letter-spacing:-.02em;margin:.4rem 0 .8rem;font-weight:700;max-width:26ch}
-.sub{font-size:1.18rem;color:var(--muted);margin:0 0 1.6rem;line-height:1.5;max-width:38rem}
-.byline{font-family:var(--sans);font-size:.8rem;color:var(--muted);letter-spacing:.02em;
-  margin-bottom:2.6rem;padding-bottom:1.6rem;border-bottom:1px solid var(--rule)}
+.meta{font-family:var(--sans);font-size:.8rem;color:var(--muted);letter-spacing:.02em;margin:0 0 1.6rem}
 h2{font-size:1.05rem;font-family:var(--sans);font-weight:700;letter-spacing:.02em;margin:3.6rem 0 .2rem;scroll-margin-top:1.5rem}
 h2 .n{color:var(--rose);font-variant-numeric:tabular-nums;margin-right:.5rem}
 h2 + .lede{color:var(--muted);font-size:1.02rem;margin:.1rem 0 1.1rem}
@@ -91,15 +90,14 @@ li{margin:.28rem 0}
 hr{border:0;border-top:1px solid var(--rule);margin:2.6rem 0}
 .small{font-size:.88rem;color:var(--muted)}
 
-math{font-family:"STIX Two Math","Cambria Math","Latin Modern Math",serif;font-size:1em}
-.m{white-space:nowrap}
-.eq{display:flex;align-items:center;gap:1rem;margin:1.3rem auto;padding:.85rem 1rem;text-align:center;
-    font-size:1.05rem;background:var(--bg2);border:1px solid var(--rule);border-radius:8px;overflow-x:auto}
-.eq > math{flex:1;min-width:max-content;margin:0}
-.eq .tag{flex:none;color:var(--leader);font-family:var(--sans);font-size:.85em}
+.eq{display:block;margin:1.3rem auto;padding:.9rem 1rem;text-align:center;font-size:1.06rem;
+    background:var(--bg2);border:1px solid var(--rule);border-radius:8px;overflow-x:auto;line-height:1.9}
+.eq .tag{float:right;color:var(--leader);font-family:var(--sans);font-size:.85em}
 .eq b{color:var(--rose);font-weight:700}
 code{font-family:var(--mono);font-size:.9em}
-sub,sup{font-size:.7em;line-height:0}
+sub,sup{font-size:.72em;line-height:0}
+i{font-style:italic}
+.grk{font-style:normal}
 
 .box{border:1px solid var(--rule);background:var(--bg2);border-radius:10px;padding:1rem 1.15rem;
   margin:1.5rem 0;box-shadow:var(--shadow)}
@@ -123,13 +121,26 @@ sub,sup{font-size:.7em;line-height:0}
 .box.open{border-left:3px solid var(--plum);background:linear-gradient(94deg,var(--lilac),var(--bg2) 62%)}
 .box.open .lbl{color:var(--plum)}
 
-figure{margin:2rem 0;padding:0}
-figure svg{display:block;width:100%;height:auto;max-width:100%}
-.svgwrap{overflow-x:auto}
-.svgwrap svg{min-width:620px}
-figcaption{font-family:var(--sans);font-size:.8rem;line-height:1.5;color:var(--muted);margin-top:.7rem;max-width:56rem}
-figcaption b{color:var(--fg);font-weight:700}
-.figbox{background:var(--bg2);border:1px solid var(--rule);border-radius:10px;padding:1.1rem;box-shadow:var(--shadow)}
+/* ---- figures: pure HTML/CSS (no SVG), renders everywhere ---- */
+figure{margin:2rem 0;padding:1.1rem;background:var(--bg2);border:1px solid var(--rule);border-radius:10px;box-shadow:var(--shadow)}
+.figrow{display:flex;gap:2.2rem;flex-wrap:wrap}
+.figcol{flex:1 1 300px;min-width:280px}
+.figcap{font-family:var(--sans);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);font-weight:700;margin:0 0 .7rem}
+.lane{border:1.5px solid;border-radius:8px;padding:.5rem .8rem;margin-bottom:.7rem}
+.lane .t{font-family:var(--sans);font-weight:600;font-size:.95rem}
+.lane .m{font-family:var(--mono);font-size:.76rem;color:var(--muted);margin-top:.12rem}
+.lane.teal{border-color:var(--teal)} .lane.teal .t{color:var(--teal)}
+.lane.rose{border-color:var(--rose)} .lane.rose .t{color:var(--rose)}
+.bars{display:flex;align-items:flex-end;gap:10px;height:150px;padding:0 .15rem}
+.b{flex:1;border-radius:3px 3px 0 0}
+.b.teal{background:var(--teal)} .b.rose{background:var(--rose)} .b.peri{background:var(--peri)}
+.axis{border-top:1.5px solid var(--gridc);margin-top:4px;display:flex;padding:0 .15rem}
+.axis span{flex:1;text-align:center;font-family:var(--mono);font-size:.72rem;color:var(--muted);padding-top:2px}
+.figlabel{font-family:var(--sans);font-size:.78rem;color:var(--muted);margin-top:.55rem}
+figcaption{font-family:var(--sans);font-size:.8rem;line-height:1.5;color:var(--muted);margin-top:.9rem;max-width:56rem}
+figcaption b{color:var(--rose);font-weight:700}
+figcaption b.t{color:var(--fg)}
 
 .tablewrap{overflow-x:auto;margin:1.6rem 0;border:1px solid var(--rule);border-radius:10px;
   background:var(--bg2);box-shadow:var(--shadow)}
@@ -149,7 +160,7 @@ sup.c{font-size:.68em;color:var(--rose);font-weight:700}
 sup.c a{color:inherit;text-decoration:none}
 
 #tt{position:fixed;right:1rem;bottom:1rem;z-index:50;width:2.4rem;height:2.4rem;border-radius:50%;
-  display:grid;place-items:center;font-size:1rem;background:var(--bg2);box-shadow:var(--shadow);border:1px solid var(--rule)}
+  display:grid;place-items:center;font-size:1rem;background:var(--bg2);box-shadow:var(--shadow);border:1px solid var(--rule);color:var(--fg)}
 @media print{#tt,nav.toc{display:none}.wrap{display:block}main>*{max-width:none}}
 </style>
 </head>
@@ -176,13 +187,13 @@ sup.c a{color:inherit;text-decoration:none}
 <main>
 
 <h1>Eliminating an RNA lifetime</h1>
-
 <p class="meta">Author: Yan Runzi · Week 3 (2026-09-20) · CCBS 2026</p>
+
 <p>If we average out a <em>fast promoter state</em>, Lecture&nbsp;6 §9a replaces a two-state burst generator by a briefer, sharper Poisson approximation — and whether bursts survive depends on which rate is fixed. This problem repeats that whole argument with the hidden clock moved <em>one level down</em>: instead of a promoter, we eliminate an <em>RNA lifetime</em>. An RNA that translates and is destroyed by two independent exponential clocks leaves behind, before it dies, a count of proteins whose law we can write down exactly, with no master equation at all.</p>
 
 <div class="box note">
 <span class="lbl">The assignment · what to hand in</span>
-<p>Let an RNA translate at rate <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>k</mi><mi>p</mi></msub></math> and disappear at <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>γ</mi><mi>m</mi></msub></math>. Use two competing clocks to derive its geometric protein packet, with its mean, variance, and Fano factor. Then decide <b>(a)</b> what survives if both rates increase at fixed ratio, and <b>(b)</b> what survives if translation stays fixed. This essay state–event–probability structure follows Lectures&nbsp;5–6.</p>
+<p>Let an RNA translate at rate <i>k<sub>p</sub></i> and disappear at <i>γ<sub>m</sub></i>. Use two competing clocks to derive its geometric protein packet, with its mean, variance, and Fano factor. Then decide <b>(a)</b> what survives if both rates increase at fixed ratio, and <b>(b)</b> what survives if translation stays fixed. This essay state–event–probability structure follows Lectures&nbsp;5–6.</p>
 </div>
 
 <div class="parthead">
@@ -194,106 +205,86 @@ sup.c a{color:inherit;text-decoration:none}
 <h2 id="s1"><span class="n">1</span>One transcript, two clocks</h2>
 <p class="lede">A single RNA is the whole object; its production of protein is the whole observable.</p>
 
-<p>A single transcript <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>M</mi></math> is born at time zero. While it lives it translates — each event deposits one protein with rate <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>k</mi><mi>p</mi></msub></math> — and it is destroyed at rate <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>γ</mi><mi>m</mi></msub></math>. Nothing is hidden and nothing is coarse-grained beyond Lectures&nbsp;3 and&nbsp;5: these are composite channels with declared clocks, the squiggle-arrow language of the course, fully reduced to a propensity table. The transcript is the only tiny number in the system — a protein count <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>P</mi></math> is large, so it is the one quantity a population measurement can actually average.</p>
+<p>A single transcript <i>M</i> is born at time zero. While it lives it translates — each event deposits one protein with rate <i>k<sub>p</sub></i> — and it is destroyed at rate <i>γ<sub>m</sub></i>. Nothing is hidden and nothing is coarse-grained beyond Lectures&nbsp;3 and&nbsp;5: these are composite channels with declared clocks, the squiggle-arrow language of the course, fully reduced to a propensity table. The transcript is the only tiny number in the system — a protein count <i>P</i> is large, so it is the one quantity a population measurement can actually average.</p>
 
 <div class="tablewrap">
 <table>
-<caption>Table 1. The object as Lectures 5 treat it: two events, two integer jumps, two clocks. State <math><mi>M</mi><mo>∈</mo><mo>{</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>}</mo></math>, <math><mi>P</mi><mo>∈</mo><msub><mi>ℤ</mi><mrow><mo>≥</mo><mn>0</mn></mrow></msub></math>.</caption>
+<caption>Table 1. The object as Lectures 5 treat it: two events, two integer jumps, two clocks. State M ∈ {0,1}, P ∈ ℤ<sub>≥0</sub>.</caption>
 <thead><tr><th>Channel</th><th>Jump</th><th>Clock (events/time)</th></tr></thead>
 <tbody>
-<tr><td><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>M</mi><mo>⇝</mo><mi>M</mi><mo>+</mo><mi>P</mi></math> &nbsp;· translation</td><td class="num">P : +1</td><td class="num"><math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>a</mi><mo>+</mo></msub><mo>=</mo><msub><mi>k</mi><mi>p</mi></msub><mo>&#x2061;</mo><msub><mn>1</mn><mrow><mo>{</mo><mi>M</mi><mi>alive</mi><mo>}</mo></mrow></msub></math></td></tr>
-<tr><td><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>M</mi><mo>⇝</mo><mi>∅</mi></math> &nbsp;· degradation</td><td class="num">M : −1</td><td class="num"><math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>a</mi><mo>−</mo></msub><mo>=</mo><msub><mi>γ</mi><mi>m</mi></msub><mo>&#x2061;</mo><msub><mn>1</mn><mrow><mo>{</mo><mi>M</mi><mi>alive</mi><mo>}</mo></mrow></msub></math></td></tr>
+<tr><td>M ⇝ M + P &nbsp;· translation</td><td class="num">P : +1</td><td class="num">a<sub>+</sub> = <i>k<sub>p</sub></i> · 1<sub>{M alive}</sub></td></tr>
+<tr><td>M ⇝ ∅ &nbsp;· degradation</td><td class="num">M : −1</td><td class="num">a<sub>−</sub> = <i>γ<sub>m</sub></i> · 1<sub>{M alive}</sub></td></tr>
 </tbody>
 </table>
 </div>
 
 <div class="box thm">
 <span class="lbl">The object</span>
-<p>Only two clocks exist: translation at <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>k</mi><mi>p</mi></msub></math>, degradation at <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>γ</mi><mi>m</mi></msub></math>. They race, the transcript remembers nothing between rounds, and the whole derivation below is one pass over a single ladder — <em>no master equation, no Gillespie.</em></p>
+<p>Only two clocks exist: translation at <i>k<sub>p</sub></i>, degradation at <i>γ<sub>m</sub></i>. They race, the transcript remembers nothing between rounds, and the whole derivation below is one pass over a single ladder — <em>no master equation, no Gillespie.</em></p>
 </div>
 
 <h2 id="s2"><span class="n">2</span>A race gives a geometric packet</h2>
 <p class="lede">Whichever exponential clock wins first decides both terms of a geometric law.</p>
 
-<p>Each event that happens to the live RNA is a draw from a race. Translation wins a single race with probability <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>q</mi></math>, after which the race restarts with unchanged clocks — the transcript is memoryless, exactly because both waiting times are exponential. The count of translation wins before the first degradation is therefore a sequence of independent races terminated by the degradation race.</p>
+<p>Each event that happens to the live RNA is a draw from a race. Translation wins a single race with probability <i>q</i>, after which the race restarts with unchanged clocks — the transcript is memoryless, exactly because both waiting times are exponential. The count of translation wins before the first degradation is therefore a sequence of independent races terminated by the degradation race.</p>
 
 <div class="eq">
-  <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
-    <mi>q</mi><mo>=</mo>
-    <mfrac><msub><mi>k</mi><mi>p</mi></msub><mrow><msub><mi>k</mi><mi>p</mi></msub><mo>+</mo><msub><mi>γ</mi><mi>m</mi></msub></mrow></mfrac>
-    <mo>,</mo><mspace width="1.2em"/>
-    <mn>1</mn><mo>−</mo><mi>q</mi><mo>=</mo>
-    <mfrac><msub><mi>γ</mi><mi>m</mi></msub><mrow><msub><mi>k</mi><mi>p</mi></msub><mo>+</mo><msub><mi>γ</mi><mi>m</mi></msub></mrow></mfrac>
-  </math>
   <span class="tag">(1)</span>
+  q = <i>k<sub>p</sub></i>/(<i>k<sub>p</sub></i> + <i>γ<sub>m</sub></i>), &nbsp;&nbsp;&nbsp; 1 − q = <i>γ<sub>m</sub></i>/(<i>k<sub>p</sub></i> + <i>γ<sub>m</sub></i>)
 </div>
 
-<p>Condition on surviving <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>j</mi></math> consecutive races — that is <math xmlns="http://www.w3.org/1998/Math/MathML"><msup><mi>q</mi><mi>j</mi></msup></math> — then end with one degradation race, <math xmlns="http://www.w3.org/1998/Math/MathML"><mn>1</mn><mo>−</mo><mi>q</mi></math>. Multiply and the packet is geometric: the lecture figure's count ladder read on its side.</p>
+<p>Condition on surviving <i>j</i> consecutive races — that is <i>q<sup>j</sup></i> — then end with one degradation race, 1 − q. Multiply and the packet is geometric: the lecture figure's count ladder read on its side.</p>
 
 <div class="eq">
-  <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
-    <mo>Pr</mo><mo>(</mo><mi>B</mi><mo>=</mo><mi>j</mi><mo>)</mo><mo>=</mo>
-    <mo>(</mo><mn>1</mn><mo>−</mo><mi>q</mi><mo>)</mo><msup><mi>q</mi><mi>j</mi></msup>
-    <mo>,</mo><mspace width="1.2em"/>
-    <mi>j</mi><mo>=</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mo>…</mo>
-  </math>
   <span class="tag">(2)</span>
+  Pr(B = j) = (1 − q)·q<sup>j</sup>, &nbsp;&nbsp;&nbsp; j = 0, 1, 2, …
 </div>
 
 <div class="eq">
-  <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
-    <mi>E</mi><mo>[</mo><mi>B</mi><mo>]</mo><mo>=</mo>
-    <mfrac><mi>q</mi><mrow><mn>1</mn><mo>−</mo><mi>q</mi></mrow></mfrac><mo>=</mo>
-    <mfrac><msub><mi>k</mi><mi>p</mi></msub><msub><mi>γ</mi><mi>m</mi></msub></mfrac>
-    <mo>,</mo><mspace width="1.2em"/>
-    <mo>Var</mo><mo>(</mo><mi>B</mi><mo>)</mo><mo>=</mo><mover><mi>B</mi><mo>¯</mo></mover><mo>(</mo><mn>1</mn><mo>+</mo><mover><mi>B</mi><mo>¯</mo></mover><mo>)</mo>
-  </math>
   <span class="tag">(3)</span>
+  <b>E[B]</b> = q/(1 − q) = <i>k<sub>p</sub></i>/<i>γ<sub>m</sub></i>, &nbsp;&nbsp;&nbsp; <b>Var(B)</b> = B̄(1 + B̄)
 </div>
 
-<p>The two exponential clocks tie only with probability zero, so every race ends, and
-<math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mo>Σ</mo><mi>j</mi></msub><mo>(</mo><mn>1</mn><mo>−</mo><mi>q</mi><mo>)</mo><msup><mi>q</mi><mi>j</mi></msup><mo>=</mo><mn>1</mn></mrow></math>
-exactly: a <em>finite</em> packet is guaranteed, degradation is reached almost surely, and no probability mass is ever lost. This is Lecture&nbsp;5's burst addendum (<math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mover><mi>B</mi><mo>¯</mo></mover><mo>=</mo><msub><mi>k</mi><mi>tl</mi></msub><mo>/</mo><msub><mi>d</mi><mi>m</mi></msub></mrow></math>) written as a race, and the same math as Lecture&nbsp;6 §9a's <em>"an ON period produces a geometric packet of mean <math><mi>ρ</mi><mo>/</mo><mi>β</mi></math>."</em></p>
+<p>The two exponential clocks tie only with probability zero, so every race ends, and Σ<sub>j</sub> (1 − q)q<sup>j</sup> = 1 exactly: a <em>finite</em> packet is guaranteed, degradation is reached almost surely, and no probability mass is ever lost. This is Lecture&nbsp;5's burst addendum (B̄ = k<sub>tl</sub>/d<sub>m</sub>) written as a race, and the same math as Lecture&nbsp;6 §9a's <em>"an ON period produces a geometric packet of mean ρ/β."</em></p>
 
-<figure class="figbox">
-<div class="svgwrap">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 756 300" width="100%" height="auto" role="img" aria-label="Two-clock race strip for translation vs degradation.">
-  <rect x="0" y="0" width="756" height="300" fill="var(--bg2)"/>
-  <!-- left: race strip -->
-  <text x="40" y="30" font-family="var(--sans)" font-size="12" fill="var(--leader)" letter-spacing="1">THE RACE · ONE DRAW</text>
-  <rect x="40" y="48" width="300" height="54" fill="var(--teal)" opacity="0.16" rx="4"/>
-  <rect x="40" y="48" width="300" height="54" fill="none" stroke="var(--teal)" stroke-width="1.5" rx="4"/>
-  <text x="190" y="72" text-anchor="middle" font-family="var(--sans)" font-size="15" font-weight="600" fill="var(--teal)">translation wins</text>
-  <text x="190" y="91" text-anchor="middle" font-family="var(--mono)" font-size="12" fill="var(--muted)">prob q = k&#8349;/(k&#8349;+&#947;<sub>m</sub>)</text>
-  <rect x="40" y="112" width="300" height="54" fill="var(--rose)" opacity="0.14" rx="4"/>
-  <rect x="40" y="112" width="300" height="54" fill="none" stroke="var(--rose)" stroke-width="1.5" rx="4"/>
-  <text x="190" y="136" text-anchor="middle" font-family="var(--sans)" font-size="15" font-weight="600" fill="var(--rose)">degradation wins → packet ends</text>
-  <text x="190" y="155" text-anchor="middle" font-family="var(--mono)" font-size="12" fill="var(--muted)">prob 1−q = &#947;<sub>m</sub>/(k&#8349;+&#947;<sub>m</sub>)</text>
-  <text x="40" y="196" font-family="var(--sans)" font-size="12" fill="var(--muted)">race restarts, memoryless → P(B=j) = (1−q)q&#8319;</text>
-  <text x="40" y="218" font-family="var(--sans)" font-size="12" fill="var(--muted)">E[B] = k&#8349;/&#947;<sub>m</sub>, &nbsp;Var(B) = B&#773;(1+B&#773;)</text>
-  <!-- right: one geometric ladder -->
-  <text x="416" y="30" font-family="var(--sans)" font-size="12" fill="var(--leader)" letter-spacing="1">THE PACKET · WIDTH OF A DISTRIBUTION</text>
-  <line x1="420" y1="256" x2="716" y2="256" stroke="var(--gridc)" stroke-width="1.5"/>
-  <line x1="420" y1="56" x2="420" y2="256" stroke="var(--gridc)" stroke-width="1.5"/>
-  <text x="412" y="60" text-anchor="end" font-family="var(--mono)" font-size="11" fill="var(--muted)">P(B=j)</text>
-  <!-- q=0.67, E[B]=2: pmf = (1/3)(2/3)^j = 0.33,0.22,0.148,0.099,0.066,0.044 -->
-  <g fill="var(--peri)">
-    <rect x="430" y="204" width="26" height="52" /><text x="443" y="272" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">0</text>
-    <rect x="478" y="220" width="26" height="36" /><text x="491" y="272" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">1</text>
-    <rect x="526" y="232" width="26" height="24" /><text x="539" y="272" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">2</text>
-    <rect x="574" y="240" width="26" height="16" /><text x="587" y="272" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">3</text>
-    <rect x="622" y="246" width="26" height="10" /><text x="635" y="272" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">4</text>
-    <rect x="670" y="250" width="26" height="6" /><text x="683" y="272" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">5</text>
-  </g>
-  <text x="568" y="60" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--muted)">geometric, E[B]=2</text>
-</svg>
+<figure>
+<div class="figrow">
+
+  <div class="figcol">
+    <div class="figcap">The race · one draw</div>
+    <div class="lane teal">
+      <div class="t">translation wins → packet continues</div>
+      <div class="m">prob &nbsp;q = k&#8349;/(k&#8349;+&#947;<sub>m</sub>)</div>
+    </div>
+    <div class="lane rose">
+      <div class="t">degradation wins → packet ends</div>
+      <div class="m">prob &nbsp;1−q = &#947;<sub>m</sub>/(k&#8349;+&#947;<sub>m</sub>)</div>
+    </div>
+    <p class="figlabel">The race restarts, memoryless → P(B=j) = (1−q)q&#8319;, &nbsp;E[B] = k&#8349;/&#947;<sub>m</sub></p>
+  </div>
+
+  <div class="figcol">
+    <div class="figcap">The packet · width of a distribution</div>
+    <div class="bars">
+      <div class="b peri" style="height:100px"></div>
+      <div class="b peri" style="height:67px"></div>
+      <div class="b peri" style="height:44px"></div>
+      <div class="b peri" style="height:30px"></div>
+      <div class="b peri" style="height:20px"></div>
+      <div class="b peri" style="height:13px"></div>
+      <div class="b peri" style="height:9px"></div>
+    </div>
+    <div class="axis"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span></div>
+    <p class="figlabel">P(B=j), geometric with E[B]=2 — the wide tail is the excess variance B̄(1+B̄)</p>
+  </div>
+
 </div>
-<figcaption><b>Figure 1.</b> <em>Left:</em> one race — translation wins with probability <math><mi>q</mi></math> and the packet continues, degradation wins with <math><mn>1</mn><mo>−</mo><mi>q</mi></math> and it ends. <em>Right:</em> the resulting packet law (2) for a moderate burst, <math><mi>q</mi><mo>=</mo><mn>2</mn><mo>/</mo><mn>3</mn></math>, <math><mi>E</mi><mo>[</mo><mi>B</mi><mo>]</mo><mo>=</mo><mn>2</mn></math>. The wide tail is the excess variance <math><mover><mi>B</mi><mo>¯</mo></mover><mo>(</mo><mn>1</mn><mo>+</mo><mover><mi>B</mi><mo>¯</mo></mover><mo>)</mo></math> that a mean alone never reveals — Lecture&nbsp;5's standing warning.</figcaption>
+<figcaption><b class="t">Figure 1.</b> <em>Left:</em> one race — translation wins with probability <i>q</i> and the packet continues, degradation wins with 1 − <i>q</i> and it ends. <em>Right:</em> the resulting packet law (2) for a moderate burst, <i>q</i> = 2/3, E[B] = 2. The wide tail is the excess variance B̄(1 + B̄) that a mean alone never reveals — Lecture&nbsp;5's standing warning.</figcaption>
 </figure>
 
 <div class="box def">
 <span class="lbl">Definition (geometric packet)</span>
-<p>The protein packet <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>B</mi></math> left by one RNA is geometric, <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mo>Pr</mo><mo>(</mo><mi>B</mi><mo>=</mo><mi>j</mi><mo>)</mo><mo>=</mo><mo>(</mo><mn>1</mn><mo>−</mo><mi>q</mi><mo>)</mo><msup><mi>q</mi><mi>j</mi></msup></mrow></math> with <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>q</mi><mo>=</mo><msub><mi>k</mi><mi>p</mi></msub><mo>/</mo><mo stretchy="false">(</mo><msub><mi>k</mi><mi>p</mi></msub><mo>+</mo><msub><mi>γ</mi><mi>m</mi></msub><mo stretchy="false">)</mo></mrow></math>. Its mean and variance pin the two things a burst contributes: the level <math><msub><mi>k</mi><mi>p</mi></msub><mo>/</mo><msub><mi>γ</mi><mi>m</mi></msub></math> and the excess noise <math><mover><mi>B</mi><mo>¯</mo></mover><mo>(</mo><mn>1</mn><mo>+</mo><mover><mi>B</mi><mo>¯</mo></mover><mo>)</mo></math>.</p>
+<p>The protein packet <i>B</i> left by one RNA is geometric, Pr(B = j) = (1 − q)q<sup>j</sup> with q = <i>k<sub>p</sub></i>/(<i>k<sub>p</sub></i> + <i>γ<sub>m</sub></i>). Its mean and variance pin the two things a burst contributes: the level <i>k<sub>p</sub></i>/<i>γ<sub>m</sub></i> and the excess noise B̄(1 + B̄).</p>
 </div>
 
 <div class="parthead">
@@ -302,61 +293,64 @@ exactly: a <em>finite</em> packet is guaranteed, degradation is reached almost s
   <p>Speed nothing up in isolation — hold the mean, change the noise.</p>
 </div>
 
-<p>Both parts of the assignment keep mean protein production <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mi>k</mi><mi>p</mi></msub><mo>&#x2061;</mo><mo>⟨</mo><mi>M</mi><mo>⟩</mo></mrow></math> fixed, by letting the transcript source <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>r</mi><mi>m</mi></msub></math> compensate. The two limits differ in which clock is left to set the <em>noise</em>; the mean is a red herring that cannot tell them apart.</p>
+<p>Both parts of the assignment keep mean protein production <i>k<sub>p</sub></i>·⟨M⟩ fixed, by letting the transcript source <i>r<sub>m</sub></i> compensate. The two limits differ in which clock is left to set the <em>noise</em>; the mean is a red herring that cannot tell them apart.</p>
 
 <h2 id="s3"><span class="n">3</span>Both rates up at fixed ratio: the packet survives</h2>
 <p class="lede">Because E[B] is a function of the ratio alone, the whole geometric law is invariant.</p>
 
-<p>Scale the two clocks together, <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mi>k</mi><mi>p</mi></msub><mo>,</mo><msub><mi>γ</mi><mi>m</mi></msub><mo>→</mo><mi>∞</mi></mrow></math> with <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mi>k</mi><mi>p</mi></msub><mo>/</mo><msub><mi>γ</mi><mi>m</mi></msub></mrow></math> held fixed. Then <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>q</mi></math> in (1) never moves, so the <em>entire law</em> (2) — every probability, the mean, the width, and the excess Fano — is unchanged. What changes is only the <em>tempo</em>: each packet is completed in a briefer real time, so packets arrive faster but carry the same fixed size.</p>
+<p>Scale the two clocks together, <i>k<sub>p</sub></i>, <i>γ<sub>m</sub></i> → ∞ with <i>k<sub>p</sub></i>/<i>γ<sub>m</sub></i> held fixed. Then <i>q</i> in (1) never moves, so the <em>entire law</em> (2) — every probability, the mean, the width, and the excess Fano — is unchanged. What changes is only the <em>tempo</em>: each packet is completed in a briefer real time, so packets arrive faster but carry the same fixed size.</p>
 
 <div class="box thm">
 <span class="lbl">Survival</span>
-<p>In the limit <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mi>k</mi><mi>p</mi></msub><mo>,</mo><msub><mi>γ</mi><mi>m</mi></msub><mo>→</mo><mi>∞</mi></mrow></math> at fixed ratio, <b>the geometric packet survives</b> as a burst process: Poisson-arriving packets of fixed mean, presentable <em>without resolving any transcript</em>. This is Lecture&nbsp;6 §9a's burst limit, and it gives the protein Fano <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>F</mi><mo>=</mo><mn>1</mn><mo>+</mo><mover><mi>B</mi><mo>¯</mo></mover></mrow></math>.</p>
+<p>In the limit <i>k<sub>p</sub></i>, <i>γ<sub>m</sub></i> → ∞ at fixed ratio, <b>the geometric packet survives</b> as a burst process: Poisson-arriving packets of fixed mean, presentable <em>without resolving any transcript</em>. This is Lecture&nbsp;6 §9a's burst limit, and it gives the protein Fano F = 1 + B̄.</p>
 </div>
 
-<p>What is <em>eliminated</em> is every temporal feature of a transcript: the lifetime <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mn>1</mn><mo>/</mo><msub><mi>γ</mi><mi>m</mi></msub></mrow></math> and the finite width of a burst episode are pressed toward an instant. The transcript's <em>history</em> is averaged out; its <em>size</em> is not. This is the crucial asymmetry of the burst-process construction of Lecture&nbsp;5 §3.</p>
+<p>What is <em>eliminated</em> is every temporal feature of a transcript: the lifetime 1/<i>γ<sub>m</sub></i> and the finite width of a burst episode are pressed toward an instant. The transcript's <em>history</em> is averaged out; its <em>size</em> is not. This is the crucial asymmetry of the burst-process construction of Lecture&nbsp;5 §3.</p>
 
 <h2 id="s4"><span class="n">4</span>Translation fixed: packets dissolve into Poisson</h2>
 <p class="lede">As γ<sub>m</sub>→∞ at fixed k<sub>p</sub>, the mean packet collapses and the excess noise with it.</p>
 
-<p>Now kill the transcript faster, <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mi>γ</mi><mi>m</mi></msub><mo>→</mo><mi>∞</mi></mrow></math> with <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>k</mi><mi>p</mi></msub></math> held <em>fixed</em>, and let the source rise to keep <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mi>k</mi><mi>p</mi></msub><mo>&#x2061;</mo><mo>⟨</mo><mi>M</mi><mo>⟩</mo></mrow></math> constant — more transcripts, each shorter-lived. Now <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>E</mi><mo>[</mo><mi>B</mi><mo>]</mo><mo>=</mo><msub><mi>k</mi><mi>p</mi></msub><mo>/</mo><msub><mi>γ</mi><mi>m</mi></msub><mo>→</mo><mn>0</mn></mrow></math>.</p>
+<p>Now kill the transcript faster, <i>γ<sub>m</sub></i> → ∞ with <i>k<sub>p</sub></i> held <em>fixed</em>, and let the source rise to keep <i>k<sub>p</sub></i>·⟨M⟩ constant — more transcripts, each shorter-lived. Now E[B] = <i>k<sub>p</sub></i>/<i>γ<sub>m</sub></i> → 0.</p>
 
 <div class="box thm">
 <span class="lbl">Survival</span>
-<p>The geometric packet <em>degenerates</em>: it becomes zero (almost always) or one (rarely). Compensating transcripts keep protein flowing, but almost every protein is now its own lone event, so arrivals become Poisson and the protein Fano falls to <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>F</mi><mo>=</mo><mn>1</mn></mrow></math>. What survives is the <b>mean production rate</b> <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mi>k</mi><mi>p</mi></msub><mo>&#x2061;</mo><mo>⟨</mo><mi>M</mi><mo>⟩</mo></mrow></math> and the elementary translation event; what is eliminated is the packet and its excess noise. This is Lecture&nbsp;6 §9a's fast-fixed-rate-switching → Fano-one limit.</p>
+<p>The geometric packet <em>degenerates</em>: it becomes zero (almost always) or one (rarely). Compensating transcripts keep protein flowing, but almost every protein is now its own lone event, so arrivals become Poisson and the protein Fano falls to F = 1. What survives is the <b>mean production rate</b> <i>k<sub>p</sub></i>·⟨M⟩ and the elementary translation event; what is eliminated is the packet and its excess noise. This is Lecture&nbsp;6 §9a's fast-fixed-rate-switching → Fano-one limit.</p>
 </div>
 
-<figure class="figbox">
-<div class="svgwrap">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 756 300" width="100%" height="auto" role="img" aria-label="Packet law under the two limits.">
-  <rect x="0" y="0" width="756" height="300" fill="var(--bg2)"/>
-  <text x="40" y="28" font-family="var(--sans)" font-size="12" fill="var(--teal)" letter-spacing="1">LIMIT A · k&#8349;, &#947;<sub>m</sub>→∞, RATIO FIXED → PACKET SURVIVES</text>
-  <line x1="44" y1="250" x2="344" y2="250" stroke="var(--gridc)" stroke-width="1.5"/>
-  <line x1="44" y1="56" x2="44" y2="250" stroke="var(--gridc)" stroke-width="1.5"/>
-  <g fill="var(--teal)">
-    <rect x="56" y="198" width="22" height="52" /><text x="67" y="266" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">0</text>
-    <rect x="95" y="225" width="22" height="25" /><text x="106" y="266" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">1</text>
-    <rect x="134" y="240" width="22" height="10" /><text x="145" y="266" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">2</text>
-    <rect x="173" y="246" width="22" height="4" /><text x="184" y="266" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">3</text>
-    <rect x="212" y="249" width="22" height="1" />
-    <rect x="251" y="249" width="22" height="1" />
-  </g>
-  <text x="194" y="62" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--muted)">E[B] fixed · F = 1+E[B] fixed</text>
+<figure>
+<div class="figrow">
 
-  <text x="420" y="28" font-family="var(--sans)" font-size="12" fill="var(--rose)" letter-spacing="1">LIMIT B · &#947;<sub>m</sub>→∞, k&#8349; FIXED → PACKET → POISSON</text>
-  <line x1="424" y1="250" x2="716" y2="250" stroke="var(--gridc)" stroke-width="1.5"/>
-  <line x1="424" y1="56" x2="424" y2="250" stroke="var(--gridc)" stroke-width="1.5"/>
-  <g fill="var(--rose)">
-    <rect x="436" y="192" width="22" height="58" /><text x="447" y="266" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">0</text>
-    <rect x="475" y="240" width="22" height="10" /><text x="486" y="266" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">1</text>
-    <rect x="514" y="248" width="22" height="2" /><text x="525" y="266" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--muted)">2</text>
-    <rect x="553" y="249" width="22" height="1" />
-  </g>
-  <text x="570" y="62" text-anchor="middle" font-family="var(--sans)" font-size="12" fill="var(--muted)">E[B]→0 · F→ 1 (Poisson)</text>
-</svg>
+  <div class="figcol">
+    <div class="figcap">Limit A · k&#8349;, &#947;<sub>m</sub> → ∞, ratio fixed → packet survives</div>
+    <div class="bars">
+      <div class="b teal" style="height:100px"></div>
+      <div class="b teal" style="height:80px"></div>
+      <div class="b teal" style="height:64px"></div>
+      <div class="b teal" style="height:51px"></div>
+      <div class="b teal" style="height:41px"></div>
+      <div class="b teal" style="height:33px"></div>
+    </div>
+    <div class="axis"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
+    <p class="figlabel">E[B] fixed · F = 1+E[B] fixed</p>
+  </div>
+
+  <div class="figcol">
+    <div class="figcap">Limit B · &#947;<sub>m</sub> → ∞, k&#8349; fixed → packet → Poisson</div>
+    <div class="bars">
+      <div class="b rose" style="height:100px"></div>
+      <div class="b rose" style="height:20px"></div>
+      <div class="b rose" style="height:4px"></div>
+      <div class="b rose" style="height:1px"></div>
+      <div class="b rose" style="height:0px"></div>
+      <div class="b rose" style="height:0px"></div>
+    </div>
+    <div class="axis"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
+    <p class="figlabel">E[B] → 0 · F → 1 (Poisson)</p>
+  </div>
+
 </div>
-<figcaption><b>Figure 2.</b> The two limits sweep the same mean but leave opposite noise. <em>Left (Limit A):</em> both clocks up at fixed ratio — the geometric packet and its Fano <math><mn>1</mn><mo>+</mo><mover><mi>B</mi><mo>¯</mo></mover></math> are exactly preserved. <em>Right (Limit B):</em> translation fixed while RNA is destroyed faster — mass collapses onto <math><mi>j</mi><mo>=</mo><mn>0</mn></math>, a rare lone <math><mi>j</mi><mo>=</mo><mn>1</mn></math>, and the Fano falls to 1. The mean protein level need not move in either.<br>
-Drawn to scale: Limit A at <math><mi>q</mi><mo>=</mo><mn>0.8</mn></math> (<math><mi>E</mi><mo>[</mo><mi>B</mi><mo>]</mo><mo>=</mo><mn>4</mn></math>), Limit B at <math><mi>q</mi><mo>=</mo><mn>0.2</mn></math> (<math><mi>E</mi><mo>[</mo><mi>B</mi><mo>]</mo><mo>=</mo><mn>0.25</mn></math>).</figcaption>
+<figcaption><b class="t">Figure 2.</b> The two limits sweep the same mean but leave opposite noise. <em>Left (Limit A):</em> both clocks up at fixed ratio — the geometric packet and its Fano 1 + B̄ are exactly preserved. <em>Right (Limit B):</em> translation fixed while RNA is destroyed faster — mass collapses onto j = 0, a rare lone j = 1, and the Fano falls to 1. The mean protein level need not move in either.<br>
+Drawn to scale: Limit A at q = 0.8 (E[B] = 4), Limit B at q = 0.2 (E[B] = 0.25).</figcaption>
 </figure>
 
 <p>Because both limits share every <em>mean</em>, they are indistinguishable by a mean measurement alone. Only a second-moment observable — the Fano factor or a waiting-time statistic — can tell whether the surviving signal is a burst process or a Poisson rain. That is the lesson of Lecture&nbsp;6 §9a in miniature, and the reason this problem is a Fano-factor problem at heart.</p>
@@ -370,11 +364,11 @@ Drawn to scale: Limit A at <math><mi>q</mi><mo>=</mo><mn>0.8</mn></math> (<math>
 <h2 id="s5"><span class="n">5</span>A packet with a Fano of eleven</h2>
 <p class="lede">At reference rates the packet's excess noise dwarfs anything a mean tells you.</p>
 
-<p>Take a convenient reference: translation <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mi>k</mi><mi>p</mi></msub><mo>=</mo><mn>2</mn></mrow></math> proteins/min, degradation <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mi>γ</mi><mi>m</mi></msub><mo>=</mo><mn>0.2</mn></mrow></math>/min. Then the transcript lives <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mn>1</mn><mo>/</mo><msub><mi>γ</mi><mi>m</mi></msub><mo>=</mo><mn>5</mn></mrow></math> minutes, and each packet carries, on average, ten proteins. Averaging is exactly what obscures the point.</p>
+<p>Take a convenient reference: translation <i>k<sub>p</sub></i> = 2 proteins/min, degradation <i>γ<sub>m</sub></i> = 0.2/min. Then the transcript lives 1/<i>γ<sub>m</sub></i> = 5 minutes, and each packet carries, on average, ten proteins. Averaging is exactly what obscures the point.</p>
 
 <div class="box sim">
 <span class="lbl">What the numbers give</span>
-<p>At <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mi>k</mi><mi>p</mi></msub><mo>=</mo><mn>2</mn><mo>,</mo><msub><mi>γ</mi><mi>m</mi></msub><mo>=</mo><mn>0.2</mn></mrow></math>, the packet <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>B</mi></mrow></math> is geometric with mean <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mover><mi>B</mi><mo>¯</mo></mover><mo>=</mo><mn>10</mn></mrow></math>, variance <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mover><mi>B</mi><mo>¯</mo></mover><mo>(</mo><mn>1</mn><mo>+</mo><mover><mi>B</mi><mo>¯</mo></mover><mo>)</mo><mo>=</mo><mn>110</mn></mrow></math>, and coefficient of variation <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msqrt><mrow><mn>110</mn><mo>/</mo><mn>100</mn></mrow></msqrt><mo>≈</mo><mn>1.05</mn></mrow></math>. Closing the transcript loop (fast-mRNA limit, §9a) gives a protein Fano factor <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>F</mi><mo>=</mo><mn>1</mn><mo>+</mo><mover><mi>B</mi><mo>¯</mo></mover><mo>=</mo><mn>11</mn></mrow></math> — a <b>eleven-fold</b> over-dispersion. In Limit&nbsp;A that number is frozen; in Limit&nbsp;B it collapses toward 1. A measured Fano below 1 stands apart from every row of this model.</p>
+<p>At <i>k<sub>p</sub></i> = 2, <i>γ<sub>m</sub></i> = 0.2, the packet <i>B</i> is geometric with mean B̄ = 10, variance B̄(1 + B̄) = 110, and coefficient of variation √(110/100) ≈ 1.05. Closing the transcript loop (fast-mRNA limit, §9a) gives a protein Fano factor F = 1 + B̄ = 11 — an <b>eleven-fold</b> over-dispersion. In Limit&nbsp;A that number is frozen; in Limit&nbsp;B it collapses toward 1. A measured Fano below 1 stands apart from every row of this model.</p>
 </div>
 
 <div class="tablewrap">
@@ -391,7 +385,7 @@ Drawn to scale: Limit A at <math><mi>q</mi><mo>=</mo><mn>0.8</mn></math> (<math>
 
 <div class="box note">
 <span class="lbl">View &amp; estimator</span>
-<p>Three views, three operations. <b>Packet law</b> — exact, from (1)–(2), no simulation needed. <b>Mean &amp; Fano</b> — analytic, <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>E</mi><mo>[</mo><mi>B</mi><mo>]</mo><mo>=</mo><msub><mi>k</mi><mi>p</mi></msub><mo>/</mo><msub><mi>γ</mi><mi>m</mi></msub></mrow></math> and <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>F</mi><mo>=</mo><mn>1</mn><mo>+</mo><mover><mi>B</mi><mo>¯</mo></mover></mrow></math> in the fast-mRNA limit. <b>Path</b> — a Gillespie direct-method run of Table&nbsp;1 resolves individual packets; Fano is then a time-weighted residence average over a declared window, exactly as Lecture&nbsp;5 §10 defines estimators.</p>
+<p>Three views, three operations. <b>Packet law</b> — exact, from (1)–(2), no simulation needed. <b>Mean &amp; Fano</b> — analytic, E[B] = <i>k<sub>p</sub></i>/<i>γ<sub>m</sub></i> and F = 1 + B̄ in the fast-mRNA limit. <b>Path</b> — a Gillespie direct-method run of Table&nbsp;1 resolves individual packets; Fano is then a time-weighted residence average over a declared window, exactly as Lecture&nbsp;5 §10 defines estimators.</p>
 </div>
 
 <div class="parthead">
@@ -406,20 +400,20 @@ Drawn to scale: Limit A at <math><mi>q</mi><mo>=</mo><mn>0.8</mn></math> (<math>
 <p>The two limits agree on every mean, so the honest way to close the problem is with the second-moment observable, as Lecture&nbsp;6 §9a leaves it. The footer estimates are the falsifiers:</p>
 
 <ul>
-<li><b>Sub-Poisson protein count.</b> A measured Fano plainly below 1, at fixed fast-mRNA rates, rejects this model outright — no choice of <math><msub><mi>k</mi><mi>p</mi></msub></math> or <math><msub><mi>γ</mi><mi>m</mi></msub></math> permits it. This is the cleanest kill.</li>
-<li><b>Fano above <math><mn>1</mn><mo>+</mo><mover><mi>B</mi><mo>¯</mo></mover></math>.</b> A larger excess noise rejects the geometric-packet assumption itself — it points to real promoter-level bursts (Lecture&nbsp;6's two-state generator), not an RNA-lifetime race. The packet law (2) names its own upper bound on Fano.</li>
+<li><b>Sub-Poisson protein count.</b> A measured Fano plainly below 1, at fixed fast-mRNA rates, rejects this model outright — no choice of <i>k<sub>p</sub></i> or <i>γ<sub>m</sub></i> permits it. This is the cleanest kill.</li>
+<li><b>Fano above 1 + B̄.</b> A larger excess noise rejects the geometric-packet assumption itself — it points to real promoter-level bursts (Lecture&nbsp;6's two-state generator), not an RNA-lifetime race. The packet law (2) names its own upper bound on Fano.</li>
 <li><b>Least-informative measurement.</b> Any experiment that records only mean protein level is exactly the wrong tool here: by construction it cannot separate Limit&nbsp;A from Limit&nbsp;B. The model's value is precisely that it continues to distinguish them when the mean cannot.</li>
 </ul>
 
 <div class="box open">
 <span class="lbl">Open</span>
-<p>The observation that would settle it: a single-cell assay of protein-vs-mRNA noise as transcript stability is titrated. If a fixed mRNA lifetime can be made short while keeping <math><msub><mi>k</mi><mi>p</mi></msub></math> constant, the Fano should fall from <math><mn>1</mn><mo>+</mo><mover><mi>B</mi><mo>¯</mo></mover></math> toward 1 — the packets dissolving in real time. If instead the measured over-dispersion stubbornly holds while <math><msub><mi>γ</mi><mi>m</mi></msub></math> rises, the surplus noise must be living above the transcript level, and this week's model is missing a clock.</p>
+<p>The observation that would settle it: a single-cell assay of protein-vs-mRNA noise as transcript stability is titrated. If a fixed mRNA lifetime can be made short while keeping <i>k<sub>p</sub></i> constant, the Fano should fall from 1 + B̄ toward 1 — the packets dissolving in real time. If instead the measured over-dispersion stubbornly holds while <i>γ<sub>m</sub></i> rises, the surplus noise must be living above the transcript level, and this week's model is missing a clock.</p>
 </div>
 
 <h2 id="refs">References</h2>
 <div class="refs">
 <ol>
-<li id="r-lecture5">CCBS 2026, Lecture&nbsp;5 — Stochastic dynamics: the master equation and Gillespie. Burst addendum: geometric packets, <math><mi>E</mi><mo>[</mo><mi>B</mi><mo>]</mo><mo>=</mo><msub><mi>k</mi><mi>tl</mi></msub><mo>/</mo><msub><mi>d</mi><mi>m</mi></msub></math>; two-stage Fano <math><mn>1</mn><mo>+</mo><msub><mi>k</mi><mi>tl</mi></msub><mo>/</mo><mo stretchy="false">(</mo><msub><mi>d</mi><mi>m</mi></msub><mo>+</mo><msub><mi>d</mi><mi>p</mi></msub><mo stretchy="false">)</mo></math>. <span class="venue">chemaoxfz.github.io/assets/ccbs/2026fall/lecture05-core.html.</span></li>
+<li id="r-lecture5">CCBS 2026, Lecture&nbsp;5 — Stochastic dynamics: the master equation and Gillespie. Burst addendum: geometric packets, E[B] = k<sub>tl</sub>/d<sub>m</sub>; two-stage Fano 1 + k<sub>tl</sub>/(d<sub>m</sub> + d<sub>p</sub>). <span class="venue">chemaoxfz.github.io/assets/ccbs/2026fall/lecture05-core.html.</span></li>
 <li id="r-lecture6">CCBS 2026, Lecture&nbsp;6 — Time-scale separation: why a quasi-steady complex keeps changing. §9a, "A fast stochastic promoter can also be eliminated," and Playground&nbsp;C. <span class="venue">chemaoxfz.github.io/assets/ccbs/2026fall/lecture06-core.html.</span></li>
 <li id="r-ss08">Shahrezaei V, Swain PS. Analytical Distributions for Stochastic Gene Expression.
   <span class="venue"><i>PNAS</i> 105:17256–17261, 2008.</span></li>
