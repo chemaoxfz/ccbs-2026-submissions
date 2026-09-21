@@ -1,4 +1,4 @@
-# Lecture 10 exposition — 2026-10-08
+# Lecture 10 exposition: 2026-10-13
 
 **The adaptation biomachine**
 

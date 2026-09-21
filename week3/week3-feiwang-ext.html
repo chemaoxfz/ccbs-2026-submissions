@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Week 3— Extension: Can Molecular Degradation Reverse Competition Between Two Stochastic Signals?</title>
+<meta name="author" content="feiwang">
+<meta name="week" content="week3">
+<style>
+:root{--ink:#1a1a1a;--muted:#566;--accent:#1f4e79;--line:#d8dee4;--bg:#fff;--soft:#f6f8fa}
+@media(prefers-color-scheme:dark){:root{--ink:#e8e8e8;--muted:#9aa;--accent:#8ab4e8;--line:#3a4652;--bg:#15191d;--soft:#1e242a}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",Arial,sans-serif;line-height:1.6}
+.wrap{max-width:760px;margin:auto;padding:40px 22px 80px}h1{font-size:1.6rem;color:var(--accent);line-height:1.25;margin:0 0 6px}
+.meta,.small,figcaption{color:var(--muted);font-size:.9rem}h2{font-size:1.05rem;color:var(--accent);margin:34px 0 8px;border-bottom:1px solid var(--line);padding-bottom:5px}
+.card,.equation{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:14px 18px;margin:14px 0}
+.equation{font-family:"Times New Roman",serif;overflow:auto}.fig{width:100%;border:1px solid var(--line);border-radius:6px;margin:14px 0}
+details{margin:14px 0;border:1px solid var(--line);border-radius:6px;padding:10px 14px}summary{cursor:pointer;color:var(--accent);font-weight:600}
+pre{overflow:auto;max-height:520px;font-size:12px;line-height:1.5;background:var(--soft);padding:12px}
+table{width:100%;border-collapse:collapse;font-size:.86rem}th,td{text-align:left;border-bottom:1px solid var(--line);padding:8px}
+label{display:block}input[type=range]{width:100%;margin:8px 0 16px}button{background:var(--accent);color:var(--bg);border:0;padding:9px 15px;border-radius:5px;cursor:pointer}
+a{color:var(--accent)}svg text{fill:var(--ink);font-family:Arial,sans-serif;font-size:12px}.grid{stroke:var(--line);stroke-width:1}
+</style></head><body><div class="wrap">
+<h1>Week 3 — Extension: Can Molecular Degradation Reverse Competition Between Two Stochastic Signals?</h1>
+<p class="meta">Author: wangfei · Week 3 (2026-09-15) · CCBS 2026</p>
+<p class="card"><strong>One sentence:</strong> Two signals can compete for the same limited molecular target, 
+  and the faster-binding signal need not dominate if its occupied complex is cleared sufficiently quickly; 
+  at low copy number, the dominant signal also fluctuates over time.</p>
+
+<h2>The point I am adding</h2>
+<p>Signals A and B compete for a finite pool of identical targets R.
+  A may bind faster than B, but an A-bound target may also be cleared faster. 
+  Does faster association guarantee competitive dominance, 
+  or can differential degradation reverse the occupancy bias?</p>
+
+<h2>Work it</h2>
+<p>I test the claim with a minimal stochastic target-competition model, 
+  derive its Chemical Master Equation, 
+  obtain an analytic steady-state check, 
+  and compare it with Gillespie trajectories and a parameter heatmap.</p>
+
+<h2>Reaction network</h2>
+<div class="equation">A + R → AR &nbsp;&nbsp;
+  (k<sub>A</sub>)
+  <br>B + R → BR &nbsp;&nbsp;
+  (k<sub>B</sub>)
+  <br>AR → R &nbsp;&nbsp;(d<sub>A</sub>)<br>BR → R &nbsp;&nbsp;(d<sub>B</sub>)</div>
+<p>The bound signal is cleared and the target is recycled. Therefore:</p><div class="equation">R<sub>T</sub> = R + AR + BR.</div>
+<p>Free A and B are treated as buffered reservoirs with fixed effective abundances N<sub>A</sub> and N<sub>B</sub>. 
+  This is a minimal illustrative model, not a fitted biological circuit.</p>
+
+<h2>State, jumps and propensities</h2>
+<p>Let X(t)=(i,j), where i=N<sub>AR</sub> and j=N<sub>BR</sub>. Then R=R<sub>T</sub>-i-j and i+j≤R<sub>T</sub>.</p>
+<table><tr><th>Channel</th><th>Jump</th><th>Propensity</th></tr>
+<tr><td>A binds</td><td>(i,j)→(i+1,j)</td><td>a₁=k<sub>A</sub>N<sub>A</sub>(R<sub>T</sub>-i-j)</td></tr>
+<tr><td>B binds</td><td>(i,j)→(i,j+1)</td><td>a₂=k<sub>B</sub>N<sub>B</sub>(R<sub>T</sub>-i-j)</td></tr>
+<tr><td>AR clears</td><td>(i,j)→(i-1,j)</td><td>a₃=d<sub>A</sub>i</td></tr>
+<tr><td>BR clears</td><td>(i,j)→(i,j-1)</td><td>a₄=d<sub>B</sub>j</td></tr></table>
+
+<h2>Chemical Master Equation</h2>
+<p>Define P<sub>i,j</sub>(t)=Pr{N<sub>AR</sub>(t)=i,N<sub>BR</sub>(t)=j}.
+  Probability flows into (i,j) through binding or clearance from neighboring states and flows out through the four reactions:</p>
+<div class="equation">
+dP<sub>i,j</sub>/dt = k<sub>A</sub>N<sub>A</sub>(R<sub>T</sub>-i-j+1)P<sub>i-1,j</sub>
++ k<sub>B</sub>N<sub>B</sub>(R<sub>T</sub>-i-j+1)P<sub>i,j-1</sub><br>
++ d<sub>A</sub>(i+1)P<sub>i+1,j</sub> + d<sub>B</sub>(j+1)P<sub>i,j+1</sub><br>
+− [k<sub>A</sub>N<sub>A</sub>(R<sub>T</sub>-i-j)+k<sub>B</sub>N<sub>B</sub>(R<sub>T</sub>-i-j)+d<sub>A</sub>i+d<sub>B</sub>j]P<sub>i,j</sub>.
+</div>
+<details><summary>CME derivation</summary><p>For A binding, a trajectory arriving at (i,j) must come from (i−1,j), which has R<sub>T</sub>−i−j+1 free targets. B binding is analogous. AR clearance arrives from (i+1,j) at rate d<sub>A</sub>(i+1), and BR clearance from (i,j+1) at rate d<sub>B</sub>(j+1). The final bracket is the total rate of leaving the current state.</p></details>
+
+<h2>Analytic steady-state check</h2>
+<p>Let α=k<sub>A</sub>N<sub>A</sub> and β=k<sub>B</sub>N<sub>B</sub>. For one target, steady-state flux balance gives:</p>
+<div class="equation">αP<sub>R</sub>=d<sub>A</sub>P<sub>AR</sub>, &nbsp;&nbsp; βP<sub>R</sub>=d<sub>B</sub>P<sub>BR</sub>.</div>
+<p>Hence:</p>
+<div class="equation"><strong>P<sub>AR</sub>/P<sub>BR</sub> = (k<sub>A</sub>N<sub>A</sub>/d<sub>A</sub>) / (k<sub>B</sub>N<sub>B</sub>/d<sub>B</sub>).</strong></div>
+<p>Association rate alone therefore does not determine stationary occupancy. A faster-binding signal can lose its mean occupancy advantage if its bound state is sufficiently short-lived.</p>
+
+<h2>Gillespie direct method</h2>
+<p>At state (i,j), calculate a₀=a₁+a₂+a₃+a₄. Draw u₁,u₂∼Uniform(0,1). The next waiting time is:</p>
+<div class="equation">τ = −ln(u₁)/a₀.</div>
+<p>The selected reaction is the first channel whose cumulative propensity exceeds u₂a₀. Update the integer state, advance time by τ, and repeat.</p>
+
+<h2>Try it: change binding and degradation</h2>
+<div class="card">
+<label>Binding ratio k<sub>A</sub>/k<sub>B</sub>: <output id="kv">2.0</output></label><input id="k" type="range" min=".5" max="4" step=".1" value="2">
+<label>Degradation ratio d<sub>A</sub>/d<sub>B</sub>: <output id="dv">4.0</output></label><input id="d" type="range" min=".25" max="8" step=".25" value="4">
+<label>Total targets R<sub>T</sub>: <output id="rv">12</output></label><input id="r" type="range" min="3" max="50" step="1" value="12">
+<p id="pred"></p><button id="again">Draw another trajectory</button><p id="out"></p>
+<p class="small"><span style="color:#5A73CE">━━ AR</span> &nbsp; <span style="color:#b35421">┄┄ BR</span></p>
+<svg id="traj" class="fig" viewBox="0 0 700 285"></svg></div>
+
+<h2>Parameter heatmap</h2>
+<p>The heatmap shows the exact stationary probability Pr(AR&gt;BR) for the minimal independent-target model. Blue favors A occupancy; orange favors B. Near the transition, low copy number makes the outcome probabilistic.</p>
+<svg id="heat" class="fig" viewBox="0 0 700 430"></svg>
+
+<h2>What the stochastic model adds</h2>
+<p>The deterministic mean describes average occupancy. The CME gives the full state probability P<sub>i,j</sub>(t), while Gillespie trajectories show individual molecular histories. At low copy number, AR and BR can repeatedly exchange dominance even when one has the larger stationary mean.</p>
+
+<h2>What I would argue against / where this breaks</h2>
+<p>The model assumes identical independent targets, constant free A and B, mass-action association, first-order clearance, instantaneous target recycling, and no cooperativity, feedback, spatial effects or receptor internalization states. Thus the conclusion is deliberately narrow: <strong>within this stochastic target-competition model, differential degradation can offset or reverse an association-rate advantage.</strong></p>
+<h2>References</h2>
+<ol class="small">
+<li>Fangzhou Xiao. Lecture 5: <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture05-core.html">Stochastic dynamics: the master equation and Gillespie</a>. CCBS, 2026.</li>
+<li>Gillespie DT. <a href="https://doi.org/10.1021/j100540a008">Exact stochastic simulation of coupled chemical reactions</a>. J Phys Chem. 1977;81:2340–2361.</li>
+<li>Gillespie DT. <a href="https://doi.org/10.1146/annurev.physchem.58.032806.104637">Stochastic simulation of chemical kinetics</a>. Annu Rev Phys Chem. 2007;58:35–55.</li>
+</ol>
+</div>
+<script>
+let seed=20260921;
+function rng(a){return function(){let t=a+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
+function stat(k,d){let x=k/(.1*d),y=10,z=1+x+y;return [1/z,x/z,y/z]}
+function lf(n){let s=0;for(let i=2;i<=n;i++)s+=Math.log(i);return s}
+function maj(R,p){let z=0;for(let i=0;i<=R;i++)for(let j=0;j<=R-i;j++){let q=R-i-j,L=lf(R)-lf(i)-lf(j)-lf(q);if(i)L+=i*Math.log(p[1]);if(j)L+=j*Math.log(p[2]);if(q)L+=q*Math.log(p[0]);if(i>j)z+=Math.exp(L)}return z}
+function sim(k,d,R,g){let t=0,i=0,j=0,P=[[0,0,0]];while(t<40){let f=R-i-j,a=[k*f,f,.1*d*i,.1*j],s=a.reduce((x,y)=>x+y,0),dt=-Math.log(1-g())/s;if(t+dt>40){P.push([40,i,j]);break}t+=dt;let u=g()*s;if(u<a[0])i++;else if(u<a[0]+a[1])j++;else if(u<a[0]+a[1]+a[2])i--;else j--;P.push([t,i,j])}return P}
+function draw(){
+ let k=+document.querySelector('#k').value,d=+document.querySelector('#d').value,R=+document.querySelector('#r').value,p=stat(k,d),m=maj(R,p);
+ kv.textContent=k.toFixed(1);dv.textContent=d.toFixed(2);rv.textContent=R;
+ pred.innerHTML=`Stationary occupancy: AR ${(100*p[1]).toFixed(1)}%, BR ${(100*p[2]).toFixed(1)}%; exact Pr(AR &gt; BR) = ${(100*m).toFixed(1)}%.`;
+ let P=sim(k,d,R,rng(seed++)),last=P[P.length-1];out.textContent=`This trajectory ends at AR=${last[1]}, BR=${last[2]}; seed ${seed-1}.`;
+ let W=700,H=285,L=48,T=24,B=42,x=t=>L+(W-L-18)*t/40,y=n=>H-B-(H-T-B)*n/R;
+ function path(z){let s=`M${x(P[0][0])} ${y(P[0][z])}`;for(let n=1;n<P.length;n++)s+=` H${x(P[n][0]).toFixed(1)} V${y(P[n][z]).toFixed(1)}`;return s}
+ traj.innerHTML=`<path d="M${L} ${T}V${H-B}H682" fill="none" stroke="currentColor"/><text x="350" y="273" text-anchor="middle">time (min)</text><path d="${path(1)}" fill="none" stroke="#5A73CE" stroke-width="2.2"/><path d="${path(2)}" fill="none" stroke="#b35421" stroke-width="2.2" stroke-dasharray="6 3"/>`;
+ heatmap(R);
+}
+function heatmap(R){let W=700,H=430,L=70,T=25,B=60,n=22,s='';function c(p){let h=p>.5?215:25,l=92-50*Math.abs(p-.5)*2;return `hsl(${h},55%,${l}%)`}
+ for(let y=0;y<n;y++){let d=.25+7.75*(y+.5)/n;for(let x=0;x<n;x++){let k=.5+3.5*(x+.5)/n,p=maj(R,stat(k,d)),xx=L+(W-L-28)*x/n,yy=T+(H-T-B)*(n-1-y)/n;s+=`<rect x="${xx}" y="${yy}" width="${(W-L-28)/n+.5}" height="${(H-T-B)/n+.5}" fill="${c(p)}"><title>k ratio ${k.toFixed(2)}, d ratio ${d.toFixed(2)}, P(A majority) ${p.toFixed(3)}</title></rect>`}}
+ heat.innerHTML=s+`<path d="M${L} ${T}V${H-B}H672" fill="none" stroke="currentColor"/><text x="350" y="410" text-anchor="middle">kA / kB</text><text x="18" y="215" transform="rotate(-90 18 215)" text-anchor="middle">dA / dB</text><text x="665" y="45" text-anchor="end">blue: A majority</text><text x="665" y="62" text-anchor="end">orange: B majority</text>`}
+['k','d','r'].forEach(x=>document.getElementById(x).addEventListener('input',draw));again.addEventListener('click',draw);draw();
+</script>
+</body>
+</html>

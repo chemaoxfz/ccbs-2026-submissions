@@ -1,4 +1,4 @@
-# Lecture 9 exposition — 2026-09-29
+# Lecture 9 exposition: 2026-10-08
 
 **Multistability and oscillations**
 

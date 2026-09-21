@@ -1,4 +1,6 @@
-# Research essay — due Thursday 2026-11-05, 23:59
+# Research essay: due Tuesday 2026-11-10, 23:59
+
+This is one week after the final lecture on 3 November. The time zone is Asia/Shanghai.
 
 Add one file: `research-essay/<yourname>.html`, lowercase, no spaces.
 

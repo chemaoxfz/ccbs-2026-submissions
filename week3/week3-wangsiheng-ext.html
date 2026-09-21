@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 3 — Extension: The same noise histogram can hide three molecular clocks</title>
+<meta name="author" content="Siheng Wang">
+<meta name="week" content="week3">
+<style>
+  :root {
+    --ink:#17272d; --muted:#607078; --accent:#145d6e; --accent2:#c6633f;
+    --line:#d6e0e2; --bg:#fffefa; --soft:#f3f7f7; --code:#10242b;
+    --grid:#dfe7e8; --slow:#247d9a; --medium:#d16b47; --fast:#548168;
+  }
+  @media (prefers-color-scheme:dark) {
+    :root {
+      --ink:#e9eff1; --muted:#a9b7bc; --accent:#82cada; --accent2:#f29a7b;
+      --line:#3a4b51; --bg:#11191d; --soft:#19262b; --code:#091317;
+      --grid:#304147; --slow:#72cfe4; --medium:#f29a7b; --fast:#8cc5a5;
+    }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.62; }
+  .wrap { max-width:840px; margin:0 auto; padding:42px 24px 76px; }
+  h1 { margin:0 0 7px; color:var(--accent); font-size:1.76rem; line-height:1.2; letter-spacing:-.018em; }
+  .meta { margin:0 0 25px; color:var(--muted); font-size:.91rem; }
+  h2 { margin:31px 0 8px; padding-bottom:5px; border-bottom:1px solid var(--line); color:var(--accent); font-size:1.07rem; }
+  p { margin:10px 0; }
+  .card { margin:15px 0 20px; padding:14px 17px; border:1px solid var(--line); border-left:5px solid var(--accent2); border-radius:7px; background:var(--soft); }
+  .network { display:flex; align-items:center; justify-content:center; gap:10px; margin:16px 0; padding:13px; border:1px solid var(--line); border-radius:7px; background:var(--soft); font-family:Cambria,"Times New Roman",serif; font-size:1.08rem; }
+  .reaction { padding:5px 10px; border:1px solid var(--line); border-radius:6px; background:var(--bg); text-align:center; }
+  .arrow { color:var(--accent2); font-size:1.22rem; }
+  .equation { margin:14px 0; padding:11px 13px; overflow-x:auto; border:1px solid var(--line); border-radius:7px; background:var(--soft); text-align:center; font-family:Cambria,"Times New Roman",serif; font-size:1.08rem; }
+  .rates { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin:15px 0; }
+  .rate { padding:11px; border:1px solid var(--line); border-radius:7px; background:var(--soft); text-align:center; }
+  .rate b { display:block; color:var(--accent); font-size:1.05rem; }
+  .rate span { display:block; color:var(--muted); font-size:.78rem; }
+  figure { margin:17px 0 8px; }
+  .fig { display:block; width:100%; height:auto; border:1px solid var(--line); border-radius:7px; background:var(--bg); }
+  figcaption { margin-top:7px; color:var(--muted); font-size:.84rem; }
+  details { margin:16px 0; padding:10px 13px; border:1px solid var(--line); border-radius:7px; background:var(--soft); }
+  summary { cursor:pointer; color:var(--accent); font-size:.9rem; font-weight:700; }
+  summary:hover { color:var(--accent2); }
+  pre { margin:10px 0 0; padding:12px 14px; overflow:auto; border:1px solid #2c4149; border-radius:6px; background:var(--code); color:#e7f0f2; font-size:.75rem; line-height:1.45; }
+  code { font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace; }
+  .takeaway { margin:16px 0; padding:13px 16px; border:1px solid var(--line); border-radius:7px; background:linear-gradient(110deg,var(--soft),transparent); }
+  .takeaway strong { color:var(--accent2); }
+  a { color:var(--accent); text-underline-offset:2px; }
+  .src { padding-left:21px; font-size:.88rem; }
+  .src li { margin:9px 0; }
+  .small { color:var(--muted); font-size:.84rem; }
+  @media (max-width:640px) {
+    .wrap { padding:30px 16px 60px; }
+    h1 { font-size:1.5rem; }
+    .rates { grid-template-columns:1fr; }
+    .network { flex-wrap:wrap; }
+    pre { max-height:430px; }
+  }
+  @media print {
+    body { font-size:10.5pt; }
+    .wrap { max-width:none; padding:0; }
+    .card,.network,.rate,figure,details { break-inside:avoid; }
+    details > summary { display:none; }
+    details > pre { display:block; white-space:pre-wrap; color:#111; background:#f5f5f5; border-color:#bbb; }
+  }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <h1>Week 3 — Extension: The same noise histogram can hide three molecular clocks</h1>
+  <p class="meta">Author: <strong>Siheng Wang</strong> · Week 3, Lectures 5–6 · due 2026-09-21, 23:59 · CCBS 2026</p>
+
+  <p class="card"><strong>One sentence:</strong> In the birth–death system from Lecture 5, multiplying both reaction rates by the same factor leaves the entire steady-state distribution unchanged, yet it changes how long a fluctuation is remembered—so a snapshot can identify a balance, but not a timescale.</p>
+
+  <h2>The point I am adding</h2>
+  <p>Lecture 5 moves from the mean to a distribution and then to single Gillespie trajectories [1]. That raises a useful inverse question: if I measure the full steady-state histogram—not just its mean—have I learned the underlying rates? For the lecture's two-channel model, the answer is no.</p>
+
+  <div class="network" role="img" aria-label="Birth at constant rate b and death at rate d times molecule number N">
+    <div class="reaction">∅</div><div class="arrow" aria-hidden="true">⟶<br><small><i>b</i></small></div><div class="reaction"><i>X</i></div><div class="arrow" aria-hidden="true">⟶<br><small><i>dN</i></small></div><div class="reaction">∅</div>
+  </div>
+
+  <p>Setting the probability flow in the chemical master equation to zero gives the recurrence <i>p</i><sub>n</sub>=(<i>b</i>/<i>d</i>)/<i>n</i> · <i>p</i><sub>n−1</sub>. After normalization,</p>
+  <div class="equation"><i>N</i><sub>ss</sub> ~ Poisson(μ), &nbsp; μ=<i>b</i>/<i>d</i>, &nbsp; <i>p</i><sub>n</sub>=e<sup>−μ</sup>μ<sup>n</sup>/<i>n</i>!.</div>
+  <p>Therefore the steady histogram contains only the ratio <i>b</i>/<i>d</i>. I fixed μ=20 molecules and compared three clocks:</p>
+
+  <div class="rates" aria-label="Three birth-death systems with the same stationary mean">
+    <div class="rate"><b><i>b</i>=4, <i>d</i>=0.2 min⁻¹</b><span>slow · b/d=20</span></div>
+    <div class="rate"><b><i>b</i>=20, <i>d</i>=1 min⁻¹</b><span>medium · b/d=20</span></div>
+    <div class="rate"><b><i>b</i>=100, <i>d</i>=5 min⁻¹</b><span>fast · b/d=20</span></div>
+  </div>
+
+  <h2>Work it</h2>
+  <p>Suppose the count is <i>n</i> now. Its conditional mean after a lag τ is μ+(<i>n</i>−μ)e<sup>−dτ</sup>. At stationarity, multiplying by the present fluctuation and averaging gives Cov[<i>N</i>(<i>t</i>),<i>N</i>(<i>t</i>+τ)]=μe<sup>−dτ</sup>; dividing by Var(<i>N</i>)=μ leaves the normalized autocorrelation ρ(τ)=e<sup>−dτ</sup>. The correlation half-time is therefore ln(2)/<i>d</i>: 3.47, 0.693 and 0.139 min for the three systems.</p>
+
+  <figure>
+    <svg id="clock-figure" class="fig" viewBox="0 0 780 650" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="fig-title fig-desc">
+      <title id="fig-title">Identical stationary distributions but different stochastic timescales</title>
+      <desc id="fig-desc">The top-left panel shows one Poisson distribution shared exactly by all three birth-death systems. The top-right panel shows different autocorrelation decays. Three lower strips show exact Gillespie sample paths, with increasingly rapid fluctuations.</desc>
+      <g id="plot-layer"></g>
+    </svg>
+    <figcaption><strong>Figure 1.</strong> My exact calculation and seeded Gillespie simulation. Top left: the three stationary probability masses coincide at every molecule count. Top right: their temporal correlations separate. Bottom: one realization from each model makes the hidden clock visible. The trajectories are examples, not fitted data.</figcaption>
+  </figure>
+
+  <details>
+    <summary>Reproducible calculation embedded in this file</summary>
+    <pre><code># Python 3; no packages
+from math import exp, log
+from random import Random
+
+mu = 20
+systems = [(4, 0.2), (20, 1.0), (100, 5.0)]
+
+# Exact stationary distribution, shared by all three systems
+p = [exp(-mu)]
+for n in range(1, 46):
+    p.append(p[-1] * mu / n)
+
+for b, d in systems:
+    print("b/d =", b/d,
+          "variance =", mu,
+          "correlation half-time =", log(2)/d)
+
+# Exact autocorrelation values used in the upper-right panel
+for tau in (0, 0.25, 0.5, 1, 2, 5, 10):
+    print(tau, [exp(-d*tau) for b, d in systems])
+
+# Gillespie's direct method for the sample paths
+def trajectory(b, d, t_end=10, seed=1):
+    rng = Random(seed)
+    n, t = mu, 0.0
+    path = [(t, n)]
+    while t &lt; t_end:
+        a0 = b + d*n
+        t += -log(rng.random()) / a0
+        if t &gt; t_end:
+            break
+        n += 1 if rng.random()*a0 &lt; b else -1
+        path.append((t, n))
+    path.append((t_end, n))
+    return path
+
+for i, (b, d) in enumerate(systems):
+    path = trajectory(b, d, seed=120+i)
+    print(b, d, "events =", len(path)-2,
+          "range =", (min(n for t,n in path),
+                     max(n for t,n in path)))</code></pre>
+  </details>
+
+  <div class="takeaway"><strong>The extension:</strong> the steady-state CME solves a structural question—what distribution is maintained—but it erases the absolute speed of the reaction channels. A time-lapse experiment restores that information: estimate <i>d</i> from the correlation decay, then recover <i>b</i>=μ<i>d</i>. “Same distribution” does not mean “same dynamics.”</div>
+
+  <h2>What I would argue against / where this breaks</h2>
+  <p>This conclusion is deliberately narrow. It assumes a well-mixed, stationary, linear birth–death process observed without measurement noise. Cell growth, extrinsic fluctuations, hidden promoter states or sparse sampling can add extra correlation times. In those cases a single exponential fit would be a model test, not an automatic rate estimate.</p>
+
+  <h2>Sources</h2>
+  <ol class="src">
+    <li>Y. Shi and K. Lang. <em>From ODEs to the Chemical Master Equation to Gillespie Simulation</em>, CCBS Lecture 5 student slides (2026), pp. 3–8. I used the stated birth–death reactions, CME and direct-method propensities; the stationary and autocorrelation derivations above are my extension.</li>
+    <li>D. T. Gillespie. “Exact stochastic simulation of coupled chemical reactions.” <em>Journal of Physical Chemistry</em> 81 (1977): 2340–2361. <a href="https://doi.org/10.1021/j100540a008">doi:10.1021/j100540a008</a>. Source for the exact event-by-event simulation method used in Figure 1.</li>
+    <li>P. B. Warren, S. Tănase-Nicola and P. R. ten Wolde. “Exact results for noise power spectra in linear biochemical reaction networks.” <em>Journal of Chemical Physics</em> 125 (2006): 144904. <a href="https://doi.org/10.1063/1.2356472">doi:10.1063/1.2356472</a>. External check that fluctuation timescales in linear reaction networks are accessible through temporal statistics.</li>
+  </ol>
+  <p class="small">Single self-contained HTML file. The derivation, numerical comparison, SVG figure and simulation code are original; no external image, font, stylesheet, package or script is required.</p>
+</main>
+
+<script>
+(() => {
+  const layer = document.getElementById('plot-layer');
+  const NS = 'http://www.w3.org/2000/svg';
+  const css = getComputedStyle(document.documentElement);
+  const color = name => css.getPropertyValue(name).trim();
+  const add = (tag, attrs, text='') => {
+    const el = document.createElementNS(NS, tag);
+    Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k,v));
+    if (text) el.textContent = text;
+    layer.appendChild(el);
+    return el;
+  };
+  const palette = [color('--slow'), color('--medium'), color('--fast')];
+  const systems = [
+    {b:4,d:.2,label:'slow: d=0.2 min⁻¹'},
+    {b:20,d:1,label:'medium: d=1 min⁻¹'},
+    {b:100,d:5,label:'fast: d=5 min⁻¹'}
+  ];
+
+  function axes(x0,y0,w,h,xmax,ymax,xticks,yticks,xlabel,ylabel){
+    const sx=x=>x0+x/xmax*w, sy=y=>y0+h-y/ymax*h;
+    xticks.forEach(x=>{
+      add('line',{x1:sx(x),y1:y0,x2:sx(x),y2:y0+h,stroke:color('--grid'),'stroke-width':1});
+      add('text',{x:sx(x),y:y0+h+18,'text-anchor':'middle',fill:color('--muted'),'font-size':10.5},String(x));
+    });
+    yticks.forEach(y=>{
+      add('line',{x1:x0,y1:sy(y),x2:x0+w,y2:sy(y),stroke:color('--grid'),'stroke-width':1});
+      add('text',{x:x0-8,y:sy(y)+4,'text-anchor':'end',fill:color('--muted'),'font-size':10.5},String(y));
+    });
+    add('line',{x1:x0,y1:y0+h,x2:x0+w,y2:y0+h,stroke:color('--muted'),'stroke-width':1.2});
+    add('line',{x1:x0,y1:y0,x2:x0,y2:y0+h,stroke:color('--muted'),'stroke-width':1.2});
+    add('text',{x:x0+w/2,y:y0+h+40,'text-anchor':'middle',fill:color('--muted'),'font-size':11.5,'font-weight':600},xlabel);
+    add('text',{x:x0-42,y:y0+h/2,transform:`rotate(-90 ${x0-42} ${y0+h/2})`,'text-anchor':'middle',fill:color('--muted'),'font-size':11.5,'font-weight':600},ylabel);
+    return {sx,sy};
+  }
+
+  // Panel A: exact Poisson stationary probability mass.
+  add('text',{x:205,y:25,'text-anchor':'middle',fill:color('--accent'),'font-size':13,'font-weight':700},'A · one stationary histogram');
+  const A=axes(62,45,292,220,40,.10,[0,10,20,30,40],[0,.025,.05,.075,.10],'molecule count, n','probability pₙ');
+  const pmf=[Math.exp(-20)];
+  for(let n=1;n<=40;n++) pmf.push(pmf[n-1]*20/n);
+  const points=pmf.map((p,n)=>`${A.sx(n)},${A.sy(p)}`).join(' ');
+  add('polyline',{points,fill:'none',stroke:color('--accent'),'stroke-width':2.5,'stroke-linejoin':'round'});
+  pmf.forEach((p,n)=>add('circle',{cx:A.sx(n),cy:A.sy(p),r:2.1,fill:color('--accent')}));
+  add('rect',{x:78,y:57,width:205,height:29,rx:5,fill:color('--soft'),stroke:color('--line')});
+  add('text',{x:88,y:75,fill:color('--ink'),'font-size':10.8,'font-weight':600},'all three curves overlap exactly');
+
+  // Panel B: analytical normalized autocorrelations.
+  add('text',{x:575,y:25,'text-anchor':'middle',fill:color('--accent'),'font-size':13,'font-weight':700},'B · three correlation clocks');
+  const B=axes(443,45,292,220,10,1,[0,2,4,6,8,10],[0,.25,.5,.75,1],'lag, τ (min)','ρ(τ)');
+  systems.forEach((s,i)=>{
+    const pts=[];
+    for(let j=0;j<=240;j++){
+      const t=10*j/240;
+      pts.push(`${B.sx(t)},${B.sy(Math.exp(-s.d*t))}`);
+    }
+    add('polyline',{points:pts.join(' '),fill:'none',stroke:palette[i],'stroke-width':2.7,'stroke-linecap':'round'});
+    const half=Math.log(2)/s.d;
+    add('circle',{cx:B.sx(half),cy:B.sy(.5),r:4,fill:palette[i],stroke:color('--bg'),'stroke-width':1.5});
+  });
+  systems.forEach((s,i)=>{
+    const y=61+i*18;
+    add('line',{x1:574,y1:y,x2:596,y2:y,stroke:palette[i],'stroke-width':2.7});
+    add('text',{x:602,y:y+4,fill:color('--muted'),'font-size':10.3},s.label);
+  });
+
+  // Small deterministic PRNG so the same self-contained file always draws the same paths.
+  function rng(seed){
+    let a=seed>>>0;
+    return ()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};
+  }
+  function simulate(b,d,seed,tmax=10){
+    const random=rng(seed);
+    let n=20,t=0,path=[[0,n]];
+    while(t<tmax){
+      const a0=b+d*n;
+      t+=-Math.log(Math.max(random(),1e-12))/a0;
+      if(t>tmax) break;
+      n+=random()*a0<b?1:-1;
+      path.push([t,n]);
+    }
+    path.push([tmax,n]);
+    return path;
+  }
+
+  add('text',{x:390,y:326,'text-anchor':'middle',fill:color('--accent'),'font-size':13,'font-weight':700},'C · exact Gillespie realizations (same vertical scale)');
+  const stripX=62, stripW=673, stripH=69, stripGap=22, stripTop=350, tmax=10, ymin=5, ymax=36;
+  systems.forEach((s,i)=>{
+    const y0=stripTop+i*(stripH+stripGap);
+    const sx=t=>stripX+t/tmax*stripW, sy=n=>y0+stripH-(n-ymin)/(ymax-ymin)*stripH;
+    [10,20,30].forEach(n=>add('line',{x1:stripX,y1:sy(n),x2:stripX+stripW,y2:sy(n),stroke:color('--grid'),'stroke-width':1}));
+    [0,2,4,6,8,10].forEach(t=>add('line',{x1:sx(t),y1:y0,x2:sx(t),y2:y0+stripH,stroke:color('--grid'),'stroke-width':1}));
+    add('rect',{x:stripX,y:y0,width:stripW,height:stripH,fill:'none',stroke:color('--line')});
+    const path=simulate(s.b,s.d,120+i);
+    let dpath=`M${sx(path[0][0])},${sy(path[0][1])}`;
+    for(let j=1;j<path.length;j++){
+      dpath+=` H${sx(path[j][0])} V${sy(path[j][1])}`;
+    }
+    add('path',{d:dpath,fill:'none',stroke:palette[i],'stroke-width':1.55,'stroke-linejoin':'round'});
+    add('rect',{x:72,y:y0+7,width:174,height:20,rx:4,fill:color('--bg'),'fill-opacity':.91});
+    add('text',{x:80,y:y0+21,fill:palette[i],'font-size':10.8,'font-weight':700},`${s.label}  ·  b=${s.b}`);
+    if(i===2){
+      [0,2,4,6,8,10].forEach(t=>add('text',{x:sx(t),y:y0+stripH+17,'text-anchor':'middle',fill:color('--muted'),'font-size':10.2},String(t)));
+      add('text',{x:stripX+stripW/2,y:y0+stripH+36,'text-anchor':'middle',fill:color('--muted'),'font-size':11.5,'font-weight':600},'time (min)');
+    }
+    add('text',{x:49,y:y0+stripH/2+4,'text-anchor':'middle',fill:color('--muted'),'font-size':10.5},'N');
+  });
+})();
+</script>
+</body>
+</html>
