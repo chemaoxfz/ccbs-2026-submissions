@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 4 — Extension: When slow sampling hides promoter switches</title>
+<meta name="author" content="Zheng Haobo">
+<meta name="week" content="week4">
+<style>
+
+:root {
+  color-scheme: light;
+  --ink: #213538;
+  --muted: #586d6d;
+  --accent: #23665f;
+  --line: #d4dfd9;
+  --gridc: #e3e9e5;
+  --bg: #f5f4ef;
+  --soft: #fffefa;
+  --peri: #7563ad;
+  --rose: #b95063;
+  --teal: #1b7b70;
+  --plum: #76559b;
+  --cream: #f0e7d2;
+  --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: ui-monospace, "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --ink: #e5efeb;
+    --muted: #a3b6b3;
+    --accent: #88cec2;
+    --line: #3a4a4d;
+    --gridc: #2b393d;
+    --bg: #111a1e;
+    --soft: #1b272b;
+    --peri: #b9a6f0;
+    --rose: #ef8c9b;
+    --teal: #6bd0ba;
+    --plum: #c3a4e8;
+    --cream: #393422;
+  }
+}
+* { box-sizing: border-box; }
+html { background: var(--bg); }
+body {
+  margin: 0; color: var(--ink); background: var(--bg);
+  font: 15px/1.38 var(--sans);
+}
+.wrap { width: min(960px, calc(100% - 40px)); margin: 0 auto; padding: 22px 0 26px; }
+h1 {
+  margin: 0 0 5px; max-width: 900px; color: var(--ink);
+  font-size: clamp(2rem, 3.3vw, 2.7rem); line-height: 1.04;
+  font-weight: 760; letter-spacing: -.04em;
+}
+.meta {
+  display: inline-block; margin: 0 0 12px; padding: 4px 9px;
+  color: var(--muted); border: 1px solid var(--line); border-radius: 999px;
+  font-size: .78rem; letter-spacing: .015em;
+}
+p { margin: 4px 0; }
+.card {
+  margin: 0 0 10px; padding: 9px 13px;
+  background: var(--soft); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 4px 12px 12px 4px;
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--ink) 5%, transparent);
+}
+.card strong {
+  display: block; margin-bottom: 2px; color: var(--accent);
+  font-size: .69rem; letter-spacing: .11em; text-transform: uppercase;
+}
+h2 {
+  margin: 11px 0 4px; padding-bottom: 4px; color: var(--accent);
+  border-bottom: 1px solid var(--line); font-size: 1.12rem; line-height: 1.22;
+  letter-spacing: -.01em;
+}
+strong { font-weight: 720; }
+.eq {
+  margin: 5px 0; padding: 5px 9px; overflow-x: auto;
+  background: var(--soft); border: 1px solid var(--line); border-radius: 9px;
+  color: var(--ink); text-align: center;
+}
+.eq math { font-size: 1.15rem; }
+.table-wrap {
+  margin: 7px 0; overflow-x: auto; border: 1px solid var(--line);
+  border-radius: 9px; background: var(--soft);
+}
+table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: .77rem; line-height: 1.28; }
+caption { padding: 6px 8px 4px; color: var(--muted); font-size: .73rem; text-align: left; }
+th, td {
+  padding: 5px 6px; border-bottom: 1px solid var(--line);
+  text-align: right; vertical-align: top; overflow-wrap: anywhere;
+}
+th:first-child, td:first-child { text-align: left; }
+th:nth-child(1), td:nth-child(1) { width: 8%; }
+th:nth-child(2), td:nth-child(2) { width: 19%; }
+th:nth-child(3), td:nth-child(3) { width: 21%; }
+th:nth-child(4), td:nth-child(4) { width: 28%; }
+th:nth-child(5), td:nth-child(5) { width: 24%; }
+th {
+  color: var(--accent); background: color-mix(in srgb, var(--accent) 7%, var(--soft));
+  font-size: .76rem; font-weight: 730;
+}
+tr:last-child td { border-bottom: 0; }
+.note { color: var(--muted); font-size: .91em; }
+.figure-frame { margin: 7px 0 4px; overflow-x: auto; }
+figure { margin: 0; }
+.fig {
+  display: block; width: 100%; min-width: 720px; height: auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 10px;
+}
+figcaption { margin-top: 5px; padding: 0 2px; color: var(--muted); font-size: .75rem; line-height: 1.36; }
+figcaption b { color: var(--ink); }
+details { margin: 7px 0 4px; background: var(--soft); border: 1px solid var(--line); border-radius: 9px; }
+summary { padding: 8px 11px; color: var(--accent); cursor: pointer; font-weight: 700; }
+pre {
+  max-height: 35rem; margin: 0 10px 10px; padding: 12px; overflow: auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  color: var(--ink); font: .73rem/1.5 var(--mono); tab-size: 4;
+}
+code { font-family: var(--mono); }
+.sources { padding-left: 1.2rem; margin: 4px 0 0; font-size: .9rem; }
+.sources li { margin: 5px 0; padding-left: 3px; }
+.sources .reading { display: block; margin-top: 2px; color: var(--muted); font-size: .9em; }
+a { color: var(--accent); text-decoration-thickness: .08em; text-underline-offset: .14em; overflow-wrap: anywhere; }
+@media (max-width: 620px) {
+  .wrap { width: calc(100% - 30px); padding-top: 18px; }
+  h1 { font-size: clamp(1.9rem, 9vw, 2.5rem); }
+  table { font-size: .68rem; }
+  th, td { padding: 5px 4px; }
+  .eq { padding: 5px 6px; }
+  .eq math { font-size: 1rem; }
+}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Week 4 — Extension: When slow sampling hides promoter switches</h1>
+<p class="meta">Author: Zheng Haobo · Week 4 (2026-09-28) · CCBS 2026</p>
+
+<p class="card"><strong>One sentence</strong>With equal switching hazard <math><mi>k</mi></math>, endpoint-only samples every <math><mi>Δ</mi></math> minutes miss even numbers of jumps, so <math><msub><mi>p</mi><mi>Δ</mi></msub><mo>/</mo><mi>Δ</mi></math> underestimates <math><mi>k</mi></math>; the model-based inverse is finite only when <math><msub><mover accent="true"><mi>p</mi><mo>^</mo></mover><mi>Δ</mi></msub><mo>&lt;</mo><mfrac><mn>1</mn><mn>2</mn></mfrac></math>.</p>
+
+<h2>The point I am adding</h2>
+<p>Let a promoter be OFF or ON, with constant switch hazard <math><mi>k</mi></math> in either direction: over a short <math><mi>d</mi><mi>t</mi></math>, switching has probability <math><mi>k</mi><mi>d</mi><mi>t</mi><mo>+</mo><mi>o</mi><mo>(</mo><mi>d</mi><mi>t</mi><mo>)</mo></math>. Starting OFF, let <math><mi>q</mi><mo>(</mo><mi>t</mi><mo>)</mo></math> be the probability of ON. Gains minus losses give <math><msup><mi>q</mi><mo>′</mo></msup><mo>=</mo><mi>k</mi><mo>(</mo><mn>1</mn><mo>−</mo><mi>q</mi><mo>)</mo><mo>−</mo><mi>k</mi><mi>q</mi></math>, with <math><mi>q</mi><mo>(</mo><mn>0</mn><mo>)</mo><mo>=</mo><mn>0</mn></math>; solving at <math><mi>t</mi><mo>=</mo><mi>Δ</mi></math> gives:</p>
+<div class="eq"><math display="block"><mrow><msub><mi>p</mi><mi>Δ</mi></msub><mo>=</mo><mfrac><mrow><mn>1</mn><mo>−</mo><msup><mi>e</mi><mrow><mo>−</mo><mn>2</mn><mi>k</mi><mi>Δ</mi></mrow></msup></mrow><mn>2</mn></mfrac></mrow></math></div>
+<p>By symmetry this is the endpoint-mismatch probability from either starting state. A mismatch means an odd number of jumps; an even number is invisible. Counting each mismatch as one event gives naive rate <math><msub><mi>p</mi><mi>Δ</mi></msub><mo>/</mo><mi>Δ</mi></math>, below <math><mi>k</mi></math> because <math><mn>1</mn><mo>−</mo><msup><mi>e</mi><mrow><mo>−</mo><mi>x</mi></mrow></msup><mo>&lt;</mo><mi>x</mi></math> for <math><mi>x</mi><mo>&gt;</mo><mn>0</mn></math>. The public Lecture 7 exposition supports the constant-hazard, continuous-time Markov setup.<sup><a href="#source-c2">[1]</a></sup></p>
+
+<h2>Work it</h2>
+<p><strong>Toy assumptions, not measurements:</strong> <math><mi>k</mi><mo>=</mo><mn>1</mn></math> min<sup>−1</sup>, <math><mi>Δ</mi><mo>∈</mo><mo>{</mo><mn>0.1</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>5</mn><mo>}</mo></math> min. With seed 20260922, the code generates 200 independent CTMC records per interval, each with 4,000 endpoint samples, using exponential dwell times.</p>
+<p>For a record, <math><msub><mover accent="true"><mi>p</mi><mo>^</mo></mover><mi>Δ</mi></msub></math> is its mismatch fraction. The correction is:</p>
+<div class="eq"><math display="block"><mrow><mover accent="true"><mi>k</mi><mo>^</mo></mover><mo>=</mo><mo>−</mo><mfrac><mrow><mi>ln</mi><mo>(</mo><mn>1</mn><mo>−</mo><mn>2</mn><msub><mover accent="true"><mi>p</mi><mo>^</mo></mover><mi>Δ</mi></msub><mo>)</mo></mrow><mrow><mn>2</mn><mi>Δ</mi></mrow></mfrac><mtext> only if </mtext><msub><mover accent="true"><mi>p</mi><mo>^</mo></mover><mi>Δ</mi></msub><mo>&lt;</mo><mfrac><mn>1</mn><mn>2</mn></mfrac></mrow></math></div>
+<p>At equality, <math><mover accent="true"><mi>k</mi><mo>^</mo></mover><mo>→</mo><mi mathvariant="normal">∞</mi></math>; above it, no finite inverse exists. Neither is clipped or dropped. At 5 min, <strong>90/200 records (45.0%)</strong> reached or exceeded one half: 3 at the boundary, 87 above; 110 had finite corrections.</p>
+<div class="table-wrap" role="region" aria-label="Repeated-simulation rate summary table" tabindex="0">
+<table>
+<caption>Middle-80% empirical repeat ranges (10th–90th percentiles), not confidence intervals; corrected ranges use finite records only.</caption>
+<thead><tr><th>Δ<br>min</th><th>Exact<br>pΔ/Δ<br>min⁻¹</th><th>Naive<br>range<br>min⁻¹</th><th>Finite k̂<br>range<br>min⁻¹ (n)</th><th>p̂≥½<br>records/200</th></tr></thead>
+<tbody>
+<tr><td>0.1</td><td>0.906</td><td>0.852–0.963</td><td>0.934–1.069 <span class="note">(200/200)</span></td><td>0.0% <span class="note">(0 at =½; 0 above)</span></td></tr>
+<tr><td>1</td><td>0.432</td><td>0.422–0.443</td><td>0.929–1.084 <span class="note">(200/200)</span></td><td>0.0% <span class="note">(0 at =½; 0 above)</span></td></tr>
+<tr><td>5</td><td>0.100</td><td>0.098–0.102</td><td>0.367–0.599 <span class="note">(110/200)</span></td><td>45.0% <span class="note">(3 at =½; 87 above)</span></td></tr>
+</tbody>
+</table>
+</div>
+<figure class="figure-frame">
+<svg class="fig" viewBox="0 0 920 390" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Exact apparent switching rate falls as sampling interval grows; repeated estimates and model correction are shown with non-finite inversion frequencies.">
+<title>Endpoint sampling hides promoter switches</title>
+<desc>Exact p delta over delta curve, true rate reference, empirical middle-80-percent ranges from independent simulated records, and the fraction of records at or above one-half mismatch probability.</desc>
+<line x1="125.00" y1="220.00" x2="820.00" y2="220.00" stroke="var(--gridc)" stroke-width="1" />
+<text x="113.00" y="225.00" text-anchor="end" font-size="15" fill="var(--muted)" font-family="var(--sans)">0.00</text>
+<line x1="125.00" y1="189.00" x2="820.00" y2="189.00" stroke="var(--gridc)" stroke-width="1" />
+<text x="113.00" y="194.00" text-anchor="end" font-size="15" fill="var(--muted)" font-family="var(--sans)">0.25</text>
+<line x1="125.00" y1="158.00" x2="820.00" y2="158.00" stroke="var(--gridc)" stroke-width="1" />
+<text x="113.00" y="163.00" text-anchor="end" font-size="15" fill="var(--muted)" font-family="var(--sans)">0.50</text>
+<line x1="125.00" y1="127.00" x2="820.00" y2="127.00" stroke="var(--gridc)" stroke-width="1" />
+<text x="113.00" y="132.00" text-anchor="end" font-size="15" fill="var(--muted)" font-family="var(--sans)">0.75</text>
+<line x1="125.00" y1="96.00" x2="820.00" y2="96.00" stroke="var(--gridc)" stroke-width="1" />
+<text x="113.00" y="101.00" text-anchor="end" font-size="15" fill="var(--muted)" font-family="var(--sans)">1.00</text>
+<line x1="125.00" y1="65.00" x2="820.00" y2="65.00" stroke="var(--gridc)" stroke-width="1" />
+<text x="113.00" y="70.00" text-anchor="end" font-size="15" fill="var(--muted)" font-family="var(--sans)">1.25</text>
+<line x1="125.00" y1="34.00" x2="820.00" y2="34.00" stroke="var(--gridc)" stroke-width="1" />
+<text x="113.00" y="39.00" text-anchor="end" font-size="15" fill="var(--muted)" font-family="var(--sans)">1.50</text>
+<line x1="125.00" y1="34.00" x2="125.00" y2="220.00" stroke="var(--line)" stroke-width="1.5" />
+<line x1="125.00" y1="220.00" x2="820.00" y2="220.00" stroke="var(--line)" stroke-width="1.5" />
+<line x1="125.00" y1="220.00" x2="125.00" y2="226.00" stroke="var(--line)" stroke-width="1.4" />
+<text x="125.00" y="245.00" text-anchor="middle" font-size="15" fill="var(--ink)" font-family="var(--sans)">0.1</text>
+<line x1="534.07" y1="220.00" x2="534.07" y2="226.00" stroke="var(--line)" stroke-width="1.4" />
+<text x="534.07" y="245.00" text-anchor="middle" font-size="15" fill="var(--ink)" font-family="var(--sans)">1</text>
+<line x1="820.00" y1="220.00" x2="820.00" y2="226.00" stroke="var(--line)" stroke-width="1.4" />
+<text x="820.00" y="245.00" text-anchor="middle" font-size="15" fill="var(--ink)" font-family="var(--sans)">5</text>
+<line x1="125.00" y1="96.00" x2="820.00" y2="96.00" stroke="var(--ink)" stroke-width="2" stroke-dasharray="7 6" />
+<path d="M125.00,107.61 L128.86,107.85 L132.72,108.09 L136.58,108.34 L140.44,108.59 L144.31,108.85 L148.17,109.11 L152.03,109.38 L155.89,109.65 L159.75,109.93 L163.61,110.21 L167.47,110.50 L171.33,110.79 L175.19,111.09 L179.06,111.39 L182.92,111.70 L186.78,112.01 L190.64,112.33 L194.50,112.66 L198.36,112.99 L202.22,113.32 L206.08,113.67 L209.94,114.01 L213.81,114.37 L217.67,114.73 L221.53,115.10 L225.39,115.47 L229.25,115.85 L233.11,116.23 L236.97,116.63 L240.83,117.03 L244.69,117.43 L248.56,117.84 L252.42,118.26 L256.28,118.69 L260.14,119.12 L264.00,119.56 L267.86,120.01 L271.72,120.46 L275.58,120.92 L279.44,121.39 L283.31,121.86 L287.17,122.34 L291.03,122.83 L294.89,123.33 L298.75,123.83 L302.61,124.34 L306.47,124.86 L310.33,125.38 L314.19,125.91 L318.06,126.45 L321.92,127.00 L325.78,127.56 L329.64,128.12 L333.50,128.69 L337.36,129.26 L341.22,129.85 L345.08,130.44 L348.94,131.04 L352.81,131.64 L356.67,132.26 L360.53,132.88 L364.39,133.51 L368.25,134.14 L372.11,134.78 L375.97,135.43 L379.83,136.09 L383.69,136.75 L387.56,137.42 L391.42,138.10 L395.28,138.78 L399.14,139.47 L403.00,140.17 L406.86,140.87 L410.72,141.58 L414.58,142.29 L418.44,143.01 L422.31,143.74 L426.17,144.47 L430.03,145.21 L433.89,145.95 L437.75,146.70 L441.61,147.46 L445.47,148.21 L449.33,148.98 L453.19,149.74 L457.06,150.51 L460.92,151.29 L464.78,152.07 L468.64,152.85 L472.50,153.64 L476.36,154.42 L480.22,155.22 L484.08,156.01 L487.94,156.81 L491.81,157.60 L495.67,158.40 L499.53,159.21 L503.39,160.01 L507.25,160.81 L511.11,161.61 L514.97,162.42 L518.83,163.22 L522.69,164.03 L526.56,164.83 L530.42,165.63 L534.28,166.43 L538.14,167.23 L542.00,168.03 L545.86,168.83 L549.72,169.62 L553.58,170.41 L557.44,171.20 L561.31,171.98 L565.17,172.76 L569.03,173.54 L572.89,174.31 L576.75,175.07 L580.61,175.84 L584.47,176.59 L588.33,177.34 L592.19,178.09 L596.06,178.83 L599.92,179.56 L603.78,180.29 L607.64,181.01 L611.50,181.72 L615.36,182.43 L619.22,183.13 L623.08,183.82 L626.94,184.50 L630.81,185.18 L634.67,185.84 L638.53,186.50 L642.39,187.15 L646.25,187.79 L650.11,188.43 L653.97,189.05 L657.83,189.67 L661.69,190.27 L665.56,190.87 L669.42,191.46 L673.28,192.04 L677.14,192.60 L681.00,193.16 L684.86,193.72 L688.72,194.26 L692.58,194.79 L696.44,195.31 L700.31,195.83 L704.17,196.33 L708.03,196.82 L711.89,197.31 L715.75,197.79 L719.61,198.26 L723.47,198.71 L727.33,199.16 L731.19,199.61 L735.06,200.04 L738.92,200.46 L742.78,200.88 L746.64,201.29 L750.50,201.68 L754.36,202.08 L758.22,202.46 L762.08,202.83 L765.94,203.20 L769.81,203.56 L773.67,203.91 L777.53,204.26 L781.39,204.59 L785.25,204.93 L789.11,205.25 L792.97,205.57 L796.83,205.88 L800.69,206.18 L804.56,206.48 L808.42,206.77 L812.28,207.05 L816.14,207.33 L820.00,207.60" fill="none" stroke="var(--teal)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" />
+<line x1="116.00" y1="114.32" x2="116.00" y2="100.65" stroke="var(--rose)" stroke-width="2.2" />
+<line x1="111.00" y1="114.32" x2="121.00" y2="114.32" stroke="var(--rose)" stroke-width="2" />
+<line x1="111.00" y1="100.65" x2="121.00" y2="100.65" stroke="var(--rose)" stroke-width="2" />
+<path d="M116.00,102.47 L121.00,107.47 L116.00,112.47 L111.00,107.47 Z" fill="var(--rose)" stroke="var(--bg)" stroke-width="1" />
+<line x1="134.00" y1="104.14" x2="134.00" y2="87.44" stroke="var(--plum)" stroke-width="2.2" />
+<line x1="129.00" y1="104.14" x2="139.00" y2="104.14" stroke="var(--plum)" stroke-width="2" />
+<line x1="129.00" y1="87.44" x2="139.00" y2="87.44" stroke="var(--plum)" stroke-width="2" />
+<rect x="129.50" y="91.33" width="9" height="9" rx="1.5" fill="var(--plum)" stroke="var(--bg)" stroke-width="1" />
+<text x="125.00" y="294.00" text-anchor="middle" font-size="14" fill="var(--muted)" font-family="var(--sans)">0.0%</text>
+<line x1="525.07" y1="167.67" x2="525.07" y2="165.10" stroke="var(--rose)" stroke-width="2.2" />
+<line x1="520.07" y1="167.67" x2="530.07" y2="167.67" stroke="var(--rose)" stroke-width="2" />
+<line x1="520.07" y1="165.10" x2="530.07" y2="165.10" stroke="var(--rose)" stroke-width="2" />
+<path d="M525.07,161.43 L530.07,166.43 L525.07,171.43 L520.07,166.43 Z" fill="var(--rose)" stroke="var(--bg)" stroke-width="1" />
+<line x1="543.07" y1="104.81" x2="543.07" y2="85.61" stroke="var(--plum)" stroke-width="2.2" />
+<line x1="538.07" y1="104.81" x2="548.07" y2="104.81" stroke="var(--plum)" stroke-width="2" />
+<line x1="538.07" y1="85.61" x2="548.07" y2="85.61" stroke="var(--plum)" stroke-width="2" />
+<rect x="538.57" y="91.80" width="9" height="9" rx="1.5" fill="var(--plum)" stroke="var(--bg)" stroke-width="1" />
+<text x="534.07" y="294.00" text-anchor="middle" font-size="14" fill="var(--muted)" font-family="var(--sans)">0.0%</text>
+<line x1="811.00" y1="207.82" x2="811.00" y2="207.33" stroke="var(--rose)" stroke-width="2.2" />
+<line x1="806.00" y1="207.82" x2="816.00" y2="207.82" stroke="var(--rose)" stroke-width="2" />
+<line x1="806.00" y1="207.33" x2="816.00" y2="207.33" stroke="var(--rose)" stroke-width="2" />
+<path d="M811.00,202.63 L816.00,207.63 L811.00,212.63 L806.00,207.63 Z" fill="var(--rose)" stroke="var(--bg)" stroke-width="1" />
+<line x1="829.00" y1="174.53" x2="829.00" y2="145.71" stroke="var(--plum)" stroke-width="2.2" />
+<line x1="824.00" y1="174.53" x2="834.00" y2="174.53" stroke="var(--plum)" stroke-width="2" />
+<line x1="824.00" y1="145.71" x2="834.00" y2="145.71" stroke="var(--plum)" stroke-width="2" />
+<rect x="824.50" y="157.76" width="9" height="9" rx="1.5" fill="var(--plum)" stroke="var(--bg)" stroke-width="1" />
+<text x="820.00" y="294.00" text-anchor="middle" font-size="14" fill="var(--muted)" font-family="var(--sans)">45.0%</text>
+<text x="472.50" y="262.00" text-anchor="middle" font-size="15" fill="var(--ink)" font-family="var(--sans)">Sampling interval Δ (min; logarithmic axis)</text>
+<text x="42" y="127.00" text-anchor="middle" transform="rotate(-90 42 127.00)" font-size="15" fill="var(--ink)" font-family="var(--sans)">Rate (min⁻¹)</text>
+<text x="80" y="294.00" text-anchor="end" font-size="14" font-weight="600" fill="var(--ink)" font-family="var(--sans)">Non-finite</text>
+<line x1="82" y1="323" x2="116" y2="323" stroke="var(--teal)" stroke-width="3" />
+<text x="124" y="328" font-size="14" fill="var(--ink)" font-family="var(--sans)">Exact apparent rate</text>
+<line x1="315" y1="323" x2="315" y2="333" stroke="var(--rose)" stroke-width="2" /><path d="M315,324 L320,329 L315,334 L310,329 Z" fill="var(--rose)" />
+<text x="328" y="328" font-size="14" fill="var(--ink)" font-family="var(--sans)">Naive endpoint rates</text>
+<line x1="82" y1="355" x2="82" y2="365" stroke="var(--plum)" stroke-width="2" /><rect x="78" y="356" width="8" height="8" rx="1" fill="var(--plum)" />
+<text x="96" y="360" font-size="14" fill="var(--ink)" font-family="var(--sans)">Finite corrected rate only</text>
+<line x1="383" y1="355" x2="417" y2="355" stroke="var(--ink)" stroke-width="2" stroke-dasharray="7 6" />
+<text x="425" y="360" font-size="14" fill="var(--ink)" font-family="var(--sans)">True k = 1 min⁻¹</text>
+</svg>
+<figcaption><b>Figure 1.</b> The code computes the exact apparent-rate curve and plots the true <math><mi>k</mi></math>, simulated 10th–90th repeat ranges (not confidence intervals), and the share with no finite inverse. Corrected ranges condition on finite records; all values are toy assumptions.</figcaption>
+</figure>
+<details>
+<summary>Full reproducible Python 3 source (simulation and figure)</summary>
+<pre><code>#!/usr/bin/env python3
+"""Simulate a symmetric two-state CTMC and plot endpoint-sampling aliasing.
+
+All rates and sampling intervals are illustrative assumptions, not measurements.
+The simulation follows exponential CTMC dwell times, samples only endpoint states,
+and retains every replicate's finite/boundary/incompatible inversion status.
+"""
+
+import argparse
+import json
+import math
+import random
+
+K_PER_MIN = 1.0
+DELTAS_MIN = (0.1, 1.0, 5.0)
+SEED = 20260922
+N_REPLICATES = 200
+N_INTERVALS = 4000
+
+
+def exponential_wait(rng, rate):
+    """Draw an exponential dwell time for a constant transition hazard."""
+    return -math.log1p(-rng.random()) / rate
+
+
+def exact_mismatch_probability(rate, delta):
+    """Return (1 - exp(-2 rate delta))/2, evaluated stably near zero."""
+    return -0.5 * math.expm1(-2.0 * rate * delta)
+
+
+def corrected_rate(p_hat, delta):
+    """Invert the symmetric CTMC endpoint probability only on its finite domain."""
+    return -math.log1p(-2.0 * p_hat) / (2.0 * delta)
+
+
+def simulate_dataset(rate, delta, n_intervals, rng):
+    """Generate one continuous-time path and return endpoint mismatch frequency."""
+    state = rng.randrange(2)
+    previous_sample = state
+    next_jump = exponential_wait(rng, rate)
+    mismatches = 0
+
+    for interval_index in range(n_intervals):
+        sample_time = (interval_index + 1) * delta
+        while next_jump &lt;= sample_time:
+            state = 1 - state
+            next_jump += exponential_wait(rng, rate)
+        if state != previous_sample:
+            mismatches += 1
+        previous_sample = state
+
+    p_hat = mismatches / n_intervals
+    naive_rate = p_hat / delta
+    if 2 * mismatches &lt; n_intervals:
+        inversion_status = "finite"
+        k_hat = corrected_rate(p_hat, delta)
+    elif 2 * mismatches == n_intervals:
+        inversion_status = "boundary_infinite"
+        k_hat = None
+    else:
+        inversion_status = "above_half_no_finite_inverse"
+        k_hat = None
+
+    return {
+        "mismatches": mismatches,
+        "n_intervals": n_intervals,
+        "p_hat": p_hat,
+        "naive_rate_per_min": naive_rate,
+        "k_hat_per_min": k_hat,
+        "inversion_status": inversion_status,
+    }
+
+
+def quantiles(values):
+    """Linear-interpolated empirical 10th, 50th, and 90th percentiles."""
+    ordered = sorted(values)
+    if not ordered:
+        return None
+
+    def at(probability):
+        position = (len(ordered) - 1) * probability
+        low = int(math.floor(position))
+        high = int(math.ceil(position))
+        weight = position - low
+        return ordered[low] * (1.0 - weight) + ordered[high] * weight
+
+    return {"p10": at(0.10), "p50": at(0.50), "p90": at(0.90)}
+
+
+def summarize_delta(rate, delta, records):
+    """Summarize all replicates; finite-only quantiles keep their denominator."""
+    counts = {
+        "finite": sum(r["inversion_status"] == "finite" for r in records),
+        "boundary_infinite": sum(r["inversion_status"] == "boundary_infinite" for r in records),
+        "above_half_no_finite_inverse": sum(
+            r["inversion_status"] == "above_half_no_finite_inverse" for r in records
+        ),
+    }
+    n_replicates = len(records)
+    n_nonfinite = counts["boundary_infinite"] + counts["above_half_no_finite_inverse"]
+    finite_estimates = [r["k_hat_per_min"] for r in records if r["inversion_status"] == "finite"]
+    return {
+        "delta_min": delta,
+        "exact_p_delta": exact_mismatch_probability(rate, delta),
+        "exact_naive_rate_per_min": exact_mismatch_probability(rate, delta) / delta,
+        "p_hat_range_p10_p50_p90": quantiles([r["p_hat"] for r in records]),
+        "naive_rate_range_p10_p50_p90": quantiles([r["naive_rate_per_min"] for r in records]),
+        "corrected_finite_only_range_p10_p50_p90": quantiles(finite_estimates),
+        "corrected_finite_only_n": len(finite_estimates),
+        "n_replicates": n_replicates,
+        "status_counts": counts,
+        "p_hat_ge_half_fraction": n_nonfinite / n_replicates,
+    }
+
+
+def _fmt(value, digits=3):
+    return "—" if value is None else f"{value:.{digits}f}"
+
+
+def make_svg(summaries, rate):
+    """Build the figure as inline SVG using page-level CSS custom properties."""
+    width, height = 920, 390
+    x_left, x_right = 125.0, 820.0
+    y_top, y_bottom = 34.0, 220.0
+    y_max = 1.5
+
+    def x_of(delta):
+        return x_left + (x_right - x_left) * math.log(delta / min(DELTAS_MIN)) / math.log(
+            max(DELTAS_MIN) / min(DELTAS_MIN)
+        )
+
+    def y_of(value):
+        return y_bottom - (y_bottom - y_top) * value / y_max
+
+    pieces = [
+        f'&lt;svg class="fig" viewBox="0 0 {width} {height}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Exact apparent switching rate falls as sampling interval grows; repeated estimates and model correction are shown with non-finite inversion frequencies."&gt;',
+        '&lt;title&gt;Endpoint sampling hides promoter switches&lt;/title&gt;',
+        '&lt;desc&gt;Exact p delta over delta curve, true rate reference, empirical middle-80-percent ranges from independent simulated records, and the fraction of records at or above one-half mismatch probability.&lt;/desc&gt;',
+    ]
+
+    # Horizontal grid and inverse-minute tick labels.
+    tick = 0.0
+    while tick &lt;= y_max + 1e-9:
+        y = y_of(tick)
+        pieces.append(
+            f'&lt;line x1="{x_left:.2f}" y1="{y:.2f}" x2="{x_right:.2f}" y2="{y:.2f}" stroke="var(--gridc)" stroke-width="1" /&gt;'
+        )
+        pieces.append(
+            f'&lt;text x="{x_left - 12:.2f}" y="{y + 5:.2f}" text-anchor="end" font-size="15" fill="var(--muted)" font-family="var(--sans)"&gt;{tick:.2f}&lt;/text&gt;'
+        )
+        tick += 0.25
+
+    # Axes and logarithmic sampling-interval ticks.
+    pieces.extend([
+        f'&lt;line x1="{x_left:.2f}" y1="{y_top:.2f}" x2="{x_left:.2f}" y2="{y_bottom:.2f}" stroke="var(--line)" stroke-width="1.5" /&gt;',
+        f'&lt;line x1="{x_left:.2f}" y1="{y_bottom:.2f}" x2="{x_right:.2f}" y2="{y_bottom:.2f}" stroke="var(--line)" stroke-width="1.5" /&gt;',
+    ])
+    for delta in DELTAS_MIN:
+        x = x_of(delta)
+        pieces.append(
+            f'&lt;line x1="{x:.2f}" y1="{y_bottom:.2f}" x2="{x:.2f}" y2="{y_bottom + 6:.2f}" stroke="var(--line)" stroke-width="1.4" /&gt;'
+        )
+        pieces.append(
+            f'&lt;text x="{x:.2f}" y="{y_bottom + 25:.2f}" text-anchor="middle" font-size="15" fill="var(--ink)" font-family="var(--sans)"&gt;{delta:g}&lt;/text&gt;'
+        )
+
+    # True-rate reference line.
+    y_true = y_of(rate)
+    pieces.append(
+        f'&lt;line x1="{x_left:.2f}" y1="{y_true:.2f}" x2="{x_right:.2f}" y2="{y_true:.2f}" stroke="var(--ink)" stroke-width="2" stroke-dasharray="7 6" /&gt;'
+    )
+
+    # The exact apparent-rate curve is calculated, not sketched.
+    curve = []
+    n_curve = 180
+    log_min, log_max = math.log(min(DELTAS_MIN)), math.log(max(DELTAS_MIN))
+    for index in range(n_curve + 1):
+        fraction = index / n_curve
+        delta = math.exp(log_min + fraction * (log_max - log_min))
+        apparent = exact_mismatch_probability(rate, delta) / delta
+        curve.append((x_of(delta), y_of(apparent)))
+    path = " ".join(("M" if i == 0 else "L") + f"{x:.2f},{y:.2f}" for i, (x, y) in enumerate(curve))
+    pieces.append(f'&lt;path d="{path}" fill="none" stroke="var(--teal)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" /&gt;')
+
+    # Repeat-simulation middle-80-percent ranges. Invalid inversions stay counted below.
+    for summary in summaries:
+        delta = summary["delta_min"]
+        x = x_of(delta)
+        naive = summary["naive_rate_range_p10_p50_p90"]
+        x_naive = x - 9.0
+        y1, ym, y2 = (y_of(naive[key]) for key in ("p10", "p50", "p90"))
+        pieces.extend([
+            f'&lt;line x1="{x_naive:.2f}" y1="{y1:.2f}" x2="{x_naive:.2f}" y2="{y2:.2f}" stroke="var(--rose)" stroke-width="2.2" /&gt;',
+            f'&lt;line x1="{x_naive - 5:.2f}" y1="{y1:.2f}" x2="{x_naive + 5:.2f}" y2="{y1:.2f}" stroke="var(--rose)" stroke-width="2" /&gt;',
+            f'&lt;line x1="{x_naive - 5:.2f}" y1="{y2:.2f}" x2="{x_naive + 5:.2f}" y2="{y2:.2f}" stroke="var(--rose)" stroke-width="2" /&gt;',
+            f'&lt;path d="M{x_naive:.2f},{ym - 5:.2f} L{x_naive + 5:.2f},{ym:.2f} L{x_naive:.2f},{ym + 5:.2f} L{x_naive - 5:.2f},{ym:.2f} Z" fill="var(--rose)" stroke="var(--bg)" stroke-width="1" /&gt;',
+        ])
+        corrected = summary["corrected_finite_only_range_p10_p50_p90"]
+        if corrected is not None:
+            x_corrected = x + 9.0
+            cy1, cym, cy2 = (y_of(corrected[key]) for key in ("p10", "p50", "p90"))
+            pieces.extend([
+                f'&lt;line x1="{x_corrected:.2f}" y1="{cy1:.2f}" x2="{x_corrected:.2f}" y2="{cy2:.2f}" stroke="var(--plum)" stroke-width="2.2" /&gt;',
+                f'&lt;line x1="{x_corrected - 5:.2f}" y1="{cy1:.2f}" x2="{x_corrected + 5:.2f}" y2="{cy1:.2f}" stroke="var(--plum)" stroke-width="2" /&gt;',
+                f'&lt;line x1="{x_corrected - 5:.2f}" y1="{cy2:.2f}" x2="{x_corrected + 5:.2f}" y2="{cy2:.2f}" stroke="var(--plum)" stroke-width="2" /&gt;',
+                f'&lt;rect x="{x_corrected - 4.5:.2f}" y="{cym - 4.5:.2f}" width="9" height="9" rx="1.5" fill="var(--plum)" stroke="var(--bg)" stroke-width="1" /&gt;',
+            ])
+        finite_share = summary["p_hat_ge_half_fraction"] * 100.0
+        pieces.append(
+            f'&lt;text x="{x:.2f}" y="{y_bottom + 74:.2f}" text-anchor="middle" font-size="14" fill="var(--muted)" font-family="var(--sans)"&gt;{finite_share:.1f}%&lt;/text&gt;'
+        )
+
+    pieces.extend([
+        f'&lt;text x="{(x_left + x_right) / 2:.2f}" y="{y_bottom + 42:.2f}" text-anchor="middle" font-size="15" fill="var(--ink)" font-family="var(--sans)"&gt;Sampling interval Δ (min; logarithmic axis)&lt;/text&gt;',
+        f'&lt;text x="42" y="{(y_top + y_bottom) / 2:.2f}" text-anchor="middle" transform="rotate(-90 42 {(y_top + y_bottom) / 2:.2f})" font-size="15" fill="var(--ink)" font-family="var(--sans)"&gt;Rate (min⁻¹)&lt;/text&gt;',
+        f'&lt;text x="80" y="{y_bottom + 74:.2f}" text-anchor="end" font-size="14" font-weight="600" fill="var(--ink)" font-family="var(--sans)"&gt;Non-finite&lt;/text&gt;',
+    ])
+
+    # Compact two-row legend.
+    legend_y1, legend_y2 = 328, 360
+    pieces.extend([
+        f'&lt;line x1="82" y1="{legend_y1 - 5}" x2="116" y2="{legend_y1 - 5}" stroke="var(--teal)" stroke-width="3" /&gt;',
+        f'&lt;text x="124" y="{legend_y1}" font-size="14" fill="var(--ink)" font-family="var(--sans)"&gt;Exact apparent rate&lt;/text&gt;',
+        f'&lt;line x1="315" y1="{legend_y1 - 5}" x2="315" y2="{legend_y1 + 5}" stroke="var(--rose)" stroke-width="2" /&gt;&lt;path d="M315,{legend_y1 - 4} L320,{legend_y1 + 1} L315,{legend_y1 + 6} L310,{legend_y1 + 1} Z" fill="var(--rose)" /&gt;',
+        f'&lt;text x="328" y="{legend_y1}" font-size="14" fill="var(--ink)" font-family="var(--sans)"&gt;Naive endpoint rates&lt;/text&gt;',
+        f'&lt;line x1="82" y1="{legend_y2 - 5}" x2="82" y2="{legend_y2 + 5}" stroke="var(--plum)" stroke-width="2" /&gt;&lt;rect x="78" y="{legend_y2 - 4}" width="8" height="8" rx="1" fill="var(--plum)" /&gt;',
+        f'&lt;text x="96" y="{legend_y2}" font-size="14" fill="var(--ink)" font-family="var(--sans)"&gt;Finite corrected rate only&lt;/text&gt;',
+        f'&lt;line x1="383" y1="{legend_y2 - 5}" x2="417" y2="{legend_y2 - 5}" stroke="var(--ink)" stroke-width="2" stroke-dasharray="7 6" /&gt;',
+        f'&lt;text x="425" y="{legend_y2}" font-size="14" fill="var(--ink)" font-family="var(--sans)"&gt;True k = {rate:g} min⁻¹&lt;/text&gt;',
+        '&lt;/svg&gt;',
+    ])
+    return "\n".join(pieces)
+
+
+def run_simulation():
+    rng = random.Random(SEED)
+    summaries = []
+    replicate_records = []
+    for delta in DELTAS_MIN:
+        records = []
+        for replicate in range(N_REPLICATES):
+            record = simulate_dataset(K_PER_MIN, delta, N_INTERVALS, rng)
+            record["replicate"] = replicate + 1
+            record["delta_min"] = delta
+            records.append(record)
+        summaries.append(summarize_delta(K_PER_MIN, delta, records))
+        replicate_records.extend(records)
+    return {
+        "assumptions": {
+            "rate_per_min": K_PER_MIN,
+            "deltas_min": list(DELTAS_MIN),
+            "seed": SEED,
+            "replicates_per_delta": N_REPLICATES,
+            "sample_intervals_per_replicate": N_INTERVALS,
+            "replicate_spread": "empirical 10th–90th percentiles (middle 80%), not confidence intervals",
+            "trajectory": "exact continuous-time Markov jumps with exponential dwell times; only endpoint states recorded",
+        },
+        "summaries": summaries,
+        "replicate_records": replicate_records,
+        "svg": make_svg(summaries, K_PER_MIN),
+    }
+
+
+def print_report(data):
+    assumptions = data["assumptions"]
+    print("Illustrative symmetric two-state CTMC endpoint-sampling simulation")
+    print(
+        f"k={assumptions['rate_per_min']:g} min^-1; seed={assumptions['seed']}; "
+        f"{assumptions['replicates_per_delta']} independent records × "
+        f"{assumptions['sample_intervals_per_replicate']} intervals per Δ"
+    )
+    print("Middle-80% ranges are empirical repeat spread, not confidence intervals.")
+    print("Δ(min)  exact pΔ   exact pΔ/Δ  p̂ range (10–90%)  naive/min (10–90%)  finite k̂/min (10–90%; n)  p̂≥1/2")
+    for row in data["summaries"]:
+        p = row["p_hat_range_p10_p50_p90"]
+        n = row["naive_rate_range_p10_p50_p90"]
+        c = row["corrected_finite_only_range_p10_p50_p90"]
+        nfinite = row["corrected_finite_only_n"]
+        nrep = row["n_replicates"]
+        print(
+            f"{row['delta_min']:&gt;5g}   {row['exact_p_delta']:.6f}   "
+            f"{row['exact_naive_rate_per_min']:.6f}   "
+            f"{_fmt(p['p10'], 4)}–{_fmt(p['p90'], 4)}       "
+            f"{_fmt(n['p10'])}–{_fmt(n['p90'])}             "
+            f"{_fmt(c['p10'])}–{_fmt(c['p90'])}; {nfinite}/{nrep}        "
+            f"{100 * row['p_hat_ge_half_fraction']:.1f}%"
+        )
+        counts = row["status_counts"]
+        print(
+            f"      inversion statuses: finite={counts['finite']}, "
+            f"boundary p̂=1/2→∞={counts['boundary_infinite']}, "
+            f"above 1/2=no finite inverse={counts['above_half_no_finite_inverse']}"
+        )
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--json", action="store_true", help="emit full structured results, including every replicate")
+    args = parser.parse_args()
+    data = run_simulation()
+    if args.json:
+        print(json.dumps(data, ensure_ascii=False, allow_nan=False, separators=(",", ":")))
+    else:
+        print_report(data)
+        print(f"Generated inline SVG: {len(data['svg'].encode('utf-8'))} bytes")
+
+
+if __name__ == "__main__":
+    main()
+</code></pre>
+</details>
+
+<h2>What I would argue against / where this breaks</h2>
+<p>This inverse assumes two observed states, equal constant hazards, known fixed <math><mi>Δ</mi></math>, and error-free endpoints. Hidden states, unequal rates, missed frames, misclassification or timing jitter change the transition law. At large <math><mi>Δ</mi></math>, inversion is unstable; <math><msub><mover accent="true"><mi>p</mi><mo>^</mo></mover><mi>Δ</mi></msub><mo>≥</mo><mfrac><mn>1</mn><mn>2</mn></mfrac></math> signals a sample boundary or model mismatch, not an infinite biological rate.</p>
+
+<h2>Sources</h2>
+<ul class="sources">
+<li id="source-c2"><strong>CCBS.</strong> “From a molecular state list to a predictive model.” EST 5053, Lecture 7 lecturer-written exposition, Fall 2026; revised 22 September 2026. <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture07-exposition.html">Official public course page</a>.
+<span class="reading">Relevant sections: §§2–4, read for constant transition hazards, the probability-conserving generator, and the two-state promoter. These support the continuous-time model; the endpoint-sampling formula is derived here.</span></li>
+</ul>
+</div>
+</body>
+</html>
