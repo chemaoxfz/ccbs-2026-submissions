@@ -1,4 +1,4 @@
-# Lecture 15 exposition — 2026-10-27
+# Lecture 15 exposition: 2026-10-29
 
 **Introduction to protein design**
 

@@ -1,4 +1,4 @@
-# Lecture 13 exposition — 2026-10-20
+# Lecture 13 exposition: 2026-10-22
 
 **The metabolic biomachine**
 

@@ -19,4 +19,6 @@ you made yourself**, with the code beside it; every claim **traceable**. Not a r
 The worked example is at
 <https://chemaoxfz.github.io/assets/ccbs/2026fall/extension-example/>.
 
-Everyone writes one every week, including the week you teach. Your best 6 of 8 count, 5 points each.
+Everyone writes one per listed lecture pair, including any pair in which you teach.
+Your best 6 of 8 count, 5 points each. The original eight lecture pairs and `weekN`
+folders stay unchanged. Follow the dates in the [course deadline table](../README.md#2-extension-mini-essays).

@@ -1,6 +1,6 @@
 # Week 8 extension mini-essays
 
-Covers **lectures 15 and 16**. Due **2026-11-02, 23:59**.
+Covers **lectures 15 and 16**. Due **2026-11-09, 23:59**.
 
 Add one file: `week8/week8-<yourname>-ext.html`, where `<yourname>` is your Latin name
 in lowercase with no spaces (for example `week8/week8-tongli-ext.html`). Start from
@@ -19,4 +19,6 @@ you made yourself**, with the code beside it; every claim **traceable**. Not a r
 The worked example is at
 <https://chemaoxfz.github.io/assets/ccbs/2026fall/extension-example/>.
 
-Everyone writes one every week, including the week you teach. Your best 6 of 8 count, 5 points each.
+Everyone writes one per listed lecture pair, including any pair in which you teach.
+Your best 6 of 8 count, 5 points each. The original eight lecture pairs and `weekN`
+folders stay unchanged. Follow the dates in the [course deadline table](../README.md#2-extension-mini-essays).
