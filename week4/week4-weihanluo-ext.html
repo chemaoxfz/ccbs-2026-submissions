@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WEEK 4 — Extension: When equilibrium looks like attention</title>
+<meta name="author" content="Weihan Luo">
+<meta name="week" content="week4">
+<style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px; border-bottom:1px solid var(--line); padding-bottom:5px; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px; padding:14px 18px; margin:14px 0; }
+  .fig { width:100%; border:1px solid var(--line); border-radius:6px; margin:14px 0; background:var(--bg); }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; }
+  .math { font-family:Georgia,"Times New Roman",serif; font-size:1.04em; }
+  code { background:var(--soft); padding:1px 4px; border-radius:3px; }
+  pre { overflow:auto; background:var(--soft); border:1px solid var(--line); border-radius:6px; padding:12px 14px; font-size:.82rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>WEEK 4 — Extension: When equilibrium looks like attention</h1>
+<p class="meta">Author: Weihan Luo · Week 4 (2026-09-28) · CCBS 2026</p>
+
+<p class="card"><strong>One sentence:</strong> Equilibrium binding and softmax attention use the same normalized competition rule, but biological state weights have physical meaning while neural attention scores are learned compatibilities.</p>
+
+<h2>The point I am adding</h2>
+<p>Lecture 7 turns a list of molecular states into probabilities. If state <span class="math">i</span> has weight <span class="math">w<sub>i</sub></span>, its equilibrium probability is</p>
+
+<p class="card"><span class="math">p<sub>i</sub> = w<sub>i</sub> / Σ<sub>j</sub>w<sub>j</sub></span></p>
+
+<p>When the weights come from free energies, <span class="math">w<sub>i</sub> = exp(−βG<sub>i</sub>)</span>. A lower-free-energy state receives more probability, but all possible states compete through the same denominator. Lecture 8 uses this allocation as the fast binding layer: binding redistributes molecules among states, while slower catalysis changes the totals and produces activity.</p>
+
+<p>Transformer attention has the same algebra. Given a query and several keys, the attention score for item <span class="math">i</span> is <span class="math">s<sub>i</sub> = q·k<sub>i</sub>/√d</span>, and the attention weight is</p>
+
+<p class="card"><span class="math">α<sub>i</sub> = exp(s<sub>i</sub>) / Σ<sub>j</sub>exp(s<sub>j</sub>)</span></p>
+
+<p>Set <span class="math">s<sub>i</sub> = −βG<sub>i</sub></span> and the two expressions become identical. The query is then acting like a context that changes the effective energy of each candidate, and the softmax is a normalized state allocation. This is a strong mathematical connection, not a claim that a Transformer is literally a warm biological molecule.</p>
+
+<h2>Work it</h2>
+<p>For two competing states, define the effective advantage of state 1 as <span class="math">a = −βΔG</span> in the binding model, or as the attention score gap <span class="math">a = s<sub>1</sub> − s<sub>0</sub></span> in the neural model. In both cases, the favored state's share is</p>
+
+<p class="card"><span class="math">share<sub>1</sub> = exp(a)/(1 + exp(a))</span></p>
+
+<p>The plot shows that the curves overlap exactly after putting the two systems on the same effective-score axis. A positive advantage gives state 1 most of the probability; an advantage of zero gives each state one half.</p>
+
+<figure>
+  <svg class="fig" viewBox="0 0 640 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Equilibrium binding and softmax attention share follow the same logistic curve">
+    <rect width="640" height="340" fill="none"/>
+    <line x1="65" y1="270" x2="605" y2="270" stroke="#899"/>
+    <line x1="65" y1="35" x2="65" y2="270" stroke="#899"/>
+    <line x1="65" y1="152" x2="605" y2="152" stroke="#ccd" stroke-dasharray="5 5"/>
+    <text x="72" y="28" font-size="13" fill="#566">share of state 1</text>
+    <text x="530" y="294" font-size="13" fill="#566">effective advantage a</text>
+    <text x="42" y="275" font-size="12" fill="#566">0</text>
+    <text x="38" y="157" font-size="12" fill="#566">0.5</text>
+    <text x="44" y="45" font-size="12" fill="#566">1</text>
+    <text x="58" y="288" font-size="12" fill="#566">−4</text>
+    <text x="318" y="288" font-size="12" fill="#566">0</text>
+    <text x="592" y="288" font-size="12" fill="#566">4</text>
+    <path d="M65 264 C135 261 185 249 235 222 C280 198 310 174 335 152 C360 130 390 106 435 82 C485 55 535 43 605 40" fill="none" stroke="#1f4e79" stroke-width="3"/>
+    <circle cx="65" cy="264" r="4" fill="#1f4e79"/><circle cx="200" cy="240" r="4" fill="#1f4e79"/><circle cx="335" cy="152" r="4" fill="#1f4e79"/><circle cx="470" cy="64" r="4" fill="#1f4e79"/><circle cx="605" cy="40" r="4" fill="#1f4e79"/>
+    <path d="M65 264 C135 261 185 249 235 222 C280 198 310 174 335 152 C360 130 390 106 435 82 C485 55 535 43 605 40" fill="none" stroke="#c45a3c" stroke-width="2" stroke-dasharray="8 6"/>
+    <line x1="80" y1="316" x2="110" y2="316" stroke="#1f4e79" stroke-width="3"/>
+    <text x="118" y="321" font-size="13" fill="#566">equilibrium binding share</text>
+    <line x1="365" y1="316" x2="395" y2="316" stroke="#c45a3c" stroke-width="2" stroke-dasharray="8 6"/>
+    <text x="403" y="321" font-size="13" fill="#566">softmax attention share</text>
+  </svg>
+  <figcaption>Figure 1: The two normalized weighting rules are the same logistic curve for two states. The solid and dashed curves overlap; the distinction is in what the score means, not in the normalization algebra.</figcaption>
+</figure>
+
+<details>
+  <summary>Reproduce the figure</summary>
+  <pre><code>import numpy as np
+import matplotlib.pyplot as plt
+
+advantage = np.linspace(-4, 4, 200)
+binding_share = np.exp(advantage) / (1 + np.exp(advantage))
+attention_share = 1 / (1 + np.exp(-advantage))
+
+plt.plot(advantage, binding_share, label="equilibrium binding")
+plt.plot(advantage, attention_share, "--", label="softmax attention")
+plt.xlabel("effective advantage a")
+plt.ylabel("share of state 1")
+plt.ylim(0, 1)
+plt.grid(alpha=0.25)
+plt.legend()
+plt.show()
+</code></pre>
+</details>
+
+<p>Ramsauer and colleagues make the connection stronger than a visual resemblance: they show that a modern Hopfield-network update is mathematically equivalent to Transformer attention, while interpreting the network in terms of energy minima and fixed points. This gives a route from Lecture 7's weighted states to an ML model with an explicit energy-based interpretation.</p>
+
+<h2>What I would argue against / where this breaks</h2>
+<p>Softmax normalization alone does not prove that attention is at thermodynamic equilibrium. In a biological model, weights must agree with physical affinities, conservation constraints and, for equilibrium cycles, detailed balance. In a Transformer, the scores are learned dot products and change with the query. There is usually no temperature, conserved molecular pool or physical energy budget.</p>
+
+<p>The connection is therefore about a shared calculation: many candidates compete, exponentials turn score differences into positive weights, and normalization produces a distribution. The biological interpretation adds mechanisms that the neural equation does not automatically have. Saying “attention is equilibrium binding” would be too strong; saying “attention reuses the mathematics of normalized state competition” is defensible.</p>
+
+<h2>Sources</h2>
+<ul class="src">
+  <li><a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture07-core.html">CCBS Lecture 7 core: “Equilibrium is a local privilege.”</a> — introduces state weights, detailed balance and the limits of equilibrium descriptions.</li>
+  <li><a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture08-core.html">CCBS Lecture 8 core: “The cell as a biomachine.”</a> — separates fast binding allocation from slower catalytic changes in totals.</li>
+  <li>Vaswani, A. et al. (2017), <a href="https://arxiv.org/abs/1706.03762">“Attention Is All You Need.”</a> — defines scaled dot-product attention and its softmax weighting.</li>
+  <li>Ramsauer, H. et al. (2020/2021), <a href="https://arxiv.org/abs/2008.02217">“Hopfield Networks is All You Need.”</a> — connects modern Hopfield energy minima, fixed points and Transformer attention.</li>
+</ul>
+
+</div>
+</body>
+</html>
