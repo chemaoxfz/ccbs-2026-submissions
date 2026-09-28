@@ -32,14 +32,14 @@ LECTURES = {
     6: ("2026-09-17", "Timescale separation: singular perturbation, QSSA, telegraph model"),
     7: ("2026-09-22", "Equilibrium parts driven out of equilibrium"),
     8: ("2026-09-24", "The cell as a biomachine: binding and catalysis"),
-    9: ("2026-09-29", "Multistability and oscillations"),
-    10: ("2026-10-08", "The adaptation biomachine"),
-    11: ("2026-10-13", "Analysis of binding and catalysis via reaction-order structure"),
-    12: ("2026-10-15", "The computation biomachine"),
-    13: ("2026-10-20", "The metabolic biomachine"),
-    14: ("2026-10-22", "The growth biomachine"),
-    15: ("2026-10-27", "Introduction to protein design"),
-    16: ("2026-10-29", "Foundational virtual cells that are fully mechanistic"),
+    9: ("2026-10-08", "Multistability and oscillations"),
+    10: ("2026-10-13", "The adaptation biomachine"),
+    11: ("2026-10-15", "Analysis of binding and catalysis via reaction-order structure"),
+    12: ("2026-10-20", "The computation biomachine"),
+    13: ("2026-10-22", "The metabolic biomachine"),
+    14: ("2026-10-27", "The growth biomachine"),
+    15: ("2026-10-29", "Introduction to protein design"),
+    16: ("2026-11-03", "Foundational virtual cells that are fully mechanistic"),
 }
 CAP = 3
 

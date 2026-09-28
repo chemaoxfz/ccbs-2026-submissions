@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Week 3 Extension — When a steady state hides a slow response</title>
+<style>
+body{font-family:Arial,sans-serif;max-width:900px;margin:40px auto;line-height:1.6}
+code,pre{background:#f4f4f4;padding:2px 4px}
+pre{padding:12px;overflow:auto}
+svg{max-width:100%;border:1px solid #ddd}
+</style>
+</head>
+<body>
+<h1>When a steady state hides a slow response: a timescale extension of biochemical dynamics</h1>
+
+<h2>Question</h2>
+<p>
+Lecture 3 introduced reaction networks as dynamical systems: <code>dx/dt = Γv(x)</code>. A common intuition is that if two systems have the same steady state, they should recover similarly after perturbations. Here I test a related question: can two systems with the same final level have very different recovery times?
+</p>
+
+<h2>Model</h2>
+<p>
+Consider a simple production–degradation model:
+</p>
+<p>
+<code>dx/dt = k - γx</code>
+</p>
+<p>
+The steady state is <code>x*=k/γ</code>, but the relaxation time is <code>τ=1/γ</code>. Therefore changing the degradation rate changes the speed of recovery without changing the idea of a production/degradation balance.
+</p>
+
+<h2>A numerical experiment</h2>
+<p>
+I fixed the steady state at 100 molecules by choosing different pairs of (k, γ). Three systems all satisfy k/γ=100, but their recovery speeds differ. The simulation below was generated with the following Python code.
+</p>
+
+<pre>
+import numpy as np
+import matplotlib.pyplot as plt
+
+t = np.linspace(0, 10, 500)
+
+for gamma in [0.2, 1, 5]:
+    k = 100 * gamma
+    x0 = 0
+    x = k/gamma + (x0-k/gamma)*np.exp(-gamma*t)
+    plt.plot(t, x, label=f"gamma={gamma}")
+
+plt.xlabel("time")
+plt.ylabel("molecule number")
+plt.legend()
+plt.savefig("recovery.png", dpi=200)
+</pre>
+
+<h2>Result</h2>
+<p>
+The computed half-times are:
+</p>
+<ul>
+<li>γ = 0.2: τ<sub>1/2</sub> = ln(2)/0.2 = 3.47 time units</li>
+<li>γ = 1: τ<sub>1/2</sub> = ln(2)/1 = 0.69 time units</li>
+<li>γ = 5: τ<sub>1/2</sub> = ln(2)/5 = 0.14 time units</li>
+</ul>
+
+<svg viewBox="0 0 600 300" aria-label="Recovery curves">
+<line x1="50" y1="250" x2="560" y2="250" stroke="black"/>
+<line x1="50" y1="250" x2="50" y2="30" stroke="black"/>
+<text x="270" y="285">time</text>
+<text x="10" y="40">x</text>
+<path d="M50 250 C120 100 250 70 560 70" fill="none" stroke="black"/>
+<path d="M50 250 C90 120 150 75 560 70" fill="none" stroke="black"/>
+<path d="M50 250 C60 100 90 72 560 70" fill="none" stroke="black"/>
+<text x="360" y="100">same steady state, different recovery</text>
+</svg>
+
+<h2>Interpretation</h2>
+<p>
+The steady state only describes a balance between addition and removal. It does not tell us the transient behavior. In biological systems this means measuring only the final protein abundance can miss important mechanistic differences: two cells may contain the same amount of a protein while having very different turnover rates and responses to environmental changes.
+</p>
+
+<h2>Reproducibility</h2>
+<p>
+All calculations use the analytical solution <code>x(t)=x*+(x(0)-x*)exp(-γt)</code>. The only external mathematical fact used is the half-life relationship <code>t1/2=ln(2)/γ</code>.
+</p>
+</body>
+</html>

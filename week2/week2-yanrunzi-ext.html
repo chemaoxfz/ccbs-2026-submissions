@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 2 — Extension: A Fixed Point for Soluble Protein, Built from Crowding on Both Sides</title>
+<meta name="author" content="yanrunzi">
+<meta name="week" content="week2">
+<style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px;
+    border-bottom:1px solid var(--line); padding-bottom:5px; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:14px 18px; margin:14px 0; }
+  .fig { width:100%; border:1px solid var(--line); border-radius:6px; margin:14px 0; background:var(--bg); }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; }
+  .eqn { font-family:"Cambria Math","Georgia",serif; background:var(--soft);
+    border:1px solid var(--line); border-radius:6px; padding:10px 16px; margin:10px 0;
+    overflow-x:auto; }
+  sub, sup { line-height:0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Week 2 — Extension: A Fixed Point for Soluble Protein, Built from Crowding on Both Sides</h1>
+<p class="meta">Author: Yan Runzi · Week 2 (2026-09-13) · CCBS 2026</p>
+
+<p class="card"><strong>One sentence:</strong> Soluble protein concentration settles to
+a stable level for the same structural reason a repressed gene does — because both
+the addition curve and the removal curve in Lecture 4's f<sup>+</sup>(x) − f<sup>−</sup>(x)
+picture bend against growth, one by diffusion-limited translation in a crowding
+cytoplasm and the other by concentration-driven misfolding and aggregation — except
+here the "repressor" of production is the protein's own bulk, not a dedicated
+transcription factor.</p>
+
+<h2>Same Crossing, New Repressor</h2>
+<p>Lecture 4 built a one-variable fixed point as an addition-removal crossing,
+ẋ = f<sup>+</sup>(x) − f<sup>−</sup>(x), and later built a two-gene toggle where each
+protein represses the other's production through a Hill-shaped occupancy function.
+Protein homeostasis inside a single cell can be read the same way, but with a twist:
+the thing doing the repressing is not a separate molecule, it is the protein pool
+itself, acting through physical crowding.</p>
+<p>At low soluble protein concentration x, the cytoplasm is comparatively dilute:
+ribosomes translate close to their maximum elongation rate, aminoacyl-tRNA ternary
+complexes find ribosomes quickly, and newly made chains fold correctly often enough
+that net production of <em>soluble, correctly folded</em> protein is high. As x rises,
+two things work against it at once. First, translation itself slows down: ternary
+complexes are bulky, and their delivery to the ribosome becomes diffusion-limited as
+the cytoplasm fills up, which caps how fast new protein can be made in the first
+place [1]. Second, of the protein that is made, a growing fraction fails to fold
+correctly or aggregates instead of staying soluble — aggregation kinetics are
+famously concentration-driven, so removal from the soluble pool accelerates faster
+than production ever does [2]. The two curves therefore do not merely add and
+subtract; they bend toward each other, and where they cross is a genuine fixed
+point in Lecture 4's sense — not just a ceiling on synthesis.</p>
+
+<h2>The Calculation</h2>
+<p>Write net production as a Hill-repressed addition curve — the same functional
+form as the lecture's toggle-switch arm, but self-repressed by the protein's own
+concentration instead of by a partner gene — and net removal as dilution plus a
+concentration-accelerated aggregation/clearance term:</p>
+
+<div class="eqn">f<sup>+</sup>(x) = μ / (1 + (x/K)<sup>2</sup>) &nbsp;&nbsp;&nbsp;&nbsp; f<sup>−</sup>(x) = δx + κx<sup>2</sup></div>
+
+<p>Here μ is the dilute-cytoplasm production rate, K sets the crowding scale at
+which translation output has already halved (motivated by the diffusion-limited
+translation regime reported for a crowded cytoplasm [1]), δ is ordinary dilution,
+and the quadratic term κx² stands in for concentration-driven misfolding and
+aggregation, whose rate is empirically reported to rise faster than linearly with
+protein concentration [2,3]. Taking illustrative values μ = 5, K = 2, δ = 0.5,
+κ = 0.05 — in the same spirit as Lecture 4's own teaching parameters, chosen to
+place a crossing rather than fit one protein — solving f<sup>+</sup>(x) = f<sup>−</sup>(x)
+numerically gives a single crossing:</p>
+
+<div class="eqn">x* ≈ 2.735, &nbsp; f′(x*) ≈ −1.60 &lt; 0 &nbsp;⟹&nbsp; stable</div>
+
+<p>The negative slope is exactly Lecture 4's stability condition: just left of x*,
+production still outruns removal and x is pushed up; just right of it, crowding-driven
+removal wins and x is pushed back down. Soluble protein has a homeostatic set point
+for the same structural reason the lecture's autorepressed gene does.</p>
+
+<figure>
+  <svg class="fig" viewBox="0 0 640 260" xmlns="http://www.w3.org/2000/svg">
+    <text x="20" y="20" font-size="13" fill="#566" font-family="Segoe UI, Arial, sans-serif">
+      f(x) = f&#8314;(x) &#8722; f&#8315;(x): the addition and removal curves cross once
+    </text>
+    <line x1="60" y1="220" x2="600" y2="220" stroke="#999"/>
+    <line x1="60" y1="20" x2="60" y2="220" stroke="#999"/>
+    <text x="10" y="225" font-size="11" fill="#566">0</text>
+    <text x="55" y="235" font-size="11" fill="#566" text-anchor="middle">0</text>
+    <text x="600" y="235" font-size="11" fill="#566" text-anchor="middle">8</text>
+    <text x="595" y="235" font-size="11" fill="#566" text-anchor="end">x</text>
+    <polyline points="60.0,47.3 73.5,49.0 87.0,53.9 100.5,61.5 114.0,71.1 127.5,81.8 141.0,93.0 154.5,104.1 168.0,114.7 181.5,124.6 195.0,133.6 208.5,141.8 222.0,149.2 235.5,155.8 249.0,161.6 262.5,166.9 276.0,171.5 289.5,175.6 303.0,179.3 316.5,182.5 330.0,185.5 343.5,188.1 357.0,190.4 370.5,192.5 384.0,194.4 397.5,196.2 411.0,197.7 424.5,199.2 438.0,200.5 451.5,201.6 465.0,202.7 478.5,203.7 492.0,204.6 505.5,205.5 519.0,206.2 532.5,207.0 546.0,207.6 559.5,208.2 573.0,208.8 586.5,209.3 600.0,209.8"
+      fill="none" stroke="#1f4e79" stroke-width="2.5"/>
+    <polyline points="60.0,220.0 73.5,216.5 87.0,212.8 100.5,209.0 114.0,205.1 127.5,201.0 141.0,196.8 154.5,192.4 168.0,187.9 181.5,183.3 195.0,178.5 208.5,173.6 222.0,168.6 235.5,163.4 249.0,158.1 262.5,152.6 276.0,147.0 289.5,141.3 303.0,135.4"
+      fill="none" stroke="#c0503c" stroke-width="2.5"/>
+    <circle cx="244.6" cy="159.8" r="5" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+    <text x="252" y="150" font-size="12" fill="#1a1a1a">x* ≈ 2.74 (stable)</text>
+    <text x="470" y="38" font-size="12" fill="#1f4e79">f⁺(x): production</text>
+    <text x="470" y="56" font-size="12" fill="#c0503c">f⁻(x): removal</text>
+  </svg>
+  <figcaption>Figure 1: The Hill-repressed production curve f<sup>+</sup>(x) (blue,
+  crowding-limited translation) and the quadratic removal curve f<sup>−</sup>(x)
+  (red, dilution + concentration-driven aggregation) cross once, at x* ≈ 2.74, with
+  negative slope — a stable homeostatic set point for soluble protein, computed from
+  the model above rather than read off a plot someone else made.</figcaption>
+</figure>
+
+<h2>Where This Breaks: Quality Control Is Not Infinite</h2>
+<p>The single stable crossing above assumes the cell's clearance machinery — chaperones,
+the proteasome, autophagy — can always keep pace, so that removal keeps accelerating
+as x grows. Real quality-control capacity is not unbounded: aging and chronically
+stressed cells lose the ability to refold or degrade aggregates as their clearance
+systems become saturated or exhausted [3]. In the model above, that corresponds to
+f<sup>−</sup>(x) flattening out at high x instead of continuing to rise as κx² — clearance
+running at a fixed maximal rate rather than one that keeps growing with the aggregate
+load. If the removal curve saturates while the crowding-limited production curve
+f<sup>+</sup>(x) still has some tail left at high x, f<sup>+</sup> can cross back above f<sup>−</sup>
+a second time. That would turn the single stable fixed point in Figure 1 into a
+Lecture-4-style three-crossing picture: a low, healthy stable state, an unstable
+threshold, and a second stable state at pathologically high aggregate load — a
+structural echo of the "proteostasis collapse" seen in aging and in aggregation
+diseases, where the cell does not drift smoothly upward but tips past a threshold
+into a qualitatively different regime. The calculation above only establishes the
+single-crossing case; showing that a saturating clearance term actually creates the
+second pair of crossings is the natural next step this essay does not do.</p>
+
+<h2>Sources</h2>
+<ul class="src">
+  <li>[1] Klumpp S, Scott M, Hwa T. Molecular crowding limits translation and cell
+  growth. <em>Proceedings of the National Academy of Sciences</em>, 2013, 110(42):
+  16754–16759. — source for diffusion-limited translation elongation as crowding
+  increases, motivating the shape of f<sup>+</sup>(x).</li>
+  <li>[2] Fung HYJ, Birol M, Rhoades E. Concentration dependence of amyloid fibril
+  formation. <em>PLoS ONE</em>, 2012 (data on Tau_244–372); and general discussion in
+  Ke PC, et al., Macromolecular crowding and protein aggregation, cited via
+  ScienceDirect review — source for concentration-accelerated aggregation kinetics
+  motivating the quadratic term in f<sup>−</sup>(x).</li>
+  <li>[3] Ajmal MR. Protein aggregation: From background to inhibition strategies.
+  <em>International Journal of Biological Macromolecules</em>, 2018, 118: 1327–1338.
+  — source for age-related exhaustion of protein quality-control capacity, used in
+  the "Where This Breaks" section.</li>
+  <li>[4] Vazquez A. Optimal cytoplasmatic density and flux balance model under
+  macromolecular crowding effects. <em>arXiv:0910.2043</em>, 2009. — source for the
+  general principle that crowding trades off confinement benefits against
+  diffusion-slowdown costs, informing the overall framing.</li>
+</ul>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="fei wang">
+<meta name="week" content="week2">
+<meta name="description" content="A CCBS-style extension of the gene-expression production law to pancreatic malignant transformation, with an interactive mRNA-protein-activity model.">
+<title>Week 2: Pancreatic transformation rewrites gene-expression parameters</title>
+<style>
+:root{
+  --ink:#1a1a1a;--muted:#566;--accent:#1f4e79;--line:#d8dee4;
+  --bg:#fff;--soft:#f6f8fa;--teal:#1F9A8E;--rose:#D75567;--peri:#5A73CE;
+  --gold:#B98724;
+}
+@media (prefers-color-scheme:dark){
+  :root{--ink:#e8e8e8;--muted:#9aa;--accent:#8ab4e8;--line:#3a4652;--bg:#15191d;--soft:#1e242a;}
+}
+:root[data-theme="light"]{--ink:#1a1a1a;--muted:#566;--accent:#1f4e79;--line:#d8dee4;--bg:#fff;--soft:#f6f8fa;}
+:root[data-theme="dark"]{--ink:#e8e8e8;--muted:#9aa;--accent:#8ab4e8;--line:#3a4652;--bg:#15191d;--soft:#1e242a;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-size:16px;line-height:1.6}
+.wrap{max-width:760px;padding:40px 22px 80px;margin:0 auto}
+h1{font-size:1.6rem;line-height:1.25;margin:0 0 6px;color:var(--accent);clear:both}
+.meta{color:var(--muted);font-size:.92rem;margin-bottom:26px}
+h2{font-size:1.05rem;color:var(--accent);margin:34px 0 8px;border-bottom:1px solid var(--line);padding-bottom:5px}
+.card{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:14px 18px;margin:14px 0}
+.eq{font-family:"Cambria Math",Cambria,Georgia,serif;padding:12px 14px;background:var(--soft);border:1px solid var(--line);border-radius:7px;margin:14px 0;overflow-x:auto;text-align:center;line-height:1.95}
+.eq .row{display:block;white-space:nowrap}
+.frac{display:inline-flex;flex-direction:column;text-align:center;vertical-align:middle;line-height:1.25;margin:0 4px}
+.frac>span:first-child{border-bottom:1px solid;padding:0 4px}.frac>span:last-child{padding:0 4px}
+sub,sup{font-size:.72em}
+.small{font-size:.88rem;color:var(--muted)}
+figure{margin:20px 0}.fig{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:6px;margin:14px 0;color:var(--ink)}
+figcaption{font-size:.85rem;color:var(--muted);margin-top:6px}
+.legend{font:13px "Segoe UI",sans-serif;display:flex;gap:18px;flex-wrap:wrap}
+details{border:1px solid var(--line);border-radius:7px;padding:10px 14px;margin:14px 0}
+summary{cursor:pointer;color:var(--accent);font-size:.9rem;font-weight:600}
+pre{overflow:auto;max-height:420px;font:12px/1.55 Consolas,monospace;padding:10px;background:var(--bg)}
+.src{font-size:.9rem}a{color:var(--accent);overflow-wrap:anywhere}
+table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:7px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.theme{position:static;float:right;margin:0 0 12px 12px;font-size:12px}
+button{padding:8px 12px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;cursor:pointer}
+button:hover{border-color:var(--teal)}
+.demo{border:1px solid var(--line);border-radius:6px;background:var(--soft);padding:18px;margin-top:16px}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:20px 0}
+.controls label{font-size:14px;display:block}.controls output{float:right;font-weight:700}
+input[type=range]{width:100%;accent-color:var(--teal);margin-top:12px}
+.buttons{display:flex;gap:8px;flex-wrap:wrap}
+canvas{width:100%;display:block;height:430px}
+.readout{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:15px}
+.readout div{background:var(--bg);padding:10px;border-radius:5px;font-size:12px}
+.readout b{display:block;font-size:18px;color:var(--accent)}
+.scrub{font:13px "Segoe UI",sans-serif;margin:14px 0}.scrub input{display:block}
+#status{min-height:3em}
+@media(max-width:600px){
+  .wrap{padding:28px 16px 55px}h1{font-size:1.6rem}.controls{grid-template-columns:1fr}
+  .readout{grid-template-columns:1fr}canvas{height:480px}.demo{padding:10px}.eq{font-size:14px}.legend{font-size:12px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<button class="theme" id="theme" aria-label="Toggle light and dark theme">◐ Theme</button>
+
+<h1>Week 2 Extension: Malignant Transformation Rewrites Gene-Expression Parameters</h1>
+<p class="meta">Author: fei wang · Week 2 · CCBS 2026</p>
+
+<p class="card"><strong>One sentence:</strong> When a normal pancreatic cell becomes a pancreatic cancer cell, the production-minus-removal structure of gene expression remains intact, but transcription, translation, RNA and protein lifetimes, growth dilution, gene dosage, and protein activity can all change—so the same observed protein increase can arise from different hidden mechanisms.</p>
+
+<h2 id="point">The point I am adding</h2>
+<p>Lecture 3 resolves a lumped gene-expression arrow into two dynamical pools: messenger RNA <em>M</em> and protein <em>P</em>.<sup class="c"><a href="#r-course">1</a></sup> I use that same accounting to ask what changes when a normal pancreatic epithelial cell moves toward pancreatic ductal adenocarcinoma (PDAC). The answer is not that cancer invents a new balance law. Production is still opposed by removal. What changes are the regulatory function and the parameters inside it.</p>
+
+<p>The extension matters because the phrase “gene X is upregulated in cancer” is mechanistically incomplete. More protein can come from stronger transcription, faster translation, slower mRNA decay, slower protein decay, altered dilution by growth, increased gene copy number, or a change in protein activity that occurs even without a large abundance change. This is a theoretical transfer of the lecture model, with illustrative parameters rather than a fitted tumor dataset.</p>
+
+<h2 id="work">Work it</h2>
+<p>Let <em>R</em> denote the effective transcriptional regulator state, <em>M</em> the mRNA of a gene of interest, and <em>P</em> its protein product. Let <em>q</em><sub>D</sub> denote gene/promoter dosage, <em>C</em> an effective chromatin state, and <em>μ</em> a mutation or protein-state variable. Normal and tumor cells share the same bookkeeping:</p>
+
+<div class="eq" aria-label="Normal and tumor gene expression equations">
+<span class="row">Normal: &nbsp; dM<sub>N</sub>/dt = f<sub>tx</sub><sup>N</sup>(R<sub>N</sub>,q<sub>D</sub><sup>N</sup>,C<sub>N</sub>) − (δ<sub>M</sub><sup>N</sup> + λ<sub>N</sub>)M<sub>N</sub></span>
+<span class="row">dP<sub>N</sub>/dt = k<sub>tl</sub><sup>N</sup>M<sub>N</sub> − (δ<sub>P</sub><sup>N</sup> + λ<sub>N</sub>)P<sub>N</sub></span>
+<span class="row">Tumor: &nbsp; dM<sub>T</sub>/dt = f<sub>tx</sub><sup>T</sup>(R<sub>T</sub>,q<sub>D</sub><sup>T</sup>,C<sub>T</sub>) − (δ<sub>M</sub><sup>T</sup> + λ<sub>T</sub>)M<sub>T</sub></span>
+<span class="row">dP<sub>T</sub>/dt = k<sub>tl</sub><sup>T</sup>M<sub>T</sub> − (δ<sub>P</sub><sup>T</sup> + λ<sub>T</sub>)P<sub>T</sub></span>
+</div>
+
+<p>The structure does not change: mRNA is produced and removed; protein is produced from mRNA and removed by intrinsic turnover plus dilution. The tumor state is therefore a different parameter set, not a different grammar. Integrated genomic studies of PDAC show recurrent alterations in <em>KRAS</em>, <em>TP53</em>, <em>CDKN2A</em>, <em>SMAD4</em>, and other regulators, consistent with the idea that the regulatory inputs and gene-state landscape are rewired during progression.<sup class="c"><a href="#r-tcga">2</a></sup></p>
+
+<p>At steady state, the two pools solve in causal order:</p>
+<div class="eq">
+<span class="row">M<sup>*</sup> = <span class="frac"><span>f<sub>tx</sub>(R,q<sub>D</sub>,C)</span><span>δ<sub>M</sub> + λ</span></span></span>
+<span class="row">P<sup>*</sup> = <span class="frac"><span>k<sub>tl</sub></span><span>δ<sub>P</sub> + λ</span></span>M<sup>*</sup> = <span class="frac"><span>k<sub>tl</sub> f<sub>tx</sub>(R,q<sub>D</sub>,C)</span><span>(δ<sub>M</sub>+λ)(δ<sub>P</sub>+λ)</span></span></span>
+</div>
+
+<p>So the tumor-to-normal protein fold change decomposes into separate mechanistic contributions:</p>
+<div class="eq">
+<span class="row">
+<span class="frac"><span>P<sub>T</sub><sup>*</sup></span><span>P<sub>N</sub><sup>*</sup></span></span>
+=
+<span class="frac"><span>k<sub>tl</sub><sup>T</sup></span><span>k<sub>tl</sub><sup>N</sup></span></span>
+×
+<span class="frac"><span>f<sub>tx</sub><sup>T</sup></span><span>f<sub>tx</sub><sup>N</sup></span></span>
+×
+<span class="frac"><span>δ<sub>M</sub><sup>N</sup>+λ<sub>N</sub></span><span>δ<sub>M</sub><sup>T</sup>+λ<sub>T</sub></span></span>
+×
+<span class="frac"><span>δ<sub>P</sub><sup>N</sup>+λ<sub>N</sub></span><span>δ<sub>P</sub><sup>T</sup>+λ<sub>T</sub></span></span>.
+</span>
+</div>
+
+<p>This identity is the useful part of the extension. A two-fold protein increase does not tell us which factor supplied the two-fold change. It is a phenotype that several mechanisms can produce.</p>
+
+<figure>
+<svg class="fig" viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Normal to pancreatic cancer gene-expression model">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#1F9A8E"/></marker>
+    <marker id="arrow2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#D75567"/></marker>
+  </defs>
+  <text x="30" y="28" font-size="13" fill="currentColor">THE BALANCE LAW STAYS; THE PARAMETERS MOVE</text>
+
+  <rect x="28" y="52" width="300" height="205" rx="12" fill="none" stroke="#d8dee4"/>
+  <text x="48" y="78" font-size="14" fill="#5A73CE">Normal pancreatic cell</text>
+  <circle cx="82" cy="125" r="24" fill="none" stroke="#5A73CE" stroke-width="2.5"/><text x="82" y="130" text-anchor="middle" font-size="18" fill="#5A73CE">D</text>
+  <line x1="108" y1="125" x2="166" y2="125" stroke="#1F9A8E" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <circle cx="196" cy="125" r="24" fill="none" stroke="#1F9A8E" stroke-width="2.5"/><text x="196" y="130" text-anchor="middle" font-size="18" fill="#1F9A8E">M</text>
+  <line x1="222" y1="125" x2="280" y2="125" stroke="#1F9A8E" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <circle cx="304" cy="125" r="24" fill="none" stroke="#D75567" stroke-width="2.5"/><text x="304" y="130" text-anchor="middle" font-size="18" fill="#D75567">P</text>
+  <text x="80" y="181" font-size="12" fill="currentColor">f<tspan baseline-shift="sub" font-size="9">tx</tspan></text>
+  <text x="181" y="181" font-size="12" fill="currentColor">δ<tspan baseline-shift="sub" font-size="9">M</tspan> + λ</text>
+  <text x="265" y="181" font-size="12" fill="currentColor">k<tspan baseline-shift="sub" font-size="9">tl</tspan></text>
+  <text x="245" y="205" font-size="12" fill="currentColor">δ<tspan baseline-shift="sub" font-size="9">P</tspan> + λ</text>
+  <text x="48" y="237" font-size="12" fill="#566">One internally consistent parameter set</text>
+
+  <line x1="345" y1="150" x2="382" y2="150" stroke="#D75567" stroke-width="3" marker-end="url(#arrow2)"/>
+  <text x="364" y="136" text-anchor="middle" font-size="11" fill="#D75567">transformation</text>
+
+  <rect x="392" y="52" width="300" height="205" rx="12" fill="none" stroke="#d8dee4"/>
+  <text x="412" y="78" font-size="14" fill="#D75567">PDAC state</text>
+  <circle cx="446" cy="125" r="24" fill="none" stroke="#5A73CE" stroke-width="2.5"/><text x="446" y="130" text-anchor="middle" font-size="18" fill="#5A73CE">D</text>
+  <line x1="472" y1="125" x2="530" y2="125" stroke="#1F9A8E" stroke-width="3.6" marker-end="url(#arrow)"/>
+  <circle cx="560" cy="125" r="24" fill="none" stroke="#1F9A8E" stroke-width="2.5"/><text x="560" y="130" text-anchor="middle" font-size="18" fill="#1F9A8E">M</text>
+  <line x1="586" y1="125" x2="644" y2="125" stroke="#1F9A8E" stroke-width="3.6" marker-end="url(#arrow)"/>
+  <circle cx="668" cy="125" r="24" fill="none" stroke="#D75567" stroke-width="2.5"/><text x="668" y="130" text-anchor="middle" font-size="18" fill="#D75567">P</text>
+  <text x="410" y="176" font-size="12" fill="currentColor">R, q<tspan baseline-shift="sub" font-size="9">D</tspan>, chromatin</text>
+  <text x="510" y="198" font-size="12" fill="currentColor">δ<tspan baseline-shift="sub" font-size="9">M</tspan>, k<tspan baseline-shift="sub" font-size="9">tl</tspan>, δ<tspan baseline-shift="sub" font-size="9">P</tspan>, λ</text>
+  <text x="410" y="222" font-size="12" fill="currentColor">mutation / protein-state output</text>
+  <text x="410" y="242" font-size="12" fill="#566">Same arrows; different effective parameters</text>
+</svg>
+<div class="legend">
+  <span style="color:var(--peri)">━ gene/promoter state</span>
+  <span style="color:var(--teal)">━ production</span>
+  <span style="color:var(--rose)">━ protein / transformation</span>
+</div>
+<figcaption><strong>Figure 1.</strong> Malignant transformation changes the values and regulatory dependencies inside the gene-expression law rather than replacing the production-minus-removal structure. Arrow thickness is conceptual, not measured.</figcaption>
+</figure>
+
+<p>Protein abundance is still not the final state variable. An oncogenic mutation can change function without a proportionate abundance change. Introduce a functional activity <em>A</em>:</p>
+
+<div class="eq">
+<span class="row">A = h(P, μ, Φ, L)</span>
+<span class="small">μ: mutation state · Φ: post-translational state · L: localization / interaction state</span>
+</div>
+
+<p>KRAS makes the distinction concrete. Oncogenic KRAS can drive persistent downstream signaling and pancreatic tumorigenesis because the biochemical state of the protein is altered; the relevant change is not simply “more KRAS protein.”<sup class="c"><a href="#r-kras">3</a></sup> In the reduced model, it is therefore possible to have P<sub>T</sub> ≈ P<sub>N</sub> while A<sub>T</sub> ≫ A<sub>N</sub>.</p>
+
+<details>
+<summary>Step-by-step derivation and assumptions</summary>
+<p>The normal and tumor equations both follow the same addition-minus-removal accounting. Setting dM/dt = 0 gives M<sup>*</sup> = f<sub>tx</sub>/(δ<sub>M</sub>+λ). Substituting that result into dP/dt = 0 gives P<sup>*</sup> = k<sub>tl</sub>f<sub>tx</sub>/[(δ<sub>M</sub>+λ)(δ<sub>P</sub>+λ)]. Dividing the tumor expression by the normal expression produces the fold-change factorization above.</p>
+<p>If the promoter source is itself resolved, a repressor-controlled transcription law can be written schematically as f<sub>tx</sub>(R) = r<sub>0</sub> + (r<sub>1</sub>−r<sub>0</sub>)K<sup>n</sup>/(K<sup>n</sup>+R<sup>n</sup>). In cancer, R, K, n, r<sub>0</sub>, r<sub>1</sub>, and q<sub>D</sub> are effective quantities that can shift because transcription-factor activity, chromatin accessibility, enhancer state, or copy number has changed.</p>
+<p>The steady-state ratio does not by itself identify which term changed. Distinguishing transcription from RNA stabilization, translation, and protein stabilization requires separate measurements. Recent PDAC literature also emphasizes post-transcriptional control of mRNA stability as a contributor to malignant adaptation.<sup class="c"><a href="#r-rna">4</a></sup></p>
+</details>
+
+<details>
+<summary>Parameters, numerical method and runnable source</summary>
+<p>The interactive model below is illustrative. Before the switch, parameters are chosen so that M = P = A = 1 at steady state: f<sub>0</sub> = 0.14 min<sup>−1</sup>, k<sub>tl,0</sub> = 0.06 min<sup>−1</sup>, δ<sub>M,0</sub> = 0.12 min<sup>−1</sup>, δ<sub>P,0</sub> = 0.04 min<sup>−1</sup>, and λ<sub>0</sub> = 0.02 min<sup>−1</sup>. At t = 20 min, a tumor-like parameter set is imposed. “Lifetime factor” multiplies lifetime by dividing the corresponding degradation constant. RK4 integration is used with a 0.02 min internal step.</p>
+<pre><code>State: [M, P]
+dM/dt = ftx - (deltaM + lambda) M
+dP/dt = ktl M - (deltaP + lambda) P
+A = activityMultiplier * P
+
+Tumor-like switch at t = 20 min:
+ftx    = f0 * transcriptionFold
+ktl    = ktl0 * translationFold
+deltaM = deltaM0 / mRNAlifetimeFactor
+deltaP = deltaP0 / proteinLifetimeFactor
+lambda = lambda0 * growthFold
+</code></pre>
+</details>
+
+<h2 id="limits">What I would argue against / where this breaks</h2>
+<p>An increased tumor protein level is not proof of increased transcription. Unchanged mRNA is not proof that the pathway is unchanged, and unchanged protein abundance is not proof of unchanged activity. The reduced model also treats each species as one well-mixed pool and compresses promoter occupancy, chromatin, translation machinery, degradation systems, spatial compartmentalization, and feedback into effective parameters.</p>
+
+<p>The steady-state formulas require a parameter regime to persist long enough for relaxation. During real pancreatic carcinogenesis, the parameters themselves evolve as cells move through precursor and malignant states. A more general description is therefore Θ(t) = {R(t), q<sub>D</sub>(t), C(t), k<sub>tl</sub>(t), δ<sub>M</sub>(t), δ<sub>P</sub>(t), λ(t), μ(t)}. A tumor is also multicellular, so these effective parameters can differ across epithelial cells, fibroblasts, immune cells, and spatial microenvironments. The model is useful because it separates hypotheses; it is not a claim that one universal PDAC rate constant exists.</p>
+
+<h2 id="refs">Sources</h2>
+<ol class="src">
+<li id="r-course">Fangzhou Xiao. <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture03-core.html" target="_blank" rel="noopener">From reactions to systems: how biochemical behavior emerges.</a> CCBS Lecture 3 core, 2026. Section 7 supplies the mRNA–protein production/removal framework and the steady-state reduction. This pancreatic-cancer application is the extension.</li>
+<li id="r-tcga">Cancer Genome Atlas Research Network. <a href="https://pubmed.ncbi.nlm.nih.gov/28810144/" target="_blank" rel="noopener">Integrated Genomic Characterization of Pancreatic Ductal Adenocarcinoma.</a> <em>Cancer Cell</em>. 2017. Used here to support the statement that PDAC carries recurrent genomic and regulatory alterations rather than one single expression change.</li>
+<li id="r-kras">Waters AM, Der CJ. <a href="https://pubmed.ncbi.nlm.nih.gov/29229669/" target="_blank" rel="noopener">KRAS: The Critical Driver and Therapeutic Target for Pancreatic Cancer.</a> <em>Cold Spring Harb Perspect Med</em>. 2018. Used here for the distinction between oncogenic KRAS activity and simple abundance.</li>
+<li id="r-rna"><a href="https://pubmed.ncbi.nlm.nih.gov/42317311/" target="_blank" rel="noopener">Post-transcriptional regulation of mRNA stability in pancreatic ductal adenocarcinoma.</a> 2026 review. Used here to motivate δ<sub>M</sub> as a biologically variable term rather than a fixed background constant.</li>
+</ol>
+
+<h2 id="playground">Try it: change the tumor parameter set</h2>
+<p class="small">Predict which molecular layer will dominate, then move the controls. The shaded region begins at the transformation switch (20 min). These are model calculations, not patient measurements.</p>
+
+<section class="demo" aria-label="Interactive pancreatic transformation gene-expression model">
+<div class="controls">
+  <label for="tx">Transcription fold <output id="txVal">2.00×</output><input id="tx" type="range" min="0.25" max="4" step="0.05" value="2"></label>
+  <label for="tl">Translation fold <output id="tlVal">1.50×</output><input id="tl" type="range" min="0.25" max="3" step="0.05" value="1.5"></label>
+  <label for="mlife">mRNA lifetime factor <output id="mlifeVal">1.50×</output><input id="mlife" type="range" min="0.5" max="4" step="0.05" value="1.5"></label>
+  <label for="plife">Protein lifetime factor <output id="plifeVal">1.50×</output><input id="plife" type="range" min="0.5" max="4" step="0.05" value="1.5"></label>
+  <label for="growth">Growth / dilution fold <output id="growthVal">1.50×</output><input id="growth" type="range" min="0.5" max="4" step="0.05" value="1.5"></label>
+  <label for="activity">Protein activity multiplier <output id="activityVal">2.00×</output><input id="activity" type="range" min="0.5" max="5" step="0.05" value="2"></label>
+</div>
+
+<div class="buttons">
+  <button id="expressionPreset">Expression-driven</button>
+  <button id="stabilityPreset">Stability-driven</button>
+  <button id="activityPreset">Activity-only</button>
+  <button id="replay">Replay</button>
+  <button id="pause">Pause</button>
+  <button id="reset">Reset</button>
+</div>
+
+<canvas id="plot" role="img" aria-label="Time courses of normalized mRNA, protein, and functional activity"></canvas>
+
+<div class="scrub">
+<label for="time">Inspect time: <output id="timeVal">0.0 min</output></label>
+<input id="time" type="range" min="0" max="180" step="0.1" value="0">
+</div>
+
+<div class="readout" aria-live="off">
+  <div>mRNA M / normal<b id="mNow"></b></div>
+  <div>Protein P / normal<b id="pNow"></b></div>
+  <div>Activity A / normal<b id="aNow"></b></div>
+</div>
+<p id="status" class="small" aria-live="polite"></p>
+<p class="small">A higher final protein level can be produced by several parameter combinations. The “Activity-only” preset illustrates why oncogenic state can change pathway output even when M and P remain close to their normal levels.</p>
+</section>
+</div>
+
+<script>
+const PARAM = Object.freeze({
+  f0:0.14, ktl0:0.06, dM0:0.12, dP0:0.04, lambda0:0.02,
+  switchTime:20, end:180
+});
+
+function rhs(y,t,p){
+  const tumor=t>=PARAM.switchTime;
+  const f = tumor ? PARAM.f0*p.tx : PARAM.f0;
+  const ktl = tumor ? PARAM.ktl0*p.tl : PARAM.ktl0;
+  const dM = tumor ? PARAM.dM0/p.mlife : PARAM.dM0;
+  const dP = tumor ? PARAM.dP0/p.plife : PARAM.dP0;
+  const lam = tumor ? PARAM.lambda0*p.growth : PARAM.lambda0;
+  return [f-(dM+lam)*y[0], ktl*y[0]-(dP+lam)*y[1]];
+}
+
+function rk4(y,t,h,p){
+  const a=rhs(y,t,p);
+  const yb=y.map((v,i)=>v+h*a[i]/2), b=rhs(yb,t+h/2,p);
+  const yc=y.map((v,i)=>v+h*b[i]/2), c=rhs(yc,t+h/2,p);
+  const yd=y.map((v,i)=>v+h*c[i]), d=rhs(yd,t+h,p);
+  return y.map((v,i)=>v+h*(a[i]+2*b[i]+2*c[i]+d[i])/6);
+}
+
+function simulate(p){
+  let y=[1,1],t=0;
+  const out=[[0,1,1,1]];
+  for(let n=1;n<=1800;n++){
+    const target=n/10;
+    while(t<target-1e-10){
+      const h=Math.min(0.02,target-t);
+      y=rk4(y,t,h,p); t+=h;
+    }
+    const A=(target>=PARAM.switchTime?p.activity:1)*y[1];
+    out.push([target,y[0],y[1],A]);
+  }
+  return out;
+}
+
+(()=>{
+'use strict';
+const el=id=>document.getElementById(id), canvas=el('plot'), ctx=canvas.getContext('2d');
+let data=[],time=0,playing=true,last=0;
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+function params(){
+  return {
+    tx:+el('tx').value, tl:+el('tl').value, mlife:+el('mlife').value,
+    plife:+el('plife').value, growth:+el('growth').value, activity:+el('activity').value
+  };
+}
+
+function update(){
+  const p=params();
+  data=simulate(p); time=0; playing=true; el('pause').textContent='Pause';
+  el('txVal').value=p.tx.toFixed(2)+'×';
+  el('tlVal').value=p.tl.toFixed(2)+'×';
+  el('mlifeVal').value=p.mlife.toFixed(2)+'×';
+  el('plifeVal').value=p.plife.toFixed(2)+'×';
+  el('growthVal').value=p.growth.toFixed(2)+'×';
+  el('activityVal').value=p.activity.toFixed(2)+'×';
+
+  const dM=PARAM.dM0/p.mlife, dP=PARAM.dP0/p.plife, lam=PARAM.lambda0*p.growth;
+  const Mstar=PARAM.f0*p.tx/(dM+lam);
+  const Pstar=PARAM.ktl0*p.tl*Mstar/(dP+lam);
+  const Astar=p.activity*Pstar;
+  el('status').textContent=
+    `Predicted tumor-like steady state: M* = ${Mstar.toFixed(2)}× normal, `+
+    `P* = ${Pstar.toFixed(2)}× normal, A* = ${Astar.toFixed(2)}× normal. `+
+    `These values identify the consequence of the chosen parameter set, not which parameter would be altered in a real tumor.`;
+  draw();
+}
+
+function draw(){
+  const width=canvas.clientWidth,height=canvas.clientHeight,dpr=window.devicePixelRatio||1;
+  if(canvas.width!==Math.round(width*dpr)||canvas.height!==Math.round(height*dpr)){
+    canvas.width=Math.round(width*dpr); canvas.height=Math.round(height*dpr);
+  }
+  ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,width,height);
+
+  const fg=css('--ink'), muted=css('--muted'), line=css('--line');
+  const index=Math.min(1800,Math.round(time*10)), point=data[index]||data[0];
+  el('time').value=time; el('timeVal').value=time.toFixed(1)+' min';
+  el('mNow').textContent=point[1].toFixed(2)+'×';
+  el('pNow').textContent=point[2].toFixed(2)+'×';
+  el('aNow').textContent=point[3].toFixed(2)+'×';
+
+  const maxAll=Math.max(1.4,...data.map(d=>Math.max(d[1],d[2],d[3])))*1.08;
+  const panels=[
+    {name:'mRNA M / normal',col:1,max:maxAll,color:css('--teal')},
+    {name:'Protein P / normal',col:2,max:maxAll,color:css('--rose')},
+    {name:'Functional activity A / normal',col:3,max:maxAll,color:css('--peri')}
+  ];
+
+  panels.forEach((p,j)=>{
+    const left=47,top=25+j*(height/3),w=width-left-17,h=height/3-48;
+    const X=t=>left+w*t/180, Y=y=>top+h*(1-y/p.max);
+
+    ctx.fillStyle=fg;ctx.globalAlpha=.06;
+    ctx.fillRect(X(PARAM.switchTime),top,w*(180-PARAM.switchTime)/180,h);
+    ctx.globalAlpha=1;
+
+    ctx.fillStyle=muted;ctx.font='12px Segoe UI';ctx.textAlign='left';
+    ctx.fillText(p.name,left,top-8);
+
+    ctx.font='10px Segoe UI';
+    for(let k=0;k<=2;k++){
+      const v=p.max*k/2;
+      ctx.strokeStyle=line;ctx.beginPath();ctx.moveTo(left,Y(v));ctx.lineTo(left+w,Y(v));ctx.stroke();
+      ctx.fillStyle=muted;ctx.textAlign='right';ctx.fillText(v.toFixed(1),left-6,Y(v)+3);
+    }
+    [0,45,90,135,180].forEach(t=>{
+      ctx.textAlign='center';ctx.fillStyle=muted;ctx.fillText(t,X(t),top+h+14);
+    });
+
+    ctx.setLineDash([4,4]);ctx.strokeStyle=muted;ctx.beginPath();
+    ctx.moveTo(left,Y(1));ctx.lineTo(left+w,Y(1));ctx.stroke();ctx.setLineDash([]);
+
+    ctx.strokeStyle=p.color;ctx.lineWidth=2.5;ctx.beginPath();
+    for(let i=0;i<=index;i++){
+      const d=data[i],x=X(d[0]),y=Y(d[p.col]);
+      if(!i)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+
+    ctx.strokeStyle=muted;ctx.lineWidth=1;ctx.setLineDash([2,4]);ctx.beginPath();
+    ctx.moveTo(X(time),top);ctx.lineTo(X(time),top+h);ctx.stroke();ctx.setLineDash([]);
+
+    ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(X(point[0]),Y(point[p.col]),3.5,0,Math.PI*2);ctx.fill();
+  });
+}
+
+function preset(v){
+  el('tx').value=v.tx;el('tl').value=v.tl;el('mlife').value=v.mlife;
+  el('plife').value=v.plife;el('growth').value=v.growth;el('activity').value=v.activity;update();
+}
+['tx','tl','mlife','plife','growth','activity'].forEach(id=>el(id).addEventListener('input',update));
+el('expressionPreset').onclick=()=>preset({tx:2.4,tl:1.7,mlife:1.0,plife:1.0,growth:1.5,activity:1.0});
+el('stabilityPreset').onclick=()=>preset({tx:1.0,tl:1.0,mlife:2.5,plife:2.5,growth:1.3,activity:1.0});
+el('activityPreset').onclick=()=>preset({tx:1.0,tl:1.0,mlife:1.0,plife:1.0,growth:1.0,activity:3.0});
+el('reset').onclick=()=>preset({tx:2.0,tl:1.5,mlife:1.5,plife:1.5,growth:1.5,activity:2.0});
+el('replay').onclick=()=>{time=0;playing=true;el('pause').textContent='Pause';draw();};
+el('pause').onclick=()=>{playing=!playing;el('pause').textContent=playing?'Pause':'Play';};
+el('time').oninput=()=>{time=+el('time').value;playing=false;el('pause').textContent='Play';draw();};
+el('theme').onclick=()=>{
+  const dark=document.documentElement.dataset.theme==='dark'||(!document.documentElement.dataset.theme&&matchMedia('(prefers-color-scheme:dark)').matches);
+  document.documentElement.dataset.theme=dark?'light':'dark';draw();
+};
+window.addEventListener('resize',draw);
+function frame(now){
+  if(playing&&last){
+    time=Math.min(180,time+Math.min((now-last)/1000,.1)*12);
+    if(time===180){playing=false;el('pause').textContent='Play';}
+    draw();
+  }
+  last=now;requestAnimationFrame(frame);
+}
+update();requestAnimationFrame(frame);
+window.essayTest={simulate,PARAM,getState:()=>({time,playing,params:params(),points:data.length})};
+})();
+</script>
+</body>
+</html>

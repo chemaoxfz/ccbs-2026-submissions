@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WEEK 3 — Extension: Fast and slow weights</title>
+<meta name="author" content="Weihan Luo">
+<meta name="week" content="week3">
+<style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px; border-bottom:1px solid var(--line); padding-bottom:5px; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px; padding:14px 18px; margin:14px 0; }
+  .fig { width:100%; border:1px solid var(--line); border-radius:6px; margin:14px 0; background:var(--bg); }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; }
+  code { background:var(--soft); padding:1px 4px; border-radius:3px; }
+  pre { overflow:auto; background:var(--soft); border:1px solid var(--line); border-radius:6px; padding:12px 14px; font-size:.82rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>WEEK 3 — Extension: Fast and slow weights</h1>
+<p class="meta">Author: Weihan Luo · Week 3 (2026-09-21) · CCBS 2026</p>
+
+<p class="card"><strong>One sentence:</strong> Fast weights in a learning system can be treated as an almost-instantaneous memory only when they adapt much faster than the slow weights that learn longer-term structure.</p>
+
+<h2>The point I am adding</h2>
+<p>Lecture 6 introduces singular perturbation: a system can contain a fast variable and a slow variable at the same time. The fast variable adjusts quickly, while the slow variable changes gradually. If the timescale ratio <code>ε</code> is very small, we can approximate the fast variable as already adjusted to the current slow state. This can reduce a complicated dynamical system to a simpler one.</p>
+
+<p>This idea has a useful connection to Jimmy Ba and colleagues' work on fast weights. In their neural-network model, fast weights respond to recent inputs and provide temporary memory, while ordinary weights change more slowly and store persistent regularities. The names are not accidental: both systems separate short-lived adaptation from long-lived structure.</p>
+
+<p>But the connection is a condition, not a free simplification. A fast-weight model can be approximated by a slow model only if the fast weights really have time to track the current input before the slow weights move substantially. If the two update speeds become similar, the fast weights carry their own transient history, and deleting them can change the model's behavior.</p>
+
+<h2>Work it</h2>
+<p>Consider a deliberately simple learning system. Let <code>s</code> be a slow weight and <code>f</code> be a fast weight. The slow weight moves toward a target, while the fast weight tries to track the current slow state:</p>
+
+<p class="card"><code>ds/dt = 1 − s</code><br><code>ε df/dt = s − f</code></p>
+
+<p>When <code>ε</code> is small, <code>f</code> quickly approaches <code>s</code>. The fast weight then looks like an instantaneous memory of the slow state. When <code>ε = 1</code>, the two variables move on the same clock and the tracking approximation is visibly worse.</p>
+
+<figure>
+  <svg class="fig" viewBox="0 0 640 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Fast variable tracking a slow variable for two timescale ratios">
+    <rect width="640" height="330" fill="none"/>
+    <line x1="55" y1="235" x2="615" y2="235" stroke="#899"/>
+    <line x1="55" y1="25" x2="55" y2="235" stroke="#899"/>
+    <text x="60" y="25" font-size="13" fill="#566">value</text>
+    <text x="570" y="258" font-size="13" fill="#566">time</text>
+    <path d="M55 225 C150 160 245 105 350 72 C450 48 535 38 615 34" fill="none" stroke="#1f4e79" stroke-width="3"/>
+    <path d="M55 225 C70 207 82 180 100 157 C145 120 245 94 350 70 C450 48 535 38 615 34" fill="none" stroke="#c45a3c" stroke-width="3"/>
+    <path d="M55 225 C115 205 180 173 250 140 C340 104 455 70 615 48" fill="none" stroke="#c45a3c" stroke-width="3" stroke-dasharray="8 6"/>
+    <line x1="60" y1="272" x2="90" y2="272" stroke="#1f4e79" stroke-width="3"/>
+    <text x="98" y="277" font-size="13" fill="#566">slow weight s</text>
+    <line x1="240" y1="272" x2="270" y2="272" stroke="#c45a3c" stroke-width="3"/>
+    <text x="278" y="277" font-size="13" fill="#566">fast weight f, ε=0.05</text>
+    <line x1="60" y1="302" x2="90" y2="302" stroke="#c45a3c" stroke-width="3" stroke-dasharray="8 6"/>
+    <text x="98" y="307" font-size="13" fill="#566">fast weight f, ε=1</text>
+  </svg>
+  <figcaption>Figure 1: In the toy system, the fast weight tracks the slow weight closely when ε = 0.05. When ε = 1, the tracking lag remains large. Curves are calculated from the code below using a forward-Euler step.</figcaption>
+</figure>
+
+<p>The small-ε curve supports the reduction <code>f ≈ s</code>: after a short transient, the two variables are nearly indistinguishable. The ε = 1 curve is a counterexample to treating every fast-looking variable as already equilibrated. The approximation is useful because of a measured timescale separation, not because the word “fast” appears in the model description.</p>
+
+<details>
+  <summary>Reproduce the figure</summary>
+  <pre><code>def simulate(epsilon, dt=0.002, end=5):
+    s, f = 0.0, 0.0
+    rows = []
+    for step in range(int(end / dt) + 1):
+        t = step * dt
+        rows.append((t, s, f))
+        ds = 1.0 - s
+        df = (s - f) / epsilon
+        s += dt * ds
+        f += dt * df
+    return rows
+
+slow_fast = simulate(0.05)
+same_speed = simulate(1.0)
+
+# Plot t against s and f for each result.
+# The slow curve is the same in both simulations.
+</code></pre>
+</details>
+
+<h2>What I would argue against / where this breaks</h2>
+<p>Fast and slow weights are not identical to a biochemical enzyme and substrate. Ba et al.'s fast weights are a machine-learning memory mechanism, while Lecture 6 studies differential equations motivated by biological reactions. Also, a real neural network may have many interacting weights, noisy gradients, changing inputs, and no single fixed value of ε.</p>
+
+<p>Even so, the shared lesson is precise: reducing a system by removing fast variables requires a timescale check. If the fast memory is updated quickly enough, it can be summarized by the current slow state. If not, its transient history is part of the computation and must be retained.</p>
+
+<h2>Sources</h2>
+<ul class="src">
+  <li><a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture06-core.html">CCBS Lecture 6 core: “Time-scale separation: fast recovery, slow freedom.”</a> — introduces fast/slow variables, singular perturbation, and the conditions for a reduced model.</li>
+  <li>Ba, J., Hinton, G., Mnih, V., Leibo, J. Z., and Ionescu, C. (2016), <a href="https://arxiv.org/abs/1610.06258">“Using Fast Weights to Attend to the Recent Past.”</a> — describes fast weights as temporary memory alongside slower learned weights.</li>
+</ul>
+
+</div>
+</body>
+</html>

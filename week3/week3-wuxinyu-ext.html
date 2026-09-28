@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="author" content="Xinyu Wu"><meta name="week" content="week3">
+<title>Week 3 — Same affinity, different protein crosslinking</title>
+<style>
+:root{--ink:#21313f;--muted:#576774;--accent:#175b70;--line:#d6e0e5;--bg:#fff;--soft:#f3f7f8}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 "Segoe UI",Arial,sans-serif}
+.wrap{max-width:800px;margin:auto;padding:36px 24px 60px}h1{font-size:1.8rem;line-height:1.2;color:var(--accent);margin:0 0 12px}h2{font-size:1.08rem;color:var(--accent);margin:25px 0 7px;border-bottom:1px solid var(--line);padding-bottom:5px}p{margin:10px 0}.meta,figcaption,.src,.note{color:var(--muted);font-size:.88rem}.card{background:var(--soft);border-left:4px solid var(--accent);padding:12px 16px}.eq{background:var(--soft);padding:10px 15px;text-align:center;line-height:1.9;overflow-wrap:anywhere}figure{margin:18px 0}svg{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:8px}figcaption{margin-top:6px}a{color:var(--accent);overflow-wrap:anywhere}li{margin-bottom:9px}ul{padding-left:22px}summary{cursor:pointer;color:var(--accent);font-weight:600}details{border:1px solid var(--line);padding:12px;margin-top:16px;border-radius:6px}pre{font-size:12px;line-height:1.5;overflow:auto;max-height:420px;background:var(--soft);padding:12px}table{border-collapse:collapse;width:100%;font-size:.89rem}th,td{text-align:left;padding:7px;border-bottom:1px solid var(--line)}.tablewrap{overflow:auto}
+@media(prefers-color-scheme:dark){:root{--ink:#e0e9ed;--muted:#b0bfc8;--accent:#93d4e1;--line:#3b4d58;--bg:#18232b;--soft:#21313c}}
+@media(max-width:480px){.wrap{padding:24px 16px}h1{font-size:1.5rem}body{font-size:15px}}
+@media print{body{font-size:11pt;background:white;color:#18232b}.wrap{max-width:none;padding:0}details{display:none}figure{break-inside:avoid}h2{break-after:avoid}a{color:inherit}}
+</style></head><body><main class="wrap">
+<h1>Same affinity, different protein crosslinking</h1>
+<p class="meta">Xinyu Wu (吴新宇) · Week 3 · CCBS 2026 · 15 September 2026<br>L5: Markov states → L6: when fast-state averaging fails</p>
+<p class="card"><strong>One sentence:</strong> Equal equilibrium binding affinity does not imply equal finite-time covalent crosslinking: averaging over binding is reliable only when binding exchange is sufficiently fast relative to capture.</p>
+
+<h2>The question from my research</h2>
+<p>I work on covalent protein crosslinking. If two binders have the same dissociation constant, should they crosslink equally well? Proximity-enabled covalent protein engineering makes this question concrete: Li et al. engineered PD-1 to covalently capture PD-L1 [1]. However, proximity is an opportunity, not a completed bond. I use a minimal model to ask when equilibrium occupancy loses the timing information needed to predict capture.</p>
+
+<h2>Three states, one quantitative null model</h2>
+<p>Consider protein A already bearing a reactive group, with partner B in excess. Let U, C and X denote the fractions unbound, reversibly complexed and covalently crosslinked. This isolates the second capture step, not the entire chemistry of adding a bifunctional linker.</p>
+<div class="eq" aria-label="Unbound binds reversibly to complex; complex reacts irreversibly to crosslink">
+U ⇄ C → X<br>U → C: a = k<sub>on</sub>[B]; &nbsp; C → U: b = k<sub>off</sub>; &nbsp; C → X: c<br>
+dU/dt = −aU + bC<br>dC/dt = aU − (b + c)C; &nbsp; dX/dt = cC
+</div>
+<p>All three rates have units s<sup>−1</sup>. Assume constant rates, irreversible capture and an initially unbound population: U(0)=1. These are also the state probabilities of a continuous-time Markov chain. Without capture, the bound fraction is p<sub>eq</sub>=a/(a+b).</p>
+<p><strong>Null assumption:</strong> binding equilibrates instantly within the unreacted pool, so C≈p<sub>eq</sub>(1−X). Consequently,</p>
+<div class="eq">X<sub>RE</sub>(t) = 1 − exp(−c p<sub>eq</sub> t).</div>
+<p>This rapid-equilibrium reduction is justified in the fast-exchange limit c/(a+b)≪1, after the initial binding transient. It is not an identity for arbitrary rates.</p>
+
+<h2>A counterexample I calculated</h2>
+<p>Set [B]=1 μM and c=0.1 s<sup>−1</sup>. Compare slow exchange, a=b=0.01 s<sup>−1</sup>, with fast exchange, a=b=1 s<sup>−1</sup>. Both have K<sub>d</sub>=b/k<sub>on</sub>=1 μM and p<sub>eq</sub>=1/2. Every parameter is illustrative, not measured or fitted.</p>
+<figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 390" role="img" aria-labelledby="plot-title plot-desc">
+<title id="plot-title">Same affinity, different finite-time crosslinking</title>
+<desc id="plot-desc">At sixty seconds the slow-exchange model gives about 37 percent crosslinking, the fast-exchange model 95 percent, despite identical equilibrium binding affinity. The rapid-equilibrium approximation predicts 95 percent for both.</desc>
+<rect width="720" height="390" rx="8" fill="white"/>
+<g font-family="Arial, sans-serif" font-size="14" fill="#263747">
+<text x="24" y="28" font-size="18" font-weight="bold">Same Kd = 1 μM; same chemical rate c = 0.1 s⁻¹</text>
+<line x1="25" y1="54" x2="52" y2="54" stroke="#697581" stroke-width="3" stroke-dasharray="7 5"/>
+<text x="58" y="59">Rapid-equilibrium null</text>
+<line x1="310" y1="54" x2="337" y2="54" stroke="#087e8b" stroke-width="3" stroke-dasharray=""/>
+<text x="343" y="59">Fast exchange</text>
+<line x1="510" y1="54" x2="537" y2="54" stroke="#c14a23" stroke-width="3" stroke-dasharray=""/>
+<text x="543" y="59">Slow exchange</text>
+<line x1="70" y1="330.0" x2="695" y2="330.0" stroke="#e2e8ed"/>
+<text x="58" y="335.0" text-anchor="end">0</text>
+<line x1="70" y1="269.5" x2="695" y2="269.5" stroke="#e2e8ed"/>
+<text x="58" y="274.5" text-anchor="end">0.25</text>
+<line x1="70" y1="209.0" x2="695" y2="209.0" stroke="#e2e8ed"/>
+<text x="58" y="214.0" text-anchor="end">0.5</text>
+<line x1="70" y1="148.5" x2="695" y2="148.5" stroke="#e2e8ed"/>
+<text x="58" y="153.5" text-anchor="end">0.75</text>
+<line x1="70" y1="88.0" x2="695" y2="88.0" stroke="#e2e8ed"/>
+<text x="58" y="93.0" text-anchor="end">1</text>
+<text x="70.0" y="354" text-anchor="middle">0</text>
+<text x="226.25" y="354" text-anchor="middle">30</text>
+<text x="382.5" y="354" text-anchor="middle">60</text>
+<text x="538.75" y="354" text-anchor="middle">90</text>
+<text x="695.0" y="354" text-anchor="middle">120</text>
+<path d="M70,88 V330 H695" fill="none" stroke="#415463"/>
+<text x="380" y="380" text-anchor="middle">Time after mixing (s)</text>
+<text transform="translate(20,210) rotate(-90)" text-anchor="middle">Crosslinked fraction X(t)</text>
+<line x1="382.5" y1="88" x2="382.5" y2="330" stroke="#aab4bc" stroke-dasharray="3 5"/>
+<path d="M70.00,330.00 L75.21,318.20 L80.42,306.97 L85.62,296.29 L90.83,286.13 L96.04,276.47 L101.25,267.28 L106.46,258.53 L111.67,250.22 L116.88,242.31 L122.08,234.78 L127.29,227.62 L132.50,220.81 L137.71,214.34 L142.92,208.17 L148.12,202.31 L153.33,196.74 L158.54,191.43 L163.75,186.39 L168.96,181.59 L174.17,177.03 L179.38,172.68 L184.58,168.55 L189.79,164.63 L195.00,160.89 L200.21,157.33 L205.42,153.95 L210.62,150.74 L215.83,147.68 L221.04,144.77 L226.25,142.00 L231.46,139.36 L236.67,136.86 L241.88,134.48 L247.08,132.21 L252.29,130.05 L257.50,128.00 L262.71,126.05 L267.92,124.20 L273.12,122.43 L278.33,120.75 L283.54,119.15 L288.75,117.63 L293.96,116.19 L299.17,114.81 L304.38,113.51 L309.58,112.26 L314.79,111.08 L320.00,109.95 L325.21,108.88 L330.42,107.86 L335.62,106.90 L340.83,105.97 L346.04,105.10 L351.25,104.26 L356.46,103.47 L361.67,102.72 L366.88,102.00 L372.08,101.32 L377.29,100.67 L382.50,100.05 L387.71,99.46 L392.92,98.90 L398.12,98.37 L403.33,97.86 L408.54,97.38 L413.75,96.93 L418.96,96.49 L424.17,96.08 L429.38,95.68 L434.58,95.31 L439.79,94.95 L445.00,94.61 L450.21,94.29 L455.42,93.98 L460.62,93.69 L465.83,93.41 L471.04,93.15 L476.25,92.90 L481.46,92.66 L486.67,92.43 L491.88,92.22 L497.08,92.01 L502.29,91.81 L507.50,91.63 L512.71,91.45 L517.92,91.28 L523.12,91.12 L528.33,90.97 L533.54,90.83 L538.75,90.69 L543.96,90.56 L549.17,90.43 L554.38,90.31 L559.58,90.20 L564.79,90.09 L570.00,89.99 L575.21,89.89 L580.42,89.80 L585.62,89.71 L590.83,89.63 L596.04,89.55 L601.25,89.48 L606.46,89.40 L611.67,89.34 L616.88,89.27 L622.08,89.21 L627.29,89.15 L632.50,89.09 L637.71,89.04 L642.92,88.99 L648.12,88.94 L653.33,88.89 L658.54,88.85 L663.75,88.81 L668.96,88.77 L674.17,88.73 L679.38,88.70 L684.58,88.66 L689.79,88.63 L695.00,88.60" fill="none" stroke="#697581" stroke-width="2.6" stroke-dasharray="7 5"/>
+<path d="M70.00,330.00 L75.21,323.34 L80.42,312.77 L85.62,302.15 L90.83,291.97 L96.04,282.27 L101.25,273.02 L106.46,264.22 L111.67,255.84 L116.88,247.85 L122.08,240.24 L127.29,233.00 L132.50,226.10 L137.71,219.53 L142.92,213.27 L148.12,207.31 L153.33,201.63 L158.54,196.23 L163.75,191.08 L168.96,186.17 L174.17,181.50 L179.38,177.05 L184.58,172.82 L189.79,168.78 L195.00,164.94 L200.21,161.28 L205.42,157.79 L210.62,154.47 L215.83,151.31 L221.04,148.29 L226.25,145.42 L231.46,142.69 L236.67,140.09 L241.88,137.61 L247.08,135.25 L252.29,133.00 L257.50,130.86 L262.71,128.82 L267.92,126.88 L273.12,125.03 L278.33,123.27 L283.54,121.59 L288.75,119.99 L293.96,118.47 L299.17,117.02 L304.38,115.64 L309.58,114.32 L314.79,113.07 L320.00,111.88 L325.21,110.74 L330.42,109.66 L335.62,108.63 L340.83,107.65 L346.04,106.71 L351.25,105.82 L356.46,104.97 L361.67,104.17 L366.88,103.40 L372.08,102.66 L377.29,101.97 L382.50,101.30 L387.71,100.67 L392.92,100.07 L398.12,99.49 L403.33,98.95 L408.54,98.42 L413.75,97.93 L418.96,97.46 L424.17,97.01 L429.38,96.58 L434.58,96.17 L439.79,95.78 L445.00,95.41 L450.21,95.06 L455.42,94.72 L460.62,94.40 L465.83,94.10 L471.04,93.81 L476.25,93.53 L481.46,93.27 L486.67,93.02 L491.88,92.78 L497.08,92.55 L502.29,92.33 L507.50,92.13 L512.71,91.93 L517.92,91.75 L523.12,91.57 L528.33,91.40 L533.54,91.24 L538.75,91.08 L543.96,90.93 L549.17,90.80 L554.38,90.66 L559.58,90.54 L564.79,90.41 L570.00,90.30 L575.21,90.19 L580.42,90.09 L585.62,89.99 L590.83,89.89 L596.04,89.80 L601.25,89.72 L606.46,89.64 L611.67,89.56 L616.88,89.48 L622.08,89.41 L627.29,89.35 L632.50,89.28 L637.71,89.22 L642.92,89.16 L648.12,89.11 L653.33,89.05 L658.54,89.00 L663.75,88.96 L668.96,88.91 L674.17,88.87 L679.38,88.83 L684.58,88.79 L689.79,88.75 L695.00,88.71" fill="none" stroke="#087e8b" stroke-width="2.6" stroke-dasharray=""/>
+<path d="M70.00,330.00 L75.21,329.88 L80.42,329.55 L85.62,329.03 L90.83,328.34 L96.04,327.50 L101.25,326.54 L106.46,325.45 L111.67,324.27 L116.88,322.99 L122.08,321.64 L127.29,320.22 L132.50,318.75 L137.71,317.22 L142.92,315.65 L148.12,314.04 L153.33,312.40 L158.54,310.74 L163.75,309.05 L168.96,307.35 L174.17,305.63 L179.38,303.90 L184.58,302.16 L189.79,300.42 L195.00,298.67 L200.21,296.93 L205.42,295.18 L210.62,293.44 L215.83,291.70 L221.04,289.96 L226.25,288.23 L231.46,286.51 L236.67,284.80 L241.88,283.09 L247.08,281.39 L252.29,279.71 L257.50,278.03 L262.71,276.36 L267.92,274.71 L273.12,273.06 L278.33,271.43 L283.54,269.81 L288.75,268.20 L293.96,266.60 L299.17,265.02 L304.38,263.45 L309.58,261.89 L314.79,260.34 L320.00,258.80 L325.21,257.28 L330.42,255.77 L335.62,254.28 L340.83,252.79 L346.04,251.32 L351.25,249.86 L356.46,248.41 L361.67,246.98 L366.88,245.56 L372.08,244.15 L377.29,242.75 L382.50,241.37 L387.71,239.99 L392.92,238.63 L398.12,237.28 L403.33,235.95 L408.54,234.62 L413.75,233.31 L418.96,232.01 L424.17,230.72 L429.38,229.44 L434.58,228.17 L439.79,226.91 L445.00,225.67 L450.21,224.43 L455.42,223.21 L460.62,222.00 L465.83,220.80 L471.04,219.61 L476.25,218.43 L481.46,217.26 L486.67,216.10 L491.88,214.95 L497.08,213.81 L502.29,212.68 L507.50,211.56 L512.71,210.46 L517.92,209.36 L523.12,208.27 L528.33,207.19 L533.54,206.12 L538.75,205.06 L543.96,204.01 L549.17,202.97 L554.38,201.94 L559.58,200.92 L564.79,199.91 L570.00,198.90 L575.21,197.91 L580.42,196.92 L585.62,195.95 L590.83,194.98 L596.04,194.02 L601.25,193.07 L606.46,192.12 L611.67,191.19 L616.88,190.27 L622.08,189.35 L627.29,188.44 L632.50,187.54 L637.71,186.65 L642.92,185.76 L648.12,184.88 L653.33,184.01 L658.54,183.15 L663.75,182.30 L668.96,181.45 L674.17,180.62 L679.38,179.79 L684.58,178.96 L689.79,178.15 L695.00,177.34" fill="none" stroke="#c14a23" stroke-width="2.6" stroke-dasharray=""/>
+<circle cx="382.5" cy="101.30239736553614" r="4" fill="#087e8b"/>
+<text x="392.5" y="126.30239736553614" fill="#087e8b" font-weight="bold">94.5% at 60 s</text>
+<circle cx="382.5" cy="241.36674324995374" r="4" fill="#c14a23"/>
+<text x="392.5" y="211.36674324995374" fill="#c14a23" font-weight="bold">36.6% at 60 s</text>
+</g></svg><figcaption>Figure 1. Original analytical calculation, not experimental data. Both binders share the same affinity and chemical rate. The null nearly overlaps fast exchange but substantially overpredicts slow exchange. All curves start from U=1, C=X=0; the vertical guide marks 60 s.</figcaption></figure>
+<p>Solving the full three-state model gives <strong>36.6% versus 94.5%</strong> crosslinking at 60 s; the equilibrium null predicts 95.0% for both. The corresponding exchange times 1/(a+b) are 50 s and 0.5 s, whereas the chemical clock 1/c is 10 s. Slow exchange cannot maintain the assumed equilibrium mixture while capture removes complexes.</p>
+<p>Thus, matching K<sub>d</sub> preserves a ratio of rates, not their absolute clock. A useful experimental comparison would measure binding kinetics and a crosslinking time course, rather than interpreting one endpoint band as equilibrium affinity.</p>
+
+<h2>Where this argument breaks</h2>
+<p>This is a counterexample, not a fit to my experiments or to [1]. Real linkers introduce orientation-dependent reactivity, hydrolysis, competing monolinks and changing concentrations; the fuller model in Kammer et al. explicitly treats several of these pathways [2]. Here c compresses chemistry and geometry into one constant. Pre-equilibrating the proteins changes the early-time result. With no losses, both model systems eventually reach X=1: the claim concerns finite-time capture, not different ultimate yields. Nor does it establish a universal rule that faster exchange always improves crosslinking.</p>
+
+<details><summary>Calculation and reproducibility</summary>
+<p>For s=a+b+c and r<sub>±</sub>=(s±√(s²−4ac))/2, the exact solution used in Figure 1 is</p>
+<div class="eq">X(t)=1−[r<sub>+</sub>e<sup>−r<sub>−</sub>t</sup>−r<sub>−</sub>e<sup>−r<sub>+</sub>t</sup>]/(r<sub>+</sub>−r<sub>−</sub>).</div>
+<p>The roots are distinct for the chosen positive rates. The script evaluates the smaller root in a numerically stable form. Independent fourth-order Runge–Kutta integration at steps 0.02 s and 0.01 s agrees at 60 s within 10<sup>−8</sup>; probability conservation, positivity and monotonicity also pass. The exact curve has X′(0)=0, whereas the instantaneous-equilibrium approximation has X′<sub>RE</sub>(0)=c/2: its missing initial transient is visible mathematically.</p>
+<p>Additional check: the mean first-capture time starting unbound is (a+b+c)/(ac), giving 120 s and 21 s, versus 20 s under the null. These are mean waiting times, not single-exponential fits.</p>
+<p>Python 3 standard library only. Save the code below as <code>crosslink_calculations.py</code> and run it to recreate the SVG and CSV. The displayed figure is already embedded; this HTML needs no companion files or network access.</p>
+<pre><code>&quot;&quot;&quot;Original three-state crosslinking calculation; Python standard library only.
+Run: python crosslink_calculations.py
+All parameters are illustrative, NOT measurements or literature estimates.
+Generates crosslink-model.svg and crosslink-model.csv alongside this script.
+&quot;&quot;&quot;
+import csv
+import math
+from pathlib import Path
+
+
+def crosslinked(t, a, b, c):
+    &quot;&quot;&quot;Exact absorbing-state probability, starting entirely unbound.&quot;&quot;&quot;
+    s = a + b + c
+    root = math.sqrt(s*s - 4*a*c)
+    rs = 2*a*c/(s + root)
+    rf = (s + root)/2
+    return 1 - (rf*math.exp(-rs*t) - rs*math.exp(-rf*t))/(rf-rs)
+
+
+def rk4(tmax, dt, a, b, c):
+    def rhs(y):
+        u, bound, x = y
+        return (-a*u+b*bound, a*u-(b+c)*bound, c*bound)
+    y = (1., 0., 0.)
+    n = round(tmax/dt)
+    h = tmax/n
+    for _ in range(n):
+        k1 = rhs(y)
+        k2 = rhs(tuple(v+h*k/2 for v,k in zip(y,k1)))
+        k3 = rhs(tuple(v+h*k/2 for v,k in zip(y,k2)))
+        k4 = rhs(tuple(v+h*k for v,k in zip(y,k3)))
+        y = tuple(v+h*(p+2*q+2*r+s)/6 for v,p,q,r,s in zip(y,k1,k2,k3,k4))
+        assert abs(sum(y)-1) &lt; 1e-10 and min(y) &gt; -1e-12
+    return y[2]
+
+
+def make_svg():
+    width, height = 720, 390
+    left, right, top, bottom = 70, 695, 88, 330
+    px = lambda t: left + (right-left)*t/120
+    py = lambda p: bottom - (bottom-top)*p
+    parts = [f&#x27;&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 {width} {height}&quot; role=&quot;img&quot; aria-labelledby=&quot;plot-title plot-desc&quot;&gt;&#x27;,
+             &#x27;&lt;title id=&quot;plot-title&quot;&gt;Same affinity, different finite-time crosslinking&lt;/title&gt;&#x27;,
+             &#x27;&lt;desc id=&quot;plot-desc&quot;&gt;At sixty seconds the slow-exchange model gives about 37 percent crosslinking, the fast-exchange model 95 percent, despite identical equilibrium binding affinity. The rapid-equilibrium approximation predicts 95 percent for both.&lt;/desc&gt;&#x27;,
+             &#x27;&lt;rect width=&quot;720&quot; height=&quot;390&quot; rx=&quot;8&quot; fill=&quot;white&quot;/&gt;&#x27;,
+             &#x27;&lt;g font-family=&quot;Arial, sans-serif&quot; font-size=&quot;14&quot; fill=&quot;#263747&quot;&gt;&#x27;,
+             &#x27;&lt;text x=&quot;24&quot; y=&quot;28&quot; font-size=&quot;18&quot; font-weight=&quot;bold&quot;&gt;Same Kd = 1 μM; same chemical rate c = 0.1 s⁻¹&lt;/text&gt;&#x27;]
+    series = [(&#x27;Rapid-equilibrium null&#x27;, &#x27;#697581&#x27;, &#x27;7 5&#x27;, lambda t: 1-math.exp(-.05*t)),
+              (&#x27;Fast exchange&#x27;, &#x27;#087e8b&#x27;, &#x27;&#x27;, lambda t: crosslinked(t,1,1,.1)),
+              (&#x27;Slow exchange&#x27;, &#x27;#c14a23&#x27;, &#x27;&#x27;, lambda t: crosslinked(t,.01,.01,.1))]
+    for i,(label,color,dash,fn) in enumerate(series):
+        lx = [25,310,510][i]
+        parts += [f&#x27;&lt;line x1=&quot;{lx}&quot; y1=&quot;54&quot; x2=&quot;{lx+27}&quot; y2=&quot;54&quot; stroke=&quot;{color}&quot; stroke-width=&quot;3&quot; stroke-dasharray=&quot;{dash}&quot;/&gt;&#x27;,f&#x27;&lt;text x=&quot;{lx+33}&quot; y=&quot;59&quot;&gt;{label}&lt;/text&gt;&#x27;]
+    for j in range(5):
+        v=j/4
+        parts += [f&#x27;&lt;line x1=&quot;{left}&quot; y1=&quot;{py(v)}&quot; x2=&quot;{right}&quot; y2=&quot;{py(v)}&quot; stroke=&quot;#e2e8ed&quot;/&gt;&#x27;,f&#x27;&lt;text x=&quot;{left-12}&quot; y=&quot;{py(v)+5}&quot; text-anchor=&quot;end&quot;&gt;{v:g}&lt;/text&gt;&#x27;]
+    for t in range(0,121,30):
+        parts.append(f&#x27;&lt;text x=&quot;{px(t)}&quot; y=&quot;354&quot; text-anchor=&quot;middle&quot;&gt;{t}&lt;/text&gt;&#x27;)
+    parts += [f&#x27;&lt;path d=&quot;M{left},{top} V{bottom} H{right}&quot; fill=&quot;none&quot; stroke=&quot;#415463&quot;/&gt;&#x27;,
+              &#x27;&lt;text x=&quot;380&quot; y=&quot;380&quot; text-anchor=&quot;middle&quot;&gt;Time after mixing (s)&lt;/text&gt;&#x27;,
+              &#x27;&lt;text transform=&quot;translate(20,210) rotate(-90)&quot; text-anchor=&quot;middle&quot;&gt;Crosslinked fraction X(t)&lt;/text&gt;&#x27;,
+              f&#x27;&lt;line x1=&quot;{px(60)}&quot; y1=&quot;{top}&quot; x2=&quot;{px(60)}&quot; y2=&quot;{bottom}&quot; stroke=&quot;#aab4bc&quot; stroke-dasharray=&quot;3 5&quot;/&gt;&#x27;]
+    for label,color,dash,fn in series:
+        coords=&#x27; &#x27;.join((&#x27;M&#x27; if t==0 else &#x27;L&#x27;)+f&#x27;{px(t):.2f},{py(fn(t)):.2f}&#x27; for t in range(121))
+        parts.append(f&#x27;&lt;path d=&quot;{coords}&quot; fill=&quot;none&quot; stroke=&quot;{color}&quot; stroke-width=&quot;2.6&quot; stroke-dasharray=&quot;{dash}&quot;/&gt;&#x27;)
+    for a,col,dy in [(1,&#x27;#087e8b&#x27;,25),(.01,&#x27;#c14a23&#x27;, -30)]:
+        v=crosslinked(60,a,a,.1)
+        parts += [f&#x27;&lt;circle cx=&quot;{px(60)}&quot; cy=&quot;{py(v)}&quot; r=&quot;4&quot; fill=&quot;{col}&quot;/&gt;&#x27;,f&#x27;&lt;text x=&quot;{px(60)+10}&quot; y=&quot;{py(v)+dy}&quot; fill=&quot;{col}&quot; font-weight=&quot;bold&quot;&gt;{100*v:.1f}% at 60 s&lt;/text&gt;&#x27;]
+    return &#x27;\n&#x27;.join(parts+[&#x27;&lt;/g&gt;&lt;/svg&gt;&#x27;])
+
+
+if __name__ == &#x27;__main__&#x27;:
+    base=Path(__file__).resolve().parent
+    for label,a,b in [(&#x27;slow&#x27;,.01,.01),(&#x27;fast&#x27;,1.,1.)]:
+        exact=crosslinked(60,a,b,.1)
+        for dt in [.02,.01]:
+            assert abs(rk4(60,dt,a,b,.1)-exact)&lt;1e-8
+        assert abs(crosslinked(0,a,b,.1))&lt;1e-12
+        vals=[crosslinked(t,a,b,.1) for t in range(121)]
+        assert all(-1e-12&lt;=v&lt;=1 for v in vals)
+        assert all(x&lt;=y+1e-12 for x,y in zip(vals,vals[1:]))
+        print(f&#x27;{label}: X(60)={exact:.9f}; mean first capture={(a+b+.1)/(a*.1):.3f} s&#x27;)
+    print(f&#x27;Rapid-equilibrium null: X(60)={1-math.exp(-3):.9f}; mean first capture=20 s&#x27;)
+    (base/&#x27;crosslink-model.svg&#x27;).write_text(make_svg(),encoding=&#x27;utf-8&#x27;)
+    with (base/&#x27;crosslink-model.csv&#x27;).open(&#x27;w&#x27;,newline=&#x27;&#x27;,encoding=&#x27;utf-8&#x27;) as f:
+        writer=csv.writer(f)
+        writer.writerow([&#x27;time_s&#x27;,&#x27;slow_X&#x27;,&#x27;fast_X&#x27;,&#x27;rapid_equilibrium_X&#x27;])
+        for t in range(121):
+            writer.writerow([t,crosslinked(t,.01,.01,.1),crosslinked(t,1,1,.1),1-math.exp(-.05*t)])
+    print(&#x27;PASS: analytic solution vs RK4, two step sizes, conservation, positivity, monotonicity.&#x27;)
+</code></pre>
+</details>
+
+<h2>Sources actually checked</h2>
+<ol class="src">
+<li>Li, Q. et al. <em>Developing Covalent Protein Drugs via Proximity-Enabled Reactive Therapeutics.</em> Cell 182, 85–97.e16 (2020). <a href="https://doi.org/10.1016/j.cell.2020.05.028">doi:10.1016/j.cell.2020.05.028</a>. Publisher summary and highlights checked: the PD-1/PD-L1 example motivates the capture step; no numerical rates were taken from this paper.</li>
+<li>Kammer, K.-M., Eisgruber, T., Heid, P., Pellarin, R. &amp; Stengel, F. <em>Kinetic principles of chemical cross-link formation for protein–protein interactions.</em> PNAS 121, e2402040121 (2024). <a href="https://doi.org/10.1073/pnas.2402040121">doi:10.1073/pnas.2402040121</a>. Accessible abstract and main-text model discussion checked: hydrolysis and competing linker pathways inform the limitations, not the illustrative parameters.</li>
+<li>CCBS 2026. <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/intro.html">How this course works</a> (updated 11 September; checked 15 September 2026). Week 3 connects L5 stochastic dynamics and L6 timescale separation. This essay adds a crosslinking counterexample to those ideas.</li>
+</ol>
+<p class="note">Preparation: AI-assisted drafting and coding; original illustrative model calculation, not experimental data. The calculation was executed and independently numerically checked during preparation.</p>
+</main></body></html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WEEK 2 — Extension: Fixed points in neural-network dynamics</title>
+<meta name="author" content="Weihan Luo">
+<meta name="week" content="week2">
+<style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px; border-bottom:1px solid var(--line); padding-bottom:5px; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px; padding:14px 18px; margin:14px 0; }
+  .fig { width:100%; border:1px solid var(--line); border-radius:6px; margin:14px 0; background:var(--bg); }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; }
+  .math { font-family:Georgia,"Times New Roman",serif; font-size:1.04em; }
+  code { background:var(--soft); padding:1px 4px; border-radius:3px; }
+  pre { overflow:auto; background:var(--soft); border:1px solid var(--line); border-radius:6px; padding:12px 14px; font-size:.82rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>WEEK 2 — Extension: Fixed points in neural-network dynamics</h1>
+<p class="meta">Author: Weihan Luo · Week 2 (2026-09-14) · CCBS 2026</p>
+
+<p class="card"><strong>One sentence:</strong> A recurrent neural network can be understood as a dynamical system whose useful representations are stable fixed points, while changing the recurrent weight can create a bifurcation and new memory states.</p>
+
+<h2>The point I am adding</h2>
+<p>Lecture 4 studies fixed points as states where a dynamical system stops moving. For a discrete neural-network update, the same idea is immediate: if the hidden state obeys <span class="math">h<sub>t+1</sub> = F(h<sub>t</sub>)</span>, then a fixed point <span class="math">h<sup>*</sup></span> satisfies <span class="math">F(h<sup>*</sup>) = h<sup>*</sup></span>. Repeatedly applying the network is therefore like following a trajectory through a phase portrait.</p>
+
+<p>Consider the smallest recurrent network I can write down: <span class="math">h<sub>t+1</sub> = tanh(w h<sub>t</sub>)</span>. The state <span class="math">h<sup>*</sup> = 0</span> is always a fixed point. Near it, <span class="math">tanh(wh) ≈ wh</span>, so a small perturbation is multiplied by roughly <span class="math">w</span> at every step. The zero fixed point is stable when <span class="math">|w| &lt; 1</span> and unstable when <span class="math">|w| &gt; 1</span>.</p>
+
+<p>This gives a machine-learning version of a bifurcation. When <span class="math">w</span> passes through 1, two additional fixed points appear, approximately <span class="math">h<sup>*</sup> ≈ ±0.80</span> when <span class="math">w = 1.4</span>. Those two stable states can act like two attractor memories: the sign of a noisy initial state determines which state the network remembers.</p>
+
+<h2>Work it</h2>
+<p>The figure below iterates the same one-neuron network from several initial states. With <code>w = 0.8</code>, all trajectories return to zero. With <code>w = 1.4</code>, zero repels nearby trajectories and they settle near one of the two new stable fixed points.</p>
+
+<figure>
+  <svg class="fig" viewBox="0 0 640 350" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Trajectories of a one-neuron recurrent network for two recurrent weights">
+    <rect width="640" height="350" fill="none"/>
+    <line x1="55" y1="245" x2="615" y2="245" stroke="#899"/>
+    <line x1="55" y1="35" x2="55" y2="245" stroke="#899"/>
+    <text x="60" y="28" font-size="13" fill="#566">hidden state h</text>
+    <text x="574" y="267" font-size="13" fill="#566">step t</text>
+    <text x="44" y="250" font-size="12" fill="#566">0</text>
+    <text x="25" y="76" font-size="12" fill="#566">+1</text>
+    <text x="25" y="244" font-size="12" fill="#566">−1</text>
+    <path d="M55 203 L102 224 L149 236 L196 242 L243 244 L290 245 L337 245 L384 245 L431 245 L478 245 L525 245 L572 245 L615 245" fill="none" stroke="#1f4e79" stroke-width="3"/>
+    <path d="M55 287 L102 266 L149 254 L196 248 L243 246 L290 245 L337 245 L384 245 L431 245 L478 245 L525 245 L572 245 L615 245" fill="none" stroke="#1f4e79" stroke-width="3"/>
+    <path d="M55 203 L102 173 L149 144 L196 116 L243 94 L290 80 L337 73 L384 69 L431 67 L478 67 L525 67 L572 67 L615 67" fill="none" stroke="#c45a3c" stroke-width="3"/>
+    <path d="M55 287 L102 317 L149 346 L196 374 L243 396 L290 410 L337 417 L384 421 L431 423 L478 423 L525 423 L572 423 L615 423" fill="none" stroke="#c45a3c" stroke-width="3" transform="translate(0,-100)"/>
+    <line x1="60" y1="300" x2="90" y2="300" stroke="#1f4e79" stroke-width="3"/>
+    <text x="98" y="305" font-size="13" fill="#566">w = 0.8: all states converge to 0</text>
+    <line x1="60" y1="328" x2="90" y2="328" stroke="#c45a3c" stroke-width="3"/>
+    <text x="98" y="333" font-size="13" fill="#566">w = 1.4: states converge to ±0.80</text>
+  </svg>
+  <figcaption>Figure 1: Iterates of <code>h<sub>t+1</sub> = tanh(w h<sub>t</sub>)</code> from <code>h<sub>0</sub> = ±0.4</code>. The curves were calculated with the Python code below; the lower legend is outside the trajectories.</figcaption>
+</figure>
+
+<p>The local test generalizes beyond one neuron. For <span class="math">h<sub>t+1</sub> = F(h<sub>t</sub>)</span>, linearizing around a fixed point gives <span class="math">δh<sub>t+1</sub> ≈ J<sub>F</sub>(h<sup>*</sup>)δh<sub>t</sub></span>. The fixed point is locally stable when every eigenvalue of the Jacobian has magnitude below 1. This is the discrete-time analogue of the lecture’s Jacobian stability test.</p>
+
+<p>This is also the basic idea behind <a href="https://arxiv.org/abs/1909.01377">Deep Equilibrium Models</a>. Instead of stacking a finite number of identical layers, a DEQ defines the hidden representation as the fixed point <span class="math">z<sup>*</sup> = f<sub>θ</sub>(z<sup>*</sup>, x)</span> and solves for it directly. The network is deep in the sense of repeated dynamics, but stores only the equilibrium state. Implicit differentiation then computes gradients through that fixed point without unrolling every iteration.</p>
+
+<details>
+  <summary>Reproduce the figure and fixed points</summary>
+  <pre><code>import numpy as np
+
+def iterate(weight, initial, steps=12):
+    states = [initial]
+    for _ in range(steps):
+        states.append(np.tanh(weight * states[-1]))
+    return states
+
+for weight in (0.8, 1.4):
+    for initial in (-0.4, 0.4):
+        print(weight, initial, iterate(weight, initial))
+
+fixed_point = 0.4
+for _ in range(100):
+    fixed_point = np.tanh(1.4 * fixed_point)
+print(fixed_point)
+</code></pre>
+</details>
+
+<h2>What I would argue against / where this breaks</h2>
+<p>A stable fixed point is not automatically a good representation. It can erase information that the task needs, and a network with several attractors can be sensitive to tiny perturbations near a basin boundary. The one-neuron example is also much simpler than a modern recurrent network: real Jacobians can be non-normal, high-dimensional, input-dependent, and difficult to solve.</p>
+
+<p>There is also a difference between finding an equilibrium and having a convergent iteration. A fixed point may exist while the particular update rule oscillates or diverges. Thus the lecture’s stability analysis is not just decoration for neural networks: it tells us when an equilibrium layer can actually be reached by the solver used to compute it.</p>
+
+<h2>Sources</h2>
+<ul class="src">
+  <li><a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture04/core/">CCBS Lecture 4 core: “Dynamics: local stability, phase portraits, bifurcations.”</a> — defines fixed points, local stability, and bifurcations.</li>
+  <li>Bai, S., Kolter, J. Z., and Koltun, V. (2019), <a href="https://arxiv.org/abs/1909.01377">“Deep Equilibrium Models.”</a> — formulates a neural network as the fixed point of a weight-tied nonlinear map and differentiates through it implicitly.</li>
+  <li><a href="https://proceedings.mlr.press/v139/bai21b.html">“Stabilizing Equilibrium Models by Jacobian Regularization.”</a> — studies how Jacobian control affects stability in equilibrium networks.</li>
+</ul>
+
+</div>
+</body>
+</html>

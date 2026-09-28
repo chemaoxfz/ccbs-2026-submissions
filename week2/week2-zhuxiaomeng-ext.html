@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="author" content="zhuxiaomeng">
+  <title>Week 2 Extension: Cooperativity and Memory</title>
+  <style>
+    :root { --ink:#18212b; --muted:#5d6975; --line:#d8dee5; --blue:#1769aa; --red:#c64040; --paper:#fff; --wash:#f4f7f9; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--wash); color:var(--ink); font:17px/1.65 Georgia, "Times New Roman", serif; }
+    main { width:min(900px, calc(100% - 32px)); margin:32px auto; padding:42px 50px; background:var(--paper); border:1px solid var(--line); border-radius:8px; }
+    h1,h2 { font-family:Arial, sans-serif; line-height:1.25; }
+    h1 { margin:0 0 8px; font-size:2rem; }
+    h2 { margin:32px 0 8px; font-size:1.25rem; }
+    .meta { margin:0 0 24px; color:var(--muted); font-family:Arial, sans-serif; }
+    .claim { padding:16px 18px; border-left:4px solid var(--blue); background:#eef6fc; }
+    code { padding:2px 5px; border-radius:4px; background:#edf1f4; font:0.92em Consolas, monospace; }
+    figure { margin:24px 0; }
+    svg { display:block; width:100%; height:auto; border:1px solid var(--line); background:#fff; }
+    figcaption { margin-top:8px; color:var(--muted); font-size:0.92rem; }
+    table { width:100%; border-collapse:collapse; margin:16px 0; }
+    th,td { padding:9px 11px; border:1px solid var(--line); text-align:left; }
+    th { background:#f1f4f6; font-family:Arial, sans-serif; }
+    a { color:#075ea8; }
+    @media (max-width:650px) { main { margin:0; width:100%; padding:26px 20px; border:0; } h1 { font-size:1.6rem; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Cooperativity turns positive feedback from amplification into memory</h1>
+  <p class="meta">Author: zhuxiaomeng · Week 2 Extension · CCBS 2026</p>
+
+  <p class="claim"><strong>One-sentence claim:</strong> Positive feedback creates biological memory only when sufficient nonlinearity produces two stable states separated by an unstable threshold.</p>
+
+  <h2>The point I am extending</h2>
+  <p>Lecture 3 introduces Hill functions as reduced descriptions of cooperative regulation, while Lecture 4 explains fixed points and stability. Putting these ideas together gives a sharper statement: positive feedback alone is not a memory switch. A system remembers only if its production and removal curves intersect at three fixed points, with the middle point acting as a threshold between two stable states.</p>
+
+  <h2>A minimal model</h2>
+  <p>I used the one-variable model <code>dx/dt = a + b*x^n/(K^n + x^n) - x</code>. The first term is basal production, the Hill term is self-activation, and the last term is removal. I fixed <code>a=0.08</code>, <code>b=2.5</code>, and <code>K=1</code>, then changed only the Hill coefficient <code>n</code>.</p>
+
+  <figure>
+    <svg viewBox="0 0 680 245" role="img" aria-labelledby="fig-title fig-desc">
+      <title id="fig-title">Production and removal curves for Hill coefficients one and four</title>
+      <desc id="fig-desc">The n equals one panel has one crossing. The n equals four panel has three crossings: two stable states and one unstable threshold.</desc>
+      <g fill="none" stroke="#7b8791" stroke-width="1"><path d="M50 25V190H260"/><path d="M390 25V190H600"/></g>
+      <g fill="#18212b" font-family="Arial" font-size="13"><text x="120" y="222">n = 1: one state</text><text x="448" y="222">n = 4: memory possible</text><text x="238" y="207">x</text><text x="578" y="207">x</text><text x="31" y="38">rate</text><text x="371" y="38">rate</text></g>
+      <g fill="none" stroke="#c64040" stroke-width="3"><path d="M50 190L260 25"/><path d="M390 190L600 25"/></g>
+      <g fill="none" stroke="#1769aa" stroke-width="3"><path d="M50 185.6 L78 146.3 L106 124.5 L134 110.6 L162 101 L190 93.9 L218 88.5 L246 84.3 L260 82.5"/><path d="M390 185.6 L418 182.2 L439 159 L460 116.8 L481 83.8 L502 66.3 L530 56.2 L558 52.1 L586 50.3 L600 49.8"/></g>
+      <g stroke="#18212b" stroke-width="2"><circle cx="164" cy="100.4" r="4" fill="#fff"/><circle cx="395.6" cy="185.6" r="4" fill="#fff"/><circle cx="445.7" cy="146.2" r="4" fill="#18212b"/><circle cx="566.3" cy="51.4" r="4" fill="#fff"/></g>
+      <g fill="#18212b" font-family="Arial" font-size="11"><text x="151" y="91">stable</text><text x="390" y="174">low</text><text x="425" y="137">threshold</text><text x="549" y="42">high</text><text x="57" y="45" fill="#c64040">removal</text><text x="173" y="73" fill="#1769aa">production</text></g>
+    </svg>
+    <figcaption><strong>Figure 1.</strong> My calculation and schematic. Open circles mark stable fixed points; the filled circle marks an unstable fixed point. Curves are drawn from the model above.</figcaption>
+  </figure>
+
+  <h2>What the calculation shows</h2>
+  <table><thead><tr><th>Hill coefficient</th><th>Fixed points (approximately)</th><th>Interpretation</th></tr></thead><tbody><tr><td><code>n=1</code></td><td><code>x=1.629</code></td><td>One stable state: amplification, but no memory.</td></tr><tr><td><code>n=4</code></td><td><code>x=0.080, 0.796, 2.519</code></td><td>Low and high states are stable; the middle state is an unstable threshold.</td></tr></tbody></table>
+  <p>For <code>n=1</code>, the production curve is too gently curved to create two alternative stable states. For <code>n=4</code>, cooperativity makes the curve sigmoidal, allowing three crossings. A perturbation that does not cross the middle point returns to its original state; a sufficiently large perturbation crosses the threshold and settles in the other state. This persistence after the input disappears is the system's memory.</p>
+
+  <h2>Why this matters</h2>
+  <p>The structural lesson is that feedback describes a circuit connection, whereas memory is a dynamical property. Cooperativity changes the geometry of the rate curves and can create bistability. This also explains why one simulated trajectory is not enough: different initial conditions must be tested to reveal the two basins of attraction.</p>
+
+  <h2>Sources</h2>
+  <ol>
+    <li><a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture03-core.html">CCBS Lecture 3</a>, used for Hill functions and cooperative regulation.</li>
+    <li><a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture04-core.html">CCBS Lecture 4</a>, used for fixed points, stability, and the limits of a single simulation.</li>
+    <li>Gardner, Cantor, and Collins (2000), <a href="https://doi.org/10.1038/35002131">Construction of a genetic toggle switch in <em>E. coli</em></a>, used as a biological example of bistable memory.</li>
+  </ol>
+</main>
+</body>
+</html>

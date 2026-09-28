@@ -4,6 +4,11 @@ Course: **EST 5053, Control and Computation in Biological Systems, Fall 2026**
 (Westlake University). Course site: <https://chemaoxfz.github.io/ccbs/2026fall/>
 Read [**How this course works**](https://chemaoxfz.github.io/assets/ccbs/2026fall/intro/) first.
 
+**Schedule updated 20 September 2026.** There is no lecture on 29 September.
+Lecture 9 is now on 8 October. Each later lecture moves one meeting later, ending
+on 3 November. Assignments and preparation lead times follow the
+[revised course calendar](https://chemaoxfz.github.io/ccbs/2026fall/).
+
 Everything you hand in lands here, and **everything is submitted the same way: a pull
 request that merges itself.** You do not need write access. For most accounts no human
 approval is needed; GitHub may ask the course staff to approve the first workflow run from
@@ -17,9 +22,9 @@ submission, and the bot takes over as soon as the run is released.
 | What | Where | When |
 |---|---|---|
 | **Sign up to teach; optionally volunteer again** | `signup/lectureNN-yourname.md` | required sign-up by **Thu 2026-09-03, 23:59** |
-| **Extension mini-essay**, one per week | `weekN/weekN-yourname-ext.html` | Mondays 23:59, eight of them |
+| **Extension mini-essay**, one per listed lecture pair | `weekN/weekN-yourname-ext.html` | Mondays 23:59, eight of them |
 | **Exposition**, after you teach | `lectureNN/` (any sensible filename) | the week you teach |
-| **Research essay** | `research-essay/yourname.html` | **Thu 2026-11-05, 23:59** |
+| **Research essay** | `research-essay/yourname.html` | **Tue 2026-11-10, 23:59** |
 
 `yourname` means your Latin name in lowercase with no spaces: `tongli`, `haotiandong`,
 `alvarobatrez`. Use the same one all term so your files sort together.
@@ -106,8 +111,12 @@ immediately.
 
 ## 2. Extension mini-essays
 
-One per teaching week, eight in total, including the weeks you teach and including week 1.
+One per lecture pair listed below, eight in total, including any pair in which you teach.
 **Your best 6 of 8 count** at 5 points each, so you have two free skips.
+
+The original lecture pairs and `weekN` folders stay the same. After the schedule change,
+the last four deadlines move one week later. There is no ninth required submission.
+All deadlines below are at 23:59, Asia/Shanghai.
 
 One thing from the week, taken past where the lecture left it. Either bring something in
 from outside (one example, scenario, opinion, perspective or argument) or push on what was
@@ -131,10 +140,10 @@ with no external assets. The worked example, written by the lecturer, is at
 | 2 | 3, 4 | Mon 2026-09-14 |
 | 3 | 5, 6 | Mon 2026-09-21 |
 | 4 | 7, 8 | Mon 2026-09-28 |
-| 5 | 9, 10 | Mon 2026-10-12 |
-| 6 | 11, 12 | Mon 2026-10-19 |
-| 7 | 13, 14 | Mon 2026-10-26 |
-| 8 | 15, 16 | Mon 2026-11-02 |
+| 5 | 9, 10 | Mon 2026-10-19 |
+| 6 | 11, 12 | Mon 2026-10-26 |
+| 7 | 13, 14 | Mon 2026-11-02 |
+| 8 | 15, 16 | Mon 2026-11-09 |
 
 Conflicting positions are welcome. Two of you may argue opposite sides of the same question
 in the same week.
@@ -149,7 +158,7 @@ on the course site, with your names on it.
 
 One standalone tutorial-like HTML page on a topic you care about, with the full PCAPS chain.
 See [`research-essay/README.md`](research-essay/README.md) for the grading criteria. Due
-Thursday 2026-11-05, 23:59.
+Tuesday 2026-11-10, 23:59, one week after the final lecture.
 
 ---
 

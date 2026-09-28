@@ -1,4 +1,4 @@
-# Lecture 14 exposition — 2026-10-22
+# Lecture 14 exposition: 2026-10-27
 
 **The growth biomachine**
 

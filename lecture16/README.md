@@ -1,4 +1,4 @@
-# Lecture 16 exposition — 2026-10-29
+# Lecture 16 exposition: 2026-11-03
 
 **Foundational virtual cells that are fully mechanistic**
 

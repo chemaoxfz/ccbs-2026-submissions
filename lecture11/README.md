@@ -1,4 +1,4 @@
-# Lecture 11 exposition — 2026-10-13
+# Lecture 11 exposition: 2026-10-15
 
 **Analysis of binding and catalysis via reaction-order structure**
 

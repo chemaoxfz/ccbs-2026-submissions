@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 3 — Extension: Fast is not a timescale</title>
+<meta name="author" content="Peng Su">
+<meta name="week" content="week3">
+<style>
+:root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; --blue:#2468a2; --orange:#d56a1d; --green:#2c7a4b; }
+@media (prefers-color-scheme: dark) {
+  :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; --blue:#76b7e5; --orange:#f2a45f; --green:#70c991; }
+}
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+.wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+.meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px; border-bottom:1px solid var(--line); padding-bottom:5px; }
+.card { background:var(--soft); border:1px solid var(--line); border-radius:6px; padding:14px 18px; margin:14px 0; }
+.equation { overflow-x:auto; text-align:center; font-family:Georgia,"Times New Roman",serif; font-size:1.05rem; padding:8px 0; }
+.fig { width:100%; border:1px solid var(--line); border-radius:6px; margin:14px 0 4px; background:var(--bg); }
+figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+a { color:var(--accent); }
+.src { font-size:.9rem; }
+pre { background:var(--soft); border:1px solid var(--line); border-radius:6px; padding:12px; overflow-x:auto; font-size:.78rem; line-height:1.4; }
+code { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+.small { color:var(--muted); font-size:.9rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Week 3 Extension: Fast is not a timescale</h1>
+<p class="meta">Author: Peng Su · Week 3 (2026-09-21) · CCBS 2026</p>
+
+<p class="card"><strong>One sentence:</strong> Comparing timescales, ε≪1, is not sufficient to justify fast-promoter averaging, excess noise disappears only when the production amplitude <em>R</em> is also small enough, with the quantitative requirement δ ≥ ρ(1−<em>p</em><sub>on</sub>)/τ − γ for a tolerated excess Fano factor τ.</p>
+
+<h2>1 · The claim</h2>
+<p>Lecture 5 showed that hidden promoter switching leaves excess variance. Lecture 6 then showed that rapid switching can be eliminated, replacing the binary promoter by an average production hazard. When connected together, these statements invite a rule that sounds obvious, if switching is much faster than protein removal, average it away.</p>
+
+<p>However, that rule is incomplete. A timescale ratio tells us how long the promoter "remembers" its state, but not how strongly the ON state drives production while that "memory" lasts. A rapidly flickering promoter producing one molecule per protein lifetime is not statistically equivalent to one producing two hundred. In this case, “fast” is not a property of the switching clock alone. For the stationary variance, the small quantity is an <em>amplitude-weighted memory</em>, and the exact telegraph model turns it into a practical error threshold.</p>
+
+<h2>2 · Start from the lecture results</h2>
+<p>Consider one promoter switching OFF → ON at rate α and ON → OFF at rate β. While ON, it produces protein at rate ρ; each protein is removed independently at rate γ. Its stationary ON fraction, mean protein count, and Fano factor are</p>
+
+<div class="equation"><em>p</em><sub>on</sub> = α/(α+β), &nbsp; ⟨N⟩ = ρ<em>p</em><sub>on</sub>/γ, &nbsp; F = 1 + ρ(1−<em>p</em><sub>on</sub>)/(γ+α+β).</div>
+
+<p>The mean sees only the fraction of time spent ON. The variance also sees how long ON and OFF episodes persist. Lecture 6 §9a already explains the two possible fast limits: speeding α and β at fixed ρ averages the hidden state, whereas speeding β and ρ at fixed ρ/β preserves finite packets. Take this result as background, a narrower question can be asked inside the averaging limit: at finite speed, how fast is fast enough, and why can a small timescale ratio still fail?</p>
+
+<h2>3 · The missing dimensionless group</h2>
+<p>Let δ=α+β be the total switching rate, ε=γ/δ be the ratio of switching time to protein lifetime, and <em>R</em>=ρ/γ the protein count an always-ON promoter would maintain. Substitution into the exact Fano factor gives</p>
+
+<div class="equation">F−1 = R(1−<em>p</em><sub>on</sub>) ε/(1+ε).</div>
+
+<p>The familiar ε≪1 appears, but it is not the error. It is multiplied by <em>R</em>(1−<em>p</em><sub>on</sub>). In the fast regime, ε/(1+ε)≈ε, so the amplitude-weighted combination <em>R</em>(1−<em>p</em><sub>on</sub>)ε controls the residual noise. This creates an entire class of cases in which the hidden state is fast by a conventional timescale comparison but not negligible for the measured variance.</p>
+
+<p>For example, fix ε=0.01, where switching is one hundred times faster than protein removal. With <em>p</em><sub>on</sub>=1/21, the same timescale separation gives F=1.009 for <em>R</em>=1, F=1.094 for <em>R</em>=10, F=1.943 for <em>R</em>=100, and F=2.886 for <em>R</em>=200. The clock did not change. Only the number of products that the ON state can inject changed. Calling all four systems equally “fast” therefore confuses a mechanistic timescale with an approximation error.</p>
+
+<p>To make the approximation testable, choose a tolerated excess Fano factor τ and require F−1≤τ. Solving for δ gives</p>
+
+<div class="equation">δ ≥ ρ(1−<em>p</em><sub>on</sub>)/τ − γ.</div>
+
+<p>Equivalently, in dimensionless form, the required separation is δ/γ ≥ <em>R</em>(1−<em>p</em><sub>on</sub>)/τ−1. This is the extension: “fast enough” is a curve in amplitude–timescale space, not a universal statement such as ε&lt;0.1.</p>
+
+<h2>4 · How much faster as amplitude rises?</h2>
+<p><em>p</em><sub>on</sub>=1/21 from the Lecture 6 numerical example was used and set τ=0.05, meaning that the reduced Poisson model may underestimate the Fano factor by at most 0.05. Figure 1A holds the timescale separation fixed and varies production amplitude. Every line rises with <em>R</em>: making ε small shifts the curve downward on the log-log scale. Figure 1B reverses the question and plots the minimum switching-to-removal ratio required to pass the 5% criterion.</p>
+
+<figure>
+<svg id="noisePlot" class="fig" viewBox="0 0 760 390" role="img" aria-labelledby="plotTitle plotDesc" xmlns="http://www.w3.org/2000/svg">
+  <title id="plotTitle">Production amplitude determines whether fast switching is accurate</title>
+  <desc id="plotDesc">The left panel shows excess Fano factor increasing with production amplitude at three fixed timescale ratios. The right panel shows the switching-to-removal separation required to keep excess noise below five percent.</desc>
+</svg>
+<figcaption><strong>Figure 1.</strong> Production amplitude, not ε alone, determines the variance error. <strong>A:</strong> exact excess Fano factor at fixed <em>p</em><sub>on</sub>=1/21 for three values of ε. The dashed line is the tolerance τ=0.05. <strong>B:</strong> minimum δ/γ required to satisfy F−1≤0.05; the shaded region passes the criterion. At <em>R</em>=200, switching must be at least 3,808.5 times faster than removal. Curves were computed from the equations above by the inline script below.</figcaption>
+</figure>
+
+<p>The original Lecture 6 parameters have ρ=6 s<sup>−1</sup> and γ=0.03 s<sup>−1</sup>, so <em>R</em>=200. With <em>p</em><sub>on</sub>=1/21, the threshold is δ/γ≥3,808.5. Because the original δ/γ=(0.015+0.3)/0.03=10.5, both switching rates would have to be accelerated by <strong>362.7-fold</strong> at fixed occupancy. The resulting switching time is about 8.8 ms, versus a 33.3 s protein lifetime. A casual requirement such as “ten times faster” misses the desired variance accuracy by more than two orders of magnitude.</p>
+
+<details>
+<summary>Reproducible calculation used for Figure 1</summary>
+<pre><code># Same equations used by the embedded JavaScript figure
+import numpy as np
+p_on, tau = 1/21, 0.05
+R = np.logspace(-1, 3, 400)
+
+for epsilon in [0.1, 0.01, 0.001]:
+    excess_F = R*(1-p_on)*epsilon/(1+epsilon)
+
+required_delta_over_gamma = R*(1-p_on)/tau - 1
+print(200*(1-p_on)/tau - 1)  # 3808.52
+print(3808.52/10.5)          # 362.72-fold acceleration</code></pre>
+</details>
+
+<h2>5 · Why amplitude enters</h2>
+<p>The promoter state has covariance <em>p</em><sub>on</sub>(1−<em>p</em><sub>on</sub>)e<sup>−δ|t|</sup>. Faster switching narrows this correlation in time. Production multiplies the binary state by ρ before the protein pool filters it over the lifetime 1/γ. A narrow input fluctuation is harmless only if its height is also limited. In the final dimensionless expression, ε measures the memory width and <em>R</em> measures the output scale. Their product is why “short memory” alone is not enough.</p>
+
+<p>This also explains why the mean is misleadingly easy to preserve. Averaging the production hazard gives ρ<em>p</em><sub>on</sub>, exactly the stationary input needed for the correct mean. Variance asks how that input is clustered in time. Increasing <em>R</em> magnifies the consequence of each interval spent ON without changing the mean occupancy of the promoter. A reduction can therefore be perfect for the mean and poor for the noise.</p>
+
+<h2>6 · What the criterion does and does not say</h2>
+
+<p>This criterion replaces the vague instruction “check that switching is fast” with an observable-specific test: choose an acceptable excess Fano factor <em>&tau;</em>, calculate <em>R</em> and <em>p</em><sub>on</sub>, and then determine the required <em>&delta;</em>/<em>&gamma;</em>. If that separation is unrealistic, the promoter state should remain in the model.</p>
+
+<p>The result is limited to stationary variance. It does not guarantee agreement in the full distribution, temporal correlations, waiting times, or rare events. Nor does <em>F</em> &approx; 1 prove that a real promoter lacks hidden states: fast switching may be invisible in snapshots, while extrinsic variation and measurement noise can alter the observed Fano factor. The broader lesson is therefore not that one numerical cutoff defines “fast,” but that timescale separation must be judged together with the amplitude of the eliminated process and the observable the reduced model is expected to preserve.</p>
+
+<h2>† Sources, and what I checked</h2>
+<ul class="src">
+  <li><a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture05-exposition.html">CCBS Lecture 5 exposition: “From reaction list to stochastic evidence.”</a> Read Sections 22–24 closely for the two-state CME, exact moments, temporal memory, and packet distributions. Equation (19) is the starting point for my amplitude-dependent error criterion.</li>
+  <li><a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture06-core.html">CCBS Lecture 6 core: “Time-scale separation: why a quasi-steady complex keeps changing.”</a> Read Section 9a closely. The two fast limits and the base parameter set come from this section; I treat them only as background. The finite-speed threshold as a function of <em>R</em>, the 5% error curve, and Figure 1 are my extension.</li>
+  <li>Golding I, Paulsson J, Zawilski SM, Cox EC. <a href="https://doi.org/10.1016/j.cell.2005.09.031">“Real-Time Kinetics of Gene Activity in Individual Bacteria.”</a> <em>Cell</em> 123, 1025–1036 (2005). Read the abstract, introduction, and experimental interpretation, but did not reanalyse the microscopy data. I use it only to support the observation of intermittent transcription, not the claim that the binary model is uniquely correct.</li>
+  <li>Shahrezaei V, Swain PS. <a href="https://doi.org/10.1073/pnas.0803850105">“Analytical distributions for stochastic gene expression.”</a> <em>PNAS</em> 105, 17256–17261 (2008). Read the model, fast-mRNA approximation, and effective master-equation argument; did not reproduce the full time-dependent protein distribution. I use it to check that eliminating a fast species can retain a geometric packet distribution rather than only a mean rate.</li>
+</ul>
+</div>
+
+<script>
+(() => {
+  const svg = document.getElementById('noisePlot');
+  const NS = 'http://www.w3.org/2000/svg';
+  const css = getComputedStyle(document.documentElement);
+  const colors = {
+    ink: css.getPropertyValue('--ink').trim(), muted: css.getPropertyValue('--muted').trim(),
+    line: css.getPropertyValue('--line').trim(), blue: css.getPropertyValue('--blue').trim(),
+    orange: css.getPropertyValue('--orange').trim(), green: css.getPropertyValue('--green').trim(),
+    bg: css.getPropertyValue('--bg').trim()
+  };
+  const el = (name, attrs={}, text='') => {
+    const node = document.createElementNS(NS, name);
+    for (const [k,v] of Object.entries(attrs)) node.setAttribute(k,v);
+    if (text) node.textContent = text;
+    svg.appendChild(node); return node;
+  };
+  const W=760,H=390; 
+  const A={x:62,y:46,w:300,h:270}, B={x:445,y:46,w:285,h:270};
+  const logMap=(v,v0,v1,p0,p1)=>p0+(Math.log10(v)-Math.log10(v0))/(Math.log10(v1)-Math.log10(v0))*(p1-p0);
+  const ax=r=>logMap(r,.1,1000,A.x,A.x+A.w);
+  const ay=v=>logMap(v,1e-4,100,A.y+A.h,A.y);
+  const bx=r=>logMap(r,.1,1000,B.x,B.x+B.w);
+  const by=v=>logMap(v,.5,1e5,B.y+B.h,B.y);
+  el('rect',{x:0,y:0,width:W,height:H,fill:colors.bg});
+
+  function axes(P,xMap,yMap,xTicks,yTicks,xLabel,yLabel){
+    xTicks.forEach(v=>{
+      const q=xMap(v); el('line',{x1:q,y1:P.y,x2:q,y2:P.y+P.h,stroke:colors.line,'stroke-width':1});
+      el('text',{x:q,y:P.y+P.h+21,'text-anchor':'middle','font-size':11,fill:colors.muted},String(v));
+    });
+    yTicks.forEach(([v,label])=>{
+      const q=yMap(v); el('line',{x1:P.x,y1:q,x2:P.x+P.w,y2:q,stroke:colors.line,'stroke-width':1});
+      el('text',{x:P.x-8,y:q+4,'text-anchor':'end','font-size':11,fill:colors.muted},label);
+    });
+    el('line',{x1:P.x,y1:P.y,x2:P.x,y2:P.y+P.h,stroke:colors.ink,'stroke-width':1.4});
+    el('line',{x1:P.x,y1:P.y+P.h,x2:P.x+P.w,y2:P.y+P.h,stroke:colors.ink,'stroke-width':1.4});
+    el('text',{x:P.x+P.w/2,y:H-18,'text-anchor':'middle','font-size':12,fill:colors.ink},xLabel);
+    const yl=el('text',{x:P.x-43,y:P.y+P.h/2,'text-anchor':'middle','font-size':12,fill:colors.ink},yLabel);
+    yl.setAttribute('transform',`rotate(-90 ${P.x-43} ${P.y+P.h/2})`);
+  }
+  axes(A,ax,ay,[.1,1,10,100,1000],[[1e-4,'10⁻⁴'],[1e-3,'10⁻³'],[1e-2,'10⁻²'],[.1,'10⁻¹'],[1,'1'],[10,'10'],[100,'100']],'production amplitude R = ρ/γ','excess Fano factor F − 1');
+  axes(B,bx,by,[.1,1,10,100,1000],[[1,'1'],[10,'10'],[100,'100'],[1000,'10³'],[10000,'10⁴'],[100000,'10⁵']],'production amplitude R = ρ/γ','required separation δ/γ');
+  el('text',{x:A.x,y:24,'font-size':13,'font-weight':700,fill:colors.ink},'A  Same clock, different amplitude');
+  el('text',{x:B.x,y:24,'font-size':13,'font-weight':700,fill:colors.ink},'B  How fast is fast enough?');
+
+  const p=1/21, tau=.05;
+  const curve=(xmap,ymap,fn)=>{
+    let d='';
+    for(let i=0;i<=320;i++){
+      const r=Math.pow(10,-1+4*i/320), px=xmap(r), py=ymap(fn(r));
+      d+=(i?'L':'M')+px.toFixed(2)+','+py.toFixed(2);
+    }
+    return d;
+  };
+  const series=[{e:.1,c:colors.orange},{e:.01,c:colors.blue},{e:.001,c:colors.green}];
+  series.forEach(({e,c})=>el('path',{d:curve(ax,ay,r=>r*(1-p)*e/(1+e)),fill:'none',stroke:c,'stroke-width':2.6}));
+  const ytol=ay(tau);
+  el('line',{x1:A.x,y1:ytol,x2:A.x+A.w,y2:ytol,stroke:colors.muted,'stroke-width':1.5,'stroke-dasharray':'5 4'});
+  el('text',{x:A.x+A.w-3,y:ytol-6,'text-anchor':'end','font-size':10,fill:colors.muted},'τ = 0.05');
+  [['ε = 0.1',colors.orange,82],['ε = 0.01',colors.blue,100],['ε = 0.001',colors.green,118]].forEach(([lab,c,y])=>{
+    el('line',{x1:A.x+10,y1:y,x2:A.x+32,y2:y,stroke:c,'stroke-width':2.6});
+    el('text',{x:A.x+38,y:y+4,'font-size':10,fill:colors.ink},lab);
+  });
+
+  const req=r=>Math.max(.5001,r*(1-p)/tau-1);
+  let area=`M${B.x},${B.y} L${B.x+B.w},${B.y} `;
+  for(let i=320;i>=0;i--){const r=Math.pow(10,-1+4*i/320);area+=`L${bx(r).toFixed(2)},${by(req(r)).toFixed(2)} `;}
+  area+='Z';
+  el('path',{d:area,fill:colors.green,opacity:.12,stroke:'none'});
+  el('path',{d:curve(bx,by,req),fill:'none',stroke:colors.blue,'stroke-width':3});
+  const r0=200, q=req(r0);
+  el('circle',{cx:bx(r0),cy:by(q),r:5,fill:colors.orange,stroke:colors.bg,'stroke-width':2});
+  el('text',{x:bx(r0)-7,y:by(q)-10,'text-anchor':'end','font-size':10,fill:colors.orange},'R=200 → 3,808.5');
+  el('text',{x:B.x+B.w-8,y:B.y+18,'text-anchor':'end','font-size':10,fill:colors.green},'passes F−1 ≤ 0.05');
+})();
+</script>
+</body>
+</html>

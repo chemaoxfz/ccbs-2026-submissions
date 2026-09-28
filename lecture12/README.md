@@ -1,4 +1,4 @@
-# Lecture 12 exposition — 2026-10-15
+# Lecture 12 exposition: 2026-10-20
 
 **The computation biomachine**
 

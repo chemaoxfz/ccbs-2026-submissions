@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eliminating an RNA lifetime</title>
+<meta name="author" content="yanrunzi">
+<meta name="week" content="week3">
+<style>
+:root{
+  /* Sunset-Sky marks */
+  --coral:#EE8168; --peri:#5A73CE; --lime:#8FB043; --plum:#77488C; --teal:#1F9A8E; --rose:#D75567;
+  /* Sunset-Sky fills */
+  --blush:#F5E6EB; --lavender:#E6E4F1; --powder:#D0DAE4; --lilac:#D8CDDD; --pinkf:#F8CFCD; --cream:#FAF0D5;
+  /* neutrals */
+  --ink:#20201E; --gray:#877F77; --leader:#B8AEA5; --gridc:#EDE7E0;
+
+  --bg:#FCFAF7; --bg2:#FFFFFF; --fg:var(--ink); --muted:#6E675F; --rule:#E3DCD3;
+  --shadow:0 1px 2px rgba(32,32,30,.05), 0 8px 28px rgba(32,32,30,.05);
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Charter,Georgia,"Times New Roman",serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif;
+  --mono:"SF Mono",ui-monospace,Menlo,Consolas,"Liberation Mono",monospace;
+  --maxw:44rem;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141513; --bg2:#1C1D1A; --fg:#EDE9E2; --muted:#A9A197; --rule:#33352F;
+    --gridc:#2C2E28; --leader:#5C574F; --ink:#EDE9E2; --gray:#9A9289;
+    --blush:#33262B; --lavender:#262538; --powder:#1F2A33; --lilac:#2E2634; --pinkf:#3A2626; --cream:#332F20;
+    --coral:#F2937D; --peri:#8497E0; --lime:#A6C55C; --plum:#B183C6; --teal:#4FC0B3; --rose:#E8768A;
+    --shadow:0 1px 2px rgba(0,0,0,.35), 0 10px 30px rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141513; --bg2:#1C1D1A; --fg:#EDE9E2; --muted:#A9A197; --rule:#33352F;
+  --gridc:#2C2E28; --leader:#5C574F; --ink:#EDE9E2; --gray:#9A9289;
+  --blush:#33262B; --lavender:#262538; --powder:#1F2A33; --lilac:#2E2634; --pinkf:#3A2626; --cream:#332F20;
+  --coral:#F2937D; --peri:#8497E0; --lime:#A6C55C; --plum:#B183C6; --teal:#4FC0B3; --rose:#E8768A;
+  --shadow:0 1px 2px rgba(0,0,0,.35), 0 10px 30px rgba(0,0,0,.4);
+}
+:root[data-theme="light"]{
+  --bg:#FCFAF7; --bg2:#FFFFFF; --fg:#20201E; --muted:#6E675F; --rule:#E3DCD3;
+  --gridc:#EDE7E0; --leader:#B8AEA5; --ink:#20201E; --gray:#877F77;
+  --blush:#F5E6EB; --lavender:#E6E4F1; --powder:#D0DAE4; --lilac:#D8CDDD; --pinkf:#F8CFCD; --cream:#FAF0D5;
+  --coral:#EE8168; --peri:#5A73CE; --lime:#8FB043; --plum:#77488C; --teal:#1F9A8E; --rose:#D75567;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%; scroll-behavior:smooth}
+body{margin:0; background:var(--bg); color:var(--fg);
+  font-family:var(--serif); font-size:18px; line-height:1.62;
+  font-kerning:normal; text-rendering:optimizeLegibility}
+.wrap{max-width:78rem;margin:0 auto;padding:0 1.25rem;display:grid;grid-template-columns:15rem minmax(0,1fr);gap:3rem}
+@media (max-width:1000px){.wrap{grid-template-columns:1fr;gap:0}}
+
+nav.toc{position:sticky;top:0;align-self:start;max-height:100vh;overflow-y:auto;padding:2.5rem 0 3rem;
+  font-family:var(--sans);font-size:.8rem;line-height:1.45}
+nav.toc .brand{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--rose);
+  font-weight:700;margin:0 0 1.1rem}
+nav.toc h2{font-size:.7rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin:0 0 .9rem;font-weight:600}
+nav.toc ol{list-style:none;margin:0;padding:0}
+nav.toc li{margin:0 0 .1rem}
+nav.toc a{display:block;padding:.26rem .55rem;color:var(--muted);text-decoration:none;
+  border-left:2px solid transparent;border-radius:0 4px 4px 0}
+nav.toc a:hover{color:var(--fg);background:var(--bg2)}
+nav.toc a.on{color:var(--fg);border-left-color:var(--rose);background:var(--bg2);font-weight:600}
+nav.toc .part{margin:1.1rem 0 .35rem;font-size:.66rem;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--leader);font-weight:700}
+@media (max-width:1000px){nav.toc{position:static;max-height:none;border-bottom:1px solid var(--rule);margin-bottom:1rem}}
+
+main{padding:2.5rem 0 6rem;min-width:0}
+main > *{max-width:var(--maxw)}
+main > figure, main > .wide, main > .tablewrap{max-width:60rem}
+
+h1{font-size:2.5rem;line-height:1.1;letter-spacing:-.02em;margin:.4rem 0 .8rem;font-weight:700;max-width:26ch}
+.meta{font-family:var(--sans);font-size:.8rem;color:var(--muted);letter-spacing:.02em;margin:0 0 1.6rem}
+h2{font-size:1.05rem;font-family:var(--sans);font-weight:700;letter-spacing:.02em;margin:3.6rem 0 .2rem;scroll-margin-top:1.5rem}
+h2 .n{color:var(--rose);font-variant-numeric:tabular-nums;margin-right:.5rem}
+h2 + .lede{color:var(--muted);font-size:1.02rem;margin:.1rem 0 1.1rem}
+h3{font-size:.95rem;font-family:var(--sans);font-weight:700;margin:2.1rem 0 .5rem;color:var(--fg)}
+.parthead{margin:4.5rem 0 1.2rem;padding-top:1.6rem;border-top:2px solid var(--fg)}
+.parthead .k{font-family:var(--sans);font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--rose);font-weight:700}
+.parthead h2{font-size:1.8rem;margin:.35rem 0 .3rem;letter-spacing:-.01em;font-family:var(--serif)}
+.parthead p{color:var(--muted);margin:0;font-size:1.02rem}
+p{margin:0 0 1.05rem}
+a{color:var(--fg);text-underline-offset:2px;text-decoration-color:var(--leader)}
+a:hover{text-decoration-color:var(--rose)}
+ul,ol{margin:0 0 1.05rem;padding-left:1.35rem}
+li{margin:.28rem 0}
+hr{border:0;border-top:1px solid var(--rule);margin:2.6rem 0}
+.small{font-size:.88rem;color:var(--muted)}
+
+.eq{display:block;margin:1.3rem auto;padding:.9rem 1rem;text-align:center;font-size:1.06rem;
+    background:var(--bg2);border:1px solid var(--rule);border-radius:8px;overflow-x:auto;line-height:1.9}
+.eq .tag{float:right;color:var(--leader);font-family:var(--sans);font-size:.85em}
+.eq b{color:var(--rose);font-weight:700}
+code{font-family:var(--mono);font-size:.9em}
+sub,sup{font-size:.72em;line-height:0}
+i{font-style:italic}
+.grk{font-style:normal}
+
+.box{border:1px solid var(--rule);background:var(--bg2);border-radius:10px;padding:1rem 1.15rem;
+  margin:1.5rem 0;box-shadow:var(--shadow)}
+.box .lbl{font-family:var(--sans);font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;
+  font-weight:700;margin-bottom:.45rem;display:block}
+.box p:last-child,.box ul:last-child,.box ol:last-child{margin-bottom:0}
+.box.key{border-left:3px solid var(--rose);background:linear-gradient(94deg,var(--blush),var(--bg2) 62%)}
+.box.key .lbl{color:var(--rose)}
+.box.def{border-left:3px solid var(--peri);background:linear-gradient(94deg,var(--lavender),var(--bg2) 62%)}
+.box.def .lbl{color:var(--peri)}
+.box.thm{border-left:3px solid var(--peri);background:linear-gradient(94deg,var(--lavender),var(--bg2) 62%)}
+.box.thm .lbl{color:var(--peri)}
+.box.note{border-left:3px solid var(--lime)}
+.box.note .lbl{color:var(--lime)}
+.box.caution{border-left:3px solid var(--coral);background:linear-gradient(94deg,var(--pinkf),var(--bg2) 62%)}
+.box.caution .lbl{color:var(--coral)}
+.box.hist{border-left:3px solid var(--leader)}
+.box.hist .lbl{color:var(--leader)}
+.box.sim{border-left:3px solid var(--teal);background:linear-gradient(94deg,var(--powder),var(--bg2) 62%)}
+.box.sim .lbl{color:var(--teal)}
+.box.open{border-left:3px solid var(--plum);background:linear-gradient(94deg,var(--lilac),var(--bg2) 62%)}
+.box.open .lbl{color:var(--plum)}
+
+/* ---- figures: pure HTML/CSS (no SVG), renders everywhere ---- */
+figure{margin:2rem 0;padding:1.1rem;background:var(--bg2);border:1px solid var(--rule);border-radius:10px;box-shadow:var(--shadow)}
+.figrow{display:flex;gap:2.2rem;flex-wrap:wrap}
+.figcol{flex:1 1 300px;min-width:280px}
+.figcap{font-family:var(--sans);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);font-weight:700;margin:0 0 .7rem}
+.lane{border:1.5px solid;border-radius:8px;padding:.5rem .8rem;margin-bottom:.7rem}
+.lane .t{font-family:var(--sans);font-weight:600;font-size:.95rem}
+.lane .m{font-family:var(--mono);font-size:.76rem;color:var(--muted);margin-top:.12rem}
+.lane.teal{border-color:var(--teal)} .lane.teal .t{color:var(--teal)}
+.lane.rose{border-color:var(--rose)} .lane.rose .t{color:var(--rose)}
+.bars{display:flex;align-items:flex-end;gap:10px;height:150px;padding:0 .15rem}
+.b{flex:1;border-radius:3px 3px 0 0}
+.b.teal{background:var(--teal)} .b.rose{background:var(--rose)} .b.peri{background:var(--peri)}
+.axis{border-top:1.5px solid var(--gridc);margin-top:4px;display:flex;padding:0 .15rem}
+.axis span{flex:1;text-align:center;font-family:var(--mono);font-size:.72rem;color:var(--muted);padding-top:2px}
+.figlabel{font-family:var(--sans);font-size:.78rem;color:var(--muted);margin-top:.55rem}
+figcaption{font-family:var(--sans);font-size:.8rem;line-height:1.5;color:var(--muted);margin-top:.9rem;max-width:56rem}
+figcaption b{color:var(--rose);font-weight:700}
+figcaption b.t{color:var(--fg)}
+
+.tablewrap{overflow-x:auto;margin:1.6rem 0;border:1px solid var(--rule);border-radius:10px;
+  background:var(--bg2);box-shadow:var(--shadow)}
+table{border-collapse:collapse;width:100%;font-family:var(--sans);font-size:.83rem;line-height:1.45}
+th,td{text-align:left;padding:.6rem .8rem;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:700;font-size:.68rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);background:var(--bg)}
+tbody tr:last-child td{border-bottom:0}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+td.hl{color:var(--rose);font-weight:600}
+caption{caption-side:bottom;text-align:left;padding:.7rem .8rem;font-family:var(--sans);font-size:.78rem;color:var(--muted)}
+
+.refs{font-size:.88rem;line-height:1.5}
+.refs ol{padding-left:1.8rem}
+.refs li{margin:.5rem 0}
+.refs .venue{color:var(--muted)}
+sup.c{font-size:.68em;color:var(--rose);font-weight:700}
+sup.c a{color:inherit;text-decoration:none}
+
+#tt{position:fixed;right:1rem;bottom:1rem;z-index:50;width:2.4rem;height:2.4rem;border-radius:50%;
+  display:grid;place-items:center;font-size:1rem;background:var(--bg2);box-shadow:var(--shadow);border:1px solid var(--rule);color:var(--fg)}
+@media print{#tt,nav.toc{display:none}.wrap{display:block}main>*{max-width:none}}
+</style>
+</head>
+<body>
+<button id="tt" title="Toggle light / dark">◐</button>
+<div class="wrap">
+<nav class="toc" id="toc">
+  <div class="brand">CCBS · EST 5053 · Fall 2026</div>
+  <h2>Contents</h2>
+  <ol>
+    <li class="part">I · The claim</li>
+    <li><a href="#s1">1 · One transcript, two clocks</a></li>
+    <li><a href="#s2">2 · A race gives a geometric packet</a></li>
+    <li class="part">II · The mechanism</li>
+    <li><a href="#s3">3 · Both rates up: bursts survive</a></li>
+    <li><a href="#s4">4 · Translation fixed: packets dissolve</a></li>
+    <li class="part">III · Consequences</li>
+    <li><a href="#s5">5 · A packet with a Fano of eleven</a></li>
+    <li class="part">IV · Situating</li>
+    <li><a href="#s6">6 · Where this could be wrong</a></li>
+    <li><a href="#refs">References</a></li>
+  </ol>
+</nav>
+<main>
+
+<h1>Eliminating an RNA lifetime</h1>
+<p class="meta">Author: Yan Runzi · Week 3 (2026-09-20) · CCBS 2026</p>
+
+<p>If we average out a <em>fast promoter state</em>, Lecture&nbsp;6 §9a replaces a two-state burst generator by a briefer, sharper Poisson approximation — and whether bursts survive depends on which rate is fixed. This problem repeats that whole argument with the hidden clock moved <em>one level down</em>: instead of a promoter, we eliminate an <em>RNA lifetime</em>. An RNA that translates and is destroyed by two independent exponential clocks leaves behind, before it dies, a count of proteins whose law we can write down exactly, with no master equation at all.</p>
+
+<div class="box note">
+<span class="lbl">The assignment · what to hand in</span>
+<p>Let an RNA translate at rate <i>k<sub>p</sub></i> and disappear at <i>γ<sub>m</sub></i>. Use two competing clocks to derive its geometric protein packet, with its mean, variance, and Fano factor. Then decide <b>(a)</b> what survives if both rates increase at fixed ratio, and <b>(b)</b> what survives if translation stays fixed. This essay state–event–probability structure follows Lectures&nbsp;5–6.</p>
+</div>
+
+<div class="parthead">
+  <div class="k">Part I</div>
+  <h2>The claim, in two clocks</h2>
+  <p>The packet law is a race between translation and degradation.</p>
+</div>
+
+<h2 id="s1"><span class="n">1</span>One transcript, two clocks</h2>
+<p class="lede">A single RNA is the whole object; its production of protein is the whole observable.</p>
+
+<p>A single transcript <i>M</i> is born at time zero. While it lives it translates — each event deposits one protein with rate <i>k<sub>p</sub></i> — and it is destroyed at rate <i>γ<sub>m</sub></i>. Nothing is hidden and nothing is coarse-grained beyond Lectures&nbsp;3 and&nbsp;5: these are composite channels with declared clocks, the squiggle-arrow language of the course, fully reduced to a propensity table. The transcript is the only tiny number in the system — a protein count <i>P</i> is large, so it is the one quantity a population measurement can actually average.</p>
+
+<div class="tablewrap">
+<table>
+<caption>Table 1. The object as Lectures 5 treat it: two events, two integer jumps, two clocks. State M ∈ {0,1}, P ∈ ℤ<sub>≥0</sub>.</caption>
+<thead><tr><th>Channel</th><th>Jump</th><th>Clock (events/time)</th></tr></thead>
+<tbody>
+<tr><td>M ⇝ M + P &nbsp;· translation</td><td class="num">P : +1</td><td class="num">a<sub>+</sub> = <i>k<sub>p</sub></i> · 1<sub>{M alive}</sub></td></tr>
+<tr><td>M ⇝ ∅ &nbsp;· degradation</td><td class="num">M : −1</td><td class="num">a<sub>−</sub> = <i>γ<sub>m</sub></i> · 1<sub>{M alive}</sub></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="box thm">
+<span class="lbl">The object</span>
+<p>Only two clocks exist: translation at <i>k<sub>p</sub></i>, degradation at <i>γ<sub>m</sub></i>. They race, the transcript remembers nothing between rounds, and the whole derivation below is one pass over a single ladder — <em>no master equation, no Gillespie.</em></p>
+</div>
+
+<h2 id="s2"><span class="n">2</span>A race gives a geometric packet</h2>
+<p class="lede">Whichever exponential clock wins first decides both terms of a geometric law.</p>
+
+<p>Each event that happens to the live RNA is a draw from a race. Translation wins a single race with probability <i>q</i>, after which the race restarts with unchanged clocks — the transcript is memoryless, exactly because both waiting times are exponential. The count of translation wins before the first degradation is therefore a sequence of independent races terminated by the degradation race.</p>
+
+<div class="eq">
+  <span class="tag">(1)</span>
+  q = <i>k<sub>p</sub></i>/(<i>k<sub>p</sub></i> + <i>γ<sub>m</sub></i>), &nbsp;&nbsp;&nbsp; 1 − q = <i>γ<sub>m</sub></i>/(<i>k<sub>p</sub></i> + <i>γ<sub>m</sub></i>)
+</div>
+
+<p>Condition on surviving <i>j</i> consecutive races — that is <i>q<sup>j</sup></i> — then end with one degradation race, 1 − q. Multiply and the packet is geometric: the lecture figure's count ladder read on its side.</p>
+
+<div class="eq">
+  <span class="tag">(2)</span>
+  Pr(B = j) = (1 − q)·q<sup>j</sup>, &nbsp;&nbsp;&nbsp; j = 0, 1, 2, …
+</div>
+
+<div class="eq">
+  <span class="tag">(3)</span>
+  <b>E[B]</b> = q/(1 − q) = <i>k<sub>p</sub></i>/<i>γ<sub>m</sub></i>, &nbsp;&nbsp;&nbsp; <b>Var(B)</b> = B̄(1 + B̄)
+</div>
+
+<p>The two exponential clocks tie only with probability zero, so every race ends, and Σ<sub>j</sub> (1 − q)q<sup>j</sup> = 1 exactly: a <em>finite</em> packet is guaranteed, degradation is reached almost surely, and no probability mass is ever lost. This is Lecture&nbsp;5's burst addendum (B̄ = k<sub>tl</sub>/d<sub>m</sub>) written as a race, and the same math as Lecture&nbsp;6 §9a's <em>"an ON period produces a geometric packet of mean ρ/β."</em></p>
+
+<figure>
+<div class="figrow">
+
+  <div class="figcol">
+    <div class="figcap">The race · one draw</div>
+    <div class="lane teal">
+      <div class="t">translation wins → packet continues</div>
+      <div class="m">prob &nbsp;q = k&#8349;/(k&#8349;+&#947;<sub>m</sub>)</div>
+    </div>
+    <div class="lane rose">
+      <div class="t">degradation wins → packet ends</div>
+      <div class="m">prob &nbsp;1−q = &#947;<sub>m</sub>/(k&#8349;+&#947;<sub>m</sub>)</div>
+    </div>
+    <p class="figlabel">The race restarts, memoryless → P(B=j) = (1−q)q&#8319;, &nbsp;E[B] = k&#8349;/&#947;<sub>m</sub></p>
+  </div>
+
+  <div class="figcol">
+    <div class="figcap">The packet · width of a distribution</div>
+    <div class="bars">
+      <div class="b peri" style="height:100px"></div>
+      <div class="b peri" style="height:67px"></div>
+      <div class="b peri" style="height:44px"></div>
+      <div class="b peri" style="height:30px"></div>
+      <div class="b peri" style="height:20px"></div>
+      <div class="b peri" style="height:13px"></div>
+      <div class="b peri" style="height:9px"></div>
+    </div>
+    <div class="axis"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span></div>
+    <p class="figlabel">P(B=j), geometric with E[B]=2 — the wide tail is the excess variance B̄(1+B̄)</p>
+  </div>
+
+</div>
+<figcaption><b class="t">Figure 1.</b> <em>Left:</em> one race — translation wins with probability <i>q</i> and the packet continues, degradation wins with 1 − <i>q</i> and it ends. <em>Right:</em> the resulting packet law (2) for a moderate burst, <i>q</i> = 2/3, E[B] = 2. The wide tail is the excess variance B̄(1 + B̄) that a mean alone never reveals — Lecture&nbsp;5's standing warning.</figcaption>
+</figure>
+
+<div class="box def">
+<span class="lbl">Definition (geometric packet)</span>
+<p>The protein packet <i>B</i> left by one RNA is geometric, Pr(B = j) = (1 − q)q<sup>j</sup> with q = <i>k<sub>p</sub></i>/(<i>k<sub>p</sub></i> + <i>γ<sub>m</sub></i>). Its mean and variance pin the two things a burst contributes: the level <i>k<sub>p</sub></i>/<i>γ<sub>m</sub></i> and the excess noise B̄(1 + B̄).</p>
+</div>
+
+<div class="parthead">
+  <div class="k">Part II</div>
+  <h2>The two limits</h2>
+  <p>Speed nothing up in isolation — hold the mean, change the noise.</p>
+</div>
+
+<p>Both parts of the assignment keep mean protein production <i>k<sub>p</sub></i>·⟨M⟩ fixed, by letting the transcript source <i>r<sub>m</sub></i> compensate. The two limits differ in which clock is left to set the <em>noise</em>; the mean is a red herring that cannot tell them apart.</p>
+
+<h2 id="s3"><span class="n">3</span>Both rates up at fixed ratio: the packet survives</h2>
+<p class="lede">Because E[B] is a function of the ratio alone, the whole geometric law is invariant.</p>
+
+<p>Scale the two clocks together, <i>k<sub>p</sub></i>, <i>γ<sub>m</sub></i> → ∞ with <i>k<sub>p</sub></i>/<i>γ<sub>m</sub></i> held fixed. Then <i>q</i> in (1) never moves, so the <em>entire law</em> (2) — every probability, the mean, the width, and the excess Fano — is unchanged. What changes is only the <em>tempo</em>: each packet is completed in a briefer real time, so packets arrive faster but carry the same fixed size.</p>
+
+<div class="box thm">
+<span class="lbl">Survival</span>
+<p>In the limit <i>k<sub>p</sub></i>, <i>γ<sub>m</sub></i> → ∞ at fixed ratio, <b>the geometric packet survives</b> as a burst process: Poisson-arriving packets of fixed mean, presentable <em>without resolving any transcript</em>. This is Lecture&nbsp;6 §9a's burst limit, and it gives the protein Fano F = 1 + B̄.</p>
+</div>
+
+<p>What is <em>eliminated</em> is every temporal feature of a transcript: the lifetime 1/<i>γ<sub>m</sub></i> and the finite width of a burst episode are pressed toward an instant. The transcript's <em>history</em> is averaged out; its <em>size</em> is not. This is the crucial asymmetry of the burst-process construction of Lecture&nbsp;5 §3.</p>
+
+<h2 id="s4"><span class="n">4</span>Translation fixed: packets dissolve into Poisson</h2>
+<p class="lede">As γ<sub>m</sub>→∞ at fixed k<sub>p</sub>, the mean packet collapses and the excess noise with it.</p>
+
+<p>Now kill the transcript faster, <i>γ<sub>m</sub></i> → ∞ with <i>k<sub>p</sub></i> held <em>fixed</em>, and let the source rise to keep <i>k<sub>p</sub></i>·⟨M⟩ constant — more transcripts, each shorter-lived. Now E[B] = <i>k<sub>p</sub></i>/<i>γ<sub>m</sub></i> → 0.</p>
+
+<div class="box thm">
+<span class="lbl">Survival</span>
+<p>The geometric packet <em>degenerates</em>: it becomes zero (almost always) or one (rarely). Compensating transcripts keep protein flowing, but almost every protein is now its own lone event, so arrivals become Poisson and the protein Fano falls to F = 1. What survives is the <b>mean production rate</b> <i>k<sub>p</sub></i>·⟨M⟩ and the elementary translation event; what is eliminated is the packet and its excess noise. This is Lecture&nbsp;6 §9a's fast-fixed-rate-switching → Fano-one limit.</p>
+</div>
+
+<figure>
+<div class="figrow">
+
+  <div class="figcol">
+    <div class="figcap">Limit A · k&#8349;, &#947;<sub>m</sub> → ∞, ratio fixed → packet survives</div>
+    <div class="bars">
+      <div class="b teal" style="height:100px"></div>
+      <div class="b teal" style="height:80px"></div>
+      <div class="b teal" style="height:64px"></div>
+      <div class="b teal" style="height:51px"></div>
+      <div class="b teal" style="height:41px"></div>
+      <div class="b teal" style="height:33px"></div>
+    </div>
+    <div class="axis"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
+    <p class="figlabel">E[B] fixed · F = 1+E[B] fixed</p>
+  </div>
+
+  <div class="figcol">
+    <div class="figcap">Limit B · &#947;<sub>m</sub> → ∞, k&#8349; fixed → packet → Poisson</div>
+    <div class="bars">
+      <div class="b rose" style="height:100px"></div>
+      <div class="b rose" style="height:20px"></div>
+      <div class="b rose" style="height:4px"></div>
+      <div class="b rose" style="height:1px"></div>
+      <div class="b rose" style="height:0px"></div>
+      <div class="b rose" style="height:0px"></div>
+    </div>
+    <div class="axis"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
+    <p class="figlabel">E[B] → 0 · F → 1 (Poisson)</p>
+  </div>
+
+</div>
+<figcaption><b class="t">Figure 2.</b> The two limits sweep the same mean but leave opposite noise. <em>Left (Limit A):</em> both clocks up at fixed ratio — the geometric packet and its Fano 1 + B̄ are exactly preserved. <em>Right (Limit B):</em> translation fixed while RNA is destroyed faster — mass collapses onto j = 0, a rare lone j = 1, and the Fano falls to 1. The mean protein level need not move in either.<br>
+Drawn to scale: Limit A at q = 0.8 (E[B] = 4), Limit B at q = 0.2 (E[B] = 0.25).</figcaption>
+</figure>
+
+<p>Because both limits share every <em>mean</em>, they are indistinguishable by a mean measurement alone. Only a second-moment observable — the Fano factor or a waiting-time statistic — can tell whether the surviving signal is a burst process or a Poisson rain. That is the lesson of Lecture&nbsp;6 §9a in miniature, and the reason this problem is a Fano-factor problem at heart.</p>
+
+<div class="parthead">
+  <div class="k">Part III</div>
+  <h2>Consequences</h2>
+  <p>One number the derivation actually produced.</p>
+</div>
+
+<h2 id="s5"><span class="n">5</span>A packet with a Fano of eleven</h2>
+<p class="lede">At reference rates the packet's excess noise dwarfs anything a mean tells you.</p>
+
+<p>Take a convenient reference: translation <i>k<sub>p</sub></i> = 2 proteins/min, degradation <i>γ<sub>m</sub></i> = 0.2/min. Then the transcript lives 1/<i>γ<sub>m</sub></i> = 5 minutes, and each packet carries, on average, ten proteins. Averaging is exactly what obscures the point.</p>
+
+<div class="box sim">
+<span class="lbl">What the numbers give</span>
+<p>At <i>k<sub>p</sub></i> = 2, <i>γ<sub>m</sub></i> = 0.2, the packet <i>B</i> is geometric with mean B̄ = 10, variance B̄(1 + B̄) = 110, and coefficient of variation √(110/100) ≈ 1.05. Closing the transcript loop (fast-mRNA limit, §9a) gives a protein Fano factor F = 1 + B̄ = 11 — an <b>eleven-fold</b> over-dispersion. In Limit&nbsp;A that number is frozen; in Limit&nbsp;B it collapses toward 1. A measured Fano below 1 stands apart from every row of this model.</p>
+</div>
+
+<div class="tablewrap">
+<table>
+<caption>Table 2. What survives when the two clocks are pushed to their limits (same mean protein production).</caption>
+<thead><tr><th></th><th>E[B] = k<sub>p</sub>/γ<sub>m</sub></th><th>Packet law</th><th>Protein Fano</th><th>Survivor</th></tr></thead>
+<tbody>
+<tr><td><b>Baseline</b></td><td class="num">10</td><td>geometric, wide</td><td class="num">11</td><td>burst structure</td></tr>
+<tr><td><b>Limit A</b> — both rates up, fixed ratio</td><td class="num">10 (frozen)</td><td>geometric, unchanged</td><td class="num">11 (fixed)</td><td class="hl"><b>the packet survives</b></td></tr>
+<tr><td><b>Limit B</b> — γ<sub>m</sub>→∞, k<sub>p</sub> fixed</td><td class="num">→ 0</td><td>→ Poisson</td><td class="num">→ 1</td><td class="hl"><b>the mean rate survives</b></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="box note">
+<span class="lbl">View &amp; estimator</span>
+<p>Three views, three operations. <b>Packet law</b> — exact, from (1)–(2), no simulation needed. <b>Mean &amp; Fano</b> — analytic, E[B] = <i>k<sub>p</sub></i>/<i>γ<sub>m</sub></i> and F = 1 + B̄ in the fast-mRNA limit. <b>Path</b> — a Gillespie direct-method run of Table&nbsp;1 resolves individual packets; Fano is then a time-weighted residence average over a declared window, exactly as Lecture&nbsp;5 §10 defines estimators.</p>
+</div>
+
+<div class="parthead">
+  <div class="k">Part IV</div>
+  <h2>Situating and testing</h2>
+  <p>Where this sits in the lectures, and how it would fail.</p>
+</div>
+
+<h2 id="s6"><span class="n">6</span>Where this could be wrong</h2>
+<p class="lede">An observable that would refute the model, so someone could go and make it.</p>
+
+<p>The two limits agree on every mean, so the honest way to close the problem is with the second-moment observable, as Lecture&nbsp;6 §9a leaves it. The footer estimates are the falsifiers:</p>
+
+<ul>
+<li><b>Sub-Poisson protein count.</b> A measured Fano plainly below 1, at fixed fast-mRNA rates, rejects this model outright — no choice of <i>k<sub>p</sub></i> or <i>γ<sub>m</sub></i> permits it. This is the cleanest kill.</li>
+<li><b>Fano above 1 + B̄.</b> A larger excess noise rejects the geometric-packet assumption itself — it points to real promoter-level bursts (Lecture&nbsp;6's two-state generator), not an RNA-lifetime race. The packet law (2) names its own upper bound on Fano.</li>
+<li><b>Least-informative measurement.</b> Any experiment that records only mean protein level is exactly the wrong tool here: by construction it cannot separate Limit&nbsp;A from Limit&nbsp;B. The model's value is precisely that it continues to distinguish them when the mean cannot.</li>
+</ul>
+
+<div class="box open">
+<span class="lbl">Open</span>
+<p>The observation that would settle it: a single-cell assay of protein-vs-mRNA noise as transcript stability is titrated. If a fixed mRNA lifetime can be made short while keeping <i>k<sub>p</sub></i> constant, the Fano should fall from 1 + B̄ toward 1 — the packets dissolving in real time. If instead the measured over-dispersion stubbornly holds while <i>γ<sub>m</sub></i> rises, the surplus noise must be living above the transcript level, and this week's model is missing a clock.</p>
+</div>
+
+<h2 id="refs">References</h2>
+<div class="refs">
+<ol>
+<li id="r-lecture5">CCBS 2026, Lecture&nbsp;5 — Stochastic dynamics: the master equation and Gillespie. Burst addendum: geometric packets, E[B] = k<sub>tl</sub>/d<sub>m</sub>; two-stage Fano 1 + k<sub>tl</sub>/(d<sub>m</sub> + d<sub>p</sub>). <span class="venue">chemaoxfz.github.io/assets/ccbs/2026fall/lecture05-core.html.</span></li>
+<li id="r-lecture6">CCBS 2026, Lecture&nbsp;6 — Time-scale separation: why a quasi-steady complex keeps changing. §9a, "A fast stochastic promoter can also be eliminated," and Playground&nbsp;C. <span class="venue">chemaoxfz.github.io/assets/ccbs/2026fall/lecture06-core.html.</span></li>
+<li id="r-ss08">Shahrezaei V, Swain PS. Analytical Distributions for Stochastic Gene Expression.
+  <span class="venue"><i>PNAS</i> 105:17256–17261, 2008.</span></li>
+<li id="r-gillespie">Gillespie DT. A general method for numerically simulating the stochastic time evolution of coupled chemical reactions.
+  <span class="venue"><i>Journal of Computational Physics</i> 22:403–434, 1976.</span></li>
+</ol>
+</div>
+
+</main>
+</div>
+<script>
+(function(){
+  // ---- theme toggle -------------------------------------------------------
+  var root=document.documentElement, tt=document.getElementById('tt');
+  tt.addEventListener('click',function(){
+    var cur=root.getAttribute('data-theme');
+    if(!cur){ cur = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light'; }
+    root.setAttribute('data-theme', cur==='dark'?'light':'dark');
+  });
+
+  // ---- TOC scroll spy -----------------------------------------------------
+  var links=[].slice.call(document.querySelectorAll('#toc a'));
+  var secs=links.map(function(a){return document.querySelector(a.getAttribute('href'));}).filter(Boolean);
+  function spy(){
+    var y=window.scrollY+140, best=0;
+    secs.forEach(function(s,i){ if(s && s.offsetTop<=y) best=i; });
+    links.forEach(function(a,i){ a.classList.toggle('on', i===best); });
+  }
+  window.addEventListener('scroll',spy,{passive:true}); spy();
+})();
+</script>
+</body>
+</html>
