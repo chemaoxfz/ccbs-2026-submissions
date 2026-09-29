@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="wangsiheng">
+<meta name="date" content="2026-09-28">
+<meta name="description" content="A worked Lecture 6 extension on enzyme kinetics: why fast binding alone does not justify standard QSSA, and how total substrate improves the reduced model.">
+<title>Lecture 6 extension — Fast binding does not make free substrate slow — wangsiheng</title>
+<style>
+:root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; }
+@media (prefers-color-scheme: dark) { :root { --ink:#e8e8e8; --muted:#a6b5b5; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; } }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.65; }
+.wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+h1 { font-size:1.65rem; line-height:1.25; margin:0 0 8px; color:var(--accent); font-weight:700; }
+.meta { color:var(--muted); font-size:.92rem; margin:0 0 26px; }
+h2 { font-size:1.08rem; color:var(--accent); margin:32px 0 8px; border-bottom:1px solid var(--line); padding-bottom:5px; }
+p { margin:12px 0; }
+.card { background:var(--soft); border:1px solid var(--line); border-radius:6px; padding:14px 18px; margin:14px 0 24px; }
+.fig { display:block; width:100%; height:auto; border:1px solid var(--line); border-radius:6px; background:#fff; }
+figure { margin:22px 0; }
+figcaption { font-size:.85rem; color:var(--muted); margin-top:8px; line-height:1.55; }
+a { color:var(--accent); text-underline-offset:3px; }
+.src { font-size:.9rem; padding-left:23px; }
+.src li { margin-bottom:11px; }
+pre { background:var(--soft); border:1px solid var(--line); border-radius:6px; padding:12px 14px; overflow-x:auto; font-size:.77rem; line-height:1.5; tab-size:4; }
+code { font-family:"SF Mono",Consolas,Menlo,monospace; }
+.eq { text-align:center; margin:17px 0; font-family:"Cambria Math","Times New Roman",serif; font-size:1.12rem; line-height:1.9; }
+.eq .line { display:block; }
+.eq.long { font-size:1.04rem; }
+.nowrap { white-space:nowrap; }
+sub,sup { font-size:.72em; }
+sup a { padding:0 1px; text-decoration:none; }
+details { margin:15px 0; }
+summary { cursor:pointer; color:var(--accent); font-size:.9rem; }
+summary:focus-visible, a:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+table { border-collapse:collapse; width:100%; font-size:.88rem; margin:18px 0; font-variant-numeric:tabular-nums; }
+th,td { padding:9px 10px; border-bottom:1px solid var(--line); text-align:right; }
+th:first-child,td:first-child { text-align:left; }
+th { background:var(--soft); font-weight:600; }
+.note { color:var(--muted); font-size:.86rem; }
+@media (max-width:480px) { .wrap { padding:26px 18px 48px; } h1 { font-size:1.45rem; } .eq.long { font-size:.9rem; } th,td { padding:8px 5px; } table { font-size:.78rem; } }
+@media print { :root { --ink:#111; --muted:#555; --accent:#1f4e79; --line:#cdd3da; --bg:#fff; --soft:#f6f8fa; } .wrap { max-width:none; padding:0; } body { font-size:10.5pt; } h2 { break-after:avoid; } figure,table,.card { break-inside:avoid; } details { display:none; } a { text-decoration:none; } }
+@page { size:A4; margin:18mm; }
+</style>
+</head>
+<body>
+<main class="wrap">
+<h1>Fast binding does not make free substrate slow</h1>
+<p class="meta">wangsiheng · Lecture 6 extension · CCBS 2026 · <time datetime="2026-09-28">9.28</time></p>
+
+<p class="card"><strong>One sentence:</strong> Fast complex adjustment can coexist with a poor standard Michaelis–Menten progress curve, because binding may rapidly move a substantial amount of substrate into the complex; tracking free plus bound substrate preserves that missing pool.</p>
+
+<h2>The point I am adding</h2>
+<p>The supplied Lecture 6 slides show that standard QSSA becomes less accurate as enzyme abundance increases. I turn that warning into a numerical test: can binding be much faster than catalysis while the usual reduced model still predicts product formation poorly? The key distinction is between <em>free</em> substrate and substrate that has not yet become product.<sup><a href="#s1">1</a></sup></p>
+
+<p>Keep the same closed, well-mixed reaction, <span class="nowrap">E + S ⇌ C → E + P</span>. Let <i>E</i><sub>T</sub> be total enzyme and <i>S</i><sub>0</sub> the initial substrate, with <i>C</i>(0) = <i>P</i>(0) = 0. Define the remaining substrate total <i>q</i> = <i>S</i> + <i>C</i>. Adding the exact substrate and complex balances cancels binding:</p>
+<div class="eq" aria-label="Exact total and complex balances">
+<span class="line">dq/dt = −k<sub>2</sub>C, &nbsp; P = S<sub>0</sub> − q,</span>
+<span class="line">dC/dt = k<sub>1</sub>(E<sub>T</sub> − C)(q − C) − (k<sub>−1</sub> + k<sub>2</sub>)C.</span>
+</div>
+<p>Binding can change <i>S</i> quickly without changing <i>q</i>. Setting the complex’s formation and loss approximately in balance, with <i>K</i><sub>M</sub> = (<i>k</i><sub>−1</sub> + <i>k</i><sub>2</sub>)/<i>k</i><sub>1</sub>, gives a quadratic. Its smaller, physical root is</p>
+<div class="eq long">
+<span class="line">A(q) = E<sub>T</sub> + q + K<sub>M</sub>,</span>
+<span class="line">C̄(q) = ½[A(q) − √(A(q)<sup>2</sup> − 4E<sub>T</sub>q)].</span>
+</div>
+<p>The <em>total QSSA</em> uses <i>dq/dt</i> ≈ −<i>k</i><sub>2</sub>C̄(<i>q</i>) with <i>q</i>(0) = <i>S</i><sub>0</sub>, then reconstructs <i>S</i> ≈ <i>q</i> − C̄(<i>q</i>). This established change of variable keeps substrate sequestration in the bookkeeping.<sup><a href="#s2">2</a></sup> It does not, by itself, guarantee that the fast-state approximation is accurate.</p>
+
+<h2>Work it</h2>
+<p>Choose illustrative values <i>E</i><sub>T</sub> = <i>S</i><sub>0</sub> = 1 µM, <i>k</i><sub>1</sub> = 10 µM<sup>−1</sup>s<sup>−1</sup>, <i>k</i><sub>−1</sub> = 9.9 s<sup>−1</sup>, and <i>k</i><sub>2</sub> = 0.1 s<sup>−1</sup>, so <i>K</i><sub>M</sub> = 1 µM. Unbinding takes about 0.10 s, whereas catalysis takes 10 s. Yet the small-enzyme ratio <i>E</i><sub>T</sub>/(<i>K</i><sub>M</sub> + <i>S</i><sub>0</sub>) is <strong>0.5</strong>, not small.</p>
+<p>Near the initial total, the closure gives C̄(1) = (3 − √5)/2 ≈ <strong>0.382 µM</strong>. Thus about 38% of the substrate can be bound after fast adjustment. Replacing total substrate by free substrate discards a substantial pool.</p>
+<p>I integrate the full equations and total QSSA independently. For comparison, the standard reduction is <i>ds/dt</i> = −<i>k</i><sub>2</sub><i>E</i><sub>T</sub><i>s</i>/(<i>K</i><sub>M</sub> + <i>s</i>), <i>s</i>(0) = <i>S</i><sub>0</sub>, with product estimate <i>P</i><sub>std</sub> = <i>S</i><sub>0</sub> − <i>s</i>. That last estimate neglects bound substrate. All three curves below show the same observable: product formed.</p>
+
+<figure>
+<svg class="fig" viewBox="0 0 700 335" role="img" aria-labelledby="figure-title figure-desc" xmlns="http://www.w3.org/2000/svg">
+<title id="figure-title">Product progress curves: full model, total QSSA and standard QSSA</title>
+<desc id="figure-desc">The full model and total QSSA nearly overlap. Standard QSSA predicts faster product formation. Half conversion takes 16.830, 16.815 and 11.931 seconds, respectively.</desc>
+<g font-family="Arial, sans-serif" font-size="13" fill="#35424f">
+<path d="M60 25h27" stroke="#202e3d" stroke-width="3"/><text x="95" y="30">Full model</text>
+<path d="M240 25h27" stroke="#c36c2e" stroke-width="2.5" stroke-dasharray="6 4"/><text x="275" y="30">Total QSSA</text>
+<path d="M430 25h27" stroke="#276ca0" stroke-width="2.5"/><text x="465" y="30">Standard QSSA</text>
+<text x="60" y="58">Product formed, P / S₀</text>
+<path d="M60 274H660" stroke="#dfe5eb" fill="none"/><text x="48" y="278" text-anchor="end">0</text>
+<path d="M60 224.0H660" stroke="#dfe5eb" fill="none"/><text x="48" y="228.0" text-anchor="end">0.25</text>
+<path d="M60 174.0H660" stroke="#dfe5eb" fill="none"/><text x="48" y="178.0" text-anchor="end">0.5</text>
+<path d="M60 124.0H660" stroke="#dfe5eb" fill="none"/><text x="48" y="128.0" text-anchor="end">0.75</text>
+<path d="M60 74H660" stroke="#dfe5eb" fill="none"/><text x="48" y="78" text-anchor="end">1</text>
+<path d="M60 274v5" stroke="#73808d"/><text x="60" y="299" text-anchor="middle">0</text>
+<path d="M210 274v5" stroke="#73808d"/><text x="210" y="299" text-anchor="middle">15</text>
+<path d="M360 274v5" stroke="#73808d"/><text x="360" y="299" text-anchor="middle">30</text>
+<path d="M510 274v5" stroke="#73808d"/><text x="510" y="299" text-anchor="middle">45</text>
+<path d="M660 274v5" stroke="#73808d"/><text x="660" y="299" text-anchor="middle">60</text>
+<path d="M60 74V274H660" stroke="#73808d" fill="none"/><text x="360" y="324" text-anchor="middle">Time after mixing (s)</text></g>
+<path id="standard" d="M60.00,274.00 L62.50,271.51 L65.00,269.03 L67.50,266.57 L70.00,264.13 L72.50,261.70 L75.00,259.28 L77.50,256.89 L80.00,254.51 L82.50,252.14 L85.00,249.80 L87.50,247.47 L90.00,245.15 L92.50,242.86 L95.00,240.57 L97.50,238.31 L100.00,236.06 L102.50,233.84 L105.00,231.62 L107.50,229.43 L110.00,227.25 L112.50,225.09 L115.00,222.95 L117.50,220.82 L120.00,218.71 L122.50,216.62 L125.00,214.55 L127.50,212.50 L130.00,210.46 L132.50,208.44 L135.00,206.44 L137.50,204.46 L140.00,202.49 L142.50,200.54 L145.00,198.62 L147.50,196.71 L150.00,194.81 L152.50,192.94 L155.00,191.08 L157.50,189.25 L160.00,187.43 L162.50,185.63 L165.00,183.85 L167.50,182.08 L170.00,180.34 L172.50,178.61 L175.00,176.90 L177.50,175.21 L180.00,173.54 L182.50,171.89 L185.00,170.26 L187.50,168.64 L190.00,167.05 L192.50,165.47 L195.00,163.91 L197.50,162.37 L200.00,160.84 L202.50,159.34 L205.00,157.85 L207.50,156.38 L210.00,154.93 L212.50,153.50 L215.00,152.09 L217.50,150.70 L220.00,149.32 L222.50,147.96 L225.00,146.62 L227.50,145.30 L230.00,143.99 L232.50,142.70 L235.00,141.43 L237.50,140.18 L240.00,138.95 L242.50,137.73 L245.00,136.53 L247.50,135.35 L250.00,134.18 L252.50,133.04 L255.00,131.90 L257.50,130.79 L260.00,129.69 L262.50,128.61 L265.00,127.55 L267.50,126.50 L270.00,125.47 L272.50,124.45 L275.00,123.45 L277.50,122.47 L280.00,121.50 L282.50,120.55 L285.00,119.62 L287.50,118.69 L290.00,117.79 L292.50,116.90 L295.00,116.02 L297.50,115.16 L300.00,114.32 L302.50,113.48 L305.00,112.67 L307.50,111.86 L310.00,111.07 L312.50,110.30 L315.00,109.54 L317.50,108.79 L320.00,108.06 L322.50,107.34 L325.00,106.63 L327.50,105.93 L330.00,105.25 L332.50,104.58 L335.00,103.92 L337.50,103.28 L340.00,102.65 L342.50,102.03 L345.00,101.42 L347.50,100.82 L350.00,100.24 L352.50,99.66 L355.00,99.10 L357.50,98.55 L360.00,98.01 L362.50,97.48 L365.00,96.96 L367.50,96.45 L370.00,95.95 L372.50,95.46 L375.00,94.98 L377.50,94.51 L380.00,94.05 L382.50,93.60 L385.00,93.15 L387.50,92.72 L390.00,92.30 L392.50,91.88 L395.00,91.48 L397.50,91.08 L400.00,90.69 L402.50,90.31 L405.00,89.94 L407.50,89.57 L410.00,89.21 L412.50,88.86 L415.00,88.52 L417.50,88.19 L420.00,87.86 L422.50,87.54 L425.00,87.23 L427.50,86.92 L430.00,86.62 L432.50,86.33 L435.00,86.04 L437.50,85.76 L440.00,85.48 L442.50,85.21 L445.00,84.95 L447.50,84.70 L450.00,84.44 L452.50,84.20 L455.00,83.96 L457.50,83.72 L460.00,83.50 L462.50,83.27 L465.00,83.05 L467.50,82.84 L470.00,82.63 L472.50,82.42 L475.00,82.23 L477.50,82.03 L480.00,81.84 L482.50,81.65 L485.00,81.47 L487.50,81.29 L490.00,81.12 L492.50,80.95 L495.00,80.78 L497.50,80.62 L500.00,80.46 L502.50,80.31 L505.00,80.16 L507.50,80.01 L510.00,79.86 L512.50,79.72 L515.00,79.59 L517.50,79.45 L520.00,79.32 L522.50,79.19 L525.00,79.07 L527.50,78.95 L530.00,78.83 L532.50,78.71 L535.00,78.60 L537.50,78.49 L540.00,78.38 L542.50,78.27 L545.00,78.17 L547.50,78.07 L550.00,77.97 L552.50,77.87 L555.00,77.78 L557.50,77.69 L560.00,77.60 L562.50,77.51 L565.00,77.43 L567.50,77.34 L570.00,77.26 L572.50,77.18 L575.00,77.10 L577.50,77.03 L580.00,76.96 L582.50,76.88 L585.00,76.81 L587.50,76.74 L590.00,76.68 L592.50,76.61 L595.00,76.55 L597.50,76.49 L600.00,76.43 L602.50,76.37 L605.00,76.31 L607.50,76.25 L610.00,76.20 L612.50,76.14 L615.00,76.09 L617.50,76.04 L620.00,75.99 L622.50,75.94 L625.00,75.89 L627.50,75.85 L630.00,75.80 L632.50,75.76 L635.00,75.72 L637.50,75.67 L640.00,75.63 L642.50,75.59 L645.00,75.55 L647.50,75.52 L650.00,75.48 L652.50,75.44 L655.00,75.41 L657.50,75.37 L660.00,75.34" fill="none" stroke="#276ca0" stroke-width="2.5"/>
+<path id="full" d="M60.00,274.00 L62.50,272.41 L65.00,270.51 L67.50,268.63 L70.00,266.76 L72.50,264.91 L75.00,263.07 L77.50,261.24 L80.00,259.42 L82.50,257.62 L85.00,255.83 L87.50,254.06 L90.00,252.29 L92.50,250.54 L95.00,248.80 L97.50,247.08 L100.00,245.37 L102.50,243.67 L105.00,241.98 L107.50,240.31 L110.00,238.65 L112.50,237.00 L115.00,235.37 L117.50,233.75 L120.00,232.14 L122.50,230.54 L125.00,228.96 L127.50,227.39 L130.00,225.83 L132.50,224.28 L135.00,222.75 L137.50,221.23 L140.00,219.72 L142.50,218.23 L145.00,216.74 L147.50,215.27 L150.00,213.81 L152.50,212.36 L155.00,210.93 L157.50,209.51 L160.00,208.09 L162.50,206.70 L165.00,205.31 L167.50,203.93 L170.00,202.57 L172.50,201.22 L175.00,199.88 L177.50,198.55 L180.00,197.23 L182.50,195.93 L185.00,194.64 L187.50,193.35 L190.00,192.08 L192.50,190.82 L195.00,189.58 L197.50,188.34 L200.00,187.11 L202.50,185.90 L205.00,184.70 L207.50,183.50 L210.00,182.32 L212.50,181.15 L215.00,179.99 L217.50,178.84 L220.00,177.70 L222.50,176.58 L225.00,175.46 L227.50,174.35 L230.00,173.26 L232.50,172.17 L235.00,171.09 L237.50,170.03 L240.00,168.97 L242.50,167.93 L245.00,166.89 L247.50,165.87 L250.00,164.85 L252.50,163.85 L255.00,162.85 L257.50,161.87 L260.00,160.89 L262.50,159.92 L265.00,158.97 L267.50,158.02 L270.00,157.08 L272.50,156.15 L275.00,155.23 L277.50,154.32 L280.00,153.42 L282.50,152.53 L285.00,151.64 L287.50,150.77 L290.00,149.90 L292.50,149.05 L295.00,148.20 L297.50,147.36 L300.00,146.53 L302.50,145.71 L305.00,144.89 L307.50,144.09 L310.00,143.29 L312.50,142.50 L315.00,141.72 L317.50,140.95 L320.00,140.18 L322.50,139.42 L325.00,138.67 L327.50,137.93 L330.00,137.20 L332.50,136.47 L335.00,135.76 L337.50,135.05 L340.00,134.34 L342.50,133.65 L345.00,132.96 L347.50,132.28 L350.00,131.61 L352.50,130.94 L355.00,130.28 L357.50,129.63 L360.00,128.98 L362.50,128.34 L365.00,127.71 L367.50,127.09 L370.00,126.47 L372.50,125.86 L375.00,125.26 L377.50,124.66 L380.00,124.07 L382.50,123.48 L385.00,122.90 L387.50,122.33 L390.00,121.76 L392.50,121.21 L395.00,120.65 L397.50,120.10 L400.00,119.56 L402.50,119.03 L405.00,118.50 L407.50,117.97 L410.00,117.46 L412.50,116.94 L415.00,116.44 L417.50,115.94 L420.00,115.44 L422.50,114.95 L425.00,114.47 L427.50,113.99 L430.00,113.52 L432.50,113.05 L435.00,112.59 L437.50,112.13 L440.00,111.68 L442.50,111.23 L445.00,110.79 L447.50,110.35 L450.00,109.92 L452.50,109.49 L455.00,109.07 L457.50,108.65 L460.00,108.24 L462.50,107.83 L465.00,107.42 L467.50,107.03 L470.00,106.63 L472.50,106.24 L475.00,105.86 L477.50,105.47 L480.00,105.10 L482.50,104.73 L485.00,104.36 L487.50,103.99 L490.00,103.63 L492.50,103.28 L495.00,102.93 L497.50,102.58 L500.00,102.24 L502.50,101.90 L505.00,101.56 L507.50,101.23 L510.00,100.90 L512.50,100.58 L515.00,100.26 L517.50,99.94 L520.00,99.63 L522.50,99.32 L525.00,99.02 L527.50,98.71 L530.00,98.41 L532.50,98.12 L535.00,97.83 L537.50,97.54 L540.00,97.26 L542.50,96.97 L545.00,96.70 L547.50,96.42 L550.00,96.15 L552.50,95.88 L555.00,95.62 L557.50,95.36 L560.00,95.10 L562.50,94.84 L565.00,94.59 L567.50,94.34 L570.00,94.09 L572.50,93.85 L575.00,93.61 L577.50,93.37 L580.00,93.13 L582.50,92.90 L585.00,92.67 L587.50,92.44 L590.00,92.22 L592.50,92.00 L595.00,91.78 L597.50,91.56 L600.00,91.35 L602.50,91.14 L605.00,90.93 L607.50,90.72 L610.00,90.52 L612.50,90.32 L615.00,90.12 L617.50,89.92 L620.00,89.73 L622.50,89.53 L625.00,89.34 L627.50,89.16 L630.00,88.97 L632.50,88.79 L635.00,88.61 L637.50,88.43 L640.00,88.25 L642.50,88.08 L645.00,87.91 L647.50,87.74 L650.00,87.57 L652.50,87.40 L655.00,87.24 L657.50,87.07 L660.00,86.91" fill="none" stroke="#202e3d" stroke-width="3"/>
+<path id="total" d="M60.00,274.00 L62.50,272.10 L65.00,270.21 L67.50,268.33 L70.00,266.47 L72.50,264.62 L75.00,262.78 L77.50,260.95 L80.00,259.14 L82.50,257.34 L85.00,255.56 L87.50,253.79 L90.00,252.03 L92.50,250.28 L95.00,248.55 L97.50,246.83 L100.00,245.12 L102.50,243.43 L105.00,241.75 L107.50,240.08 L110.00,238.42 L112.50,236.78 L115.00,235.15 L117.50,233.53 L120.00,231.93 L122.50,230.33 L125.00,228.76 L127.50,227.19 L130.00,225.63 L132.50,224.09 L135.00,222.56 L137.50,221.04 L140.00,219.54 L142.50,218.05 L145.00,216.57 L147.50,215.10 L150.00,213.64 L152.50,212.20 L155.00,210.77 L157.50,209.35 L160.00,207.94 L162.50,206.55 L165.00,205.16 L167.50,203.79 L170.00,202.43 L172.50,201.08 L175.00,199.75 L177.50,198.42 L180.00,197.11 L182.50,195.81 L185.00,194.52 L187.50,193.24 L190.00,191.97 L192.50,190.72 L195.00,189.47 L197.50,188.24 L200.00,187.01 L202.50,185.80 L205.00,184.60 L207.50,183.41 L210.00,182.23 L212.50,181.07 L215.00,179.91 L217.50,178.76 L220.00,177.63 L222.50,176.50 L225.00,175.39 L227.50,174.28 L230.00,173.19 L232.50,172.11 L235.00,171.03 L237.50,169.97 L240.00,168.92 L242.50,167.88 L245.00,166.84 L247.50,165.82 L250.00,164.81 L252.50,163.81 L255.00,162.81 L257.50,161.83 L260.00,160.85 L262.50,159.89 L265.00,158.94 L267.50,157.99 L270.00,157.05 L272.50,156.13 L275.00,155.21 L277.50,154.30 L280.00,153.40 L282.50,152.51 L285.00,151.63 L287.50,150.76 L290.00,149.89 L292.50,149.04 L295.00,148.19 L297.50,147.35 L300.00,146.52 L302.50,145.70 L305.00,144.89 L307.50,144.09 L310.00,143.29 L312.50,142.50 L315.00,141.72 L317.50,140.95 L320.00,140.19 L322.50,139.43 L325.00,138.69 L327.50,137.95 L330.00,137.21 L332.50,136.49 L335.00,135.77 L337.50,135.06 L340.00,134.36 L342.50,133.67 L345.00,132.98 L347.50,132.30 L350.00,131.63 L352.50,130.96 L355.00,130.31 L357.50,129.66 L360.00,129.01 L362.50,128.37 L365.00,127.74 L367.50,127.12 L370.00,126.50 L372.50,125.89 L375.00,125.29 L377.50,124.69 L380.00,124.10 L382.50,123.52 L385.00,122.94 L387.50,122.37 L390.00,121.80 L392.50,121.25 L395.00,120.69 L397.50,120.15 L400.00,119.61 L402.50,119.07 L405.00,118.54 L407.50,118.02 L410.00,117.50 L412.50,116.99 L415.00,116.48 L417.50,115.98 L420.00,115.49 L422.50,115.00 L425.00,114.52 L427.50,114.04 L430.00,113.57 L432.50,113.10 L435.00,112.64 L437.50,112.18 L440.00,111.73 L442.50,111.28 L445.00,110.84 L447.50,110.40 L450.00,109.97 L452.50,109.54 L455.00,109.12 L457.50,108.70 L460.00,108.29 L462.50,107.88 L465.00,107.48 L467.50,107.08 L470.00,106.69 L472.50,106.30 L475.00,105.91 L477.50,105.53 L480.00,105.15 L482.50,104.78 L485.00,104.41 L487.50,104.05 L490.00,103.69 L492.50,103.34 L495.00,102.98 L497.50,102.64 L500.00,102.29 L502.50,101.96 L505.00,101.62 L507.50,101.29 L510.00,100.96 L512.50,100.64 L515.00,100.32 L517.50,100.00 L520.00,99.69 L522.50,99.38 L525.00,99.07 L527.50,98.77 L530.00,98.47 L532.50,98.18 L535.00,97.89 L537.50,97.60 L540.00,97.31 L542.50,97.03 L545.00,96.76 L547.50,96.48 L550.00,96.21 L552.50,95.94 L555.00,95.68 L557.50,95.41 L560.00,95.15 L562.50,94.90 L565.00,94.65 L567.50,94.40 L570.00,94.15 L572.50,93.91 L575.00,93.66 L577.50,93.43 L580.00,93.19 L582.50,92.96 L585.00,92.73 L587.50,92.50 L590.00,92.28 L592.50,92.05 L595.00,91.83 L597.50,91.62 L600.00,91.40 L602.50,91.19 L605.00,90.98 L607.50,90.78 L610.00,90.57 L612.50,90.37 L615.00,90.17 L617.50,89.97 L620.00,89.78 L622.50,89.59 L625.00,89.40 L627.50,89.21 L630.00,89.02 L632.50,88.84 L635.00,88.66 L637.50,88.48 L640.00,88.31 L642.50,88.13 L645.00,87.96 L647.50,87.79 L650.00,87.62 L652.50,87.45 L655.00,87.29 L657.50,87.13 L660.00,86.97" fill="none" stroke="#c36c2e" stroke-width="2.5" stroke-dasharray="6 4"/>
+</svg>
+<figcaption>Figure 1. Independently integrated product curves for the illustrative parameter set. Full and total-QSSA curves nearly overlap. These are model calculations, not experimental measurements.</figcaption>
+</figure>
+
+<table aria-label="Product half-conversion times and maximum errors">
+<thead><tr><th scope="col">Model</th><th scope="col">50% product time</th><th scope="col">Max. product error*</th></tr></thead>
+<tbody>
+<tr><td>Full mass-action model</td><td>16.830 s</td><td>Reference</td></tr>
+<tr><td>Total QSSA</td><td>16.815 s</td><td>0.16%</td></tr>
+<tr><td>Standard QSSA</td><td>11.931 s</td><td>16.11%</td></tr>
+</tbody></table>
+<p class="note">* max |P<sub>reduced</sub> − P<sub>full</sub>| / S<sub>0</sub> over 0–60 s, expressed as a percentage. RK4 step: 0.001 s; halving the step leaves every displayed value unchanged. Crossing times use linear interpolation.</p>
+<p>The standard model reaches 50% product about <strong>29% too early</strong>. For this case, retaining the bound pool reduces the maximum product error from about 16.11% to 0.16% of the initial substrate.</p>
+
+<details><summary>Code that produced Figure 1 and the table (Python 3, standard library)</summary>
+<pre><code>from math import sqrt
+
+# Concentrations: micromolar; time: seconds.
+ET = S0 = KM = 1.0
+k1, km1, k2 = 10.0, 9.9, 0.1
+
+def bound(q):
+    a = ET + q + KM
+    return 2*ET*q / (a + sqrt(a*a - 4*ET*q))
+
+def rhs(y):
+    q, c, qt, s = y
+    return (-k2*c,
+            k1*(ET-c)*(q-c) - (km1+k2)*c,
+            -k2*bound(qt),
+            -k2*ET*s/(KM+s))
+
+def rk4(y, h):
+    a = rhs(y)
+    b = rhs([v+h*z/2 for v,z in zip(y,a)])
+    c = rhs([v+h*z/2 for v,z in zip(y,b)])
+    d = rhs([v+h*z for v,z in zip(y,c)])
+    return [v+h*(a0+2*b0+2*c0+d0)/6
+            for v,a0,b0,c0,d0 in zip(y,a,b,c,d)]
+
+def run(h=0.001, T=60.0):
+    y = [S0, 0.0, S0, S0]  # full total, full complex, tQSSA total, sQSSA free
+    last = [0.0]*3
+    t50 = [None]*3
+    maxerr = [0.0]*2
+    points = [(0.0, 0.0, 0.0, 0.0)]
+    for i in range(1, round(T/h)+1):
+        y = rk4(y, h)
+        t = i*h
+        p = [S0-y[0], S0-y[2], S0-y[3]]
+        assert -1e-10 &lt;= y[1] &lt;= min(ET,y[0])+1e-10
+        assert all(-1e-10 &lt;= z &lt;= S0+1e-10 for z in p)
+        for j in range(3):
+            if t50[j] is None and p[j] &gt;= S0/2:
+                t50[j] = t-h+h*(S0/2-last[j])/(p[j]-last[j])
+        for j in range(2):
+            maxerr[j] = max(maxerr[j], abs(p[j+1]-p[0])/S0)
+        if i % round(0.25/h) == 0:
+            points.append((t, *p))
+        last = p
+    return t50, maxerr, points
+
+times, errors, points = run()
+print(&quot;t50: full, total QSSA, standard QSSA&quot;, times)
+print(&quot;max |P_reduced-P_full| / S0: total, standard&quot;, errors)
+for j, name in enumerate((&quot;full&quot;, &quot;total&quot;, &quot;standard&quot;), start=1):
+    path = &quot; &quot;.join((&quot;M&quot; if i == 0 else &quot;L&quot;) +
+                    f&quot;{60+10*t:.2f},{274-200*row[j]/S0:.2f}&quot;
+                    for i, row in enumerate(points) for t in [row[0]])
+    print(name, path)  # SVG path data used in Figure 1
+</code></pre>
+</details>
+
+<h2>Where this breaks</h2>
+<p>Total QSSA still omits the initial buildup: it assigns C̄(<i>S</i><sub>0</sub>) &gt; 0 immediately, while the full model starts from <i>C</i>(0) = 0. It should not be used to infer that early complex trajectory. If complex relaxation is no longer fast compared with total-substrate change, the closure also needs rechecking.<sup><a href="#s3">3</a></sup> Open systems, reversible catalysis or changing enzyme totals require modified balances.</p>
+<p>Here <i>K</i><sub>M</sub> includes catalytic loss; the equilibrium dissociation constant is instead <i>K</i><sub>d</sub> = <i>k</i><sub>−1</sub>/<i>k</i><sub>1</sub>. They are close for these chosen rates, but are not interchangeable in general. The numerical success above is evidence for this parameter set and time window, not a universal accuracy claim.</p>
+
+<h2>Sources and what I used</h2>
+<ol class="src">
+<li id="s1">Xinyu Wu, supplied <cite>“L6 · Enzyme kinetics, QSSA and the initial layer”</cite>, slides 2 and 7–9: the closed enzyme model, standard reduction and enzyme-abundance warning. The related <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture06-core.html">CCBS 2026 Lecture 6 course page</a>, §§3 and 7, also develops total-variable bookkeeping.</li>
+<li id="s2">J. A. M. Borghans, R. J. de Boer and L. A. Segel, <a href="https://doi.org/10.1007/BF02458281">“Extending the quasi-steady state approximation by changing variables,”</a> <cite>Bulletin of Mathematical Biology</cite> 58, 43–63 (1996). Source for replacing free substrate by total substrate and the resulting quadratic closure; the parameter choices, integrations and figure here are calculated for this example.</li>
+<li id="s3">J. Eilertsen and S. Schnell, <a href="https://doi.org/10.1016/j.mbs.2020.108339">“The quasi-steady-state approximations revisited: Timescales, small parameters, singularities, and normal forms in enzyme kinetics,”</a> <cite>Mathematical Biosciences</cite> 325, 108339 (2020). Used for the distinction between a quasi-steady constraint and an exact trajectory, and the need to check approximation conditions.</li>
+</ol>
+</main>
+</body>
+</html>
