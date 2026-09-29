@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WEEK 1 — Extension: What ML scaling laws have in common with biology</title>
+<meta name="author" content="Weihan Luo">
+<meta name="week" content="week1">
+<style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px; border-bottom:1px solid var(--line); padding-bottom:5px; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px; padding:14px 18px; margin:14px 0; }
+  .fig { width:100%; border:1px solid var(--line); border-radius:6px; margin:14px 0; background:var(--bg); }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; }
+  .math { font-family:Georgia,"Times New Roman",serif; font-size:1.04em; }
+  code { background:var(--soft); padding:1px 4px; border-radius:3px; }
+  pre { overflow:auto; background:var(--soft); border:1px solid var(--line); border-radius:6px; padding:12px 14px; font-size:.82rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>WEEK 1 — Extension: What ML scaling laws have in common with biology</h1>
+<p class="meta">Author: Weihan Luo · Week 1 (2026-09-07) · CCBS 2026</p>
+
+<p class="card"><strong>One sentence:</strong> Biological scaling laws are often derived from physical constraints, while machine-learning scaling laws are fitted empirical trends; both are useful because they turn “make it bigger” into a quantitative prediction, but only one comes with a mechanism automatically attached.</p>
+
+<h2>The point I am adding</h2>
+<p>Lecture 1 uses scaling to estimate what changes when a physical system gets larger. A central example is diffusion: if a molecule must travel a distance <span class="math">x</span> with diffusion coefficient <span class="math">D</span>, the characteristic time is <span class="math">t ≈ x<sup>2</sup>/D</span>. Doubling the distance therefore makes the time about four times longer. The exponent 2 is not just a curve fit; it follows from the units and from how random motion accumulates.</p>
+
+<p>Large language models also show scaling laws. A simplified form is <span class="math">L(N) ≈ L<sub>∞</sub> + aN<sup>−α</sup></span>, where <span class="math">N</span> is model size and <span class="math">L</span> is prediction loss. Increasing <span class="math">N</span> usually lowers the excess loss, but with diminishing returns. Kaplan and colleagues measured this relationship across many language-model experiments and found approximate power laws for model size, data size and training compute.</p>
+
+<p>These laws are related at the level of reasoning: both ask how an output changes when an input is multiplied. On a log–log plot, a power law becomes a straight line whose slope is the exponent. That makes exponents easy to compare. But the analogy has a boundary. Diffusion’s exponent can be derived before collecting new data, whereas <span class="math">α</span> in an ML scaling law must be estimated from experiments and may change when the architecture, data distribution, optimizer or evaluation task changes.</p>
+
+<h2>Work it</h2>
+<p>The figure normalizes both examples at a one-times baseline. The blue curve is the diffusion time when distance grows from 1× to 16×. The red curve is the excess ML loss predicted by a toy exponent <span class="math">α = 0.3</span>. They are not plotted in the same physical units; normalization only lets us compare the shape of the scaling.</p>
+
+<figure>
+  <svg class="fig" viewBox="0 0 640 350" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Normalized biological and machine-learning power laws on a logarithmic plot">
+    <rect width="640" height="350" fill="none"/>
+    <line x1="65" y1="270" x2="605" y2="270" stroke="#899"/>
+    <line x1="65" y1="35" x2="65" y2="270" stroke="#899"/>
+    <text x="72" y="28" font-size="13" fill="#566">normalized output (log scale)</text>
+    <text x="520" y="294" font-size="13" fill="#566">input scale</text>
+    <text x="53" y="275" font-size="12" fill="#566">1×</text>
+    <text x="47" y="162" font-size="12" fill="#566">16×</text>
+    <text x="42" y="45" font-size="12" fill="#566">256×</text>
+    <text x="60" y="288" font-size="12" fill="#566">1×</text>
+    <text x="190" y="288" font-size="12" fill="#566">2×</text>
+    <text x="320" y="288" font-size="12" fill="#566">4×</text>
+    <text x="450" y="288" font-size="12" fill="#566">8×</text>
+    <text x="575" y="288" font-size="12" fill="#566">16×</text>
+    <path d="M65 270 L200 217 L335 164 L470 111 L605 58" fill="none" stroke="#1f4e79" stroke-width="3"/>
+    <circle cx="65" cy="270" r="4" fill="#1f4e79"/><circle cx="200" cy="217" r="4" fill="#1f4e79"/><circle cx="335" cy="164" r="4" fill="#1f4e79"/><circle cx="470" cy="111" r="4" fill="#1f4e79"/><circle cx="605" cy="58" r="4" fill="#1f4e79"/>
+    <path d="M65 270 L200 248 L335 226 L470 204 L605 182" fill="none" stroke="#c45a3c" stroke-width="3"/>
+    <circle cx="65" cy="270" r="4" fill="#c45a3c"/><circle cx="200" cy="248" r="4" fill="#c45a3c"/><circle cx="335" cy="226" r="4" fill="#c45a3c"/><circle cx="470" cy="204" r="4" fill="#c45a3c"/><circle cx="605" cy="182" r="4" fill="#c45a3c"/>
+    <line x1="70" y1="316" x2="100" y2="316" stroke="#1f4e79" stroke-width="3"/>
+    <text x="108" y="321" font-size="13" fill="#566">diffusion time, t ∝ x²</text>
+    <line x1="350" y1="316" x2="380" y2="316" stroke="#c45a3c" stroke-width="3"/>
+    <text x="388" y="321" font-size="13" fill="#566">ML excess loss, N⁻⁰·³</text>
+  </svg>
+  <figcaption>Figure 1: Two normalized power laws. The physical curve rises steeply because doubling distance squares the diffusion time; the empirical ML curve falls slowly because a toy exponent of 0.3 gives diminishing returns.</figcaption>
+</figure>
+
+<p>This comparison changes how I read an ML scaling plot. A straight line on log–log axes is evidence for a useful range of behavior, not proof that the same exponent will hold forever. It is more like a calibration curve than a conservation law. The biological calculation tells us why the curve has its exponent; the ML experiment tells us that an exponent is a good approximation in the range that was measured.</p>
+
+<details>
+  <summary>Reproduce the figure</summary>
+  <pre><code>import numpy as np
+import matplotlib.pyplot as plt
+
+scale = 2.0 ** np.arange(5)
+diffusion_time = scale ** 2
+excess_loss = scale ** (-0.3)
+
+fig, axes = plt.subplots(1, 2, figsize=(8, 3))
+axes[0].loglog(scale, diffusion_time, "o-")
+axes[0].set_title("Diffusion")
+axes[1].loglog(scale, excess_loss, "o-", color="tomato")
+axes[1].set_title("ML scaling toy law")
+for axis in axes:
+    axis.set_xlabel("input scale")
+    axis.set_ylabel("normalized output")
+    axis.grid(True, which="both", alpha=0.25)
+plt.tight_layout()
+plt.show()
+</code></pre>
+</details>
+
+<h2>What I would argue against / where this breaks</h2>
+<p>It would be misleading to say that ML scaling laws are simply biological scaling laws applied to computers. A physical law must respect units and usually survives a change of measurement convention. Model size, data size and compute are choices in an experiment, and their fitted exponents can depend on what is held fixed. A larger model can also fail to help if the data are limited, noisy or mismatched to the task.</p>
+
+<p>Even the ML literature revises its advice. Kaplan et al. emphasized one allocation of model size, data and compute; later work by Hoffmann and colleagues showed that many large language models were undertrained and that compute-optimal training requires scaling data along with model size. The useful extension is therefore not “all scaling laws are the same.” It is: <strong>before trusting a power law, ask whether its exponent comes from a mechanism or from a finite experimental regime.</strong></p>
+
+<h2>Sources</h2>
+<ul class="src">
+  <li><a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture01-core.html">CCBS Lecture 1 core: “Order of magnitude: the physics.”</a> — introduces dimensional analysis, scaling, estimation and diffusion times.</li>
+  <li>Kaplan, J. et al. (2020), <a href="https://arxiv.org/abs/2001.08361">“Scaling Laws for Neural Language Models.”</a> — measures approximate power-law relationships between loss and model, data and compute scale.</li>
+  <li>Hoffmann, J. et al. (2022), <a href="https://arxiv.org/abs/2203.15556">“Training Compute-Optimal Large Language Models.”</a> — shows why model size and training data must be considered together under a fixed compute budget.</li>
+</ul>
+
+</div>
+</body>
+</html>

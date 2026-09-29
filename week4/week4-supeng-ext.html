@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 4 — Extension: A steep binding curve is paid for by occupancy fluctuations</title>
+<meta name="author" content="Peng Su">
+<meta name="week" content="week4">
+<style>
+:root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; --teal:#168a83; --orange:#d06b2d; }
+@media (prefers-color-scheme: dark) {
+  :root { --ink:#e8e8e8; --muted:#aab6b6; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; --teal:#58c7be; --orange:#f0a269; }
+}
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.68; }
+.wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+.meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px; border-bottom:1px solid var(--line); padding-bottom:5px; }
+.card { background:var(--soft); border:1px solid var(--line); border-radius:6px; padding:14px 18px; margin:14px 0; }
+.eq { overflow-x:auto; text-align:center; font-family:Georgia,"Times New Roman",serif; font-size:1.04rem; margin:16px 0; }
+.fig { width:100%; border:1px solid var(--line); border-radius:6px; margin:14px 0 0; background:#fff; }
+figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+a { color:var(--accent); }
+.src { font-size:.9rem; }
+details { margin:12px 0; padding:10px 12px; border:1px solid var(--line); border-radius:6px; background:var(--soft); }
+summary { cursor:pointer; color:var(--accent); font-weight:600; }
+pre { overflow-x:auto; margin:10px 0 0; font-size:.8rem; line-height:1.45; }
+code { font-family:ui-monospace,SFMono-Regular,Consolas,monospace; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Week 4 Extension: A steep binding curve is paid for by occupancy fluctuations</h1>
+<p class="meta">Author: Peng Su · Week 4 (2026-09-28) · CCBS 2026</p>
+
+<p class="card"><strong>One sentence:</strong> For any equilibrium binding model whose state weight scales as <em>c</em><sup><em>n</em></sup>, the response of the mean number of bound ligands to log concentration is exactly the variance in that number, so cooperativity steepens a “dose response” curve by moving probability toward more widely separated occupancy states.</p>
+
+<h2>What makes an equilibrum binding curve steep?</h2>
+
+<p>Lecture 7 built equilibrium probabilities from molecular states and weights. Lecture 8 then used those probabilities to calculate activity and showed how the winning state can set the apparent Hill degree. Took both results as background, one narrower question was asked: <em>what is a steep equilibrium response physically made of?</em> And the answer may not merely depend on “a large exponent.” At equilibrium, the steepness of the mean response is exactly tied to fluctuations across the allowed binding states.</p>
+
+<p>Consider one receptor, promoter or allosteric complex with equilibrium states indexed by <em>i</em>. State <em>i</em> contains <em>n</em><sub><em>i</em></sub> bound ligands. At controlled free-ligand concentration <em>c</em>, write its weight as</p>
+
+<div class="eq"><em>w</em><sub><em>i</em></sub>(<em>c</em>) = <em>a</em><sub><em>i</em></sub>(<em>c</em>/<em>c</em><sub>0</sub>)<sup><em>n</em><sub><em>i</em></sub></sup>, &nbsp; <em>p</em><sub><em>i</em></sub> = <em>w</em><sub><em>i</em></sub>/<em>Z</em>, &nbsp; <em>Z</em> = Σ<sub><em>i</em></sub><em>w</em><sub><em>i</em></sub>.</div>
+
+<p>The constants <em>a</em><sub><em>i</em></sub> contain binding energies, degeneracies and interactions that independent from the concentration. The exponent counts how many ligands the state draws from the controlled reservoir. Differentiating a normalized weight with respect to log concentration gives</p>
+
+<div class="eq">d<em>p</em><sub><em>i</em></sub>/d ln <em>c</em> = (<em>n</em><sub><em>i</em></sub> − ⟨<em>n</em>⟩)<em>p</em><sub><em>i</em></sub>.</div>
+
+<p>Multiplying by <em>n</em><sub><em>i</em></sub> and summing produces the extension in one line:</p>
+
+<div class="eq"><strong>d⟨<em>n</em>⟩/d ln <em>c</em> = ⟨<em>n</em><sup>2</sup>⟩ − ⟨<em>n</em>⟩<sup>2</sup> = Var(<em>n</em>).</strong></div>
+
+<p>This is a static fluctuation–response relation. “Fluctuation” here means variation across an equilibrium ensemble of molecular states, not measurement error and not necessarily time-dependent gene-expression noise. If every likely state carries nearly the same number of ligands, Var(<em>n</em>) is small and the mean occupancy cannot change sharply. A steep transition requires substantial probability on states with different ligand counts.</p>
+
+<h2>A four site comparison: same mean, fourfold different steepness</h2>
+
+<p>Take a four-site receptor and define <em>x</em> = <em>c</em>/<em>K</em>. First suppose that the four sites bind independently. Its binding polynomial is <em>Z</em><sub>ind</sub> = (1 + <em>x</em>)<sup>4</sup>, and the fractional occupancy is θ<sub>ind</sub> = <em>x</em>/(1 + <em>x</em>). At <em>x</em> = 1, the number bound is binomial: the probabilities for <em>n</em> = 0, 1, 2, 3, 4 are (1, 4, 6, 4, 1)/16. Thus ⟨<em>n</em>⟩ = 2 and Var(<em>n</em>) = 1.</p>
+
+<p>Now take an idealized concerted receptor that occupies only the empty and fully bound states. Its binding polynomial is <em>Z</em><sub>all</sub> = 1 + <em>x</em><sup>4</sup>, and θ<sub>all</sub> = <em>x</em><sup>4</sup>/(1 + <em>x</em><sup>4</sup>). At the same midpoint, <em>x</em> = 1, half the receptors have <em>n</em> = 0 and half have <em>n</em> = 4. The mean is still 2, but the variance is now 4.</p>
+
+<p>Because θ = ⟨<em>n</em>⟩/4, the identity predicts dθ/d ln <em>x</em> = Var(<em>n</em>)/4. The independent receptor therefore has midpoint slope 1/4, whereas the concerted receptor has slope 1: exactly four times steeper. The usual Hill-plot slope at half occupancy, [θ(1−θ)]<sup>−1</sup>dθ/d ln <em>x</em>, is correspondingly 1 and 4. Figure 1 shows why. Both systems have the same mean occupancy at the midpoint, but the concerted model puts probability at opposite ends rather than near the mean.</p>
+
+<figure>
+<svg id="binding-figure" class="fig" viewBox="0 0 720 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="fig-title fig-desc">
+  <title id="fig-title">Dose-response curves and midpoint occupancy distributions for two four-site receptors</title>
+  <desc id="fig-desc">The all-or-none receptor has a steeper response and a broader distribution of bound ligand number than independent sites.</desc>
+  <rect width="720" height="330" fill="#ffffff"/>
+  <g font-family="Segoe UI, Arial, sans-serif" fill="#222">
+    <text x="52" y="22" font-size="13" font-weight="700">A · Mean response</text>
+    <line x1="55" y1="250" x2="365" y2="250" stroke="#666"/>
+    <line x1="55" y1="30" x2="55" y2="250" stroke="#666"/>
+    <line x1="210" y1="30" x2="210" y2="250" stroke="#bbb" stroke-dasharray="4 4"/>
+    <line x1="55" y1="140" x2="365" y2="140" stroke="#ddd" stroke-dasharray="4 4"/>
+    <text x="44" y="254" font-size="11" text-anchor="end">0</text>
+    <text x="44" y="144" font-size="11" text-anchor="end">0.5</text>
+    <text x="44" y="34" font-size="11" text-anchor="end">1</text>
+    <text x="55" y="269" font-size="11" text-anchor="middle">0.01</text>
+    <text x="210" y="269" font-size="11" text-anchor="middle">1</text>
+    <text x="365" y="269" font-size="11" text-anchor="middle">100</text>
+    <text x="210" y="291" font-size="12" text-anchor="middle">relative concentration, x = c/K (log scale)</text>
+    <text x="16" y="140" font-size="12" text-anchor="middle" transform="rotate(-90 16 140)">fractional occupancy, θ</text>
+    <path id="curve-independent" fill="none" stroke="#d06b2d" stroke-width="3"/>
+    <path id="curve-concerted" fill="none" stroke="#168a83" stroke-width="3"/>
+    <line x1="72" y1="48" x2="94" y2="48" stroke="#d06b2d" stroke-width="3"/><text x="100" y="52" font-size="11">independent sites</text>
+    <line x1="72" y1="67" x2="94" y2="67" stroke="#168a83" stroke-width="3"/><text x="100" y="71" font-size="11">all-or-none</text>
+
+    <text x="415" y="22" font-size="13" font-weight="700">B · States at x = 1</text>
+    <line x1="430" y1="250" x2="695" y2="250" stroke="#666"/>
+    <line x1="430" y1="30" x2="430" y2="250" stroke="#666"/>
+    <text x="420" y="254" font-size="11" text-anchor="end">0</text>
+    <text x="420" y="144" font-size="11" text-anchor="end">0.25</text>
+    <text x="420" y="34" font-size="11" text-anchor="end">0.5</text>
+    <text x="562" y="291" font-size="12" text-anchor="middle">number of bound ligands, n</text>
+    <text x="393" y="140" font-size="12" text-anchor="middle" transform="rotate(-90 393 140)">probability</text>
+    <g id="bars"></g>
+    <rect x="470" y="48" width="12" height="12" fill="#d06b2d" opacity=".72"/><text x="488" y="58" font-size="11">independent: Var(n) = 1</text>
+    <rect x="470" y="67" width="12" height="12" fill="#168a83" opacity=".72"/><text x="488" y="77" font-size="11">all-or-none: Var(n) = 4</text>
+  </g>
+</svg>
+<figcaption>Figure 1: Two four-site equilibrium models at the same half-occupancy point. The curves and midpoint probabilities were calculated from <em>Z</em><sub>ind</sub> = (1 + <em>x</em>)<sup>4</sup> and <em>Z</em><sub>all</sub> = 1 + <em>x</em><sup>4</sup>. The fourfold increase in midpoint variance gives a fourfold increase in log-concentration slope.</figcaption>
+</figure>
+
+<details>
+<summary>Reproduction code for Figure 1</summary>
+<pre><code>// Curves: t = log10(x), theta_ind = x/(1+x), theta_all = x^4/(1+x^4)
+const left=55, right=365, top=30, bottom=250;
+const X=t =&gt; left + (t+2)/4*(right-left);
+const Y=y =&gt; bottom - y*(bottom-top);
+let ind=[], all=[];
+for (let j=0; j&lt;=160; j++) {
+  const t=-2+4*j/160, x=10**t;
+  ind.push(`${j?'L':'M'}${X(t)},${Y(x/(1+x))}`);
+  all.push(`${j?'L':'M'}${X(t)},${Y(x**4/(1+x**4))}`);
+}
+document.querySelector('#curve-independent').setAttribute('d',ind.join(' '));
+document.querySelector('#curve-concerted').setAttribute('d',all.join(' '));
+
+// Midpoint probabilities for n=0,...,4
+const pIndependent=[1,4,6,4,1].map(v=&gt;v/16);
+const pConcerted=[0.5,0,0,0,0.5];</code></pre>
+</details>
+
+<h2>What the identity does and does not guarntee</h2>
+
+<p>I would argue against the statement that a steep mean response automatically makes a better sensor. The identity says that equilibrium gain and equilibrium occupancy variance rise together; it does not say how quickly independent samples are obtained. Positive cooperativity can also slow collective switching, so a cell may see a large instantaneous variance but only a few statistically independent transitions during its decision time. Diffusive arrival noise supplies another limit that cooperativity cannot remove. A sharp mean curve is therefore an amplifier, not by itself proof of precise concentration measurement.</p>
+
+<p>The derivation also needs a controlled free concentration and equilibrium-compatible weights proportional to <em>c</em><sup><em>n</em></sup>. With a finite ligand pool, changing total ligand also changes the free concentration through conservation, so d⟨<em>n</em>⟩/d ln <em>q</em><sub>ligand</sub> is not simply Var(<em>n</em>). In a driven receptor with broken detailed balance, a stationary distribution may exist but need not be generated by one binding polynomial, so the identity is not guaranteed. Finally, an experimental output may depend on state-specific activities rather than on ligand number alone. The fluctuation relation constrains occupancy; the activity map can sharpen, flatten or even invert the observed output.</p>
+
+<h2>Sources</h2>
+<ul class="src">
+  <li><a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture07-core.html">CCBS Lecture 7 core, “From stationary dynamics to equilibrium weights”</a> (2026) — read in full for detailed balance, state weights and the boundary between equilibrium and driven stationary models.</li>
+  <li><a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture08-core.html">CCBS Lecture 8 core, “The cell as a biomachine”</a> (2026) — read in full for binding polynomials, finite pools, state-dependent activity and Hill-degree regimes. The variance–response identity and the two four-site comparison above are not developed there.</li>
+  <li>Melanie I. Stefan and Nicolas Le Novère, <a href="https://doi.org/10.1371/journal.pcbi.1003106">“Cooperative Binding,” <em>PLoS Computational Biology</em> 9, e1003106 (2013)</a> — read for the definitions and equilibrium models of independent and cooperative binding.</li>
+  <li>William Bialek and Sima Setayeshgar, <a href="https://doi.org/10.1103/PhysRevLett.100.258101">“Cooperativity, Sensitivity, and Noise in Biochemical Signaling,” <em>Physical Review Letters</em> 100, 258101 (2008)</a> — inspected in full-text preprint form for the general state model with ligand count <em>n</em><sub><em>i</em></sub> and for the distinction between increased mean sensitivity and irreducible sensing noise. The algebra and numerical comparison in this essay were worked independently.</li>
+</ul>
+
+</div>
+<script>
+(() => {
+  const left=55, right=365, top=30, bottom=250;
+  const X=t => left + (t+2)/4*(right-left);
+  const Y=y => bottom - y*(bottom-top);
+  let ind=[], all=[];
+  for (let j=0; j<=160; j++) {
+    const t=-2+4*j/160, x=10**t;
+    ind.push(`${j?'L':'M'}${X(t).toFixed(2)},${Y(x/(1+x)).toFixed(2)}`);
+    all.push(`${j?'L':'M'}${X(t).toFixed(2)},${Y(x**4/(1+x**4)).toFixed(2)}`);
+  }
+  document.querySelector('#curve-independent').setAttribute('d',ind.join(' '));
+  document.querySelector('#curve-concerted').setAttribute('d',all.join(' '));
+
+  const probs=[[1,4,6,4,1].map(v=>v/16),[0.5,0,0,0,0.5]];
+  const colors=['#d06b2d','#168a83'];
+  const bars=document.querySelector('#bars');
+  const ns='http://www.w3.org/2000/svg';
+  for (let n=0; n<5; n++) {
+    const cx=458+n*55;
+    const label=document.createElementNS(ns,'text');
+    label.setAttribute('x',cx+13); label.setAttribute('y','269'); label.setAttribute('font-size','11'); label.setAttribute('text-anchor','middle'); label.textContent=n; bars.appendChild(label);
+    probs.forEach((p,k) => {
+      const h=p[n]/0.5*220;
+      const rect=document.createElementNS(ns,'rect');
+      rect.setAttribute('x',cx+k*14); rect.setAttribute('y',250-h); rect.setAttribute('width','12'); rect.setAttribute('height',h); rect.setAttribute('fill',colors[k]); rect.setAttribute('opacity','.72'); bars.appendChild(rect);
+    });
+  }
+})();
+</script>
+</body>
+</html>

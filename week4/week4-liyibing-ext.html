@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lecture 8 — Extension: When a Hill curve stops being a Hill curve</title>
+<meta name="author" content="liyibing">
+<meta name="week" content="week4">
+<style>
+  :root { --ink:#182028; --muted:#60707b; --accent:#174f78; --warm:#d97706; --line:#d7e0e6; --bg:#fff; --soft:#f4f7f9; --code:#eef3f6; }
+  @media (prefers-color-scheme:dark) { :root { --ink:#e7edf1; --muted:#a7b4bc; --accent:#8bc0e7; --warm:#fbbf24; --line:#3b4953; --bg:#151a1e; --soft:#1d252b; --code:#11171b; } }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; font-size:16px; line-height:1.65; }
+  .toc { position:fixed; inset:0 auto 0 0; width:220px; padding:32px 22px; border-right:1px solid var(--line); background:var(--soft); }
+  .course { color:var(--muted); font-size:.75rem; letter-spacing:.09em; text-transform:uppercase; }
+  .toc h2 { margin:28px 0 12px; font-size:.9rem; color:var(--ink); border:0; }
+  .toc ol { margin:0; padding:0; list-style:none; }
+  .toc li { margin:9px 0; }
+  .toc a { color:var(--muted); text-decoration:none; font-size:.88rem; }
+  .toc a:hover { color:var(--accent); }
+  main { max-width:800px; margin-left:calc(220px + 7vw); padding:54px 28px 90px; }
+  h1 { margin:0 0 9px; color:var(--accent); font-size:2rem; line-height:1.2; }
+  .dek { margin:0 0 8px; font-size:1.08rem; color:var(--muted); }
+  .meta { margin:0 0 36px; color:var(--muted); font-size:.84rem; }
+  h2 { margin:42px 0 14px; padding-bottom:7px; border-bottom:1px solid var(--line); color:var(--accent); font-size:1.2rem; }
+  .n { display:inline-block; width:1.65rem; color:var(--muted); font-size:.82em; }
+  p { margin:0 0 15px; }
+  a { color:var(--accent); }
+  sup a { text-decoration:none; font-weight:700; }
+  .claim { margin:18px 0; padding:18px 20px; border-left:4px solid var(--accent); background:var(--soft); font-size:1.06rem; }
+  .equation { margin:19px 0; padding:15px; text-align:center; background:var(--soft); border:1px solid var(--line); border-radius:6px; font-size:1.08rem; }
+  figure { margin:24px 0; }
+  .fig { display:block; width:100%; border:1px solid var(--line); border-radius:6px; background:#fff; }
+  figcaption { margin-top:8px; color:var(--muted); font-size:.84rem; line-height:1.5; }
+  .boundary { padding:15px 18px; background:var(--soft); border:1px solid var(--line); border-radius:6px; }
+  .sources { padding-left:1.25rem; font-size:.88rem; }
+  .sources li { margin-bottom:11px; }
+  pre { margin:14px 0; padding:15px; overflow:auto; border:1px solid var(--line); border-radius:6px; background:var(--code); font-size:.78rem; line-height:1.48; }
+  code { font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace; }
+  .note { color:var(--muted); font-size:.84rem; }
+  @media (max-width:980px) { .toc { position:static; width:auto; padding:18px 22px; border-right:0; border-bottom:1px solid var(--line); } .toc h2 { display:none; } .toc ol { display:flex; flex-wrap:wrap; gap:5px 16px; margin-top:8px; } .toc li { margin:0; } main { margin:0 auto; padding-top:38px; } }
+  @media (max-width:620px) { main { padding:30px 17px 60px; } h1 { font-size:1.6rem; } }
+</style>
+</head>
+<body>
+<nav class="toc" aria-label="Contents">
+  <div class="course">CCBS · 2026 · Extension</div>
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#claim">1 · The claim</a></li>
+    <li><a href="#model">2 · The finite-pool model</a></li>
+    <li><a href="#calculation">3 · My calculation</a></li>
+    <li><a href="#boundary">4 · Where it breaks</a></li>
+    <li><a href="#sources">† · Sources</a></li>
+  </ol>
+</nav>
+
+<main>
+  <header>
+    <h1>When does a Hill curve stop being a Hill curve?</h1>
+    <p class="dek">A finite binding pool can move a response threshold from affinity to stoichiometry.</p>
+    <p class="meta">Extension mini-essay · liyibing · Lecture 8 · CCBS 2026</p>
+  </header>
+
+  <section id="claim">
+    <h2><span class="n">1</span>The claim</h2>
+    <p>Lecture 8 replaces an assumed Hill law with explicit binding, conservation and activity.<sup><a href="#r1">1</a></sup> I push that idea one step further by asking when the familiar one-site curve remains accurate if the experimentally controlled input is total ligand rather than free ligand.</p>
+    <p class="claim">The reservoir Hill curve is reliable only when binding removes a negligible fraction of the ligand. Once the receptor pool is comparable with its dissociation constant, total ligand is no longer free ligand; at strong binding, the response turns near the stoichiometric point <var>q</var><sub>S</sub> ≈ <var>q</var><sub>E</sub> instead of <var>q</var><sub>S</sub> ≈ <var>K</var><sub>d</sub>.</p>
+  </section>
+
+  <section id="model">
+    <h2><span class="n">2</span>The finite-pool model</h2>
+    <p>For one binding pair, let <var>q</var><sub>E</sub> and <var>q</var><sub>S</sub> be receptor and ligand totals, and let <var>C</var> be the complex. Fast equilibrium gives three equations:</p>
+    <div class="equation">
+      q<sub>E</sub> = E + C,&nbsp;&nbsp;
+      q<sub>S</sub> = S + C,&nbsp;&nbsp;
+      K<sub>d</sub>C = ES.
+    </div>
+    <p>Substitution gives a quadratic. Its physical root is</p>
+    <div class="equation">
+      C = 2q<sub>E</sub>q<sub>S</sub> /
+      [q<sub>E</sub>+q<sub>S</sub>+K<sub>d</sub>+√((q<sub>E</sub>+q<sub>S</sub>+K<sub>d</sub>)<sup>2</sup>−4q<sub>E</sub>q<sub>S</sub>)].
+    </div>
+    <p>If <var>q</var><sub>E</sub> is negligible, then <var>S</var> ≈ <var>q</var><sub>S</sub> and the bound fraction reduces to <var>q</var><sub>S</sub>/(<var>K</var><sub>d</sub>+<var>q</var><sub>S</sub>). If not, the conservation equations must be retained. This is the same finite-pool mechanism that underlies molecular titration and ultrasensitivity without cooperative binding.<sup><a href="#r2">2</a></sup></p>
+  </section>
+
+  <section id="calculation">
+    <h2><span class="n">3</span>My calculation</h2>
+    <figure>
+      <img class="fig" src="lecture8-finite-pool-figure.svg" alt="Finite-pool binding curves and the error caused by substituting total ligand for free ligand">
+      <figcaption><strong>Figure 1.</strong> Exact one-site equilibrium with <var>K</var><sub>d</sub> used as the concentration unit. <strong>A,</strong> the reservoir Hill curve agrees with the finite-pool result when <var>q</var><sub>E</sub>/<var>K</var><sub>d</sub> is small, but strong binding moves the transition toward <var>q</var><sub>S</sub> ≈ <var>q</var><sub>E</sub>. <strong>B,</strong> I scanned ligand totals from 10<sup>−6</sup> to 10<sup>6</sup> <var>K</var><sub>d</sub> and calculated the largest absolute occupancy error. The five-percentage-point boundary occurs at <var>q</var><sub>E</sub>/<var>K</var><sub>d</sub> ≈ 0.365. This is a numerical property of the stated one-site model, not a universal biological cutoff.</figcaption>
+    </figure>
+
+    <p>The calculation supplies a practical check. In this model, using total ligand in the reservoir formula stays within five percentage points of the exact bound fraction for every ligand total only when</p>
+    <div class="equation">q<sub>E</sub>/K<sub>d</sub> ≲ 0.36.</div>

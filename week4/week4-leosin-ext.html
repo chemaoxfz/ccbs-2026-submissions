@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 4 — Extension: Fast binding can slow a signal</title>
+<meta name="author" content="Leo Sin">
+<meta name="week" content="week4">
+<style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px;
+    border-bottom:1px solid var(--line); padding-bottom:5px; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:14px 18px; margin:14px 0; }
+  .fig { width:100%; height:auto; border:1px solid var(--line); border-radius:6px;
+    margin:14px 0; background:#fff; }
+  figure { margin:22px 0; }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; }
+  .src li { margin-bottom:8px; }
+  pre { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:12px 14px; overflow-x:auto; font-size:.78rem; line-height:1.45; }
+  code { font-family:"SF Mono",Consolas,Menlo,monospace; }
+  .eq { display:block; text-align:center; margin:14px 0; font-size:1.02rem; }
+  details { margin:12px 0; }
+  summary { cursor:pointer; color:var(--accent); }
+</style>
+</head>
+<body>
+<main class="wrap">
+<h1>Fast binding can slow a signal</h1>
+<p class="meta">Leo Sin (施延庆) · Week 4, lectures 7–8 · CCBS 2026 · 28 September 2026</p>
+
+<p class="card"><strong>One sentence:</strong> Even if a transcription factor binds and
+unbinds almost instantly, adding downstream binding sites can make its <em>free</em>
+concentration respond more slowly to a change in production, because the sites must be
+filled as the signal rises.</p>
+
+<h2>The point I am adding</h2>
+<p>Lecture 8's binding–catalysis model reconstructs free species from conserved totals;
+its optional sponge example then asks how binding changes a <em>steady-state</em>
+response. Here is a different question: if the upstream circuit makes more regulator,
+how quickly does its free concentration change? This is the "retroactivity" of a
+downstream load described by Del Vecchio, Ninfa and Sontag.<sup><a href="#s2">2</a></sup>
+It can be derived from the same equilibrium bookkeeping used in lectures 7–8.<sup><a href="#s1">1</a></sup></p>
+
+<p>Let <em>x</em> be free transcription-factor concentration, <em>D</em> the fixed total
+concentration of identical, nonproductive DNA binding sites, and <em>K</em> their
+dissociation constant. Binding is fast, reversible and undriven. At equilibrium, the
+bound amount is <em>Dx/(K+x)</em>, so the slowly changing regulator total is</p>
+<span class="eq">q(x) = x + Dx/(K+x).</span>
+<p>Suppose synthesis adds regulator at rate <em>α</em> and only <em>free</em> regulator
+is removed at rate <em>γx</em>. Binding moves it between pools without changing
+<em>q</em>. The chain rule now exposes the load:</p>
+<span class="eq">[1 + DK/(K+x)²] dx/dt = dq/dt = α − γx.</span>
+<p>The bracket is a dimensionless <em>buffer capacity</em>: a small increase in free
+<em>x</em> requires a larger increase in total <em>q</em>. At the steady state
+<em>x*</em> = <em>α/γ</em>, a small perturbation relaxes with time constant
+<em>τ</em> = [1 + DK/(K+x*)²]/<em>γ</em>. The free steady state is unchanged by
+<em>D</em> in this particular model, but the speed is not.</p>
+
+<h2>Work it</h2>
+<p>Use illustrative units: <em>K</em> = 1 µM, <em>γ</em> = 1 min<sup>−1</sup>,
+and step synthesis from 1 to 1.1 µM min<sup>−1</sup>. Both systems start at
+<em>x</em> = 1 µM and approach 1.1 µM. With no binding sites, <em>τ</em> near the
+starting state is 1 min. With <em>D</em> = 9 µM, it is
+1 + 9/(1 + 1)² = <strong>3.25 min</strong>. Numerical integration of the equation
+above gives 90% response times of <strong>2.303</strong> and <strong>7.184 min</strong>,
+respectively. The plotted rates and concentrations are chosen to isolate the mechanism;
+they are not measurements of a particular organism.</p>
+
+<figure>
+<svg class="fig" viewBox="0 0 690 250" role="img" aria-labelledby="ft fd" xmlns="http://www.w3.org/2000/svg">
+  <title id="ft">Free regulator rises more slowly with downstream binding sites</title>
+  <desc id="fd">After a ten percent synthesis step, the 90 percent response time grows from 2.303 to 7.184 minutes when nine micromolar binding sites are added.</desc>
+  <path d="M50 30V190H650" fill="none" stroke="#5d6872" stroke-width="1.5"/>
+  <path d="M50 82H650 M50 130H650 M50 190H650" fill="none" stroke="#d8dee4" stroke-width="1"/>
+  <path d="M50 82H650" fill="none" stroke="#84929f" stroke-dasharray="5 5"/>
+  <text x="11" y="85" fill="#333" font-size="12">90%</text>
+  <text x="11" y="194" fill="#333" font-size="12">0%</text>
+  <text x="48" y="211" fill="#333" font-size="12">0</text>
+  <text x="245" y="211" fill="#333" font-size="12">4</text>
+  <text x="445" y="211" fill="#333" font-size="12">8</text>
+  <text x="636" y="211" fill="#333" font-size="12">12</text>
+  <text x="292" y="235" fill="#333" font-size="12">time after synthesis step (min)</text>
+  <text x="56" y="22" fill="#333" font-size="12">fraction of the 0.1 µM free-regulator rise</text>
+  <path id="unloaded" d="M50.0,190.0 L60.0,168.2 L70.0,150.4 L80.0,135.9 L90.0,123.9 L100.0,114.1 L110.0,106.1 L120.0,99.6 L130.0,94.2 L140.0,89.8 L150.0,86.2 L160.0,83.3 L170.0,80.9 L180.0,78.9 L190.0,77.3 L200.0,76.0 L210.0,74.9 L220.0,74.0 L230.0,73.3 L240.0,72.7 L250.0,72.2 L260.0,71.8 L270.0,71.5 L280.0,71.2 L290.0,71.0 L300.0,70.8 L310.0,70.7 L320.0,70.5 L330.0,70.4 L340.0,70.4 L350.0,70.3 L360.0,70.2 L370.0,70.2 L380.0,70.2 L390.0,70.1 L400.0,70.1 L410.0,70.1 L420.0,70.1 L430.0,70.1 L440.0,70.0 L450.0,70.0 L460.0,70.0 L470.0,70.0 L480.0,70.0 L490.0,70.0 L500.0,70.0 L510.0,70.0 L520.0,70.0 L530.0,70.0 L540.0,70.0 L550.0,70.0 L560.0,70.0 L570.0,70.0 L580.0,70.0 L590.0,70.0 L600.0,70.0 L610.0,70.0 L620.0,70.0 L630.0,70.0 L640.0,70.0 L650.0,70.0" fill="none" stroke="#1f4e79" stroke-width="3"/>
+  <path id="loaded" d="M50.0,190.0 L60.0,182.8 L70.0,176.0 L80.0,169.7 L90.0,163.6 L100.0,158.0 L110.0,152.6 L120.0,147.6 L130.0,142.8 L140.0,138.4 L150.0,134.2 L160.0,130.2 L170.0,126.5 L180.0,123.0 L190.0,119.7 L200.0,116.6 L210.0,113.7 L220.0,111.0 L230.0,108.4 L240.0,106.0 L250.0,103.8 L260.0,101.7 L270.0,99.7 L280.0,97.8 L290.0,96.1 L300.0,94.4 L310.0,92.9 L320.0,91.5 L330.0,90.1 L340.0,88.8 L350.0,87.7 L360.0,86.5 L370.0,85.5 L380.0,84.5 L390.0,83.6 L400.0,82.7 L410.0,81.9 L420.0,81.2 L430.0,80.5 L440.0,79.8 L450.0,79.2 L460.0,78.6 L470.0,78.1 L480.0,77.6 L490.0,77.1 L500.0,76.6 L510.0,76.2 L520.0,75.8 L530.0,75.4 L540.0,75.1 L550.0,74.8 L560.0,74.5 L570.0,74.2 L580.0,73.9 L590.0,73.7 L600.0,73.4 L610.0,73.2 L620.0,73.0 L630.0,72.8 L640.0,72.6 L650.0,72.5" fill="none" stroke="#bd5b2e" stroke-width="3"/>
+  <path d="M165.15 82V190 M409.2 82V190" fill="none" stroke="#9ca7b0" stroke-dasharray="3 4"/>
+  <text x="175" y="107" fill="#1f4e79" font-size="12">D = 0 µM</text>
+  <text x="385" y="139" fill="#a24b25" font-size="12">D = 9 µM</text>
+</svg>
+<figcaption>Figure 1. My RK4 integration of the reduced equation (step 0.001 min).
+The vertical guides mark 90% response: 2.303 and 7.184 min. Both curves tend to
+the same free concentration, 1.1 µM; binding changes the time taken to get there.</figcaption>
+</figure>
+
+<details><summary>Code that produced Figure 1 and the two numbers (Python 3, standard library)</summary>
+<pre><code>def run(D, h=0.001, T=12):
+    x = 1.0
+    points = [(0.0, x)]
+    t90 = None
+    def rate(z):
+        return (1.1 - z) / (1 + D / (1 + z)**2)
+    for i in range(1, int(T/h) + 1):
+        a = rate(x)
+        b = rate(x + h*a/2)
+        c = rate(x + h*b/2)
+        d = rate(x + h*c)
+        x += h*(a + 2*b + 2*c + d)/6
+        t = i*h
+        if t90 is None and x &gt;= 1.09:
+            t90 = t
+        if i % 200 == 0:
+            points.append((t, x))
+    path = " ".join(("M" if j == 0 else "L") +
+                    f"{50+50*t:.1f},{190-120*(z-1)/0.1:.1f}"
+                    for j, (t, z) in enumerate(points))
+    return t90, path
+
+for D in (0, 9):
+    t90, path = run(D)
+    print(D, t90, path)  # paste path into the matching SVG path above
+</code></pre></details>
+
+<h2>Where this breaks</h2>
+<p>The slowdown follows from a specific removal rule, not from equilibrium alone.
+If bound regulator is degraded or diluted too, the total-balance equation changes,
+and both its steady free level and response time can change. If binding is not much
+faster than synthesis and removal, the equilibrium formula for the bound pool cannot
+be imposed at every instant; one must integrate binding and unbinding explicitly.
+For a large input jump the buffer capacity also changes along the path, so a single
+<em>τ</em> is only a local approximation. These are model checks, rather than
+exceptions to the conservation argument.</p>
+
+<h2>Sources and what I used</h2>
+<ul class="src">
+  <li id="s1"><a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture08-core.html">F. Xiao,
+    “Lecture 8: The cell as a biomachine,” CCBS 2026</a>, §§3–4 and A2. Read the
+    binding equilibrium and total-dynamics sections; A2 treats the static sponge
+    response that motivated this dynamic extension.</li>
+  <li id="s2"><a href="https://doi.org/10.1038/msb4100204">D. Del Vecchio,
+    A. J. Ninfa and E. D. Sontag, “Modular cell biology: retroactivity and
+    insulation,” <em>Molecular Systems Biology</em> 4, 161 (2008)</a>. Read the
+    abstract and “Retroactivity in gene transcriptional networks” section for the
+    effect of downstream binding sites on upstream dynamics. The numerical example
+    and figure here are my own calculations, not values taken from that paper.</li>
+</ul>
+</main>
+</body>
+</html>

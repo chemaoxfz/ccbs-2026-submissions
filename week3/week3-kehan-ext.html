@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 3 — Extension: A dimer Hill law is not automatically a total-protein Hill law</title>
+<meta name="author" content="Kehan Lang">
+<meta name="week" content="week3">
+<style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; --blue:#276fbf; --orange:#c45508; --green:#317a50; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#aab8ba; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; --blue:#78b7ff; --orange:#f0a36d; --green:#78c99a; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.62; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px; border-bottom:1px solid var(--line); padding-bottom:5px; }
+  h3 { font-size:1rem; margin:22px 0 6px; color:var(--ink); }
+  .card, .equation { background:var(--soft); border:1px solid var(--line); border-radius:6px; padding:14px 18px; margin:14px 0; }
+  .equation { font-family:Georgia,"Times New Roman",serif; overflow-x:auto; }
+  .fig { width:100%; border:1px solid var(--line); border-radius:6px; margin:14px 0 0; background:var(--bg); }
+  figcaption { font-size:.87rem; color:var(--muted); margin-top:7px; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; }
+  .small { font-size:.9rem; color:var(--muted); }
+  code { font-size:.88em; }
+  pre { white-space:pre-wrap; overflow-wrap:anywhere; font-size:.79rem; line-height:1.45; background:var(--soft); border:1px solid var(--line); border-radius:6px; padding:14px; }
+  .legend { display:flex; flex-wrap:wrap; gap:8px 14px; font-size:.85rem; color:var(--muted); margin:8px 0 0; }
+  .key { display:inline-block; width:18px; height:3px; margin:0 5px 2px 0; vertical-align:middle; }
+  table { border-collapse:collapse; width:100%; margin:14px 0; font-size:.93rem; }
+  th, td { text-align:left; padding:8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--accent); }
+  details { margin:16px 0; }
+  summary { cursor:pointer; color:var(--accent); font-weight:600; }
+  svg text { font-family:"Segoe UI",Roboto,Arial,sans-serif; fill:currentColor; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Week 3 — Extension: A dimer Hill law is not automatically a total-protein Hill law</h1>
+<p class="meta">Author: Kehan Lang · Week 3 (2026-09-21) · CCBS 2026</p>
+
+<p class="card"><strong>One sentence:</strong> Fast dimerization and promoter binding give an exact degree-two repression law in <em>free monomer</em>, but the same law can be seriously wrong when written in <em>total protein</em> if dimers store an appreciable fraction of the protein.</p>
+
+<h2>The point I am adding</h2>
+<p>Lecture 6 derives a useful reduction for a dimeric self-repressor: when dimerization and promoter binding are fast, free promoter has the form <i>D</i> = <i>q</i><sub>D</sub>/[1 + (<i>R</i>/<i>K</i><sub>H</sub>)<sup>2</sup>]. Here <i>R</i> is free monomer. The squared term has a clear mechanism: two monomers form a dimer, and that dimer binds the promoter. The lecture also cautions that this expression transfers to total protein only when monomers dominate the total.</p>
+
+<p>This essay makes that warning quantitative. A fluorescent measurement or a bulk assay often reports total protein, not free monomer. I ask: if two systems have the same half-repression scale <i>K</i><sub>H</sub>, can a degree-two Hill curve in total protein still identify promoter availability? Within the stated fast-equilibrium model, the answer is no. Changing how readily monomers are stored in dimers can move half repression to a much larger <em>total</em> concentration without changing the free-monomer regulatory law.</p>
+
+<h2>Work it</h2>
+<p>Consider a repressor monomer <i>R</i>, free dimer <i>C</i><sub>RR</sub>, free promoter <i>D</i>, and promoter-bound dimer <i>C</i><sub>DRR</sub>. Reversible dimerization and promoter binding are assumed fast compared with protein production and removal. Their equilibrium constraints are</p>
+
+<div class="equation">
+2<i>R</i> ⇌ <i>C</i><sub>RR</sub>, &nbsp;&nbsp; <i>D</i> + <i>C</i><sub>RR</sub> ⇌ <i>C</i><sub>DRR</sub><br>
+<i>C</i><sub>RR</sub> = <i>R</i><sup>2</sup>/<i>K</i><sub>dim</sub>, &nbsp;&nbsp;
+<i>C</i><sub>DRR</sub> = <i>D</i><i>C</i><sub>RR</sub>/<i>K</i><sub>D</sub>.
+</div>
+
+<p>Promoter material is conserved: <i>q</i><sub>D</sub> = <i>D</i> + <i>C</i><sub>DRR</sub>. Substituting the two constraints and defining <i>K</i><sub>H</sub> = √(<i>K</i><sub>dim</sub><i>K</i><sub>D</sub>) gives</p>
+
+<div class="equation">
+<i>D</i>(<i>R</i>) = <i>q</i><sub>D</sub> / [1 + (<i>R</i>/<i>K</i><sub>H</sub>)<sup>2</sup>].
+</div>
+
+<p>This is exact <em>as a function of free monomer</em> in the reduced model. At <i>R</i> = <i>K</i><sub>H</sub>, exactly half the promoter is free. The coordinate measured in an experiment, however, may be the total protein constituent count. Each free or promoter-bound dimer contains two monomers, so the appropriate total is</p>
+
+<div class="equation">
+<i>q</i><sub>R</sub>(<i>R</i>) = <i>R</i> + 2<i>R</i><sup>2</sup>/<i>K</i><sub>dim</sub>
++ 2<i>q</i><sub>D</sub><i>R</i><sup>2</sup>/(<i>K</i><sub>H</sub><sup>2</sup> + <i>R</i><sup>2</sup>).
+</div>
+
+<p>The three terms are monomer, free-dimer, and promoter-bound-dimer contributions. They are all nonnegative, and the expression increases with <i>R</i>, so it defines one physical free-monomer value for each total. But it is not generally true that <i>q</i><sub>R</sub> ≈ <i>R</i>. The familiar shortcut</p>
+
+<div class="equation">
+<i>D</i><sub>naive</sub>(<i>q</i><sub>R</sub>) = <i>q</i><sub>D</sub> / [1 + (<i>q</i><sub>R</sub>/<i>K</i><sub>H</sub>)<sup>2</sup>]
+</div>
+
+<p>therefore needs a storage check, not merely a Hill exponent.</p>
+
+<figure>
+  <svg id="freePlot" class="fig" viewBox="0 0 700 320" role="img" aria-label="Free promoter fraction versus free monomer concentration"></svg>
+  <div class="legend"><span><i class="key" style="background:var(--blue)"></i>both parameter sets</span><span><i class="key" style="background:var(--orange)"></i>half repression at free monomer = K<sub>H</sub></span></div>
+  <figcaption><strong>Figure 1.</strong> The mechanism fixes the free-monomer curve. Both parameter sets use <i>K</i><sub>H</sub> = 1 μM and the same promoter total, so their promoter-availability curves coincide exactly when the horizontal axis is free monomer <i>R</i>. The orange guide marks 50% availability.</figcaption>
+</figure>
+
+<p>For the calculation below, I set <i>K</i><sub>H</sub> = 1 μM and <i>q</i><sub>D</sub> = 0.02 μM. I compare two ways to keep their product <i>K</i><sub>dim</sub><i>K</i><sub>D</sub> = 1 μM<sup>2</sup> fixed. In the <em>monomer-dominant</em> case, <i>K</i><sub>dim</sub> = 100 μM and <i>K</i><sub>D</sub> = 0.01 μM, so dimers are scarce near <i>R</i> = 1 μM. In the <em>dimer-storage</em> case, <i>K</i><sub>dim</sub> = 0.10 μM and <i>K</i><sub>D</sub> = 10 μM, so a 1 μM free-monomer pool implies 10 μM free dimer.</p>
+
+<p>At half repression, <i>R</i> = <i>K</i><sub>H</sub> in both systems. The first case has <i>q</i><sub>R</sub> = 1.04 μM; the second has <i>q</i><sub>R</sub> = 21.02 μM. Thus the regulatory chemistry has not changed its free-monomer half point, but a total-protein measurement would place that same point about twenty-fold farther to the right.</p>
+
+<figure>
+  <svg id="totalPlot" class="fig" viewBox="0 0 700 340" role="img" aria-label="Free promoter fraction versus total protein concentration"></svg>
+  <div class="legend"><span><i class="key" style="background:var(--blue)"></i>monomer-dominant exact mapping</span><span><i class="key" style="background:var(--orange)"></i>dimer-storage exact mapping</span><span><i class="key" style="background:var(--green)"></i>naive total-Hill substitution</span></div>
+  <figcaption><strong>Figure 2.</strong> The same regulatory law looks different after conversion to total protein. Curves were computed by evaluating <i>D</i>(<i>R</i>) and <i>q</i><sub>R</sub>(<i>R</i>) parametrically, not by fitting a Hill function. The green curve is accurate only when the total is approximately free monomer.</figcaption>
+</figure>
+
+<p>A Hill-shaped dose-response is not a species label. Here the exponent two is mechanistically tied to dimer formation, and the free-monomer formula remains valid under the fast constraints. What fails in the dimer-storage example is a different step: replacing the unobserved free monomer by total protein. The error is not repaired by reporting the same nominal <i>K</i><sub>H</sub>, because different pairs (<i>K</i><sub>dim</sub>, <i>K</i><sub>D</sub>) can share that product while storing very different amounts of protein in dimers.</p>
+
+<p>This suggests a practical modeling rule. If a reporter measures total repressor, use the total constraint to reconstruct free monomer before applying a promoter-occupancy law; alternatively, fit the model directly in total-protein coordinates. A steep total-protein curve may reflect dimer storage as well as promoter binding, whereas a poor total-Hill fit does not by itself refute dimer-mediated repression. Thermodynamic promoter models similarly require the molecular states and the measured quantity to be specified, rather than treating a fitted Hill curve as the mechanism itself [2].</p>
+
+<h2>What I would argue against / where this breaks</h2>
+<p>The conclusion is deliberately narrow. It assumes reversible dimerization and promoter binding relax rapidly, one promoter-binding site, a well-mixed compartment, and equilibrium constants independent of protein concentration. Slow dimer assembly, multi-step promoter states, cooperative binding at several DNA sites, irreversible aggregation, or feedback that changes the binding rates require an expanded state model. At low copy number, deterministic concentrations also omit integer dimer counts and promoter-state fluctuations; a chemical master equation would then be the appropriate extension.</p>
+
+<p>Nor does this calculation claim that every degree-two Hill coefficient demonstrates physical dimerization. Different mechanisms can produce similar effective curves. Its more limited result is that <em>even when dimerization is the correct mechanism and fast equilibrium is justified</em>, free and total protein are interchangeable only after checking that the dimer and promoter-bound storage terms are small in the concentration range being interpreted.</p>
+
+<h2>Code used for both figures</h2>
+<details>
+<summary>Show the code used for Figures 1 and 2</summary>
+<pre><code>const KH = 1, qD = 0.02;
+const cases = [
+  { name: 'monomer-dominant', Kdim: 100, color: css('--blue') },
+  { name: 'dimer-storage',   Kdim: 0.10, color: css('--orange') }
+];
+function freeFraction(R) { return 1 / (1 + (R / KH) ** 2); }
+function qTotal(R, Kdim) {
+  return R + 2 * R * R / Kdim + 2 * qD * R * R / (KH * KH + R * R);
+}
+// Figure 1 plots freeFraction(R). Figure 2 plots the parametric pairs
+// (qTotal(R, Kdim), freeFraction(R)); the green curve makes the naive
+// substitution qR for R. drawPath turns sampled points into SVG paths.
+drawFreePlot();
+drawTotalPlot();</code></pre>
+</details>
+
+<script>
+(() => {
+  const rootStyle = getComputedStyle(document.documentElement);
+  const css = name => rootStyle.getPropertyValue(name).trim();
+  const KH = 1, qD = 0.02;
+  const cases = [
+    {name:'monomer-dominant', Kdim:100, color:css('--blue')},
+    {name:'dimer-storage', Kdim:0.10, color:css('--orange')}
+  ];
+  const green = css('--green'), ink = css('--ink'), line = css('--line'), muted = css('--muted'), bg = css('--bg');
+  const NS = 'http://www.w3.org/2000/svg';
+  function el(name, attrs={}, text='') { const e=document.createElementNS(NS,name); Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v)); e.textContent=text; return e; }
+  function add(svg, name, attrs={}, text='') { const e=el(name,attrs,text); svg.appendChild(e); return e; }
+  function freeFraction(R) { return 1/(1+(R/KH)**2); }
+  function qTotal(R,Kdim) { return R + 2*R*R/Kdim + 2*qD*R*R/(KH*KH+R*R); }
+  function path(points, x, y) { return points.map((p,i)=>`${i?'L':'M'}${x(p[0]).toFixed(2)},${y(p[1]).toFixed(2)}`).join(' '); }
+  function axes(svg, {xMax, yMax, xLabel, yLabel, width=700, height=320, left=76, right=24, top=24, bottom=55}) {
+    while(svg.firstChild) svg.removeChild(svg.firstChild);
+    const x=v=>left+(width-left-right)*v/xMax, y=v=>height-bottom-(height-top-bottom)*v/yMax;
+    add(svg,'rect',{x:0,y:0,width,height,fill:bg});
+    for(let i=0;i<=5;i++) { const xv=xMax*i/5, yv=yMax*i/5; add(svg,'line',{x1:x(xv),y1:top,x2:x(xv),y2:height-bottom,stroke:line,'stroke-width':1}); add(svg,'line',{x1:left,y1:y(yv),x2:width-right,y2:y(yv),stroke:line,'stroke-width':1}); add(svg,'text',{x:x(xv),y:height-bottom+20,'font-size':12,'text-anchor':'middle',fill:muted},Number(xv.toFixed(1)).toString()); add(svg,'text',{x:left-10,y:y(yv)+4,'font-size':12,'text-anchor':'end',fill:muted},Number(yv.toFixed(1)).toString()); }
+    add(svg,'line',{x1:left,y1:top,x2:left,y2:height-bottom,stroke:ink,'stroke-width':1.3}); add(svg,'line',{x1:left,y1:height-bottom,x2:width-right,y2:height-bottom,stroke:ink,'stroke-width':1.3});
+    add(svg,'text',{x:(left+width-right)/2,y:height-12,'font-size':13,'text-anchor':'middle'},xLabel);
+    add(svg,'text',{x:18,y:(top+height-bottom)/2,'font-size':13,'text-anchor':'middle',transform:`rotate(-90 18 ${(top+height-bottom)/2})`},yLabel);
+    return {x,y};
+  }
+  function drawFreePlot() {
+    const svg=document.getElementById('freePlot'), {x,y}=axes(svg,{xMax:4,yMax:1,xLabel:'free monomer R (μM)',yLabel:'free promoter fraction D / qD'});
+    const pts=Array.from({length:161},(_,i)=>[4*i/160,freeFraction(4*i/160)]);
+    add(svg,'path',{d:path(pts,x,y),fill:'none',stroke:cases[0].color,'stroke-width':3});
+    add(svg,'line',{x1:x(1),y1:y(0),x2:x(1),y2:y(0.5),stroke:cases[1].color,'stroke-width':1.6,'stroke-dasharray':'5 4'});
+    add(svg,'line',{x1:x(0),y1:y(0.5),x2:x(1),y2:y(0.5),stroke:cases[1].color,'stroke-width':1.6,'stroke-dasharray':'5 4'});
+    add(svg,'circle',{cx:x(1),cy:y(.5),r:4,fill:cases[1].color});
+    add(svg,'text',{x:x(1)+10,y:y(.5)-10,'font-size':12,fill:cases[1].color},'R = KH');
+  }
+  function drawTotalPlot() {
+    const svg=document.getElementById('totalPlot'), {x,y}=axes(svg,{xMax:25,yMax:1,xLabel:'total protein qR (μM)',yLabel:'free promoter fraction D / qD',height:340});
+    cases.forEach(c=>{ const pts=Array.from({length:1001},(_,i)=>{const R=5*i/1000; return [qTotal(R,c.Kdim),freeFraction(R)];}).filter(p=>p[0]<=25); add(svg,'path',{d:path(pts,x,y),fill:'none',stroke:c.color,'stroke-width':3}); });
+    const naive=Array.from({length:501},(_,i)=>{const q=25*i/500; return [q,1/(1+(q/KH)**2)];});
+    add(svg,'path',{d:path(naive,x,y),fill:'none',stroke:green,'stroke-width':2.5,'stroke-dasharray':'8 4'});
+    const half1=qTotal(1,100), half2=qTotal(1,.1);
+    [[half1,cases[0].color],[half2,cases[1].color]].forEach(([q,color])=>{ add(svg,'circle',{cx:x(q),cy:y(.5),r:4,fill:color}); add(svg,'line',{x1:x(q),y1:y(.5),x2:x(q),y2:y(0),stroke:color,'stroke-width':1,'stroke-dasharray':'4 4'}); });
+    add(svg,'text',{x:x(half1)+7,y:y(.5)-11,'font-size':12,fill:cases[0].color},`${half1.toFixed(2)} μM`);
+    add(svg,'text',{x:x(half2)-7,y:y(.5)-11,'font-size':12,'text-anchor':'end',fill:cases[1].color},`${half2.toFixed(2)} μM`);
+  }
+  drawFreePlot();
+  drawTotalPlot();
+})();
+</script>
+<h2>Sources</h2>
+<ul class="src">
+  <li>Fangzhou Xiao. <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture06-core.html">Lecture 6: Time-scale separation: why a quasi-steady complex keeps changing</a>, CCBS 2026, §9. This provides the fast dimerization/promoter-binding constraints, the total-protein conservation relation, and the stated dominance caveat.</li>
+  <li>L. Bintu et al. “Transcriptional regulation by the numbers: models.” <em>Current Opinion in Genetics &amp; Development</em> 15 (2005): 116–124. <a href="https://doi.org/10.1016/j.gde.2005.02.007">https://doi.org/10.1016/j.gde.2005.02.007</a>. This supplies a broader thermodynamic framework linking specified molecular states to promoter occupancy.</li>
+</ul>
+</div>
+</body>
+</html>

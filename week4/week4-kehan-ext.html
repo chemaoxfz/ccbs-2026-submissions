@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 4 — Extension: A binding curve has a bandwidth</title>
+<meta name="author" content="Kehan Lang">
+<meta name="week" content="week4">
+<style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; --blue:#276fbf; --orange:#c45508; --green:#287b67; --gray:#727d87; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#aab6b6; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; --blue:#78b7ff; --orange:#f0a36d; --green:#65d1b3; --gray:#aeb8c2; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.64; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px; border-bottom:1px solid var(--line); padding-bottom:5px; }
+  h3 { font-size:1rem; margin:22px 0 7px; }
+  .card, .equation, .result { background:var(--soft); border:1px solid var(--line); border-radius:6px; padding:14px 18px; margin:14px 0; }
+  .equation { overflow-x:auto; font-family:Georgia,"Times New Roman",serif; line-height:1.8; text-align:center; }
+  .result { border-left:4px solid var(--accent); }
+  .fig { width:100%; display:block; border:1px solid var(--line); border-radius:6px; margin:14px 0 0; background:var(--bg); }
+  figcaption { font-size:.87rem; color:var(--muted); margin-top:7px; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; }
+  .controls { display:grid; gap:14px; margin:12px 0 4px; padding:12px 14px; background:var(--soft); border:1px solid var(--line); border-radius:6px; font-size:.9rem; }
+  .control { display:grid; grid-template-columns:1fr auto; gap:6px 14px; align-items:center; }
+  .control label { min-width:0; }
+  .control input { grid-column:1 / -1; width:100%; accent-color:var(--accent); }
+  .controls output { min-width:4.4em; text-align:right; font-variant-numeric:tabular-nums; color:var(--accent); font-weight:650; }
+  .legend { display:flex; flex-wrap:wrap; gap:8px 15px; margin:9px 0 0; color:var(--muted); font-size:.84rem; }
+  .key { width:18px; height:3px; display:inline-block; vertical-align:middle; margin:-2px 5px 0 0; }
+  .dash { background:repeating-linear-gradient(90deg,var(--gray) 0 6px,transparent 6px 10px); }
+  table { border-collapse:collapse; width:100%; margin:15px 0; font-size:.92rem; }
+  th, td { text-align:left; padding:8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--accent); }
+  td.num { text-align:right; font-variant-numeric:tabular-nums; }
+  details { margin:16px 0; }
+  summary { cursor:pointer; color:var(--accent); font-weight:600; }
+  pre { overflow:auto; padding:13px; background:var(--soft); border:1px solid var(--line); border-radius:6px; font:0.76rem/1.45 ui-monospace,SFMono-Regular,Menlo,monospace; }
+  code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+  .small { color:var(--muted); font-size:.9rem; }
+  svg text { font-family:"Segoe UI",Roboto,Arial,sans-serif; }
+  @media (max-width:520px) { .wrap { padding:27px 16px 60px; } .control { gap:5px 10px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Week 4 — Extension: A binding curve has a bandwidth</h1>
+<p class="meta">Author: Kehan Lang · Week 4 (2026-09-28) · CCBS 2026</p>
+
+<p class="card"><strong>One sentence:</strong> A two-state receptor can have the same equilibrium binding curve at every kinetic speed, yet a periodically changing ligand is transmitted with a frequency-dependent loss of amplitude and a phase lag set by the receptor's relaxation rate.</p>
+
+<h2>The point I am adding</h2>
+<p>Lecture 7 distinguishes stationary occupancy from relaxation speed: for a two-state receptor, the bound fraction is fixed by a ratio of hazards, whereas the relaxation clock is fixed by their sum. <a href="#source-lecture7">[1]</a> Lecture 8 then treats an undriven binding layer as equilibrated while slower catalytic totals change. <a href="#source-lecture8">[2]</a> That reduction is valuable, but it has a clock hidden inside it: a binding state can follow an input only when its relaxation is fast compared with the input's variation. The equilibrium curve therefore does not by itself say how rapidly a receptor can report a changing ligand.</p>
+
+<p>I make this distinction quantitative for the smallest possible binding model. A ligand concentration is prescribed externally and oscillates around a mean. The model asks for the <em>ensemble bound probability</em>, equivalently the mean bound fraction of many independent receptors, while keeping the free ligand prescribed and receptors independent. Even when the static binding law is correct, replacing the kinetic state by its instantaneous equilibrium value is a controlled approximation with a measurable frequency cutoff. This focus on a receptor's kinetic timescale is consistent with receptor-sensing work that relates occupancy dynamics to sensing performance <a href="#source-bialek">[3]</a>, and with analyses that use frequency-dependent transmission for time-varying biochemical inputs <a href="#source-tostevin">[4]</a>; the present calculation does not add diffusion, measurement noise, or information theory.</p>
+
+<h2>Work it</h2>
+<p>Let <i>U</i> and <i>B</i> denote unbound and bound receptor states. At a prescribed free-ligand concentration <i>c</i>(<i>t</i>), binding has hazard <i>k</i><sub>+</sub><i>c</i>(<i>t</i>) and unbinding has hazard <i>k</i><sub>−</sub>. If <i>p</i>(<i>t</i>) is the probability of <i>B</i>, arrivals minus departures give</p>
+
+<div class="equation">
+<i>U</i> ⇌ <i>B</i>, &nbsp;&nbsp; <i>K</i><sub>d</sub> = <i>k</i><sub>−</sub>/<i>k</i><sub>+</sub>,<br>
+<span style="white-space:nowrap">d<i>p</i>/d<i>t</i> = <i>k</i><sub>+</sub><i>c</i>(<i>t</i>)(1 − <i>p</i>) − <i>k</i><sub>−</sub><i>p</i>.</span>
+</div>
+
+<p>For a constant reference concentration <i>c</i><sub>0</sub>, write <i>a</i> = <i>k</i><sub>+</sub><i>c</i><sub>0</sub>, <i>b</i> = <i>k</i><sub>−</sub>, and λ = <i>a</i> + <i>b</i>. The usual equilibrium result is <i>p</i><sub>0</sub> = <i>a</i>/λ = <i>c</i><sub>0</sub>/(<i>K</i><sub>d</sub> + <i>c</i><sub>0</sub>), while λ<sup>−1</sup> is the relaxation time. Multiplying both hazards by a common factor preserves <i>K</i><sub>d</sub> and the whole stationary binding curve, but increases λ by that factor.</p>
+
+<h3>What a static curve leaves unidentified</h3>
+<p>This separation has an experimental consequence. A stationary dose-response curve identifies the ratio <i>K</i><sub>d</sub> = <i>k</i><sub>−</sub>/<i>k</i><sub>+</sub>, but not the common kinetic scale. At fixed <i>c</i><sub>0</sub>, a small step experiment provides the missing datum. After the concentration is held constant, the exact two-state solution is</p>
+
+<div class="equation">
+<i>p</i>(<i>t</i>) = <i>p</i><sub>0</sub> + [<i>p</i>(0) − <i>p</i><sub>0</sub>]e<sup>−λ<i>t</i></sup>.
+</div>
+
+<p>Thus a transient fit supplies λ, while the plateau supplies <i>p</i><sub>0</sub>. Within this specified model they reconstruct the two hazards at that concentration:</p>
+
+<div class="equation">
+<i>a</i> = <i>p</i><sub>0</sub>λ, &nbsp;&nbsp; <i>b</i> = (1 − <i>p</i><sub>0</sub>)λ, &nbsp;&nbsp; <i>k</i><sub>+</sub> = <i>p</i><sub>0</sub>λ/<i>c</i><sub>0</sub>, &nbsp;&nbsp; <i>k</i><sub>−</sub> = (1 − <i>p</i><sub>0</sub>)λ.
+</div>
+
+<p>This inference is conditional on the two-state, prescribed-ligand model. Its purpose here is not parameter fitting, but to show why one equilibrium curve cannot determine whether a receptor can track a particular signal. Occupancy gives a ratio; a transient supplies the clock.</p>
+
+<p>Now give the ligand a small sinusoidal perturbation, <i>c</i>(<i>t</i>) = <i>c</i><sub>0</sub>[1 + ε cos(ω<i>t</i>)], and write <i>p</i> = <i>p</i><sub>0</sub> + δ<i>p</i>. Retaining terms first order in ε produces one forced linear equation:</p>
+
+<div class="equation">
+d(δ<i>p</i>)/d<i>t</i> + λδ<i>p</i> = (<i>ab</i>ε/λ) cos(ω<i>t</i>).<br>
+δ<i>p</i><sub>ss</sub>(<i>t</i>) = <span style="white-space:nowrap">[<i>ab</i>ε/(λ√(λ² + ω²))]</span> cos(ω<i>t</i> − φ), &nbsp; φ = tan<sup>−1</sup>(ω/λ).
+</div>
+
+<p>The instantaneous-equilibrium calculation predicts the same expression with ω set to zero. Thus the dynamic amplitude, divided by the static amplitude, is</p>
+
+<div class="equation">
+<i>H</i>(ω) = λ/√(λ² + ω²) = 1/√[1 + (ω/λ)²].
+</div>
+
+<h3>“Fast” needs an error tolerance</h3>
+<p>This is a model result, not a universal law for all receptors. Within this two-state model, however, it turns “fast” into a quantitative error budget. If the acceptable amplitude discrepancy from instantaneous equilibrium is 10%, then <i>H</i> ≥ 0.90 and therefore ω/λ ≤ √(0.90<sup>−2</sup> − 1) ≈ 0.484. If the allowable phase delay is instead 10°, then ω/λ ≤ tan(10°) ≈ 0.176. The phase requirement is stricter: a receptor can have an amplitude that looks nearly equilibrated while its timing is already appreciably wrong.</p>
+
+<table>
+  <thead><tr><th>Normalized input frequency ω/λ</th><th class="num">Amplitude retained, <i>H</i></th><th class="num">Phase lag, φ</th><th>Interpretation within this model</th></tr></thead>
+  <tbody>
+    <tr><td>0.10</td><td class="num">0.995</td><td class="num">5.7°</td><td>Quasi-equilibrium is accurate for both amplitude and timing.</td></tr>
+    <tr><td>0.25</td><td class="num">0.970</td><td class="num">14.0°</td><td>Amplitude is close, but timing is visibly delayed.</td></tr>
+    <tr><td>1.00</td><td class="num">0.707</td><td class="num">45.0°</td><td>The input changes on the receptor's own relaxation timescale.</td></tr>
+    <tr><td>3.00</td><td class="num">0.316</td><td class="num">71.6°</td><td>The receptor strongly attenuates and delays the oscillation.</td></tr>
+  </tbody>
+</table>
+
+<p>At ω = λ, the output retains 1/√2 ≈ 0.707 of the instantaneous-equilibrium amplitude and lags by 45°. At ω = 3λ, it retains about 0.316 and lags by 71.6°. Calling the binding layer “fast” therefore requires a dimensionless comparison, ω/λ ≪ 1, together with a tolerance appropriate to the downstream task, rather than merely saying that binding is fast in isolation.</p>
+
+<h3>An exact finite-amplitude check</h3>
+<p>The sinusoidal transfer function is a small-ε result, but the condition behind it has an exact form even when the input excursion is not small. At each instantaneous concentration, define the equilibrium value and the kinetic discrepancy by</p>
+
+<div class="equation">
+<i>p</i><sub>eq</sub>(<i>t</i>) = <i>c</i>(<i>t</i>)/[<i>K</i><sub>d</sub> + <i>c</i>(<i>t</i>)], &nbsp;&nbsp; <i>e</i>(<i>t</i>) = <i>p</i>(<i>t</i>) − <i>p</i><sub>eq</sub>(<i>t</i>).
+</div>
+
+<p>Substitution into the full nonlinear kinetic equation gives, without linearizing the ligand amplitude,</p>
+
+<div class="equation">
+d<i>e</i>/d<i>t</i> = −[<i>k</i><sub>+</sub><i>c</i>(<i>t</i>) + <i>k</i><sub>−</sub>]<i>e</i> − d<i>p</i><sub>eq</sub>/d<i>t</i>.
+</div>
+
+<p>The last term is the source of the approximation error: even if <i>e</i> is momentarily zero, a changing equilibrium target immediately creates a discrepancy. When the target moves slowly relative to the instantaneous relaxation rate, the leading correction is <i>e</i> ≈ −[d<i>p</i><sub>eq</sub>/d<i>t</i>]/[<i>k</i><sub>+</sub><i>c</i>(<i>t</i>) + <i>k</i><sub>−</sub>]. For the sinusoidal input, |d<i>c</i>/d<i>t</i>| grows with ω, which recovers the intuition of the transfer function. The correction is also largest where the equilibrium curve is steep, because d<i>p</i><sub>eq</sub>/d<i>c</i> = <i>K</i><sub>d</sub>/(<i>K</i><sub>d</sub> + <i>c</i>)<sup>2</sup>. Figure 1 therefore integrates the full equation at ε = 0.35 rather than extrapolating the linear response beyond its stated range.</p>
+
+<figure>
+  <svg id="tracePlot" class="fig" viewBox="0 0 710 390" role="img" aria-labelledby="traceTitle traceDesc">
+    <title id="traceTitle">Periodic ligand and the delayed receptor response</title>
+    <desc id="traceDesc">The upper panel shows the imposed ligand concentration. The lower panel compares the exact numerical bound fraction with the instantaneous equilibrium prediction over three input periods.</desc>
+  </svg>
+  <div class="controls" aria-label="Figure 1 controls">
+    <div class="control">
+      <label for="omega">Input angular frequency ω (s<sup>−1</sup>)</label><output id="omegaOut">2.0</output>
+      <input id="omega" type="range" min="0.25" max="12" step="0.05" value="2">
+    </div>
+    <div class="control">
+      <label for="speed">Rate scale <i>r</i> (both hazards multiplied by <i>r</i>)</label><output id="speedOut">1.00</output>
+      <input id="speed" type="range" min="0.2" max="5" step="0.05" value="1">
+    </div>
+  </div>
+  <div class="legend"><span><i class="key" style="background:var(--blue)"></i>prescribed ligand, <i>c</i>(<i>t</i>)</span><span><i class="key" style="background:var(--orange)"></i>kinetic bound fraction, <i>p</i>(<i>t</i>)</span><span><i class="key dash"></i>instantaneous equilibrium, <i>p</i><sub>eq</sub>[<i>c</i>(<i>t</i>)]</span></div>
+  <figcaption><strong>Figure 1.</strong> The blue input oscillates around <i>c</i><sub>0</sub> = <i>K</i><sub>d</sub> = 1 μM with ε = 0.35. Orange is a numerical integration of the full nonlinear two-state equation, after transients have decayed; gray is the equilibrium binding curve evaluated at each instantaneous concentration. The base rates are <i>k</i><sub>−</sub> = 1 s<sup>−1</sup> and <i>k</i><sub>+</sub> = 1 μM<sup>−1</sup>s<sup>−1</sup>, both multiplied by <i>r</i>. Changing <i>r</i> leaves the gray curve unchanged but changes the orange curve.</figcaption>
+</figure>
+
+<figure>
+  <svg id="bodePlot" class="fig" viewBox="0 0 710 365" role="img" aria-labelledby="bodeTitle bodeDesc">
+    <title id="bodeTitle">Amplitude transmission and phase lag of the two-state receptor</title>
+    <desc id="bodeDesc">The left panel shows normalized response amplitude versus frequency normalized by the relaxation rate. The right panel shows phase lag. A marker shows the settings selected above.</desc>
+  </svg>
+  <figcaption><strong>Figure 2.</strong> The curves are the analytic small-perturbation result: normalized amplitude <i>H</i> = [1 + (ω/λ)<sup>2</sup>]<sup>−1/2</sup> and phase φ = tan<sup>−1</sup>(ω/λ). The marker uses the controls above, with λ = 2<i>r</i> s<sup>−1</sup>. The comparison isolates a timescale ratio: all choices of <i>r</i> have the same equilibrium half-occupancy point, but not the same dynamic bandwidth.</figcaption>
+</figure>
+
+<div class="result"><strong>Interpretation.</strong> A static dose-response assay can determine <i>K</i><sub>d</sub>, but it cannot determine the cutoff λ without a transient measurement. In the illustrative midpoint case, λ = 2<i>r</i> s<sup>−1</sup>. At the default ω = 2 s<sup>−1</sup> and <i>r</i> = 1, ω/λ = 1: the <em>linear-response</em> calculation predicts 0.707 of the instantaneous-equilibrium small-signal amplitude and a 45° delay. Figure 1 integrates the stated nonlinear model at the finite illustrative amplitude ε = 0.35. A fourfold faster receptor (<i>r</i> = 4) has exactly the same equilibrium curve, yet ω/λ = 0.25 and follows the input much more closely.</div>
+
+<p>The comparison is more stark if the input frequency is held fixed. Keep <i>K</i><sub>d</sub> = <i>c</i><sub>0</sub> = 1 μM and ω = 2 s<sup>−1</sup>, so that every receptor in the table has the same half-occupancy point. Only the common rate scale changes.</p>
+
+<table>
+  <thead><tr><th>Rate scale <i>r</i></th><th class="num">λ (s<sup>−1</sup>)</th><th class="num">ω/λ</th><th class="num">Amplitude retained</th><th class="num">Phase lag</th></tr></thead>
+  <tbody>
+    <tr><td>0.25</td><td class="num">0.50</td><td class="num">4.00</td><td class="num">0.243</td><td class="num">76.0°</td></tr>
+    <tr><td>1.00</td><td class="num">2.00</td><td class="num">1.00</td><td class="num">0.707</td><td class="num">45.0°</td></tr>
+    <tr><td>4.00</td><td class="num">8.00</td><td class="num">0.25</td><td class="num">0.970</td><td class="num">14.0°</td></tr>
+  </tbody>
+</table>
+
+<p>The slow and fast receptors are indistinguishable in a static occupancy experiment, because their <i>K</i><sub>d</sub> values agree. They make sharply different predictions for a changing environment. This distinction also matters for model reduction: a downstream equation may correctly use an equilibrium binding relation for the fast receptor, while using the same relation for the slow receptor erases a real delay and attenuation before catalysis has even been considered.</p>
+
+<h2>What I would argue against / where this breaks</h2>
+<p>I would argue against treating “equilibrium binding” as a label that automatically transfers a static curve to a time-varying experiment. It is a reduction justified only after comparing the input timescale with the binding relaxation time. Conversely, a visible lag does not by itself prove nonequilibrium driving: the model here is a passive two-state binding process whose ligand reservoir is externally varied. The lag arises because a finite transition rate cannot instantaneously reallocate probability.</p>
+
+<p>The explicit transfer function also has limits. Its derivation assumes ε is small; Figure 1 deliberately integrates the full nonlinear equation rather than presenting the linear solution as exact at ε = 0.35. It assumes a well-mixed prescribed free-ligand concentration, one reversible binding site, constant microscopic rate constants, and independent receptors. Ligand diffusion, receptor clustering, multiple conformations, finite-pool depletion, cooperative binding, downstream catalytic delays, or stochastic single-trajectory readout add states or clocks. In those settings, λ may be replaced by several relaxation modes and the simple one-pole response need not survive.</p>
+
+<p>Finally, the conclusion concerns the bound fraction, not every biological output. If a slow catalytic layer integrates binding, it can filter high-frequency input further; if feedback changes the ligand reservoir, the input is no longer prescribed. The useful lesson is therefore conditional: equilibrium weights remain appropriate for the fast layer only in the frequency regime where its own kinetics have time to relax, which is the separation-of-clocks assumption made explicit.</p>
+
+<h2>Code used for both figures</h2>
+<p class="small">The page uses the following browser-native calculation; Figure 1 numerically integrates the full ODE, while Figure 2 evaluates the derived linear-response formulas. No external data or libraries are used.</p>
+<details>
+  <summary>Show the core calculation and plotting logic</summary>
+  <pre><code>const KD = 1, C0 = 1, EPS = 0.35;
+function rhs(t, p, omega, r) {
+  const c = C0 * (1 + EPS * Math.cos(omega * t));
+  const kp = r / KD, km = r;
+  return kp * c * (1 - p) - km * p;
+}
+function rk4(t, p, dt, omega, r) {
+  const k1 = rhs(t, p, omega, r);
+  const k2 = rhs(t + dt/2, p + dt*k1/2, omega, r);
+  const k3 = rhs(t + dt/2, p + dt*k2/2, omega, r);
+  const k4 = rhs(t + dt, p + dt*k3, omega, r);
+  return p + dt * (k1 + 2*k2 + 2*k3 + k4) / 6;
+}
+// Discard transient cycles, then plot exact p(t) beside c(t)/(KD + c(t)).
+// For the analytic panel, x = omega/lambda where lambda = 2*r:
+const gain = x =&gt; 1 / Math.sqrt(1 + x*x);
+const phaseDegrees = x =&gt; 180 * Math.atan(x) / Math.PI;</code></pre>
+</details>
+
+<h2>Sources</h2>
+<ul class="src">
+  <li id="source-lecture7">CCBS 2026, <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture07-exposition.html">Lecture 7: “From a molecular state list to a predictive model”</a> (2026). Used for the two-state continuous-time Markov model, the distinction between stationary occupancy and relaxation speed, and the warning that time-varying inputs require time-dependent hazards.</li>
+  <li id="source-lecture8">CCBS 2026, <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture08-core.html">Lecture 8: “The cell as a biomachine”</a> (2026). Used for the fast, undriven binding-layer reduction and its separation from slower catalytic dynamics.</li>
+  <li id="source-bialek">Bialek, W., &amp; Setayeshgar, S. (2005). <a href="https://doi.org/10.1073/pnas.0504321102">“Physical limits to biochemical signaling.”</a> <em>Proceedings of the National Academy of Sciences</em>, 102(29), 10040–10045. External context that receptor kinetics and occupancy fluctuations constrain biochemical sensing.</li>
+  <li id="source-tostevin">Tostevin, F., &amp; ten Wolde, P. R. (2010). <a href="https://doi.org/10.1103/PhysRevE.81.061917">“Mutual information in time-varying biochemical systems.”</a> <em>Physical Review E</em>, 81, 061917. Used as external context for studying biochemical transmission of time-varying inputs by frequency-dependent quantities; this essay does not calculate mutual information.</li>
+</ul>
+
+</div>
+<script>
+(() => {
+  const q = s => document.querySelector(s);
+  const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  const KD = 1, C0 = 1, EPS = 0.35;
+  const omegaInput = q('#omega'), speedInput = q('#speed');
+  const omegaOut = q('#omegaOut'), speedOut = q('#speedOut');
+  const trace = q('#tracePlot'), bode = q('#bodePlot');
+  const path = points => points.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(2)},${p[1].toFixed(2)}`).join(' ');
+  const line = (x1,y1,x2,y2,stroke,width=1,dash='') => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${stroke}" stroke-width="${width}" ${dash ? `stroke-dasharray="${dash}"` : ''}/>`;
+  const text = (x,y,s,opts='') => `<text x="${x}" y="${y}" ${opts}>${s}</text>`;
+  const clamp = (x,a,b) => Math.max(a, Math.min(b, x));
+  function rhs(t, p, omega, r) {
+    const c = C0 * (1 + EPS * Math.cos(omega * t));
+    return (r / KD) * c * (1 - p) - r * p;
+  }
+  function rk4(t, p, dt, omega, r) {
+    const k1 = rhs(t,p,omega,r), k2 = rhs(t+dt/2,p+dt*k1/2,omega,r);
+    const k3 = rhs(t+dt/2,p+dt*k2/2,omega,r), k4 = rhs(t+dt,p+dt*k3,omega,r);
+    return p + dt * (k1 + 2*k2 + 2*k3 + k4) / 6;
+  }
+  function drawTrace(omega, r) {
+    const W=710, left=58, right=680, top1=36, bot1=150, top2=218, bot2=340;
+    const period=2*Math.PI/omega, lambda=2*r, dt=Math.min(0.003/Math.max(r,.2), period/700);
+    const warm=Math.max(12/lambda, 6*period), span=3*period;
+    let t=0, p=.5;
+    while (t < warm) { p=rk4(t,p,dt,omega,r); t+=dt; }
+    const samples=[]; const n=720;
+    for(let i=0;i<=n;i++) { const time=warm+span*i/n; while(t<time) { const h=Math.min(dt,time-t); p=rk4(t,p,h,omega,r); t+=h; } samples.push([time-warm,p]); }
+    const X=t => left+(right-left)*t/span, yC=c => bot1-(bot1-top1)*(c-0.65)/0.70, yP=p => bot2-(bot2-top2)*p;
+    const blue=css('--blue'), orange=css('--orange'), gray=css('--gray'), ink=css('--ink'), muted=css('--muted'), lineC=css('--line');
+    let inner=`<rect width="${W}" height="390" fill="${css('--bg')}"/><title>Periodic input and receptor tracking</title>`;
+    [0.7,1.0,1.3].forEach(v=>{ inner+=line(left,yC(v),right,yC(v),lineC)+text(left-10,yC(v)+4,`${v.toFixed(1)}`,`text-anchor="end" font-size="12" fill="${muted}"`); });
+    [0,.25,.5,.75,1].forEach(v=>{ inner+=line(left,yP(v),right,yP(v),lineC)+text(left-10,yP(v)+4,v.toFixed(2),`text-anchor="end" font-size="12" fill="${muted}"`); });
+    inner+=line(left,top1,left,bot1,ink,1.25)+line(left,bot1,right,bot1,ink,1.25)+line(left,top2,left,bot2,ink,1.25)+line(left,bot2,right,bot2,ink,1.25);
+    for(let j=0;j<=3;j++){ const x=left+(right-left)*j/3; inner+=line(x,bot1,x,bot1+5,ink)+line(x,bot2,x,bot2+5,ink)+text(x,bot2+24,`${j}T`,`text-anchor="middle" font-size="12" fill="${muted}"`); }
+    inner+=text(18,(top1+bot1)/2,'c (μM)',`text-anchor="middle" font-size="13" fill="${ink}" transform="rotate(-90 18 ${(top1+bot1)/2})"`)+text(18,(top2+bot2)/2,'bound fraction p',`text-anchor="middle" font-size="13" fill="${ink}" transform="rotate(-90 18 ${(top2+bot2)/2})"`)+text((left+right)/2,377,'time (three input periods)',`text-anchor="middle" font-size="13" fill="${ink}"`);
+    const input=[], exact=[], equilibrium=[];
+    samples.forEach(([time,p])=>{ const c=C0*(1+EPS*Math.cos(omega*(warm+time))); input.push([X(time),yC(c)]); exact.push([X(time),yP(p)]); equilibrium.push([X(time),yP(c/(KD+c))]); });
+    inner+=`<path d="${path(input)}" fill="none" stroke="${blue}" stroke-width="2.5"/><path d="${path(equilibrium)}" fill="none" stroke="${gray}" stroke-width="2.2" stroke-dasharray="6 5"/><path d="${path(exact)}" fill="none" stroke="${orange}" stroke-width="2.8"/>`;
+    inner+=text(left,22,`λ = ${lambda.toFixed(2)} s⁻¹;  ω/λ = ${(omega/lambda).toFixed(2)}`,`font-size="13" fill="${muted}"`);
+    trace.innerHTML=inner;
+  }
+  function drawBode(omega, r) {
+    const lefts=[65,405], rights=[325,665], top=34, bottom=278, ink=css('--ink'), muted=css('--muted'), grid=css('--line'), blue=css('--blue'), orange=css('--orange');
+    const xMap=(x,L,R)=>L+(R-L)*(Math.log10(x)+2)/4, gain=x=>1/Math.sqrt(1+x*x), phase=x=>Math.atan(x)*180/Math.PI;
+    let inner=`<rect width="710" height="365" fill="${css('--bg')}"/><title>Analytic frequency response</title>`;
+    [[lefts[0],rights[0],'Normalized amplitude',0,1,gain,'H(ω)'],[lefts[1],rights[1],'Phase lag (degrees)',0,90,phase,'φ']].forEach(([L,R,label,ymin,ymax,fn,short],panel)=>{
+      [0,.25,.5,.75,1].forEach(f=>{ const value=ymin+(ymax-ymin)*f, y=bottom-(bottom-top)*f; inner+=line(L,y,R,y,grid)+text(L-9,y+4,panel===0?value.toFixed(2):value.toFixed(0),`text-anchor="end" font-size="12" fill="${muted}"`); });
+      [-2,-1,0,1,2].forEach(e=>{ const x=xMap(10**e,L,R); inner+=line(x,bottom,x,bottom+5,ink)+text(x,bottom+22,`10${e===0?'⁰':e===1?'¹':e===2?'²':e===-1?'⁻¹':'⁻²'}`,`text-anchor="middle" font-size="12" fill="${muted}"`); });
+      inner+=line(L,top,L,bottom,ink,1.25)+line(L,bottom,R,bottom,ink,1.25)+text((L+R)/2,18,label,`text-anchor="middle" font-size="14" fill="${ink}" font-weight="600"`)+text((L+R)/2,332,'normalized frequency  ω/λ',`text-anchor="middle" font-size="12" fill="${ink}"`);
+      const pts=[]; for(let i=0;i<=240;i++){ const x=10**(-2+4*i/240), y=fn(x); pts.push([xMap(x,L,R),bottom-(bottom-top)*(y-ymin)/(ymax-ymin)]); } inner+=`<path d="${path(pts)}" fill="none" stroke="${blue}" stroke-width="2.7"/>`;
+      const ratio=omega/(2*r), mx=xMap(clamp(ratio,.01,100),L,R), my=bottom-(bottom-top)*(fn(ratio)-ymin)/(ymax-ymin); inner+=`<circle cx="${mx}" cy="${my}" r="5.5" fill="${orange}" stroke="${css('--bg')}" stroke-width="2"/>`;
+    });
+    inner+=text(355,359,`orange marker: ω/λ = ${(omega/(2*r)).toFixed(2)}`,`text-anchor="middle" font-size="12" fill="${muted}"`);
+    bode.innerHTML=inner;
+  }
+  function update(){ const omega=+omegaInput.value, r=+speedInput.value; omegaOut.textContent=omega.toFixed(2); speedOut.textContent=r.toFixed(2); drawTrace(omega,r); drawBode(omega,r); }
+  omegaInput.addEventListener('input',update); speedInput.addEventListener('input',update); update();
+})();
+</script>
+</body>
+</html>

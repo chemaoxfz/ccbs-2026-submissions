@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 4 — Extension: Who metabolizes tacrolimus?</title>
+<meta name="author" content="wangfei">
+<meta name="week" content="week 4">
+<style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; --teal:#168b83; --gold:#d59a24; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; --teal:#54c9bd; --gold:#e4b64e; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.65; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px; border-bottom:1px solid var(--line); padding-bottom:5px; }
+  p { margin:12px 0; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px; padding:14px 18px; margin:14px 0; }
+  .fig { width:100%; border:1px solid var(--line); border-radius:6px; margin:14px 0; background:var(--soft); }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; padding-left:22px; }
+  .eq { text-align:center; font-family:Georgia,serif; font-size:1.08rem; padding:12px; overflow-wrap:anywhere; }
+  .small { font-size:.9rem; color:var(--muted); }
+  .eq { text-align:center; font-family:Georgia,"Times New Roman",serif; font-size:1.13rem; line-height:1.7; padding:18px 14px; overflow-x:auto; }
+  .eq mjx-container[display="true"] { margin:0 !important; }
+  mjx-container { color:var(--ink); }
+  @media (max-width:520px) { .eq { font-size:1rem; padding:14px 10px; } }
+  .pill { display:inline-block; border:1px solid var(--line); border-radius:99px; padding:2px 9px; font-size:.82rem; color:var(--muted); }
+</style>
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
+    svg: { fontCache: 'global' },
+    options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+  };
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Week 4 — Extension: Who gets tacrolimus?</h1>
+<p class="meta">Author:  wangfei· Week 4 (2026-09-28) · CCBS 2026</p>
+
+<p class="card"><strong>One sentence:</strong> When CYP3A4 and CYP3A5 both metabolize tacrolimus, substrate allocation depends on active enzyme abundance and catalytic efficiency across the substrate range—not binding affinity alone.</p>
+
+<h2>The point I am adding</h2>
+<p>The lecture’s binding–catalysis picture separates two questions: how much substrate is bound to each enzyme, and how quickly each enzyme converts its bound substrate into product. Tacrolimus provides a useful liver example: both CYP3A4 and CYP3A5 contribute to its oxidative metabolism. The FDA drug label identifies both isoforms as primary metabolic enzymes, and recombinant-enzyme studies detected several tacrolimus metabolites produced by each.</p>
+<p>For two enzymes sharing substrate \(S\), a simple competitive-substrate model is:</p>
+<div class="card eq">\[ v_i=\frac{V_{\max,i}[S]}{K_{m,i}+[S]},\qquad V_{\max,i}=k_{\mathrm{cat},i}[E_i]_{\mathrm{active}} \]</div>
+<p>At low substrate concentration, the enzyme with larger \(V_{\max}/K_m\) has the greater share of metabolic flux. At high substrate concentration, both enzymes approach their own \(V_{\max}\), so active enzyme abundance and turnover number dominate. A lower \(K_d\) can mean tighter equilibrium binding, but it does not by itself establish a higher catalytic rate; moreover, \(K_m\) is generally not identical to \(K_d\).</p>
+
+<h2>Work it</h2>
+<p>A recombinant-enzyme study reported, under its assay conditions, tacrolimus \(V_{\max}\) values of 8.0 and 17.0 nmol/min/nmol enzyme for CYP3A4 and CYP3A5, respectively, with \(K_{m,u}=0.21\,\mu\mathrm{M}\) for both. If we assume equal amounts of active enzyme and use those reported parameters, the model predicts a CYP3A5 flux share of:</p>
+<div class="card eq">\[ f_5=\frac{v_5}{v_4+v_5}=\frac{17}{8+17}=0.68\approx68\% \]</div>
+<p>This is a worked illustration, not a patient-level estimate. It holds enzyme amounts equal by assumption and applies only to the study’s experimental system. If active CYP3A5 abundance were one quarter of CYP3A4 abundance, the same parameters would instead predict a CYP3A5 share of \(17\times0.25/(8+17\times0.25)\approx35\%\). Thus a faster enzyme molecule can contribute less overall when fewer active molecules are present.</p>
+
+<figure>
+  <svg class="fig" viewBox="0 0 640 290" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+    <title id="title">Illustrative tacrolimus metabolic flux allocation</title>
+    <desc id="desc">At equal active enzyme abundance and the same assay substrate concentration, CYP3A4 contributes 32 percent and CYP3A5 contributes 68 percent under reported recombinant-enzyme kinetic parameters.</desc>
+    <rect x="0" y="0" width="640" height="290" rx="6" fill="transparent"/>
+    <text x="28" y="34" font-size="18" font-weight="700" fill="currentColor">Illustrative flux share at equal active enzyme abundance</text>
+    <text x="28" y="63" font-size="13" fill="#778">Computed from reported Vmax values; same Km, same [E], same [S]</text>
+    <text x="28" y="117" font-size="16" fill="currentColor">CYP3A4</text>
+    <rect x="150" y="91" width="400" height="38" rx="5" fill="#d8dee4"/>
+    <rect x="150" y="91" width="128" height="38" rx="5" fill="#1f4e79"/>
+    <text x="563" y="117" font-size="16" font-weight="700" fill="currentColor">32%</text>
+    <text x="28" y="187" font-size="16" fill="currentColor">CYP3A5</text>
+    <rect x="150" y="161" width="400" height="38" rx="5" fill="#d8dee4"/>
+    <rect x="150" y="161" width="272" height="38" rx="5" fill="#168b83"/>
+    <text x="563" y="187" font-size="16" font-weight="700" fill="currentColor">68%</text>
+    <line x1="150" y1="220" x2="550" y2="220" stroke="#9aa"/>
+    <text x="150" y="245" font-size="12" fill="#778">0</text><text x="340" y="245" font-size="12" fill="#778">50</text><text x="536" y="245" font-size="12" fill="#778">100% of modeled total flux</text>
+    <text x="28" y="275" font-size="12" fill="#778">Illustration only: enzyme abundance and in-vivo conditions can change the split.</text>
+  </svg>
+  <figcaption>Figure 1: A two-enzyme Michaelis–Menten comparison using the reported recombinant CYP3A4/3A5 tacrolimus \(V_{\max}\) values and equal enzyme abundance. The 32:68 split is calculated, not a clinical measurement.</figcaption>
+</figure>
+<p>To separate “binds more” from “catalyzes faster,” first quantify binding under non-turnover conditions (for example, with a nonmetabolizable analog or suitable binding assay) to estimate \(K_d\) or association/dissociation rates. Then independently measure product-formation rates over a substrate concentration series by LC–MS/MS and fit \(K_m\), \(V_{\max}\), and enzyme-normalized \(k_{\mathrm{cat}}\). Finally, mix both enzymes at controlled active concentrations and measure each product or substrate depletion. Human liver microsomes or hepatocytes can test whether the recombinant-enzyme result holds in a more physiological context.</p>
+
+<h2>What I would argue against / where this breaks</h2>
+<p>The 68% example does not show that CYP3A5 always metabolizes most tacrolimus in a person. It assumes equal active enzyme abundance, and recombinant proteins do not reproduce every feature of liver tissue. CYP3A5 expression varies with genotype; CYP3A4 activity, enzyme induction or inhibition, intestinal first-pass metabolism, transport, disease state, and interacting drugs can all alter exposure. Tacrolimus is also a narrow-therapeutic-index medicine, so this model explains one metabolic principle; it cannot be used to select or adjust an individual dose. Clinical therapeutic drug monitoring and prescriber guidance remain essential.</p>
+
+<h2>Sources</h2>
+<ul class="src">
+  <li>US National Library of Medicine. <em>Tacrolimus Capsules: Prescribing Information</em>. DailyMed, accessed 2026. <a href="https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=213f6047-f897-48a7-b78a-45d7124f2f16">Drug label</a> — supports CYP3A4 and CYP3A5 as primary tacrolimus metabolic enzymes.</li>
+  <li>Roy J-N, et al. “Effect of CYP3A5 polymorphism on tacrolimus metabolic clearance in vitro.” <em>Drug Metabolism and Disposition</em>. 2006;34(5):836–847. <a href="https://pubmed.ncbi.nlm.nih.gov/16501005/">PubMed</a> — reports recombinant-enzyme kinetics and metabolite formation; source of the illustrative \(V_{\max}\) and \(K_{m,u}\) values.</li>
+  <li>Dai Y, et al. “Contribution of CYP3A5 to the in vitro hepatic clearance of tacrolimus.” <em>Drug Metabolism and Disposition</em>. 2006. <a href="https://pubmed.ncbi.nlm.nih.gov/15951320/">PubMed</a> — examines CYP3A5 contribution using expressed enzymes and human liver microsomes.</li>
+</ul>
+<p class="small"><span class="pill">Model scope</span> A deliberately simplified extension of the lecture’s binding–catalysis framework; numerical example is based on one in-vitro enzyme study, not a clinical prediction.</p>
+
+</div>
+</body>
+</html>
