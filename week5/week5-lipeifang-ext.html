@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 5 — Extension: The set point is the part an integrator cannot protect</title>
+<meta name="author" content="fanglipei">
+<meta name="week" content="week5">
+<style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; --rose:#a33a35; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; --rose:#e08a84; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px;
+    border-bottom:1px solid var(--line); padding-bottom:5px; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:14px 18px; margin:14px 0; }
+  .fig { width:100%; border:1px solid var(--line); border-radius:6px; margin:14px 0; }
+  @media (prefers-color-scheme: dark) {
+    svg.plot { filter: invert(0.92) hue-rotate(180deg); }
+  }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; }
+  .src li { margin-bottom:10px; }
+  .table-wrap { overflow-x:auto; margin:12px 0; }
+  table { border-collapse:collapse; width:100%; font-size:.86rem; }
+  th, td { border-bottom:1px solid var(--line); padding:7px 9px; text-align:left; vertical-align:top; }
+  th { color:var(--accent); font-weight:600; white-space:nowrap; }
+  td:first-child { min-width:150px; }
+  .note { font-size:.84rem; color:var(--muted); margin-top:6px; }
+  pre.code { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:12px 14px; overflow-x:auto; font-size:.76rem; line-height:1.45; margin:10px 0; }
+  code { font-family:Consolas,"SFMono-Regular",Menlo,monospace; }
+  details { margin:10px 0; }
+  summary { cursor:pointer; color:var(--accent); font-size:.9rem; }
+  .eq { margin:12px 0; padding:8px 12px; background:var(--soft); border-left:3px solid var(--accent); border-radius:4px; font-size:1.02rem; }
+  .eq i, .var { font-style:italic; }
+  sup, sub { line-height:0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Week 5 — Extension: The set point is the part an integrator cannot protect</h1>
+<p class="meta">Author: fanglipei · Student ID 20261203497 · Week 5 (2026-10-18) · CCBS 2026</p>
+
+<p class="card"><strong>One sentence:</strong> An integral memory that makes an output exactly independent of its input also makes it exactly set by its own reference parameters, so perfect adaptation and perfect set-point sensitivity are the same property seen from two sides.</p>
+
+<h2>The point I am adding</h2>
+
+<p>Lecture 10 builds three chemical memories. A saturated enzyme removes a memory at a nearly constant rate; an antithetic pair stores the difference of two nonnegative totals; a feedforward loop hides an integral in the coordinate <i>x</i><sub>1</sub> − (<i>k</i><sub>1</sub>/<i>k</i><sub>2</sub>)<i>x</i><sub>2</sub>. Each calculation ends with a return level: <i>a</i><sup>*</sup> = <i>K</i><sub>B</sub><i>V</i><sub>R</sub>/(<i>V</i><sub>B</sub> − <i>V</i><sub>R</sub>) for receptor methylation, <i>X</i><sup>*</sup> = μ/θ for the antithetic controller, and <i>x</i><sub>1</sub><sup>*</sup> = <i>k</i><sub>1</sub>γ/(δ<i>k</i><sub>2</sub>) with δ = <i>k</i><sub>cat</sub>/<i>K</i><sub>d</sub> for the bilinear feedforward loop. The lecture stresses that these levels do not contain the input. It also notes, in one sentence, that changing an enzyme abundance can move the return value while preserving input invariance. I want to take that sentence seriously. The return level is not a detail of the calculation. It is the phenotype the loop defends, and it is the one quantity the loop does not defend against.</p>
+
+<p>The internal model principle says why. A controller that rejects every constant disturbance must contain a model of the constant signal: an integrator driven by the error. In a stable loop, the output then tracks the reference exactly. The same zero that makes the disturbance sensitivity vanish at zero frequency makes the reference gain equal to one: the sensitivity function is 0 at DC, and the complementary sensitivity is 1. A biochemical controller does not receive a separate reference signal; it builds the set point from a parameter combination. The same argument then says that the output is exactly set by that combination. The loop is blind to the plant and perfectly sighted on its own set point. This is not a defect of the antithetic or methylation designs; it is what “perfect adaptation” means. The three architectures differ in which parameters set the return level, not in whether some parameter sets it.</p>
+
+<p>In a cell, those parameters are protein concentrations. CheR, CheB, SigW, RsiW, and the enzymes that make and remove the output all vary from cell to cell. The prediction is therefore sharp: an adapting cell should return to the same activity after every attractant step, while its absolute resting activity varies with its modification enzymes. The lecture’s own numbers show this. Cutting CheR tenfold moves the adapted activity from 1/3 to 0.0175 while the attractant step still returns. Precision is robust; the set point is not. The design lesson is to encode the set point as a ratio. A cell that transcribes the two controller genes from one operon buffers their ratio against copy-number and growth-rate fluctuations. The chemotaxis genes do exactly this: <i>cheR</i> and <i>cheB</i> sit in the same <i>meche</i> operon, the operon uses translational coupling between adjacent genes, and Løvdok and colleagues argue that coupling opposing enzymes buffers the pathway against gene-expression noise.</p>
+
+<h2>Work it</h2>
+
+<p>Differentiate the methylation set point. Let <i>r</i> = <i>V</i><sub>R</sub>/<i>V</i><sub>B</sub>, so <i>a</i><sup>*</sup> = <i>K</i><sub>B</sub><i>r</i>/(1 − <i>r</i>). The logarithmic sensitivities are</p>
+
+<div class="eq">
+∂ ln <i>a</i><sup>*</sup> / ∂ ln <i>V</i><sub>R</sub> = 1/(1 − <i>r</i>) = <i>V</i><sub>B</sub>/(<i>V</i><sub>B</sub> − <i>V</i><sub>R</sub>) = 1 + <i>a</i><sup>*</sup>/<i>K</i><sub>B</sub>,<br>
+∂ ln <i>a</i><sup>*</sup> / ∂ ln <i>V</i><sub>B</sub> = −<i>V</i><sub>B</sub>/(<i>V</i><sub>B</sub> − <i>V</i><sub>R</sub>) = −(1 + <i>a</i><sup>*</sup>/<i>K</i><sub>B</sub>), &nbsp;&nbsp; ∂ ln <i>a</i><sup>*</sup> / ∂ ln <i>K</i><sub>B</sub> = 1.
+</div>
+
+<p>The first identity is the one to remember: <i>S</i> = 1 + <i>a</i><sup>*</sup>/<i>K</i><sub>B</sub>. For a fixed <i>K</i><sub>B</sub>, a higher operating activity makes the set point more sensitive to CheR. The lecture quotes two activities for the same model: <i>a</i><sup>*</sup> = 1/3 at baseline, and <i>a</i><sup>*</sup> = 0.0175 after a tenfold CheR cut. Setting <i>V</i><sub>B</sub> = 1 and solving the two equations gives <i>V</i><sub>R</sub>/<i>V</i><sub>B</sub> = 0.5013, <i>K</i><sub>B</sub> = 0.3316, and <i>S</i> = 2.005. The two quoted numbers are therefore consistent with a local CheR sensitivity of 2.0. The tenfold cut changes <i>a</i><sup>*</sup> by a factor of 19, not 100, because the curve flattens as <i>a</i><sup>*</sup> → 0. In the other direction the same formula diverges as <i>a</i><sup>*</sup> → 1: from the feasibility condition <i>V</i><sub>B</sub> &gt; (1 + <i>K</i><sub>B</sub>)<i>V</i><sub>R</sub>, the lecture’s operating point has only a 50% upward margin in CheR before the required activity exceeds 1, and at <i>a</i><sup>*</sup> = 0.5 with <i>K</i><sub>B</sub> = 0.1 the margin is 9%. The set point is fragile in the direction the cell cannot exceed.</p>
+
+<p>The same bookkeeping for the other architectures gives Table 1. The antithetic controller is blind to every plant parameter and has unit sensitivity to μ and θ. The feedforward loop is blind to <i>w</i> but has unit sensitivity to each of <i>k</i><sub>1</sub>, γ, δ, and <i>k</i><sub>2</sub>. Negative autoregulation, the approximate adapter of Lecture 9, is different: it buffers both its production and its removal by 1/(1 + <i>H</i>), but it never reaches zero error. The integral buys exact disturbance rejection by giving up parameter buffering.</p>
+
+<div class="table-wrap">
+<table>
+<thead><tr><th>Architecture</th><th>Return level</th><th>Disturbance sensitivity</th><th>Set-point parameter sensitivities</th></tr></thead>
+<tbody>
+<tr><td>Antithetic integral feedback</td><td><i>X</i><sup>*</sup> = μ/θ</td><td>0 to constant <i>w</i></td><td>μ: +1; θ: −1; plant: 0</td></tr>
+<tr><td>Receptor methylation</td><td><i>a</i><sup>*</sup> = <i>K</i><sub>B</sub><i>V</i><sub>R</sub>/(<i>V</i><sub>B</sub> − <i>V</i><sub>R</sub>)</td><td>0 to constant <i>L</i></td><td><i>V</i><sub>R</sub>: +(1 + <i>a</i><sup>*</sup>/<i>K</i><sub>B</sub>); <i>V</i><sub>B</sub>: −(1 + <i>a</i><sup>*</sup>/<i>K</i><sub>B</sub>); <i>K</i><sub>B</sub>: +1</td></tr>
+<tr><td>Incoherent feedforward</td><td><i>x</i><sub>1</sub><sup>*</sup> = <i>k</i><sub>1</sub>γ/(δ<i>k</i><sub>2</sub>)</td><td>0 to constant <i>w</i></td><td><i>k</i><sub>1</sub>: +1; γ: +1; δ: −1; <i>k</i><sub>2</sub>: −1</td></tr>
+<tr><td>Negative autoregulation (Lecture 9)</td><td><i>a p</i>(<i>x</i><sup>*</sup>) = λ<i>x</i><sup>*</sup></td><td>λ: −1/(1 + <i>H</i>)</td><td><i>a</i>: +1/(1 + <i>H</i>)</td></tr>
+</tbody>
+</table>
+</div>
+<p class="note">Table 1. Steady-state logarithmic sensitivities, within each model’s stated regime and with the loop stable. The antithetic and feedforward entries are exact at steady state; the methylation entry follows from the reduced model; the negative-autoregulation entry is the local result of Lecture 9, with loop gain <i>H</i>.</p>
+
+<p>Figure 1 draws the loop and marks the two sensitivities. Figure 2 makes the methylation result concrete. Panel (a) shows two cells with different CheR rates; both return to their own set point after the same attractant step. Panel (b) plots <i>S</i> = 1 + <i>a</i><sup>*</sup>/<i>K</i><sub>B</sub>; the lecture’s operating point sits at <i>S</i> ≈ 2, and the curve shows how quickly the sensitivity rises as the cell operates closer to full activity.</p>
+
+<figure>
+<svg class="fig" viewBox="0 0 640 230" role="img" aria-label="Integral feedback loop: the disturbance is rejected, the reference is tracked.">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/>
+    </marker>
+    <marker id="ar-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <rect x="18" y="38" width="86" height="46" rx="6" fill="var(--soft)" stroke="var(--line)"/>
+  <text x="61" y="57" text-anchor="middle" font-size="11" fill="var(--muted)">reference</text>
+  <text x="61" y="75" text-anchor="middle" font-size="15" fill="var(--ink)" font-style="italic">μ</text>
+  <rect x="168" y="32" width="118" height="58" rx="6" fill="var(--soft)" stroke="var(--accent)" stroke-width="1.5"/>
+  <text x="227" y="53" text-anchor="middle" font-size="11" fill="var(--muted)">integral memory</text>
+  <text x="227" y="75" text-anchor="middle" font-size="15" fill="var(--ink)" font-style="italic">z</text>
+  <rect x="372" y="108" width="104" height="52" rx="6" fill="var(--soft)" stroke="var(--line)"/>
+  <text x="424" y="129" text-anchor="middle" font-size="11" fill="var(--muted)">plant</text>
+  <text x="424" y="149" text-anchor="middle" font-size="15" fill="var(--ink)" font-style="italic">X</text>
+  <line x1="104" y1="61" x2="164" y2="61" stroke="var(--accent)" stroke-width="1.4" marker-end="url(#ar)"/>
+  <path d="M286 61 H326 V134 H368" fill="none" stroke="var(--accent)" stroke-width="1.4" marker-end="url(#ar)"/>
+  <line x1="476" y1="134" x2="586" y2="134" stroke="var(--accent)" stroke-width="1.4" marker-end="url(#ar)"/>
+  <text x="592" y="139" font-size="12" fill="var(--ink)">output</text>
+  <text x="424" y="24" text-anchor="middle" font-size="13" fill="var(--ink)" font-style="italic">w</text>
+  <line x1="424" y1="30" x2="424" y2="104" stroke="var(--muted)" stroke-width="1.4" marker-end="url(#ar-muted)"/>
+  <path d="M540 134 V196 H227 V94" fill="none" stroke="var(--muted)" stroke-width="1.4" marker-end="url(#ar-muted)"/>
+  <text x="360" y="212" text-anchor="middle" font-size="12" fill="var(--muted)">sensor θX</text>
+  <text x="432" y="66" font-size="11" fill="var(--accent)">rejected: ∂ln X*/∂ln w = 0</text>
+  <text x="66" y="112" font-size="11" fill="var(--rose)">tracked: ∂ln X*/∂ln μ = 1</text>
+</svg>
+<figcaption>Figure 1. The loop in one picture. An integral memory drives the plant; the disturbance <i>w</i> enters at the plant, and the sensor feeds θ<i>X</i> back. In a stable loop the zero-frequency disturbance sensitivity is 0, while the reference sensitivity is 1. The arrows carry signals, not reactions. Schematic.</figcaption>
+</figure>
+
+<figure>
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 730.309219 262.19" xmlns="http://www.w3.org/2000/svg" version="1.1" class="fig plot" style="height:auto">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-10-18T22:12:01.780784</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 262.19 
+L 730.309219 262.19 
+L 730.309219 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 41.514922 224.367891 
+L 348.212813 224.367891 
+L 348.212813 22.13 
+L 41.514922 22.13 
+z
+" style="fill: #ffffff"/>
+   </g>
+   <g id="matplotlib.axis_1">
+    <g id="xtick_1">
+     <g id="line2d_1">
+      <defs>
+       <path id="m169e3995a9" d="M 0 0 
+L 0 3.5 
+" style="stroke: #000000; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#m169e3995a9" x="41.514922" y="224.367891" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_1">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle" x="41.514922" y="238.205781" transform="rotate(-0 41.514922 238.205781)">0.0</text>
+     </g>
+    </g>
+    <g id="xtick_2">
+     <g id="line2d_2">
+      <g>
+       <use xlink:href="#m169e3995a9" x="79.852158" y="224.367891" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_2">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle" x="79.852158" y="238.205781" transform="rotate(-0 79.852158 238.205781)">2.5</text>
+     </g>
+    </g>
+    <g id="xtick_3">
+     <g id="line2d_3">
+      <g>
+       <use xlink:href="#m169e3995a9" x="118.189395" y="224.367891" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_3">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle" x="118.189395" y="238.205781" transform="rotate(-0 118.189395 238.205781)">5.0</text>
+     </g>
+    </g>
+    <g id="xtick_4">
+     <g id="line2d_4">
+      <g>
+       <use xlink:href="#m169e3995a9" x="156.526631" y="224.367891" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_4">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle" x="156.526631" y="238.205781" transform="rotate(-0 156.526631 238.205781)">7.5</text>
+     </g>
+    </g>
+    <g id="xtick_5">
+     <g id="line2d_5">
+      <g>
+       <use xlink:href="#m169e3995a9" x="194.863867" y="224.367891" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_5">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle" x="194.863867" y="238.205781" transform="rotate(-0 194.863867 238.205781)">10.0</text>
+     </g>
+    </g>
+    <g id="xtick_6">
+     <g id="line2d_6">
+      <g>
+       <use xlink:href="#m169e3995a9" x="233.201104" y="224.367891" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_6">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle" x="233.201104" y="238.205781" transform="rotate(-0 233.201104 238.205781)">12.5</text>
+     </g>
+    </g>
+    <g id="xtick_7">
+     <g id="line2d_7">
+      <g>
+       <use xlink:href="#m169e3995a9" x="271.53834" y="224.367891" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_7">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle" x="271.53834" y="238.205781" transform="rotate(-0 271.53834 238.205781)">15.0</text>
+     </g>
+    </g>
+    <g id="xtick_8">
+     <g id="line2d_8">
+      <g>
+       <use xlink:href="#m169e3995a9" x="309.875576" y="224.367891" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_8">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle" x="309.875576" y="238.205781" transform="rotate(-0 309.875576 238.205781)">17.5</text>
+     </g>
+    </g>
+    <g id="xtick_9">
+     <g id="line2d_9">
+      <g>
+       <use xlink:href="#m169e3995a9" x="348.212813" y="224.367891" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_9">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle" x="348.212813" y="238.205781" transform="rotate(-0 348.212813 238.205781)">20.0</text>
+     </g>
+    </g>
+    <g id="text_10">
+     <!-- time (units of $1/V_B$) -->
+     <g transform="translate(151.708867 251.207891)">
+      <text>
+       <tspan x="0" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'">t</tspan>
+       <tspan x="3.528809" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'">i</tspan>
+       <tspan x="6.029297" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'">m</tspan>
+       <tspan x="14.796387" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'">e</tspan>
+       <tspan x="20.333496" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'"> </tspan>
+       <tspan x="23.194336" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'">(</tspan>
+       <tspan x="26.705566" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'">u</tspan>
+       <tspan x="32.409668" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'">n</tspan>
+       <tspan x="38.11377" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'">i</tspan>
+       <tspan x="40.614258" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'">t</tspan>
+       <tspan x="44.143066" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'">s</tspan>
+       <tspan x="48.832031" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'"> </tspan>
+       <tspan x="51.692871" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'">o</tspan>
+       <tspan x="57.199219" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'">f</tspan>
+       <tspan x="60.367676" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'"> </tspan>
+       <tspan x="63.228516" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'">1</tspan>
+       <tspan x="68.95459" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'">/</tspan>
+       <tspan x="82.71167" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'">)</tspan>
+       <tspan x="71.986816" y="-0.15625" style="font-style: oblique; font-size: 9px; font-family: 'DejaVu Sans'">V</tspan>
+       <tspan x="78.143555" y="1.193746" style="font-style: oblique; font-size: 6.3px; font-family: 'DejaVu Sans'">B</tspan>
+      </text>
+     </g>
+    </g>
+   </g>
+   <g id="matplotlib.axis_2">
+    <g id="ytick_1">
+     <g id="line2d_10">
+      <defs>
+       <path id="m222834c910" d="M 0 0 
+L -3.5 0 
+" style="stroke: #000000; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#m222834c910" x="41.514922" y="220.4787" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_11">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end" x="34.514922" y="223.897646" transform="rotate(-0 34.514922 223.897646)">0.0</text>
+     </g>
+    </g>
+    <g id="ytick_2">
+     <g id="line2d_11">
+      <g>
+       <use xlink:href="#m222834c910" x="41.514922" y="181.586798" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_12">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end" x="34.514922" y="185.005744" transform="rotate(-0 34.514922 185.005744)">0.2</text>
+     </g>
+    </g>
+    <g id="ytick_3">
+     <g id="line2d_12">
+      <g>
+       <use xlink:href="#m222834c910" x="41.514922" y="142.694896" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_13">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end" x="34.514922" y="146.113842" transform="rotate(-0 34.514922 146.113842)">0.4</text>
+     </g>
+    </g>
+    <g id="ytick_4">
+     <g id="line2d_13">
+      <g>
+       <use xlink:href="#m222834c910" x="41.514922" y="103.802994" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_14">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end" x="34.514922" y="107.22194" transform="rotate(-0 34.514922 107.22194)">0.6</text>
+     </g>
+    </g>
+    <g id="ytick_5">
+     <g id="line2d_14">
+      <g>
+       <use xlink:href="#m222834c910" x="41.514922" y="64.911092" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_15">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end" x="34.514922" y="68.330038" transform="rotate(-0 34.514922 68.330038)">0.8</text>
+     </g>
+    </g>
+    <g id="ytick_6">
+     <g id="line2d_15">
+      <g>
+       <use xlink:href="#m222834c910" x="41.514922" y="26.01919" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_16">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end" x="34.514922" y="29.438136" transform="rotate(-0 34.514922 29.438136)">1.0</text>
+     </g>
+    </g>
+    <g id="text_17">
+     <!-- receptor activity $a$ -->
+     <g transform="translate(14.04 164.468945) rotate(-90)">
+      <text>
+       <tspan x="0" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'">r</tspan>
+       <tspan x="3.700195" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'">e</tspan>
+       <tspan x="9.237305" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'">c</tspan>
+       <tspan x="14.185547" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'">e</tspan>
+       <tspan x="19.722656" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'">p</tspan>
+       <tspan x="25.435547" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'">t</tspan>
+       <tspan x="28.964355" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'">o</tspan>
+       <tspan x="34.470703" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'">r</tspan>
+       <tspan x="38.170898" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'"> </tspan>
+       <tspan x="41.031738" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'">a</tspan>
+       <tspan x="46.546875" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'">c</tspan>
+       <tspan x="51.495117" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'">t</tspan>
+       <tspan x="55.023926" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'">i</tspan>
+       <tspan x="57.524414" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'">v</tspan>
+       <tspan x="62.850586" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'">i</tspan>
+       <tspan x="65.351074" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'">t</tspan>
+       <tspan x="68.879883" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'">y</tspan>
+       <tspan x="74.206055" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'"> </tspan>
+       <tspan x="77.066895" y="-0.15625" style="font-style: oblique; font-size: 9px; font-family: 'DejaVu Sans'">a</tspan>
+      </text>
+     </g>
+    </g>
+   </g>
+   <g id="line2d_16">
+    <path d="M 41.514922 201.032749 
+L 118.112694 201.032749 
+L 118.214961 220.423362 
+L 118.317228 220.422126 
+L 125.271365 220.227566 
+L 129.259767 219.902186 
+L 132.123235 219.457038 
+L 134.577636 218.854704 
+L 136.827504 218.070419 
+L 139.077372 217.038076 
+L 141.429506 215.707483 
+L 144.497508 213.694299 
+L 151.553912 208.973488 
+L 154.519646 207.313798 
+L 157.383115 205.971216 
+L 160.246583 204.876126 
+L 163.314584 203.946466 
+L 166.689386 203.166025 
+L 170.473255 202.527338 
+L 174.870724 202.015655 
+L 180.29086 201.616061 
+L 187.44953 201.324088 
+L 197.983002 201.137118 
+L 217.720479 201.047916 
+L 303.215456 201.032753 
+L 348.212813 201.032749 
+L 348.212813 201.032749 
+" clip-path="url(#pceca83bfb8)" style="fill: none; stroke: #1f4e79; stroke-width: 1.8; stroke-linecap: square"/>
+   </g>
+   <g id="LineCollection_1">
+    <path d="M 118.189395 201.032749 
+L 348.212813 201.032749 
+" clip-path="url(#pceca83bfb8)" style="fill: none; stroke-dasharray: 3.2,2.4; stroke-dashoffset: 0; stroke: #1f4e79; stroke-opacity: 0.75; stroke-width: 0.8"/>
+   </g>
+   <g id="line2d_17">
+    <path d="M 41.514922 162.140847 
+L 118.112694 162.140847 
+L 118.214961 220.264852 
+L 118.317228 220.257718 
+L 121.078429 219.947401 
+L 123.021497 219.509858 
+L 124.555498 218.947647 
+L 125.987232 218.177102 
+L 127.316699 217.191796 
+L 128.646167 215.905714 
+L 129.975634 214.302798 
+L 131.509635 212.080552 
+L 133.350436 208.985837 
+L 136.111637 203.840885 
+L 140.918173 194.892786 
+L 143.577108 190.452333 
+L 146.031509 186.790886 
+L 148.383643 183.680694 
+L 150.735778 180.939718 
+L 153.087912 178.536449 
+L 155.542314 176.350878 
+L 158.098982 174.382316 
+L 160.757916 172.624619 
+L 163.519118 171.067762 
+L 166.484853 169.654374 
+L 169.655121 168.392357 
+L 173.132189 167.252798 
+L 176.916058 166.249363 
+L 181.21126 165.348522 
+L 186.017796 164.57386 
+L 191.540199 163.912898 
+L 198.085269 163.358668 
+L 206.16434 162.907853 
+L 216.493278 162.565854 
+L 230.912886 162.32738 
+L 254.229698 162.190139 
+L 310.680927 162.142814 
+L 348.212813 162.141078 
+L 348.212813 162.141078 
+" clip-path="url(#pceca83bfb8)" style="fill: none; stroke: #c0504d; stroke-width: 1.8; stroke-linecap: square"/>
+   </g>
+   <g id="LineCollection_2">
+    <path d="M 118.189395 162.140847 
+L 348.212813 162.140847 
+" clip-path="url(#pceca83bfb8)" style="fill: none; stroke-dasharray: 3.2,2.4; stroke-dashoffset: 0; stroke: #c0504d; stroke-opacity: 0.75; stroke-width: 0.8"/>
+   </g>
+   <g id="line2d_18">
+    <path d="M 118.189395 224.367891 
+L 118.189395 22.13 
+" clip-path="url(#pceca83bfb8)" style="fill: none; stroke-dasharray: 0.9,1.485; stroke-dashoffset: 0; stroke: #777777; stroke-width: 0.9"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 41.514922 224.367891 
+L 41.514922 22.13 
+" style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 41.514922 224.367891 
+L 348.212813 224.367891 
+" style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="text_18">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'" transform="translate(122.023118 48.454857)">attractant step</text>
+    <!-- $L: 0 \rightarrow 5K_I$ -->
+    <g transform="translate(122.023118 58.05642)">
+     <text>
+      <tspan x="0" y="-0.0625" style="font-style: oblique; font-size: 8px; font-family: 'DejaVu Sans'">L</tspan>
+      <tspan x="30.269531" y="-0.0625" style="font-style: oblique; font-size: 8px; font-family: 'DejaVu Sans'">K</tspan>
+      <tspan x="6.015625" y="-0.0625" style="font-size: 8px; font-family: 'DejaVu Sans'">:</tspan>
+      <tspan x="10.269531" y="-0.0625" style="font-size: 8px; font-family: 'DejaVu Sans'">0</tspan>
+      <tspan x="16.917969" y="-0.0625" style="font-size: 8px; font-family: 'DejaVu Sans'">→</tspan>
+      <tspan x="25.179688" y="-0.0625" style="font-size: 8px; font-family: 'DejaVu Sans'">5</tspan>
+      <tspan x="35.515625" y="1.137496" style="font-style: oblique; font-size: 5.6px; font-family: 'DejaVu Sans'">I</tspan>
+     </text>
+    </g>
+   </g>
+   <g id="text_19">
+    <text style="font-size: 9.5px; font-family: 'DejaVu Sans'; text-anchor: start" x="41.514922" y="16.13" transform="rotate(-0 41.514922 16.13)">(a) each cell adapts to its own set point</text>
+   </g>
+   <g id="legend_1">
+    <g id="line2d_19">
+     <path d="M 245.012813 116.947187 
+L 252.512813 116.947187 
+L 260.012812 116.947187 
+" style="fill: none; stroke: #1f4e79; stroke-width: 1.8; stroke-linecap: square"/>
+    </g>
+    <g id="text_20">
+     <!-- $V_R=0.50$, $a^*=0.10$ -->
+     <g transform="translate(266.012812 119.572187)">
+      <text>
+       <tspan x="0" y="-0.00875" style="font-style: oblique; font-size: 7.5px; font-family: 'DejaVu Sans'">V</tspan>
+       <tspan x="39.657349" y="-0.00875" style="font-style: oblique; font-size: 7.5px; font-family: 'DejaVu Sans'">a</tspan>
+       <tspan x="5.130615" y="1.116246" style="font-style: oblique; font-size: 5.25px; font-family: 'DejaVu Sans'">R</tspan>
+       <tspan x="10.444702" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">=</tspan>
+       <tspan x="18.190063" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">0</tspan>
+       <tspan x="22.961792" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">.</tspan>
+       <tspan x="25.345825" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">5</tspan>
+       <tspan x="30.117554" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">0</tspan>
+       <tspan x="34.889282" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">,</tspan>
+       <tspan x="37.273315" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'"> </tspan>
+       <tspan x="50.93939" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">=</tspan>
+       <tspan x="58.684751" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">0</tspan>
+       <tspan x="63.456479" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">.</tspan>
+       <tspan x="65.840513" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">1</tspan>
+       <tspan x="70.612241" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">0</tspan>
+       <tspan x="45.625303" y="-3.10625" style="font-size: 5.25px; font-family: 'DejaVu Sans'">*</tspan>
+      </text>
+     </g>
+    </g>
+    <g id="line2d_20">
+     <path d="M 245.012813 129.548945 
+L 252.512813 129.548945 
+L 260.012812 129.548945 
+" style="fill: none; stroke: #c0504d; stroke-width: 1.8; stroke-linecap: square"/>
+    </g>
+    <g id="text_21">
+     <!-- $V_R=0.75$, $a^*=0.30$ -->
+     <g transform="translate(266.012812 132.173945)">
+      <text>
+       <tspan x="0" y="-0.00875" style="font-style: oblique; font-size: 7.5px; font-family: 'DejaVu Sans'">V</tspan>
+       <tspan x="39.657349" y="-0.00875" style="font-style: oblique; font-size: 7.5px; font-family: 'DejaVu Sans'">a</tspan>
+       <tspan x="5.130615" y="1.116246" style="font-style: oblique; font-size: 5.25px; font-family: 'DejaVu Sans'">R</tspan>
+       <tspan x="10.444702" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">=</tspan>
+       <tspan x="18.190063" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">0</tspan>
+       <tspan x="22.961792" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">.</tspan>
+       <tspan x="25.345825" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">7</tspan>
+       <tspan x="30.117554" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">5</tspan>
+       <tspan x="34.889282" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">,</tspan>
+       <tspan x="37.273315" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'"> </tspan>
+       <tspan x="50.93939" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">=</tspan>
+       <tspan x="58.684751" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">0</tspan>
+       <tspan x="63.456479" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">.</tspan>
+       <tspan x="65.840513" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">3</tspan>
+       <tspan x="70.612241" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">0</tspan>
+       <tspan x="45.625303" y="-3.10625" style="font-size: 5.25px; font-family: 'DejaVu Sans'">*</tspan>
+      </text>
+     </g>
+    </g>
+   </g>
+  </g>
+  <g id="axes_2">
+   <g id="patch_5">
+    <path d="M 409.254922 224.367891 
+L 715.952812 224.367891 
+L 715.952812 22.13 
+L 409.254922 22.13 
+z
+" style="fill: #ffffff"/>
+   </g>
+   <g id="matplotlib.axis_3">
+    <g id="xtick_10">
+     <g id="line2d_21">
+      <g>
+       <use xlink:href="#m169e3995a9" x="409.254922" y="224.367891" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_22">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle" x="409.254922" y="238.205781" transform="rotate(-0 409.254922 238.205781)">0.0</text>
+     </g>
+    </g>
+    <g id="xtick_11">
+     <g id="line2d_22">
+      <g>
+       <use xlink:href="#m169e3995a9" x="470.5945" y="224.367891" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_23">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle" x="470.5945" y="238.205781" transform="rotate(-0 470.5945 238.205781)">0.2</text>
+     </g>
+    </g>
+    <g id="xtick_12">
+     <g id="line2d_23">
+      <g>
+       <use xlink:href="#m169e3995a9" x="531.934078" y="224.367891" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_24">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle" x="531.934078" y="238.205781" transform="rotate(-0 531.934078 238.205781)">0.4</text>
+     </g>
+    </g>
+    <g id="xtick_13">
+     <g id="line2d_24">
+      <g>
+       <use xlink:href="#m169e3995a9" x="593.273656" y="224.367891" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_25">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle" x="593.273656" y="238.205781" transform="rotate(-0 593.273656 238.205781)">0.6</text>
+     </g>
+    </g>
+    <g id="xtick_14">
+     <g id="line2d_25">
+      <g>
+       <use xlink:href="#m169e3995a9" x="654.613234" y="224.367891" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_26">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle" x="654.613234" y="238.205781" transform="rotate(-0 654.613234 238.205781)">0.8</text>
+     </g>
+    </g>
+    <g id="xtick_15">
+     <g id="line2d_26">
+      <g>
+       <use xlink:href="#m169e3995a9" x="715.952812" y="224.367891" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_27">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: middle" x="715.952812" y="238.205781" transform="rotate(-0 715.952812 238.205781)">1.0</text>
+     </g>
+    </g>
+    <g id="text_28">
+     <!-- operating activity $a^*$ -->
+     <g transform="translate(515.533867 252.827891)">
+      <text>
+       <tspan x="0" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'">o</tspan>
+       <tspan x="5.506348" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'">p</tspan>
+       <tspan x="11.219238" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'">e</tspan>
+       <tspan x="16.756348" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'">r</tspan>
+       <tspan x="20.456543" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'">a</tspan>
+       <tspan x="25.97168" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'">t</tspan>
+       <tspan x="29.500488" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'">i</tspan>
+       <tspan x="32.000977" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'">n</tspan>
+       <tspan x="37.705078" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'">g</tspan>
+       <tspan x="43.417969" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'"> </tspan>
+       <tspan x="46.278809" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'">a</tspan>
+       <tspan x="51.793945" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'">c</tspan>
+       <tspan x="56.742188" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'">t</tspan>
+       <tspan x="60.270996" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'">i</tspan>
+       <tspan x="62.771484" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'">v</tspan>
+       <tspan x="68.097656" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'">i</tspan>
+       <tspan x="70.598145" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'">t</tspan>
+       <tspan x="74.126953" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'">y</tspan>
+       <tspan x="79.453125" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'"> </tspan>
+       <tspan x="82.313965" y="-0.60175" style="font-style: oblique; font-size: 9px; font-family: 'DejaVu Sans'">a</tspan>
+       <tspan x="89.475947" y="-4.31875" style="font-size: 6.3px; font-family: 'DejaVu Sans'">*</tspan>
+      </text>
+     </g>
+    </g>
+   </g>
+   <g id="matplotlib.axis_4">
+    <g id="ytick_7">
+     <g id="line2d_27">
+      <g>
+       <use xlink:href="#m222834c910" x="409.254922" y="207.34787" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_29">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end" x="402.254922" y="210.766815" transform="rotate(-0 402.254922 210.766815)">2.5</text>
+     </g>
+    </g>
+    <g id="ytick_8">
+     <g id="line2d_28">
+      <g>
+       <use xlink:href="#m222834c910" x="409.254922" y="182.318428" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_30">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end" x="402.254922" y="185.737374" transform="rotate(-0 402.254922 185.737374)">5.0</text>
+     </g>
+    </g>
+    <g id="ytick_9">
+     <g id="line2d_29">
+      <g>
+       <use xlink:href="#m222834c910" x="409.254922" y="157.288986" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_31">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end" x="402.254922" y="160.707932" transform="rotate(-0 402.254922 160.707932)">7.5</text>
+     </g>
+    </g>
+    <g id="ytick_10">
+     <g id="line2d_30">
+      <g>
+       <use xlink:href="#m222834c910" x="409.254922" y="132.259544" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_32">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end" x="402.254922" y="135.67849" transform="rotate(-0 402.254922 135.67849)">10.0</text>
+     </g>
+    </g>
+    <g id="ytick_11">
+     <g id="line2d_31">
+      <g>
+       <use xlink:href="#m222834c910" x="409.254922" y="107.230102" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_33">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end" x="402.254922" y="110.649048" transform="rotate(-0 402.254922 110.649048)">12.5</text>
+     </g>
+    </g>
+    <g id="ytick_12">
+     <g id="line2d_32">
+      <g>
+       <use xlink:href="#m222834c910" x="409.254922" y="82.200661" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_34">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end" x="402.254922" y="85.619606" transform="rotate(-0 402.254922 85.619606)">15.0</text>
+     </g>
+    </g>
+    <g id="ytick_13">
+     <g id="line2d_33">
+      <g>
+       <use xlink:href="#m222834c910" x="409.254922" y="57.171219" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_35">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end" x="402.254922" y="60.590164" transform="rotate(-0 402.254922 60.590164)">17.5</text>
+     </g>
+    </g>
+    <g id="ytick_14">
+     <g id="line2d_34">
+      <g>
+       <use xlink:href="#m222834c910" x="409.254922" y="32.141777" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_36">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end" x="402.254922" y="35.560722" transform="rotate(-0 402.254922 35.560722)">20.0</text>
+     </g>
+    </g>
+    <g id="text_37">
+     <!-- sensitivity $\partial\ln a^*/\partial\ln V_R$ -->
+     <g transform="translate(376.05375 174.728945) rotate(-90)">
+      <text>
+       <tspan x="0" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'">s</tspan>
+       <tspan x="4.688965" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'">e</tspan>
+       <tspan x="10.226074" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'">n</tspan>
+       <tspan x="15.930176" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'">s</tspan>
+       <tspan x="20.619141" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'">i</tspan>
+       <tspan x="23.119629" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'">t</tspan>
+       <tspan x="26.648438" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'">i</tspan>
+       <tspan x="29.148926" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'">v</tspan>
+       <tspan x="34.475098" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'">i</tspan>
+       <tspan x="36.975586" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'">t</tspan>
+       <tspan x="40.504395" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'">y</tspan>
+       <tspan x="45.830566" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'"> </tspan>
+       <tspan x="48.691406" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'">∂</tspan>
+       <tspan x="53.345215" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'">l</tspan>
+       <tspan x="55.845703" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'">n</tspan>
+       <tspan x="74.796484" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'">/</tspan>
+       <tspan x="77.828711" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'">∂</tspan>
+       <tspan x="82.482519" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'">l</tspan>
+       <tspan x="84.983008" y="-0.60175" style="font-size: 9px; font-family: 'DejaVu Sans'">n</tspan>
+       <tspan x="63.011016" y="-0.60175" style="font-style: oblique; font-size: 9px; font-family: 'DejaVu Sans'">a</tspan>
+       <tspan x="92.14832" y="-0.60175" style="font-style: oblique; font-size: 9px; font-family: 'DejaVu Sans'">V</tspan>
+       <tspan x="70.172998" y="-4.31875" style="font-size: 6.3px; font-family: 'DejaVu Sans'">*</tspan>
+       <tspan x="98.305058" y="0.748246" style="font-style: oblique; font-size: 6.3px; font-family: 'DejaVu Sans'">R</tspan>
+      </text>
+     </g>
+    </g>
+   </g>
+   <g id="line2d_35">
+    <path d="M 412.321901 220.36318 
+L 700.617918 32.141777 
+L 700.617918 32.141777 
+" clip-path="url(#pf57f4e3b0c)" style="fill: none; stroke: #4f81bd; stroke-width: 1.8; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_36">
+    <path d="M 412.321901 221.364358 
+L 700.617918 127.253656 
+L 700.617918 127.253656 
+" clip-path="url(#pf57f4e3b0c)" style="fill: none; stroke: #9bbb59; stroke-width: 1.8; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_37">
+    <path d="M 412.321901 222.063612 
+L 700.617918 193.682821 
+L 700.617918 193.682821 
+" clip-path="url(#pf57f4e3b0c)" style="fill: none; stroke: #c0504d; stroke-width: 1.8; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_38">
+    <defs>
+     <path id="ma7cf44f10f" d="M 0 3 
+C 0.795609 3 1.55874 2.683901 2.12132 2.12132 
+C 2.683901 1.55874 3 0.795609 3 0 
+C 3 -0.795609 2.683901 -1.55874 2.12132 -2.12132 
+C 1.55874 -2.683901 0.795609 -3 0 -3 
+C -0.795609 -3 -1.55874 -2.683901 -2.12132 -2.12132 
+C -2.683901 -1.55874 -3 -0.795609 -3 0 
+C -3 0.795609 -2.683901 1.55874 -2.12132 2.12132 
+C -1.55874 2.683901 -0.795609 3 0 3 
+z
+" style="stroke: #c0504d; stroke-width: 1.5"/>
+    </defs>
+    <g clip-path="url(#pf57f4e3b0c)">
+     <use xlink:href="#ma7cf44f10f" x="511.487552" y="212.300786" style="fill: #ffffff; stroke: #c0504d; stroke-width: 1.5"/>
+    </g>
+   </g>
+   <g id="patch_6">
+    <path d="M 409.254922 224.367891 
+L 409.254922 22.13 
+" style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 409.254922 224.367891 
+L 715.952812 224.367891 
+" style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 577.669146 156.123838 
+Q 545.340786 183.565132 513.012427 211.006426 
+" style="fill: none; stroke: #666666; stroke-width: 0.8; stroke-linecap: round"/>
+   </g>
+   <g id="text_38">
+    <!-- lecture: $a^*=1/3$, CheR cut $10\times$ -->
+    <g transform="translate(531.934078 141.279278)">
+     <text>
+      <tspan x="0" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">l</tspan>
+      <tspan x="2.08374" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">e</tspan>
+      <tspan x="6.697998" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">c</tspan>
+      <tspan x="10.821533" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">t</tspan>
+      <tspan x="13.762207" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">u</tspan>
+      <tspan x="18.515625" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">r</tspan>
+      <tspan x="21.599121" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">e</tspan>
+      <tspan x="26.213379" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">:</tspan>
+      <tspan x="28.740234" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'"> </tspan>
+      <tspan x="42.406309" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">=</tspan>
+      <tspan x="50.15167" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">1</tspan>
+      <tspan x="54.923398" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">/</tspan>
+      <tspan x="57.450254" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">3</tspan>
+      <tspan x="62.221982" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">,</tspan>
+      <tspan x="64.606016" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'"> </tspan>
+      <tspan x="66.990049" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">C</tspan>
+      <tspan x="72.226865" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">h</tspan>
+      <tspan x="76.980283" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">e</tspan>
+      <tspan x="81.594541" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">R</tspan>
+      <tspan x="86.805723" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'"> </tspan>
+      <tspan x="89.189756" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">c</tspan>
+      <tspan x="93.313291" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">u</tspan>
+      <tspan x="98.066709" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">t</tspan>
+      <tspan x="101.007383" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'"> </tspan>
+      <tspan x="103.391416" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">1</tspan>
+      <tspan x="108.163145" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">0</tspan>
+      <tspan x="114.396055" y="-0.00875" style="font-size: 7.5px; font-family: 'DejaVu Sans'">×</tspan>
+      <tspan x="31.124268" y="-0.00875" style="font-style: oblique; font-size: 7.5px; font-family: 'DejaVu Sans'">a</tspan>
+      <tspan x="37.092222" y="-3.10625" style="font-size: 5.25px; font-family: 'DejaVu Sans'">*</tspan>
+     </text>
+    </g>
+    <!-- $\Rightarrow K_B\approx0.33$, $S\approx2.0$ -->
+    <g transform="translate(531.934078 150.280743)">
+     <text>
+      <tspan x="1.461182" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">⇒</tspan>
+      <tspan x="19.3927" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">≈</tspan>
+      <tspan x="27.138062" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">0</tspan>
+      <tspan x="31.90979" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">.</tspan>
+      <tspan x="34.293823" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">3</tspan>
+      <tspan x="39.065552" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">3</tspan>
+      <tspan x="43.83728" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">,</tspan>
+      <tspan x="46.221313" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'"> </tspan>
+      <tspan x="54.827271" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">≈</tspan>
+      <tspan x="62.572632" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">2</tspan>
+      <tspan x="67.34436" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">.</tspan>
+      <tspan x="69.728394" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">0</tspan>
+      <tspan x="9.206543" y="-0.4375" style="font-style: oblique; font-size: 7.5px; font-family: 'DejaVu Sans'">K</tspan>
+      <tspan x="48.605347" y="-0.4375" style="font-style: oblique; font-size: 7.5px; font-family: 'DejaVu Sans'">S</tspan>
+      <tspan x="14.124756" y="0.687496" style="font-style: oblique; font-size: 5.25px; font-family: 'DejaVu Sans'">B</tspan>
+     </text>
+    </g>
+   </g>
+   <g id="text_39">
+    <!-- (b) $S=1+a^*/K_B$: a higher set point is more fragile -->
+    <g transform="translate(409.254922 16.13)">
+     <text>
+      <tspan x="0" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'">(</tspan>
+      <tspan x="3.706299" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'">b</tspan>
+      <tspan x="9.736572" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'">)</tspan>
+      <tspan x="13.442871" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'"> </tspan>
+      <tspan x="24.34375" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'">=</tspan>
+      <tspan x="34.154541" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'">1</tspan>
+      <tspan x="42.049561" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'">+</tspan>
+      <tspan x="64.30069" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'">/</tspan>
+      <tspan x="78.553009" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'">:</tspan>
+      <tspan x="81.753693" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'"> </tspan>
+      <tspan x="84.773468" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'">a</tspan>
+      <tspan x="90.595002" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'"> </tspan>
+      <tspan x="93.614777" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'">h</tspan>
+      <tspan x="99.635773" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'">i</tspan>
+      <tspan x="102.275177" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'">g</tspan>
+      <tspan x="108.305451" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'">h</tspan>
+      <tspan x="114.326447" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'">e</tspan>
+      <tspan x="120.171174" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'">r</tspan>
+      <tspan x="124.076935" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'"> </tspan>
+      <tspan x="127.096711" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'">s</tspan>
+      <tspan x="132.046174" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'">e</tspan>
+      <tspan x="137.8909" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'">t</tspan>
+      <tspan x="141.615754" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'"> </tspan>
+      <tspan x="144.635529" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'">p</tspan>
+      <tspan x="150.665802" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'">o</tspan>
+      <tspan x="156.478058" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'">i</tspan>
+      <tspan x="159.117463" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'">n</tspan>
+      <tspan x="165.138459" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'">t</tspan>
+      <tspan x="168.863312" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'"> </tspan>
+      <tspan x="171.883088" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'">i</tspan>
+      <tspan x="174.522492" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'">s</tspan>
+      <tspan x="179.471955" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'"> </tspan>
+      <tspan x="182.49173" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'">m</tspan>
+      <tspan x="191.745881" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'">o</tspan>
+      <tspan x="197.558136" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'">r</tspan>
+      <tspan x="201.463898" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'">e</tspan>
+      <tspan x="207.308625" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'"> </tspan>
+      <tspan x="210.3284" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'">f</tspan>
+      <tspan x="213.672882" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'">r</tspan>
+      <tspan x="217.578644" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'">a</tspan>
+      <tspan x="223.400177" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'">g</tspan>
+      <tspan x="229.430451" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'">i</tspan>
+      <tspan x="232.069855" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'">l</tspan>
+      <tspan x="234.709259" y="-0.143688" style="font-size: 9.5px; font-family: 'DejaVu Sans'">e</tspan>
+      <tspan x="16.462646" y="-0.143688" style="font-style: oblique; font-size: 9.5px; font-family: 'DejaVu Sans'">S</tspan>
+      <tspan x="51.860352" y="-0.143688" style="font-style: oblique; font-size: 9.5px; font-family: 'DejaVu Sans'">a</tspan>
+      <tspan x="67.501374" y="-0.143688" style="font-style: oblique; font-size: 9.5px; font-family: 'DejaVu Sans'">K</tspan>
+      <tspan x="59.420343" y="-4.067188" style="font-size: 6.65px; font-family: 'DejaVu Sans'">*</tspan>
+      <tspan x="73.73111" y="1.281308" style="font-style: oblique; font-size: 6.65px; font-family: 'DejaVu Sans'">B</tspan>
+     </text>
+    </g>
+   </g>
+   <g id="legend_2">
+    <g id="line2d_39">
+     <path d="M 416.004922 31.953828 
+L 423.504922 31.953828 
+L 431.004922 31.953828 
+" style="fill: none; stroke: #4f81bd; stroke-width: 1.8; stroke-linecap: square"/>
+    </g>
+    <g id="text_40">
+     <!-- $K_B=0.05$ -->
+     <g transform="translate(437.004922 34.578828)">
+      <text>
+       <tspan x="0" y="-0.4375" style="font-style: oblique; font-size: 7.5px; font-family: 'DejaVu Sans'">K</tspan>
+       <tspan x="4.918213" y="0.687496" style="font-style: oblique; font-size: 5.25px; font-family: 'DejaVu Sans'">B</tspan>
+       <tspan x="10.186157" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">=</tspan>
+       <tspan x="17.931519" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">0</tspan>
+       <tspan x="22.703247" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">.</tspan>
+       <tspan x="25.08728" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">0</tspan>
+       <tspan x="29.859009" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">5</tspan>
+      </text>
+     </g>
+    </g>
+    <g id="line2d_40">
+     <path d="M 416.004922 43.204414 
+L 423.504922 43.204414 
+L 431.004922 43.204414 
+" style="fill: none; stroke: #9bbb59; stroke-width: 1.8; stroke-linecap: square"/>
+    </g>
+    <g id="text_41">
+     <!-- $K_B=0.1$ -->
+     <g transform="translate(437.004922 45.829414)">
+      <text>
+       <tspan x="0" y="-0.4375" style="font-style: oblique; font-size: 7.5px; font-family: 'DejaVu Sans'">K</tspan>
+       <tspan x="4.918213" y="0.687496" style="font-style: oblique; font-size: 5.25px; font-family: 'DejaVu Sans'">B</tspan>
+       <tspan x="10.186157" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">=</tspan>
+       <tspan x="17.931519" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">0</tspan>
+       <tspan x="22.703247" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">.</tspan>
+       <tspan x="25.08728" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">1</tspan>
+      </text>
+     </g>
+    </g>
+    <g id="line2d_41">
+     <path d="M 416.004922 54.455 
+L 423.504922 54.455 
+L 431.004922 54.455 
+" style="fill: none; stroke: #c0504d; stroke-width: 1.8; stroke-linecap: square"/>
+    </g>
+    <g id="text_42">
+     <!-- $K_B=0.332$ -->
+     <g transform="translate(437.004922 57.08)">
+      <text>
+       <tspan x="0" y="-0.4375" style="font-style: oblique; font-size: 7.5px; font-family: 'DejaVu Sans'">K</tspan>
+       <tspan x="4.918213" y="0.687496" style="font-style: oblique; font-size: 5.25px; font-family: 'DejaVu Sans'">B</tspan>
+       <tspan x="10.186157" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">=</tspan>
+       <tspan x="17.931519" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">0</tspan>
+       <tspan x="22.703247" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">.</tspan>
+       <tspan x="25.08728" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">3</tspan>
+       <tspan x="29.859009" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">3</tspan>
+       <tspan x="34.630737" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">2</tspan>
+      </text>
+     </g>
+    </g>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pceca83bfb8">
+   <rect x="41.514922" y="22.13" width="306.697891" height="202.237891"/>
+  </clipPath>
+  <clipPath id="pf57f4e3b0c">
+   <rect x="409.254922" y="22.13" width="306.697891" height="202.237891"/>
+  </clipPath>
+ </defs>
+</svg>
+
+<figcaption>Figure 2. The set point moves with the controller parameters. (a) Two cells with different CheR rates (<i>V</i><sub>R</sub> = 0.50 and 0.75, <i>V</i><sub>B</sub> = 1, <i>K</i><sub>B</sub> = 0.1) receive the same attractant step at <i>t</i> = 5. Both activities return to their own <i>a</i><sup>*</sup>, 0.10 and 0.30. (b) The local sensitivity <i>S</i> = 1 + <i>a</i><sup>*</sup>/<i>K</i><sub>B</sub> for three values of <i>K</i><sub>B</sub>. The open circle is the lecture’s operating point, recovered from its two quoted activities (<i>a</i><sup>*</sup> = 1/3 and <i>a</i><sup>*</sup> = 0.0175 after a tenfold CheR cut; <i>K</i><sub>B</sub> ≈ 0.332, <i>S</i> ≈ 2.0). Model simulation and exact differentiation; code below.</figcaption>
+</figure>
+
+<p>The code below generated Figure 2 and the recovered parameters. The model is the lecture’s reduced methylation module; the activity function <i>a</i>(<i>m</i>,<i>L</i>) is an illustrative fast-equilibrium curve, not a fit. The analytic sensitivities do not depend on the choice of that curve.</p>
+
+<details open>
+<summary>Python code that generated Figure 2</summary>
+<pre class="code"><code>import numpy as np
+import matplotlib
+matplotlib.use(&quot;Agg&quot;)
+import matplotlib.pyplot as plt
+from scipy.integrate import solve_ivp
+from scipy.optimize import brentq
+
+plt.rcParams.update({
+    &quot;font.family&quot;: &quot;DejaVu Sans&quot;,
+    &quot;font.size&quot;: 9,
+    &quot;axes.spines.top&quot;: False,
+    &quot;axes.spines.right&quot;: False,
+    &quot;svg.fonttype&quot;: &quot;none&quot;,
+})
+
+# ---- reduced methylation model (Lecture 10, eq. E2) ----
+M0, W, BETA, KI = 2.0, 0.15, 0.5, 1.0
+def activity(m, L):
+    m_half = M0 + BETA*np.log1p(np.asarray(L)/KI)
+    return 1.0/(1.0 + np.exp(-(np.asarray(m) - m_half)/W))
+
+def simulate(VR, VB=1.0, KB=0.1, t_step=5.0, t_end=20.0):
+    a_star = KB*VR/(VB - VR)
+    m0 = M0 + W*np.log(a_star/(1.0-a_star))
+    def rhs(t, y):
+        L = 0.0 if t &lt; t_step else 5.0
+        a = activity(y[0], L)
+        return [VR - VB*a/(KB + a)]
+    t = np.linspace(0.0, t_end, 3000)
+    sol = solve_ivp(rhs, (0.0, t_end), [m0], t_eval=t, rtol=1e-10, atol=1e-12)
+    L = np.where(t &lt; t_step, 0.0, 5.0)
+    return t, activity(sol.y[0], L), a_star
+
+# ---- recover the lecture&#x27;s parameters from its two quoted activities ----
+# a*(VR)=1/3, a*(VR/10)=0.0175, with VB=1
+ratio = 10.0
+a1, a2 = 1.0/3.0, 0.0175
+r = brentq(lambda r: (1.0/ratio)*(1.0-r)/(1.0-r/ratio) - a2/a1, 1e-9, 1-1e-9)
+KB_lecture = a1*(1.0-r)/r
+S_lecture = 1.0 + a1/KB_lecture
+print(f&quot;lecture fit: VR/VB={r:.6f}, KB={KB_lecture:.6f}, S={S_lecture:.4f}&quot;)
+margin = lambda a, KB: KB*(1.0-a)/(a*(1.0+KB))
+print(f&quot;upward CheR margin at a*=1/3: {margin(a1, KB_lecture):.3%}; at a*=0.5, KB=0.1: {margin(0.5, 0.1):.1%}&quot;)
+
+# ---- figure ----
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10.2, 3.7))
+
+for VR, color, label in [(0.50, &quot;#1f4e79&quot;, r&quot;$V_R=0.50$&quot;),
+                         (0.75, &quot;#c0504d&quot;, r&quot;$V_R=0.75$&quot;)]:
+    t, a, a_star = simulate(VR)
+    ax1.plot(t, a, color=color, lw=1.8, label=label + rf&quot;, $a^*={a_star:.2f}$&quot;)
+    ax1.hlines(a_star, 5.0, 20.0, color=color, lw=0.8, ls=(0, (4, 3)), alpha=0.75)
+
+ax1.axvline(5.0, color=&quot;#777777&quot;, lw=0.9, ls=&quot;:&quot;)
+ax1.text(5.25, 0.92, &quot;attractant step\n$L: 0 \\rightarrow 5K_I$&quot;, fontsize=8, va=&quot;top&quot;)
+ax1.set_xlabel(&quot;time (units of $1/V_B$)&quot;)
+ax1.set_ylabel(&quot;receptor activity $a$&quot;)
+ax1.set_xlim(0, 20)
+ax1.set_ylim(-0.02, 1.02)
+ax1.legend(frameon=False, fontsize=7.5, loc=&quot;center right&quot;)
+ax1.set_title(&quot;(a) each cell adapts to its own set point&quot;, fontsize=9.5, loc=&quot;left&quot;)
+
+a_grid = np.linspace(0.01, 0.95, 400)
+for KB, color, ls in [(0.05, &quot;#4f81bd&quot;, &quot;-&quot;),
+                      (0.10, &quot;#9bbb59&quot;, &quot;-&quot;),
+                      (0.3316, &quot;#c0504d&quot;, &quot;-&quot;)]:
+    ax2.plot(a_grid, 1.0 + a_grid/KB, color=color, lw=1.8, ls=ls,
+             label=rf&quot;$K_B={KB:.3g}$&quot;)
+
+ax2.plot([a1], [S_lecture], &quot;o&quot;, ms=6, mfc=&quot;white&quot;, mec=&quot;#c0504d&quot;, mew=1.5)
+ax2.annotate(r&quot;lecture: $a^*=1/3$, CheR cut $10\times$&quot; + &quot;\n&quot; + rf&quot;$\Rightarrow K_B\approx{KB_lecture:.2f}$, $S\approx{S_lecture:.1f}$&quot;,
+             xy=(a1, S_lecture), xytext=(0.40, 8.2), fontsize=7.5,
+             arrowprops=dict(arrowstyle=&quot;-&quot;, color=&quot;#666666&quot;, lw=0.8))
+ax2.set_xlabel(&quot;operating activity $a^*$&quot;)
+ax2.set_ylabel(r&quot;sensitivity $\partial\ln a^*/\partial\ln V_R$&quot;)
+ax2.set_xlim(0, 1)
+ax2.set_ylim(0.8, 21)
+ax2.legend(frameon=False, fontsize=7.5, loc=&quot;upper left&quot;)
+ax2.set_title(r&quot;(b) $S=1+a^*/K_B$: a higher set point is more fragile&quot;, fontsize=9.5, loc=&quot;left&quot;)
+
+fig.tight_layout(pad=1.0)
+fig.savefig(&quot;fig_sensitivity.svg&quot;, bbox_inches=&quot;tight&quot;, facecolor=&quot;white&quot;)
+fig.savefig(&quot;fig_sensitivity.png&quot;, dpi=220, bbox_inches=&quot;tight&quot;, facecolor=&quot;white&quot;)
+print(&quot;wrote fig_sensitivity.svg&quot;)
+</code></pre>
+</details>
+
+<h2>What I would argue against / where this breaks</h2>
+
+<p>The strongest objection is that the set point may not be the property the cell selects. Alon and colleagues varied chemotaxis protein levels and found that steady-state behavior and adaptation time changed strongly while precision stayed robust. That is exactly the pattern I describe, but it also shows that the cell tolerates a moving set point. Chemotaxis may care about the precision of the return and the motor’s operating range, not about a fixed absolute activity. The calculation is a structural statement, not evidence of selection.</p>
+
+<p>The local sensitivity is not the whole story. Near the feasibility boundary the finite change can be larger than the local slope suggests, and the asymmetry matters. A bounded methylation range makes the failure concrete: once the required methylation exceeds the available sites, the activity cannot return. Set-point sensitivity and adaptation range are coupled. Co-expression also buffers only the shared component of the noise. Translational coupling reduces the variance of the ratio, but it does not remove independent noise in ribosomes, proteases, or the shared mRNA. And the methylation set point depends on <i>K</i><sub>B</sub> as well as on <i>V</i><sub>R</sub> and <i>V</i><sub>B</sub>, and it is limited by the receptor total through the available methylation sites; co-expressing CheR and CheB does not buffer those. The antithetic reference μ could be stabilized by a second feedback loop, but that adds a layer and moves the same problem to the new reference. The claim is about the module, not about the whole cell.</p>
+
+<h2>Sources</h2>
+<ul class="src">
+<li>B. A. Francis and W. M. Wonham, “The internal model principle of control theory,” <i>Automatica</i> 12, 457–465 (1976). <a href="https://doi.org/10.1016/0005-1098(76)90006-6">doi:10.1016/0005-1098(76)90006-6</a>. Carries the theorem: robust rejection of a constant disturbance requires an integrating mode, which is why the reference gain is one.</li>
+<li>C. Briat, A. Gupta and M. Khammash, “Antithetic integral feedback ensures robust perfect adaptation in noisy biomolecular networks,” <i>Cell Systems</i> 2, 15–26 (2016). <a href="https://doi.org/10.1016/j.cels.2016.01.002">doi:10.1016/j.cels.2016.01.002</a>. Carries the antithetic pair and the identity d(<i>q</i><sub>Z1</sub> − <i>q</i><sub>Z2</sub>)/d<i>t</i> = μ − θ<i>X</i>.</li>
+<li>S. K. Aoki, G. Lillacci, A. Gupta, A. Baumschlager, D. Schweingruber and M. Khammash, “A universal biomolecular integral feedback controller for robust perfect adaptation,” <i>Nature</i> 570, 533–537 (2019). <a href="https://doi.org/10.1038/s41586-019-1321-1">doi:10.1038/s41586-019-1321-1</a>. Carries the SigW/RsiW implementation and the protease test.</li>
+<li>N. Barkai and S. Leibler, “Robustness in simple biochemical networks,” <i>Nature</i> 387, 913–917 (1997). <a href="https://doi.org/10.1038/43219">doi:10.1038/43219</a>. Carries the reduced methylation module and its activity-only rate law.</li>
+<li>T.-M. Yi, Y. Huang, M. I. Simon and J. Doyle, “Robust perfect adaptation in bacterial chemotaxis through integral feedback control,” <i>PNAS</i> 97, 4649–4653 (2000). <a href="https://doi.org/10.1073/pnas.97.9.4649">doi:10.1073/pnas.97.9.4649</a>. States the assumptions under which the methylation coordinate is an integral.</li>
+<li>U. Alon, M. G. Surette, N. Barkai and S. Leibler, “Robustness in bacterial chemotaxis,” <i>Nature</i> 397, 168–171 (1999). <a href="https://doi.org/10.1038/17203">doi:10.1038/17203</a>. Measures the pattern this essay explains: precision robust, steady-state behavior and adaptation time sensitive to protein levels.</li>
+<li>M. Li and G. L. Hazelbauer, “Cellular stoichiometry of the components of the chemotaxis signaling complex,” <i>Journal of Bacteriology</i> 186, 3687–3694 (2004). <a href="https://doi.org/10.1128/JB.186.11.3687-3694.2004">doi:10.1128/JB.186.11.3687-3694.2004</a>. Measures the CheR and CheB abundances and their ratios in the cell.</li>
+<li>L. Løvdok, K. Bentele, N. Vladimirov, A. Müller, F. S. Pop, D. Lebiedz, M. Kollmann and V. Sourjik, “Role of translational coupling in robustness of bacterial chemotaxis pathway,” <i>PLoS Biology</i> 7, e1000171 (2009). <a href="https://doi.org/10.1371/journal.pbio.1000171">doi:10.1371/journal.pbio.1000171</a>. Places <i>cheR</i> and <i>cheB</i> in the same <i>meche</i> operon and argues that coupling opposing enzymes buffers the pathway against gene-expression noise.</li>
+<li>K. J. Åström and R. M. Murray, <i>Feedback Systems: An Introduction for Scientists and Engineers</i>, 2nd ed., electronic version v3.1.5 (2020). <a href="https://fbswiki.org/">fbswiki.org</a>. Carries the sensitivity function and the trade-off between disturbance rejection and reference tracking.</li>
+<li>CCBS 2026, Lecture 10, “The adaptation biomachine,” §5 and Figure 8. <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture10-core.html">lecture page</a>. Carries the reduced model, the quoted activities, and the sentence that changing CheR moves the return value.</li>
+</ul>
+
+</div>
+</body>
+</html>
