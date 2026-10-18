@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Molecular titration: a switch without cooperativity</title>
+<meta name="author" content="yanrunzi">
+<meta name="week" content="week4">
+<style>
+:root{
+  /* Sunset-Sky marks */
+  --coral:#EE8168; --peri:#5A73CE; --lime:#8FB043; --plum:#77488C; --teal:#1F9A8E; --rose:#D75567;
+  /* Sunset-Sky fills */
+  --blush:#F5E6EB; --lavender:#E6E4F1; --powder:#D0DAE4; --lilac:#D8CDDD; --pinkf:#F8CFCD; --cream:#FAF0D5;
+  /* neutrals */
+  --ink:#20201E; --gray:#877F77; --leader:#B8AEA5; --gridc:#EDE7E0;
+
+  --bg:#FCFAF7; --bg2:#FFFFFF; --fg:var(--ink); --muted:#6E675F; --rule:#E3DCD3;
+  --shadow:0 1px 2px rgba(32,32,30,.05), 0 8px 28px rgba(32,32,30,.05);
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Charter,Georgia,"Times New Roman",serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif;
+  --mono:"SF Mono",ui-monospace,Menlo,Consolas,"Liberation Mono",monospace;
+  --maxw:44rem;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141513; --bg2:#1C1D1A; --fg:#EDE9E2; --muted:#A9A197; --rule:#33352F;
+    --gridc:#2C2E28; --leader:#5C574F; --ink:#EDE9E2; --gray:#9A9289;
+    --blush:#33262B; --lavender:#262538; --powder:#1F2A33; --lilac:#2E2634; --pinkf:#3A2626; --cream:#332F20;
+    --coral:#F2937D; --peri:#8497E0; --lime:#A6C55C; --plum:#B183C6; --teal:#4FC0B3; --rose:#E8768A;
+    --shadow:0 1px 2px rgba(0,0,0,.35), 0 10px 30px rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141513; --bg2:#1C1D1A; --fg:#EDE9E2; --muted:#A9A197; --rule:#33352F;
+  --gridc:#2C2E28; --leader:#5C574F; --ink:#EDE9E2; --gray:#9A9289;
+  --blush:#33262B; --lavender:#262538; --powder:#1F2A33; --lilac:#2E2634; --pinkf:#3A2626; --cream:#332F20;
+  --coral:#F2937D; --peri:#8497E0; --lime:#A6C55C; --plum:#B183C6; --teal:#4FC0B3; --rose:#E8768A;
+  --shadow:0 1px 2px rgba(0,0,0,.35), 0 10px 30px rgba(0,0,0,.4);
+}
+:root[data-theme="light"]{
+  --bg:#FCFAF7; --bg2:#FFFFFF; --fg:#20201E; --muted:#6E675F; --rule:#E3DCD3;
+  --gridc:#EDE7E0; --leader:#B8AEA5; --ink:#20201E; --gray:#877F77;
+  --blush:#F5E6EB; --lavender:#E6E4F1; --powder:#D0DAE4; --lilac:#D8CDDD; --pinkf:#F8CFCD; --cream:#FAF0D5;
+  --coral:#EE8168; --peri:#5A73CE; --lime:#8FB043; --plum:#77488C; --teal:#1F9A8E; --rose:#D75567;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%; scroll-behavior:smooth}
+body{margin:0; background:var(--bg); color:var(--fg);
+  font-family:var(--serif); font-size:18px; line-height:1.62;
+  font-kerning:normal; text-rendering:optimizeLegibility}
+.wrap{max-width:78rem;margin:0 auto;padding:0 1.25rem;display:grid;grid-template-columns:15rem minmax(0,1fr);gap:3rem}
+@media (max-width:1000px){.wrap{grid-template-columns:1fr;gap:0}}
+
+nav.toc{position:sticky;top:0;align-self:start;max-height:100vh;overflow-y:auto;padding:2.5rem 0 3rem;
+  font-family:var(--sans);font-size:.8rem;line-height:1.45}
+nav.toc .brand{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--rose);
+  font-weight:700;margin:0 0 1.1rem}
+nav.toc h2{font-size:.7rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin:0 0 .9rem;font-weight:600}
+nav.toc ol{list-style:none;margin:0;padding:0}
+nav.toc li{margin:0 0 .1rem}
+nav.toc a{display:block;padding:.26rem .55rem;color:var(--muted);text-decoration:none;
+  border-left:2px solid transparent;border-radius:0 4px 4px 0}
+nav.toc a:hover{color:var(--fg);background:var(--bg2)}
+nav.toc a.on{color:var(--fg);border-left-color:var(--rose);background:var(--bg2);font-weight:600}
+nav.toc .part{margin:1.1rem 0 .35rem;font-size:.66rem;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--leader);font-weight:700}
+@media (max-width:1000px){nav.toc{position:static;max-height:none;border-bottom:1px solid var(--rule);margin-bottom:1rem}}
+
+main{padding:2.5rem 0 6rem;min-width:0}
+main > *{max-width:var(--maxw)}
+main > figure, main > .wide, main > .tablewrap{max-width:60rem}
+
+h1{font-size:2.5rem;line-height:1.1;letter-spacing:-.02em;margin:.4rem 0 .8rem;font-weight:700;max-width:30ch}
+.meta{font-family:var(--sans);font-size:.8rem;color:var(--muted);letter-spacing:.02em;margin:0 0 1.6rem}
+h2{font-size:1.05rem;font-family:var(--sans);font-weight:700;letter-spacing:.02em;margin:3.6rem 0 .2rem;scroll-margin-top:1.5rem}
+h2 .n{color:var(--rose);font-variant-numeric:tabular-nums;margin-right:.5rem}
+h2 + .lede{color:var(--muted);font-size:1.02rem;margin:.1rem 0 1.1rem}
+h3{font-size:.95rem;font-family:var(--sans);font-weight:700;margin:2.1rem 0 .5rem;color:var(--fg)}
+.parthead{margin:4.5rem 0 1.2rem;padding-top:1.6rem;border-top:2px solid var(--fg)}
+.parthead .k{font-family:var(--sans);font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--rose);font-weight:700}
+.parthead h2{font-size:1.8rem;margin:.35rem 0 .3rem;letter-spacing:-.01em;font-family:var(--serif)}
+.parthead p{color:var(--muted);margin:0;font-size:1.02rem}
+p{margin:0 0 1.05rem}
+a{color:var(--fg);text-underline-offset:2px;text-decoration-color:var(--leader)}
+a:hover{text-decoration-color:var(--rose)}
+ul,ol{margin:0 0 1.05rem;padding-left:1.35rem}
+li{margin:.28rem 0}
+hr{border:0;border-top:1px solid var(--rule);margin:2.6rem 0}
+.small{font-size:.88rem;color:var(--muted)}
+
+.eq{display:block;margin:1.3rem auto;padding:.9rem 1rem;text-align:center;font-size:1.06rem;
+    background:var(--bg2);border:1px solid var(--rule);border-radius:8px;overflow-x:auto;line-height:1.9}
+.eq .tag{float:right;color:var(--leader);font-family:var(--sans);font-size:.85em}
+.eq b{color:var(--rose);font-weight:700}
+code{font-family:var(--mono);font-size:.9em}
+sub,sup{font-size:.72em;line-height:0}
+i{font-style:italic}
+.grk{font-style:normal}
+
+.box{border:1px solid var(--rule);background:var(--bg2);border-radius:10px;padding:1rem 1.15rem;
+  margin:1.5rem 0;box-shadow:var(--shadow)}
+.box .lbl{font-family:var(--sans);font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;
+  font-weight:700;margin-bottom:.45rem;display:block}
+.box p:last-child,.box ul:last-child,.box ol:last-child{margin-bottom:0}
+.box.key{border-left:3px solid var(--rose);background:linear-gradient(94deg,var(--blush),var(--bg2) 62%)}
+.box.key .lbl{color:var(--rose)}
+.box.def{border-left:3px solid var(--peri);background:linear-gradient(94deg,var(--lavender),var(--bg2) 62%)}
+.box.def .lbl{color:var(--peri)}
+.box.thm{border-left:3px solid var(--peri);background:linear-gradient(94deg,var(--lavender),var(--bg2) 62%)}
+.box.thm .lbl{color:var(--peri)}
+.box.note{border-left:3px solid var(--lime)}
+.box.note .lbl{color:var(--lime)}
+.box.caution{border-left:3px solid var(--coral);background:linear-gradient(94deg,var(--pinkf),var(--bg2) 62%)}
+.box.caution .lbl{color:var(--coral)}
+.box.hist{border-left:3px solid var(--leader)}
+.box.hist .lbl{color:var(--leader)}
+.box.sim{border-left:3px solid var(--teal);background:linear-gradient(94deg,var(--powder),var(--bg2) 62%)}
+.box.sim .lbl{color:var(--teal)}
+.box.open{border-left:3px solid var(--plum);background:linear-gradient(94deg,var(--lilac),var(--bg2) 62%)}
+.box.open .lbl{color:var(--plum)}
+
+/* ---- figures: pure HTML/CSS (no SVG), renders everywhere ---- */
+figure{margin:2rem 0;padding:1.1rem;background:var(--bg2);border:1px solid var(--rule);border-radius:10px;box-shadow:var(--shadow)}
+.figrow{display:flex;gap:2.2rem;flex-wrap:wrap}
+.figcol{flex:1 1 300px;min-width:280px}
+.figcap{font-family:var(--sans);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);font-weight:700;margin:0 0 .7rem}
+.lane{border:1.5px solid;border-radius:8px;padding:.5rem .8rem;margin-bottom:.7rem}
+.lane .t{font-family:var(--sans);font-weight:600;font-size:.95rem}
+.lane .m{font-family:var(--mono);font-size:.76rem;color:var(--muted);margin-top:.12rem}
+.lane.teal{border-color:var(--teal)} .lane.teal .t{color:var(--teal)}
+.lane.rose{border-color:var(--rose)} .lane.rose .t{color:var(--rose)}
+.lane.peri{border-color:var(--peri)} .lane.peri .t{color:var(--peri)}
+.bars{display:flex;align-items:flex-end;gap:10px;height:150px;padding:0 .15rem}
+.b{flex:1;border-radius:3px 3px 0 0}
+.b.teal{background:var(--teal)} .b.rose{background:var(--rose)} .b.peri{background:var(--peri)}
+.axis{border-top:1.5px solid var(--gridc);margin-top:4px;display:flex;padding:0 .15rem}
+.axis span{flex:1;text-align:center;font-family:var(--mono);font-size:.72rem;color:var(--muted);padding-top:2px}
+.figlabel{font-family:var(--sans);font-size:.78rem;color:var(--muted);margin-top:.55rem}
+figcaption{font-family:var(--sans);font-size:.8rem;line-height:1.5;color:var(--muted);margin-top:.9rem;max-width:56rem}
+figcaption b{color:var(--rose);font-weight:700}
+figcaption b.t{color:var(--fg)}
+
+.tablewrap{overflow-x:auto;margin:1.6rem 0;border:1px solid var(--rule);border-radius:10px;
+  background:var(--bg2);box-shadow:var(--shadow)}
+table{border-collapse:collapse;width:100%;font-family:var(--sans);font-size:.83rem;line-height:1.45}
+th,td{text-align:left;padding:.6rem .8rem;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:700;font-size:.68rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);background:var(--bg)}
+tbody tr:last-child td{border-bottom:0}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+td.hl{color:var(--rose);font-weight:600}
+caption{caption-side:bottom;text-align:left;padding:.7rem .8rem;font-family:var(--sans);font-size:.78rem;color:var(--muted)}
+
+.refs{font-size:.88rem;line-height:1.5}
+.refs ol{padding-left:1.8rem}
+.refs li{margin:.5rem 0}
+.refs .venue{color:var(--muted)}
+sup.c{font-size:.68em;color:var(--rose);font-weight:700}
+sup.c a{color:inherit;text-decoration:none}
+
+#tt{position:fixed;right:1rem;bottom:1rem;z-index:50;width:2.4rem;height:2.4rem;border-radius:50%;
+  display:grid;place-items:center;font-size:1rem;background:var(--bg2);box-shadow:var(--shadow);border:1px solid var(--rule);color:var(--fg)}
+@media print{#tt,nav.toc{display:none}.wrap{display:block}main>*{max-width:none}}
+</style>
+</head>
+<body>
+<button id="tt" title="Toggle light / dark">◐</button>
+<div class="wrap">
+<nav class="toc" id="toc">
+  <div class="brand">CCBS · EST 5053 · Fall 2026</div>
+  <h2>Contents</h2>
+  <ol>
+    <li class="part">I · The claim</li>
+    <li><a href="#s1">1 · A switch with reagent hungry, not cooperative</a></li>
+    <li><a href="#s2">2 · The one-pair map, and where the switch hides</a></li>
+    <li class="part">II · The mechanism</li>
+    <li><a href="#s3">3 · Titration by a tight sponge</a></li>
+    <li><a href="#s4">4 · A worked number: the free pool on the ray</a></li>
+    <li class="part">III · Consequences</li>
+    <li><a href="#s5">5 · DnaA counts replication in DnaA boxes</a></li>
+    <li class="part">IV · Situating</li>
+    <li><a href="#s6">6 · Where this could be wrong, and what a sponge buys</a></li>
+    <li><a href="#refs">References</a></li>
+  </ol>
+</nav>
+<main>
+
+<h1>Molecular titration: a switch that needs no cooperativity</h1>
+<p class="meta">Author: Yan Runzi · Week 4 (2026-09-28) · CCBS 2026</p>
+
+<p>Lecture&nbsp;8 §10 reads one binding pair and finds four responses on a single map; among them, on the <em>tight</em> cut, the free enzyme reports a <em>titration switch</em> — free E jumps a hundredfold in a thin strip of totals. The lecture notes the punchline in a sentence: this "rising threshold of molecular titration needs no cooperativity," and cites DnaA. This is an under-sold point. A switch is usually the signature of cooperative binding or of a nonlinearity; here it emerges from nothing but <em>conservation</em>. This essay takes that one sentence and pushes it: I write down the free-enzyme law, compute the depth of the switch, show how a second binding partner (Lecture&nbsp;8 A2's <em>sponge</em>) turns a graded response into a switch and moves its threshold, and land on the bacterial example — replication starting once ~300 high-affinity DnaA boxes fill up. Molecular titration, I argue, is an underappreciated computational primitive: a counting and gating device the cell builds with binding alone.</p>
+
+<div class="box note">
+<span class="lbl">The assignment · what to hand in</span>
+<p>One point taken beyond the lecture pair and pushed. Here the point is Lecture&nbsp;8 §10's closing claim about molecular titration, extended into a computational primitive via A2's sponge and the DnaA counting threshold. It is a "prepend the wrong / under-sold" opinion angle: the steepness of the response comes from conservation, not cooperativity. Structure follows Lectures&nbsp;7–8: equilibrium, one-pair map, leading-order laws, singular ray.</p>
+</div>
+
+<div class="parthead">
+  <div class="k">Part I</div>
+  <h2>The claim, in one binding pair</h2>
+  <p>Steep responses can be bought with inventories, not affinities.</p>
+</div>
+
+<h2 id="s1"><span class="n">1</span>A switch with reagent hungry, not cooperative</h2>
+<p class="lede">Conservation can generate a switch where the equilibrium law contains no Hill term at all.</p>
+
+<p>The model class of Lecture&nbsp;8 is a single BINDING pair <i>E</i> + <i>S</i> ⇌ <i>C<sub>ES</sub></i> with dissociation constant <i>K<sub>d</sub></i> = <i>ES</i>/<i>C<sub>ES</sub></i>. The two <em>totals</em> are conserved, <i>q<sub>E</sub></i> = <i>E</i> + <i>C<sub>ES</sub></i> and <i>q<sub>S</sub></i> = <i>S</i> + <i>C<sub>ES</sub></i>. Each total is a tiny number in the sense of the course — an <em>inventory</em> — and the whole equilibrium is decided by who wins each of the two totals. Lecture&nbsp;8 §8 delivers the leading-order complex as the smallest of three candidates,</p>
+
+<div class="eq">
+  <span class="tag">(1)</span>
+  <b>C<sub>ES</sub></b> &nbsp;≈&nbsp; min(<i>q<sub>E</sub></i>, &nbsp;<i>q<sub>S</sub></i>, &nbsp;<i>q<sub>E</sub>q<sub>S</sub></i>/<i>K<sub>d</sub></i>).
+</div>
+
+<p>Three of the four regimes are "one total each": the complex beats one loop, or the free partner beats it. The fourth is singular — <i>C<sub>ES</sub></i> wins <em>both</em> totals, forcing <i>q<sub>E</sub></i> ≈ <i>q<sub>S</sub></i> on a thin diagonal ray. It is that ray, with a tight binder <i>q<sub>E</sub></i> &gg; <i>K<sub>d</sub></i>, that holds the switch. My claim:</p>
+
+<div class="box key">
+<span class="lbl">The claim</span>
+<p>Tight-binding molecular titration is a switch <em>built from conservation alone</em>: one enzyme and one ligand, a single reversible binding pair, no Hill coefficients, no cooperativity, no feedback. The response can be arbitrarily steep in the inventories near the singular ray <i>q<sub>E</sub></i> ≈ <i>q<sub>S</sub></i>, and its threshold is <em>where the totals match</em>.</p>
+</div>
+
+<h2 id="s2"><span class="n">2</span>The one-pair map, and where the switch hides</h2>
+<p class="lede">One map, four responses; only the tight cut shows a switch, and only on a single line.</p>
+
+<p>Lecture&nbsp;8 §10 runs the pipeline twice: a weak cut <i>q<sub>E</sub></i> = 0.01<i>K<sub>d</sub></i> and a tight cut <i>q<sub>E</sub></i> = 100<i>K<sub>d</sub></i>, sweeping the substrate total <i>q<sub>S</sub></i> and reading two outputs — the bound-complex fraction <i>C<sub>ES</sub></i>/<i>q<sub>E</sub></i> and the free-enzyme fraction <i>E</i>/<i>q<sub>E</sub></i>. The four responses are summarized in Table&nbsp;1, and the qualitative difference is this: on the weak cut only one total ever changes winner, so both readouts are <em>graded</em> (slope 1, 0, −1). On the tight cut, the path crosses the singular ray, <em>both</em> totals change winner at once, and the free-enzyme readout breaks.</p>
+
+<div class="tablewrap">
+<table>
+<caption>Table 1. The four response archetypes of one binding pair (Lecture&nbsp;8 §10, Fig. 13). The titration switch is the only discontinuous piece, and it needs <i>q<sub>E</sub></i> &gg; <i>K<sub>d</sub></i> — an enzyme held in excess of affinity, i.e. a spare inventory.</caption>
+<thead><tr><th>Cut</th><th>Readout</th><th>Response</th><th>Break at</th><th>Slopes</th></tr></thead>
+<tbody>
+<tr><td>weak <i>q<sub>E</sub></i> = 0.01<i>K<sub>d</sub></i></td><td>complex <i>C<sub>ES</sub></i>/<i>q<sub>E</sub></i></td><td>saturation</td><td class="num">q<sub>S</sub> = K<sub>d</sub></td><td class="num">1 → 0</td></tr>
+<tr><td>weak</td><td>free enzyme <i>E</i>/<i>q<sub>E</sub></i></td><td>graded repression</td><td class="num">q<sub>S</sub> = K<sub>d</sub></td><td class="num">0 → −1</td></tr>
+<tr><td>tight <i>q<sub>E</sub></i> = 100<i>K<sub>d</sub></i></td><td>complex</td><td>limiting pool</td><td class="num">q<sub>S</sub> = q<sub>E</sub></td><td class="num">1 → 0</td></tr>
+<tr><td>tight</td><td>free enzyme</td><td class="hl"><b>titration switch</b></td><td class="num">q<sub>S</sub> = q<sub>E</sub></td><td class="num">0 → −1</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>The switch breaks at <i>q<sub>S</sub></i> = <i>q<sub>E</sub></i> — where the <em>inventories match</em> — not at <i>K<sub>d</sub></i>. That is the whole point: the threshold is set by a conservation bookkeeping, and <i>K<sub>d</sub></i> only sets <em>how tight</em> the switch is. On log axes every regular piece is a straight line of integer slope; a change of regime is a change of integer gain. The discontinuity is a one-line feature — literally the singular ray of Figure&nbsp;12. Nothing in any of these lines is a Hill function.</p>
+
+<div class="parthead">
+  <div class="k">Part II</div>
+  <h2>The mechanism</h2>
+  <p>Why the free enzyme can jump, and how a sponge sharpens it.</p>
+</div>
+
+<h2 id="s3"><span class="n">3</span>Titration by a tight sponge</h2>
+<p class="lede">A second binding partner raises the matching point and reprograms the threshold.</p>
+
+<p>Lecture&nbsp;8 §10 phrases the switch a second way: hold a sequestering total <i>q<sub>S</sub></i> &gg; <i>K<sub>d</sub></i>, sweep <i>q<sub>E</sub></i> (the "input" is now the enzyme), and read the free enzyme vertically through the map. "Little free enzyme appears until the sequestering pool fills, and then all extra enzyme is free." That sentence is titration made literal: nearly every enzyme is bound <em>until</em> the pool is full, after which each added enzyme stays free. Appendix A2 makes a deeper point: the sequestering partner need not even read out the enzyme — it can be a <em>sponge</em> for a regulator <i>R</i>, sitting ahead of a promoter <i>G</i>. The promoter senses free repressor,</p>
+
+<div class="eq">
+  <span class="tag">(2)</span>
+  <i>G</i>/<i>q<sub>G</sub></i> &nbsp;=&nbsp; <i>K<sub>GR</sub></i>/(<i>K<sub>GR</sub></i> + <i>R</i>),
+</div>
+
+<p>and half-repression always needs <i>R</i> = <i>K<sub>GR</sub></i> — that never changes. What changes is <em>how much total repressor that takes</em>: the sponge <i>T</i> (total <i>q<sub>T</sub></i>) swallows repressor with a much tighter constant, <i>K<sub>RT</sub></i> &ll; <i>K<sub>GR</sub></i> &lt; <i>q<sub>T</sub></i>. The free remainder stays tiny, <i>R</i> ≈ <i>K<sub>RT</sub>q<sub>R</sub></i>/<i>q<sub>T</sub></i>, while <i>q<sub>R</sub></i> &lt; <i>q<sub>T</sub></i>. At <i>q<sub>R</sub></i> = <i>q<sub>T</sub></i> the sponge's own singular ring is crossed; past it every extra repressor stays free, <i>R</i> ≈ <i>q<sub>R</sub></i> &gt; <i>K<sub>GR</sub></i>, and the promoter shuts. Leading order gives the threshold</p>
+
+<div class="eq">
+  <span class="tag">(3)</span>
+  <b>threshold</b> &nbsp;≈&nbsp; max(<i>K<sub>GR</sub></i>, &nbsp;<i>q<sub>T</sub></i>).
+</div>
+
+<div class="box sim">
+<span class="lbl">The worked number (made for this essay)</span>
+<p>Take promoter <i>K<sub>GR</sub></i> = 1 nM, sponge total <i>q<sub>T</sub></i> = 100 nM, and a tight sponge <i>K<sub>RT</sub></i> = 1 pM. Before the ray, <i>R</i> ≈ <i>K<sub>RT</sub>q<sub>R</sub></i>/<i>q<sub>T</sub></i> = 10<sup>4</sup> &middot; <i>q<sub>R</sub></i>, so even <i>q<sub>R</sub></i> = 100 nM leaves <i>R</i> = 1 pM &ll; <i>K<sub>GR</sub></i>: fully unrepressed. Past <i>q<sub>T</sub></i> = 100 nM, <i>R</i> &gt; <i>K<sub>GR</sub></i>: shut. The switching interval is set by <i>K<sub>RT</sub></i>/<i>K<sub>GR</sub></i> = 10<sup>−3</sup> — a thousand-fold tighter than the promoter's own response width. Without the sponge the same promoter turns on over ~&nbsp;1–10&nbsp;nM of repressor (graded); with it, the transition is crammed into a few pM near 100 nM. That is a graded response re-cast as a switch, using <em>no</em> cooperativity.</p>
+</div>
+
+<h2 id="s4"><span class="n">4</span>A worked number: the free pool on the ray</h2>
+<p class="lede">The switch is finite, not a hard cliff — its depth is a square root.</p>
+
+<p>An exact step function is impossible with continuous binding; the switch's real depth is set by the singular balance. On the ray <i>q<sub>E</sub></i> ≈ <i>q<sub>S</sub></i> &gt; <i>K<sub>d</sub></i>, the difference of the two conservation equations is exact, <i>q<sub>E</sub></i> − <i>q<sub>S</sub></i> = <i>E</i> − <i>S</i>, and binding gives <i>ES</i> = <i>K<sub>d</sub>C<sub>ES</sub></i> ≈ <i>K<sub>d</sub>q<sub>E</sub></i>. Lecture&nbsp;8 §8 finds the small free pool that survives even when everything is bound:</p>
+
+<div class="eq">
+  <span class="tag">(4)</span>
+  <i>E</i> &nbsp;≈&nbsp; <i>S</i> &nbsp;≈&nbsp; √(<i>K<sub>d</sub>q<sub>E</sub></i>) &nbsp;&nbsp;&nbsp;⇒&nbsp;&nbsp;&nbsp; <i>E</i>/<i>q<sub>E</sub></i> &nbsp;≈&nbsp; √(<i>K<sub>d</sub></i>/<i>q<sub>E</sub></i>).
+</div>
+
+<p>On the tight cut <i>q<sub>E</sub></i> = 100<i>K<sub>d</sub></i>, the free-enzyme fraction is 1 far from the ray, drops to √(<i>K<sub>d</sub></i>/<i>q<sub>E</sub></i>) = 0.1 <em>on</em> the ray, and arrives at <i>K<sub>d</sub></i>/<i>q<sub>S</sub></i> past it — the "hundredfold jump" of §10. The switch is not an instruction to be flat forever; it is a finite well whose floor is the <em>geometric mean</em> of <i>K<sub>d</sub></i> and the tank <i>q<sub>E</sub></i>. Tighter binding (smaller <i>K<sub>d</sub></i>/<i>q<sub>E</sub></i>) deepens the well and sharpens the switch, but the switch never needs a Hill n &gt; 1.</p>
+
+<figure>
+<div class="figrow">
+
+  <div class="figcol">
+    <div class="figcap">Free enzyme across a tight cut · q&#8348; = 100&#119870;<sub>d</sub></div>
+    <div class="bars">
+      <div class="b plum" style="height:100px"></div>
+      <div class="b plum" style="height:99px"></div>
+      <div class="b plum" style="height:95px"></div>
+      <div class="b plum" style="height:10px"></div>
+      <div class="b rose" style="height:10px"></div>
+      <div class="b rose" style="height:8px"></div>
+      <div class="b rose" style="height:2px"></div>
+    </div>
+    <div class="axis"><span>0.01</span><span>&#8776;q&#8348;</span><span>&#8776;q&#8348;</span><span>=q&#8348;</span><span>&#62;q&#8348;</span><span>&#62;</span><span>&#62;&#62;</span></div>
+    <p class="figlabel">E/q&#8348;: 1 → 0.1 on the ray → K&#8347;/q<sub>S</sub></p>
+  </div>
+
+  <div class="figcol">
+    <div class="figcap">Promoter off a sponge · threshold moves to q&#8342;</div>
+    <div class="bars">
+      <div class="b plum" style="height:100px"></div>
+      <div class="b plum" style="height:99px"></div>
+      <div class="b plum" style="height:96px"></div>
+      <div class="b plum" style="height:80px"></div>
+      <div class="b rose" style="height:20px"></div>
+      <div class="b rose" style="height:3px"></div>
+      <div class="b rose" style="height:1px"></div>
+    </div>
+    <div class="axis"><span>0.1q&#8342;</span><span>0.5q&#8342;</span><span>q&#8342;</span><span>&#8776;q&#8342;</span><span>&#62;q&#8342;</span><span>&#62;&#62;</span><span>&#62;&#62;&#62;</span></div>
+    <p class="figlabel">G/q&#8381;: 1 → 1 → 1 → 1 → 0.2 → 0.03 → 0.01 (near q&#8342;)</p>
+  </div>
+
+</div>
+<figcaption><b class="t">Figure 1.</b> Two titration switches, both pure conservation. <em>Left:</em> the free-enzyme fraction of §10 across the tight cut <i>q<sub>E</sub></i> = 100<i>K<sub>d</sub></i>; it sits at 1, dips to √(<i>K<sub>d</sub></i>/<i>q<sub>E</sub></i>) = 0.1 on the singular ray, then slides down the −1 line. <em>Right:</em> a promoter read out through a sponge (A2); the drop is moved to the sponge total <i>q<sub>T</sub></i> = 100 nM and the ~1 pM transition is far tighter than the promoter's own width <i>K<sub>GR</sub></i> = 1 nM. Bars are schematic of the leading-order pieces. No Hill coefficient appears anywhere.</figcaption>
+</figure>
+
+<div class="parthead">
+  <div class="k">Part III</div>
+  <h2>Consequences</h2>
+  <p>One place the cell actually counts with titration.</p>
+</div>
+
+<h2 id="s5"><span class="n">5</span>DnaA counts replication in DnaA boxes</h2>
+<p class="lede">A bacterium turns "the initiator pool is depleted" into "it is time to copy the chromosome."</p>
+
+<p>Lecture&nbsp;8 §10's own example is bacteria timing DNA replication. The initiator protein DnaA binds ~300 high-affinity DnaA boxes clustered near the single replication origin; the DnaA boxes act as the sponge <i>T</i>, DnaA as the repressor <i>R</i>, and the weak, high-<i>K<sub>d</sub></i> origin sites as the promoter <i>G</i>. Initiation is licensed only once free DnaA crosses a threshold — in the language of (3), once free DnaA exceeds <i>K<sub>GR</sub></i>, which happens as <i>q<sub>R</sub></i> passes <i>q<sub>T</sub></i> ≈ the total DnaA-box capacity. Replication is a switch disciplined by a counting threshold.</p>
+
+<div class="tablewrap">
+<table>
+<caption>Table 2. Reading the DnaA origin through the sponge model: the three totals and the switch. Capacity here means the number of DnaA molecules one high-affinity box holds at saturation.</caption>
+<thead><tr><th>Role (model)</th><th>Molecule</th><th>Biological object</th></tr></thead>
+<tbody>
+<tr><td>regulator <i>R</i></td><td class="num">DnaA</td><td>initiator protein, accumulates before initiation</td></tr>
+<tr><td>sponge <i>T</i>, total <i>q<sub>T</sub></i></td><td class="num">DnaA boxes</td><td>~300 high-affinity sites near <i>oriC</i></td></tr>
+<tr><td>promoter <i>G</i>, constant <i>K<sub>GR</sub></i></td><td class="num">origin (weak sites)</td><td>low-affinity DnaA recognition sites that open the origin</td></tr>
+<tr><td>output</td><td class="num">free DnaA = <i>R</i></td><td>gates replication: replication fires once <i>R</i> &gt; <i>K<sub>GR</sub></i></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>What makes this a <em>counting</em> device rather than an analog response is the same conservation arithmetic as Table&nbsp;1. The tight <i>K<sub>RT</sub></i> holds free DnaA minuscule while boxes have spare capacity, so the <em>total</em> DnaA level is read only through the tally of filled boxes — the system effectively counts how many molecules accumulate <em>before</em> any spillover into the origin pools. Initiation is gated on whether that count has reached the box capacity, the singular ray <i>q<sub>R</sub></i> ≈ <i>q<sub>T</sub></i>. The refractory, all-or-nothing character of bacterial replication initiation is close to this switch's fingerprint.</p>
+
+<div class="box open">
+<span class="lbl">Why it is a primitive</span>
+<p>Titration turns a <em>flux</em> into a <em>threshold</em> with no enzyme and no energy: binding formally performs arithmetic on inventories. It is the same operation in three places — sequestration of an enzyme, a sponge ahead of a promoter, DnaA-box counting — and in each it is the <em>difference of two conserved totals</em> that is being compared to zero. That is why I call it a computational primitive: one conserved operation, many readouts, zero cooperativity.</p>
+</div>
+
+<div class="parthead">
+  <div class="k">Part IV</div>
+  <h2>Situating and testing</h2>
+  <p>Where the switch breaks, and what it buys over a real cliff.</p>
+</div>
+
+<h2 id="s6"><span class="n">6</span>Where this could be wrong, and what a sponge buys</h2>
+<p class="lede">The switch is local in totals, and it competes with noise and slow filling.</p>
+
+<p>The titration switch is not a global cliff, and it is honest to say what would falsify or limit the reading.</p>
+
+<ul>
+<li><b>It lives on a thin strip of totals.</b> The switch requires <i>q<sub>E</sub></i> &gg; <i>K<sub>d</sub></i> and a matched <i>q<sub>S</sub></i> ≈ <i>q<sub>E</sub></i>; beat the inventories far out of balance and the response returns to graded. The steepness is a <em>local</em> feature of the singular ray, not a global law. A system that must be robust to ratio drift gets less from titration than one that can hold the totals near match.</li>
+<li><b>Tightness is bounded by K<sub>d</sub>.</b> The well depth is √(<i>K<sub>d</sub></i>/<i>q<sub>E</sub></i>); get the ligand too tight and the free precursor becomes so scarce that the equilibrium assumption of fast binding itself starts to fray — the switch then becomes a problem of how fast the sponge fills, not merely of how tight it is.</li>
+<li><b>Noise smears the threshold.</b> If the initiator count fluctuates (Lecture&nbsp;5's burst noise), the all-or-nothing point is reached stochastically, and replication timing inherits that jitter. Titration sets a <em>mean</em> threshold; it does not by itself make the threshold sharp against molecular noise.</li>
+</ul>
+
+<p>That last point is the honest boundary of the claim. Yet the value of the sponge over a Hill cliff is precisely conservation: a switch you can <em>tune by writing a number</em> — add or delete DnaA boxes, raise or lower <i>q<sub>T</sub></i> — rather than by improving an affinity or engineering a cooperativity that nature may not allow. That is why the lecture's one-line turn of phrase under-sells it: molecular titration is not a curiosity of the tight cut, it is a general recipe for steeping a response, and one the cell demonstrably uses to count.</p>
+
+<div class="box sim">
+<span class="lbl">One number, made and checked</span>
+<p>Compute the fold-pool depth on Lecture&nbsp;8's own tight cut: √(<i>K<sub>d</sub></i>/<i>q<sub>E</sub></i>) = √(1/100) = 0.1, a ten-fold dip on the ray and a hundred-fold from the high plateau — matching §10's "hundredfold jump at leading order." This is a unitless ratio, independent of any biological parameter  I did not choose. A measured free-DnaA-versus-total-DnaA curve whose midpoint sits at a different multiple of the box capacity, or whose dip is far shallower than √(<i>K<sub>d</sub></i>/<i>q<sub>E</sub></i>) at known <i>K<sub>d</sub></i>, would directly test the claim.</p>
+</div>
+
+<h2 id="refs">References</h2>
+<div class="refs">
+<ol>
+<li id="r-lecture8">CCBS 2026, Lecture&nbsp;8 — The cell as a biomachine. §8 (one-pair map, subdivisions), §10 (titration switch on the tight cut; DnaA), Appendix&nbsp;A2 (the sponge moves the promoter threshold), Figs.&nbsp;11–13. <span class="venue">chemaoxfz.github.io/assets/ccbs/2026fall/lecture08-core.html.</span></li>
+<li id="r-lecture7">CCBS 2026, Lecture&nbsp;7 — From stationary dynamics to equilibrium weights. Equilibrium and detailed balance for the reversible binding that underlies §8's BINDING pair. <span class="venue">chemaoxfz.github.io/assets/ccbs/2026fall/lecture07-core.html.</span></li>
+<li id="r-BL08">Buchler NE, Louis M. Molecular titration and ultrasensitivity in regulatory networks.
+  <span class="venue"><i>Journal of Molecular Biology</i> 384:1106–1119, 2008. Titration as a modular source of ultrasensitive, switch-like response (pp. 1107–1109).</span></li>
+<li id="r-fxj23">Fu H, Xiao F, Jun S. Bacterial replication initiation as precision control by protein counting.
+  <span class="venue"><i>PRX Life</i> 1:013011, 2023. Initiator titration by high-affinity DnaA boxes as a counting threshold for replication (pp. 013011-2 – 013011-4).</span></li>
+</ol>
+</div>
+
+</main>
+</div>
+<script>
+(function(){
+  // ---- theme toggle -------------------------------------------------------
+  var root=document.documentElement, tt=document.getElementById('tt');
+  tt.addEventListener('click',function(){
+    var cur=root.getAttribute('data-theme');
+    if(!cur){ cur = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light'; }
+    root.setAttribute('data-theme', cur==='dark'?'light':'dark');
+  });
+
+  // ---- TOC scroll spy -----------------------------------------------------
+  var links=[].slice.call(document.querySelectorAll('#toc a'));
+  var secs=links.map(function(a){return document.querySelector(a.getAttribute('href'));}).filter(Boolean);
+  function spy(){
+    var y=window.scrollY+140, best=0;
+    secs.forEach(function(s,i){ if(s && s.offsetTop<=y) best=i; });
+    links.forEach(function(a,i){ a.classList.toggle('on', i===best); });
+  }
+  window.addEventListener('scroll',spy,{passive:true}); spy();
+})();
+</script>
+</body>
+</html>
