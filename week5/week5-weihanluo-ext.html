@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WEEK 5 — Extension: Integral feedback makes adaptation exact</title>
+<meta name="author" content="Weihan Luo">
+<meta name="week" content="week5">
+<style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px;
+    border-bottom:1px solid var(--line); padding-bottom:5px; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:14px 18px; margin:14px 0; }
+  .fig { width:100%; border:1px solid var(--line); border-radius:6px; margin:14px 0; }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; }
+  .math { font-family:Georgia,"Times New Roman",serif; }
+  code { font-family:ui-monospace,SFMono-Regular,Consolas,monospace; }
+  pre { overflow-x:auto; background:var(--soft); border:1px solid var(--line);
+    border-radius:6px; padding:12px 14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>WEEK 5 — Extension: Integral feedback makes adaptation exact</h1>
+<p class="meta">Author: Weihan Luo · Week 5 (2026-10-19) · CCBS 2026</p>
+
+<p class="card"><strong>One sentence:</strong> In this simple adaptation model, integral feedback removes the steady error by storing a persistent correction, while the plant’s relaxation makes that memory stable.</p>
+
+<h2>The point I am adding</h2>
+<p>Lecture 10 begins with a deliberately small model. The output error is <span class="math"><em>x</em></span>, the control action is <span class="math"><em>u</em></span>, and an external disturbance <span class="math"><em>d</em></span> stays on. The plant is</p>
+
+<p class="card"><span class="math">ẋ = −<em>x</em> + <em>u</em> + <em>d</em></span></p>
+
+<p>The term <span class="math">−<em>x</em></span> is intrinsic relaxation: left alone, the output returns toward its baseline. With no controller, a constant disturbance leaves a steady error. Proportional feedback improves this but does not solve the problem. If <span class="math"><em>u</em> = −<em>k</em><sub>P</sub><em>x</em></span>, then the equilibrium is</p>
+
+<p class="card"><span class="math"><em>x</em><sup>*</sup> = <em>d</em>/(1 + <em>k</em><sub>P</sub>)</span></p>
+
+<p>Increasing the gain makes the error smaller, but it cannot make the error exactly zero for a nonzero disturbance. The extension in the presentation is to let the controller remember the error rather than react only to the current value. Introduce a memory variable <span class="math"><em>z</em></span>:</p>
+
+<p class="card"><span class="math">ż = <em>x</em>, &nbsp;&nbsp; <em>u</em> = −<em>k</em><sub>I</sub><em>z</em></span></p>
+
+<p>If the error is positive, the memory keeps increasing; if it is negative, the memory decreases. Once <span class="math"><em>x</em> = 0</span>, the memory stops changing, but it does not need to return to zero. At equilibrium, <span class="math">ż = 0</span> forces <span class="math"><em>x</em><sup>*</sup> = 0</span>. Balancing the plant then gives <span class="math"><em>z</em><sup>*</sup> = <em>d</em>/<em>k</em><sub>I</sub></span>. The disturbance has not disappeared: it is stored as a compensating control value in the memory.</p>
+
+<p>That equilibrium calculation is only half a proof. To show that the system actually approaches it, substitute the integral controller into the plant and differentiate. For a constant disturbance,</p>
+
+<p class="card"><span class="math">ẍ + ẋ + <em>k</em><sub>I</sub><em>x</em> = 0</span></p>
+
+<p>The characteristic roots are</p>
+
+<p class="card"><span class="math"><em>r</em><sub>±</sub> = (−1 ± √(1 − 4<em>k</em><sub>I</sub>))/2</span></p>
+
+<p>For every positive <span class="math"><em>k</em><sub>I</sub></span>, both roots have negative real part. Therefore every exponential mode decays. This is where Lecture 9’s discussion of oscillations becomes useful: when <span class="math"><em>k</em><sub>I</sub> &gt; 1/4</span>, the roots are complex and the response can overshoot, but the real part remains negative, so the oscillation is damped rather than persistent. If the plant’s relaxation term <span class="math">−<em>x</em></span> were removed, the equation would become <span class="math">ẍ + <em>k</em><sub>I</sub><em>x</em> = 0</span>; its roots would be purely imaginary and the controller would oscillate forever. Perfect adaptation therefore needs two ingredients: memory to remove the steady error and relaxation to make convergence possible.</p>
+
+<h2>Work it</h2>
+<p>Take a unit step disturbance <span class="math"><em>d</em> = 1</span>, the proportional gain <span class="math"><em>k</em><sub>P</sub> = 1</span>, and the integral gain <span class="math"><em>k</em><sub>I</sub> = 2</span>. Both systems start at <span class="math"><em>x</em>(0) = <em>z</em>(0) = 0</span>. The proportional controller settles at <span class="math"><em>x</em> = 1/2</span>. The integral controller overshoots because its roots are <span class="math">−1/2 ± i√7/2</span>, but its oscillations decay and its output error returns to zero. For comparison, the same integral controller without intrinsic relaxation has purely imaginary roots and never settles.</p>
+
+<figure>
+  <svg class="fig" viewBox="0 0 640 490" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="plot-title plot-description">
+    <title id="plot-title">Memory removes steady error; relaxation damps oscillations</title>
+    <desc id="plot-description">Exact unit-step responses from time zero to eight, with proportional gain one and integral gain two. The upper plot compares proportional and integral feedback. The lower plot compares integral feedback with and without intrinsic relaxation.</desc>
+    <text x="64" y="24" fill="var(--accent)" font-size="14" font-weight="600">Same plant, two controllers</text>
+    <line x1="64" y1="48" x2="92" y2="48" stroke="#14897d" stroke-width="3"/>
+    <text x="100" y="52" fill="var(--ink)" font-size="12">Integral feedback</text>
+    <line x1="324" y1="48" x2="352" y2="48" stroke="#c9536b" stroke-width="3"/>
+    <text x="360" y="52" fill="var(--ink)" font-size="12">Proportional feedback</text>
+    <line x1="64" y1="204.22" x2="600" y2="204.22" stroke="var(--line)"/>
+    <text x="54" y="208.22" text-anchor="end" font-size="11" fill="var(--muted)">-0.1</text>
+    <line x1="64" y1="188.67" x2="600" y2="188.67" stroke="var(--line)" stroke-dasharray="4 4"/>
+    <text x="54" y="192.67" text-anchor="end" font-size="11" fill="var(--muted)">0</text>
+    <line x1="64" y1="149.78" x2="600" y2="149.78" stroke="var(--line)"/>
+    <text x="54" y="153.78" text-anchor="end" font-size="11" fill="var(--muted)">0.25</text>
+    <line x1="64" y1="110.89" x2="600" y2="110.89" stroke="var(--line)"/>
+    <text x="54" y="114.89" text-anchor="end" font-size="11" fill="var(--muted)">0.5</text>
+    <line x1="64" y1="72.00" x2="600" y2="72.00" stroke="var(--line)"/>
+    <text x="54" y="76" text-anchor="end" font-size="11" fill="var(--muted)">0.75</text>
+    <path d="M64 72V212H600" fill="none" stroke="var(--muted)"/>
+    <text x="64" y="230" text-anchor="middle" font-size="11" fill="var(--muted)">0</text>
+    <text x="198" y="230" text-anchor="middle" font-size="11" fill="var(--muted)">2</text>
+    <text x="332" y="230" text-anchor="middle" font-size="11" fill="var(--muted)">4</text>
+    <text x="466" y="230" text-anchor="middle" font-size="11" fill="var(--muted)">6</text>
+    <text x="600" y="230" text-anchor="middle" font-size="11" fill="var(--muted)">8</text>
+    <text x="600" y="245" text-anchor="end" font-size="11" fill="var(--muted)">time</text>
+    <path d="M64.00 188.67 L67.35 181.09 L70.70 173.91 L74.05 167.16 L77.40 160.84 L80.75 154.97 L84.10 149.55 L87.45 144.58 L90.80 140.07 L94.15 136.01 L97.50 132.41 L100.85 129.26 L104.20 126.56 L107.55 124.29 L110.90 122.44 L114.25 121.01 L117.60 119.97 L120.95 119.32 L124.30 119.04 L127.65 119.12 L131.00 119.53 L134.35 120.25 L137.70 121.28 L141.05 122.58 L144.40 124.14 L147.75 125.94 L151.10 127.96 L154.45 130.18 L157.80 132.57 L161.15 135.12 L164.50 137.80 L167.85 140.61 L171.20 143.51 L174.55 146.49 L177.90 149.53 L181.25 152.61 L184.60 155.72 L187.95 158.83 L191.30 161.94 L194.65 165.03 L198.00 168.09 L201.35 171.09 L204.70 174.03 L208.05 176.91 L211.40 179.69 L214.75 182.39 L218.10 184.99 L221.45 187.47 L224.80 189.85 L228.15 192.10 L231.50 194.22 L234.85 196.21 L238.20 198.07 L241.55 199.79 L244.90 201.38 L248.25 202.82 L251.60 204.13 L254.95 205.30 L258.30 206.32 L261.65 207.22 L265.00 207.98 L268.35 208.60 L271.70 209.10 L275.05 209.48 L278.40 209.73 L281.75 209.87 L285.10 209.90 L288.45 209.83 L291.80 209.66 L295.15 209.39 L298.50 209.03 L301.85 208.59 L305.20 208.08 L308.55 207.50 L311.90 206.85 L315.25 206.15 L318.60 205.39 L321.95 204.59 L325.30 203.75 L328.65 202.88 L332.00 201.99 L335.35 201.07 L338.70 200.13 L342.05 199.19 L345.40 198.24 L348.75 197.29 L352.10 196.34 L355.45 195.40 L358.80 194.48 L362.15 193.57 L365.50 192.69 L368.85 191.82 L372.20 190.99 L375.55 190.18 L378.90 189.40 L382.25 188.66 L385.60 187.96 L388.95 187.29 L392.30 186.66 L395.65 186.07 L399.00 185.53 L402.35 185.02 L405.70 184.56 L409.05 184.14 L412.40 183.77 L415.75 183.43 L419.10 183.14 L422.45 182.89 L425.80 182.68 L429.15 182.50 L432.50 182.37 L435.85 182.28 L439.20 182.22 L442.55 182.19 L445.90 182.20 L449.25 182.23 L452.60 182.30 L455.95 182.40 L459.30 182.52 L462.65 182.66 L466.00 182.83 L469.35 183.02 L472.70 183.23 L476.05 183.45 L479.40 183.69 L482.75 183.94 L486.10 184.20 L489.45 184.47 L492.80 184.74 L496.15 185.03 L499.50 185.31 L502.85 185.60 L506.20 185.89 L509.55 186.18 L512.90 186.47 L516.25 186.75 L519.60 187.03 L522.95 187.31 L526.30 187.57 L529.65 187.83 L533.00 188.08 L536.35 188.33 L539.70 188.56 L543.05 188.78 L546.40 188.99 L549.75 189.18 L553.10 189.37 L556.45 189.54 L559.80 189.70 L563.15 189.85 L566.50 189.98 L569.85 190.11 L573.20 190.21 L576.55 190.31 L579.90 190.39 L583.25 190.46 L586.60 190.52 L589.95 190.57 L593.30 190.60 L596.65 190.63 L600.00 190.64" fill="none" stroke="#14897d" stroke-width="2.5"/>
+    <path d="M64.00 188.67 L67.35 181.27 L70.70 174.57 L74.05 168.51 L77.40 163.02 L80.75 158.06 L84.10 153.57 L87.45 149.51 L90.80 145.84 L94.15 142.51 L97.50 139.50 L100.85 136.78 L104.20 134.32 L107.55 132.09 L110.90 130.07 L114.25 128.24 L117.60 126.59 L120.95 125.10 L124.30 123.75 L127.65 122.52 L131.00 121.41 L134.35 120.41 L137.70 119.51 L141.05 118.69 L144.40 117.94 L147.75 117.27 L151.10 116.67 L154.45 116.12 L157.80 115.62 L161.15 115.17 L164.50 114.76 L167.85 114.39 L171.20 114.06 L174.55 113.76 L177.90 113.48 L181.25 113.24 L184.60 113.01 L187.95 112.81 L191.30 112.63 L194.65 112.46 L198.00 112.31 L201.35 112.18 L204.70 112.06 L208.05 111.94 L211.40 111.84 L214.75 111.75 L218.10 111.67 L221.45 111.60 L224.80 111.53 L228.15 111.47 L231.50 111.41 L234.85 111.36 L238.20 111.32 L241.55 111.28 L244.90 111.24 L248.25 111.21 L251.60 111.18 L254.95 111.15 L258.30 111.12 L261.65 111.10 L265.00 111.08 L268.35 111.06 L271.70 111.05 L275.05 111.03 L278.40 111.02 L281.75 111.01 L285.10 110.99 L288.45 110.98 L291.80 110.98 L295.15 110.97 L298.50 110.96 L301.85 110.95 L305.20 110.95 L308.55 110.94 L311.90 110.94 L315.25 110.93 L318.60 110.93 L321.95 110.92 L325.30 110.92 L328.65 110.92 L332.00 110.91 L335.35 110.91 L338.70 110.91 L342.05 110.91 L345.40 110.91 L348.75 110.90 L352.10 110.90 L355.45 110.90 L358.80 110.90 L362.15 110.90 L365.50 110.90 L368.85 110.90 L372.20 110.90 L375.55 110.90 L378.90 110.90 L382.25 110.89 L385.60 110.89 L388.95 110.89 L392.30 110.89 L395.65 110.89 L399.00 110.89 L402.35 110.89 L405.70 110.89 L409.05 110.89 L412.40 110.89 L415.75 110.89 L419.10 110.89 L422.45 110.89 L425.80 110.89 L429.15 110.89 L432.50 110.89 L435.85 110.89 L439.20 110.89 L442.55 110.89 L445.90 110.89 L449.25 110.89 L452.60 110.89 L455.95 110.89 L459.30 110.89 L462.65 110.89 L466.00 110.89 L469.35 110.89 L472.70 110.89 L476.05 110.89 L479.40 110.89 L482.75 110.89 L486.10 110.89 L489.45 110.89 L492.80 110.89 L496.15 110.89 L499.50 110.89 L502.85 110.89 L506.20 110.89 L509.55 110.89 L512.90 110.89 L516.25 110.89 L519.60 110.89 L522.95 110.89 L526.30 110.89 L529.65 110.89 L533.00 110.89 L536.35 110.89 L539.70 110.89 L543.05 110.89 L546.40 110.89 L549.75 110.89 L553.10 110.89 L556.45 110.89 L559.80 110.89 L563.15 110.89 L566.50 110.89 L569.85 110.89 L573.20 110.89 L576.55 110.89 L579.90 110.89 L583.25 110.89 L586.60 110.89 L589.95 110.89 L593.30 110.89 L596.65 110.89 L600.00 110.89" fill="none" stroke="#c9536b" stroke-width="2.5"/>
+    <text x="64" y="274" fill="var(--accent)" font-size="14" font-weight="600">Same memory, with or without relaxation</text>
+    <line x1="64" y1="298" x2="92" y2="298" stroke="#14897d" stroke-width="3"/>
+    <text x="100" y="302" fill="var(--ink)" font-size="12">With relaxation (damped)</text>
+    <line x1="324" y1="298" x2="352" y2="298" stroke="#c9536b" stroke-width="3" stroke-dasharray="7 4"/>
+    <text x="360" y="302" fill="var(--ink)" font-size="12">Without relaxation (undamped)</text>
+    <line x1="64" y1="447.63" x2="600" y2="447.63" stroke="var(--line)"/>
+    <text x="54" y="451.63" text-anchor="end" font-size="11" fill="var(--muted)">-0.7</text>
+    <line x1="64" y1="389.00" x2="600" y2="389.00" stroke="var(--line)" stroke-dasharray="4 4"/>
+    <text x="54" y="393" text-anchor="end" font-size="11" fill="var(--muted)">0</text>
+    <line x1="64" y1="330.38" x2="600" y2="330.38" stroke="var(--line)"/>
+    <text x="54" y="334.38" text-anchor="end" font-size="11" fill="var(--muted)">0.7</text>
+    <path d="M64 322V456H600" fill="none" stroke="var(--muted)"/>
+    <text x="64" y="474" text-anchor="middle" font-size="11" fill="var(--muted)">0</text>
+    <text x="198" y="474" text-anchor="middle" font-size="11" fill="var(--muted)">2</text>
+    <text x="332" y="474" text-anchor="middle" font-size="11" fill="var(--muted)">4</text>
+    <text x="466" y="474" text-anchor="middle" font-size="11" fill="var(--muted)">6</text>
+    <text x="600" y="474" text-anchor="middle" font-size="11" fill="var(--muted)">8</text>
+    <text x="600" y="489" text-anchor="end" font-size="11" fill="var(--muted)">time</text>
+    <path d="M64.00 389.00 L67.35 384.92 L70.70 381.06 L74.05 377.42 L77.40 374.02 L80.75 370.86 L84.10 367.94 L87.45 365.26 L90.80 362.83 L94.15 360.65 L97.50 358.71 L100.85 357.02 L104.20 355.56 L107.55 354.34 L110.90 353.34 L114.25 352.57 L117.60 352.01 L120.95 351.67 L124.30 351.52 L127.65 351.55 L131.00 351.78 L134.35 352.17 L137.70 352.72 L141.05 353.42 L144.40 354.26 L147.75 355.23 L151.10 356.32 L154.45 357.51 L157.80 358.80 L161.15 360.17 L164.50 361.62 L167.85 363.12 L171.20 364.69 L174.55 366.29 L177.90 367.93 L181.25 369.59 L184.60 371.26 L187.95 372.94 L191.30 374.61 L194.65 376.28 L198.00 377.92 L201.35 379.54 L204.70 381.12 L208.05 382.67 L211.40 384.17 L214.75 385.62 L218.10 387.02 L221.45 388.36 L224.80 389.64 L228.15 390.85 L231.50 391.99 L234.85 393.06 L238.20 394.06 L241.55 394.99 L244.90 395.84 L248.25 396.62 L251.60 397.33 L254.95 397.95 L258.30 398.51 L261.65 398.99 L265.00 399.40 L268.35 399.73 L271.70 400.00 L275.05 400.20 L278.40 400.34 L281.75 400.42 L285.10 400.43 L288.45 400.39 L291.80 400.30 L295.15 400.16 L298.50 399.96 L301.85 399.73 L305.20 399.45 L308.55 399.14 L311.90 398.79 L315.25 398.41 L318.60 398.00 L321.95 397.57 L325.30 397.12 L328.65 396.65 L332.00 396.17 L335.35 395.68 L338.70 395.17 L342.05 394.66 L345.40 394.15 L348.75 393.64 L352.10 393.13 L355.45 392.63 L358.80 392.13 L362.15 391.64 L365.50 391.16 L368.85 390.70 L372.20 390.25 L375.55 389.81 L378.90 389.40 L382.25 389.00 L385.60 388.62 L388.95 388.26 L392.30 387.92 L395.65 387.60 L399.00 387.31 L402.35 387.04 L405.70 386.79 L409.05 386.56 L412.40 386.36 L415.75 386.18 L419.10 386.02 L422.45 385.89 L425.80 385.77 L429.15 385.68 L432.50 385.61 L435.85 385.56 L439.20 385.53 L442.55 385.51 L445.90 385.52 L449.25 385.54 L452.60 385.57 L455.95 385.63 L459.30 385.69 L462.65 385.77 L466.00 385.86 L469.35 385.96 L472.70 386.07 L476.05 386.19 L479.40 386.32 L482.75 386.45 L486.10 386.59 L489.45 386.74 L492.80 386.89 L496.15 387.04 L499.50 387.20 L502.85 387.35 L506.20 387.51 L509.55 387.66 L512.90 387.82 L516.25 387.97 L519.60 388.12 L522.95 388.27 L526.30 388.41 L529.65 388.55 L533.00 388.69 L536.35 388.82 L539.70 388.94 L543.05 389.06 L546.40 389.17 L549.75 389.28 L553.10 389.38 L556.45 389.47 L559.80 389.56 L563.15 389.64 L566.50 389.71 L569.85 389.77 L573.20 389.83 L576.55 389.88 L579.90 389.93 L583.25 389.97 L586.60 390.00 L589.95 390.02 L593.30 390.04 L596.65 390.06 L600.00 390.06" fill="none" stroke="#14897d" stroke-width="2.5"/>
+    <path d="M64.00 389.00 L67.35 384.82 L70.70 380.65 L74.05 376.53 L77.40 372.47 L80.75 368.50 L84.10 364.62 L87.45 360.87 L90.80 357.26 L94.15 353.81 L97.50 350.53 L100.85 347.44 L104.20 344.57 L107.55 341.91 L110.90 339.49 L114.25 337.32 L117.60 335.41 L120.95 333.76 L124.30 332.39 L127.65 331.30 L131.00 330.50 L134.35 330.00 L137.70 329.79 L141.05 329.87 L144.40 330.25 L147.75 330.92 L151.10 331.89 L154.45 333.14 L157.80 334.67 L161.15 336.47 L164.50 338.53 L167.85 340.84 L171.20 343.40 L174.55 346.18 L177.90 349.18 L181.25 352.38 L184.60 355.76 L187.95 359.30 L191.30 363.00 L194.65 366.82 L198.00 370.76 L201.35 374.78 L204.70 378.88 L208.05 383.03 L211.40 387.20 L214.75 391.39 L218.10 395.57 L221.45 399.71 L224.80 403.80 L228.15 407.81 L231.50 411.73 L234.85 415.54 L238.20 419.21 L241.55 422.73 L244.90 426.09 L248.25 429.26 L251.60 432.23 L254.95 434.98 L258.30 437.50 L261.65 439.78 L265.00 441.81 L268.35 443.57 L271.70 445.06 L275.05 446.27 L278.40 447.19 L281.75 447.82 L285.10 448.16 L288.45 448.20 L291.80 447.95 L295.15 447.40 L298.50 446.56 L301.85 445.43 L305.20 444.02 L308.55 442.34 L311.90 440.39 L315.25 438.18 L318.60 435.72 L321.95 433.04 L325.30 430.13 L328.65 427.02 L332.00 423.71 L335.35 420.24 L338.70 416.60 L342.05 412.83 L345.40 408.94 L348.75 404.95 L352.10 400.89 L355.45 396.76 L358.80 392.59 L362.15 388.40 L365.50 384.22 L368.85 380.06 L372.20 375.95 L375.55 371.90 L378.90 367.94 L382.25 364.08 L385.60 360.35 L388.95 356.76 L392.30 353.33 L395.65 350.08 L399.00 347.02 L402.35 344.17 L405.70 341.55 L409.05 339.17 L412.40 337.03 L415.75 335.16 L419.10 333.55 L422.45 332.22 L425.80 331.17 L429.15 330.41 L432.50 329.95 L435.85 329.78 L439.20 329.91 L442.55 330.33 L445.90 331.04 L449.25 332.05 L452.60 333.34 L455.95 334.91 L459.30 336.74 L462.65 338.84 L466.00 341.19 L469.35 343.78 L472.70 346.60 L476.05 349.62 L479.40 352.85 L482.75 356.25 L486.10 359.82 L489.45 363.53 L492.80 367.37 L496.15 371.32 L499.50 375.36 L502.85 379.47 L506.20 383.62 L509.55 387.80 L512.90 391.99 L516.25 396.16 L519.60 400.29 L522.95 404.37 L526.30 408.37 L529.65 412.28 L533.00 416.07 L536.35 419.72 L539.70 423.22 L543.05 426.55 L546.40 429.69 L549.75 432.63 L553.10 435.35 L556.45 437.84 L559.80 440.08 L563.15 442.07 L566.50 443.80 L569.85 445.25 L573.20 446.41 L576.55 447.30 L579.90 447.89 L583.25 448.18 L586.60 448.18 L589.95 447.89 L593.30 447.30 L596.65 446.42 L600.00 445.25" fill="none" stroke="#c9536b" stroke-width="2.5" stroke-dasharray="7 4"/>
+  </svg>
+  <figcaption>Figure 1: Exact unit-step responses, calculated at 161 equally spaced times using the formulas in the code below. Proportional feedback leaves an error of 0.5; integral feedback converges to zero. Without intrinsic relaxation, the same integral controller oscillates with constant amplitude 1/√2. Legends sit above the plotted curves.</figcaption>
+</figure>
+
+<details>
+  <summary>Reproduce the figure</summary>
+  <pre><code>import numpy as np
+import matplotlib.pyplot as plt
+
+time = np.linspace(0, 8, 161)
+disturbance = 1.0
+proportional_gain = 1.0
+integral_gain = 2.0
+frequency = np.sqrt(integral_gain - 0.25)
+
+proportional_error = disturbance / (1 + proportional_gain) * (
+    1 - np.exp(-(1 + proportional_gain) * time)
+)
+integral_error = (
+    disturbance * np.exp(-time / 2) * np.sin(frequency * time) / frequency
+)
+undamped_error = (
+    disturbance * np.sin(np.sqrt(integral_gain) * time) / np.sqrt(integral_gain)
+)
+
+figure, axes = plt.subplots(2, 1, sharex=True, figsize=(7, 6))
+axes[0].plot(time, integral_error, color="#14897d", label="integral")
+axes[0].plot(time, proportional_error, color="#c9536b", label="proportional")
+axes[1].plot(time, integral_error, color="#14897d", label="damped")
+axes[1].plot(time, undamped_error, "--", color="#c9536b", label="undamped")
+for axis in axes:
+    axis.axhline(0, color="0.7", lw=0.8)
+    axis.legend(loc="lower left", bbox_to_anchor=(0, 1), ncol=2)
+    axis.set_ylabel("output error x")
+axes[0].set_ylim(-0.15, 0.75)
+axes[1].set_ylim(-0.8, 0.8)
+axes[1].set_xlabel("time")
+figure.tight_layout()
+plt.show()</code></pre>
+</details>
+
+<h2>What I would argue against / where this breaks</h2>
+<p>“Integral feedback always produces perfect adaptation” is too strong. The proof assumes a constant disturbance after the step, a linear first-order plant, no actuator saturation, no delay, and a positive gain. If the disturbance keeps changing, the memory must keep chasing it. If the actuator saturates, the memory can continue accumulating while the plant cannot respond, producing windup. Higher-order plants and delays can also become unstable even when the gain is positive.</p>
+
+<p>The narrower claim is stronger: in this simple model, equilibrium analysis explains <em>why</em> the error must be zero, while the characteristic-root calculation explains <em>when</em> the trajectory reaches that equilibrium. Adaptation is not just a clever controller value; it is a memory whose state stores the persistent correction, stabilized by the plant’s own relaxation.</p>
+
+<h2>Sources</h2>
+<ul class="src">
+  <li><a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture10/core/">CCBS Lecture 10 core: “The adaptation biomachine.”</a> — source for the plant, integral-memory construction, equilibrium calculation and convergence proof developed in the presentation.</li>
+  <li><a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture09/core/">CCBS Lecture 9 core: “Multistability and oscillations.”</a> — provides the stability and damped-versus-undamped oscillation perspective used to interpret the characteristic roots.</li>
+  <li><code>Adaptation_Biomachine_Proof_Roadmap.key</code> — my Lecture 10 presentation, especially the slides “Why integral feedback?”, “Core proof,” “From roots to convergence” and “The last ingredient.”</li>
+</ul>
+
+</div>
+</body>
+</html>
