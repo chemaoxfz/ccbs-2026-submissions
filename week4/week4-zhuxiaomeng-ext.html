@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="zhuxiaomeng">
+<meta name="week" content="week4">
+
+<title>WEEK 4 — Extension: Same affinity, different responses to a short pulse</title>
+
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --muted: #566;
+    --accent: #1f4e79;
+    --line: #d8dee4;
+    --bg: #fff;
+    --soft: #f6f8fa;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #e8e8e8;
+      --muted: #9aa;
+      --accent: #8ab4e8;
+      --line: #3a4652;
+      --bg: #15191d;
+      --soft: #1e242a;
+    }
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.6;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 40px 22px 80px;
+  }
+
+  h1 {
+    font-size: 1.6rem;
+    line-height: 1.25;
+    margin: 0 0 6px;
+    color: var(--accent);
+  }
+
+  .meta {
+    color: var(--muted);
+    font-size: .92rem;
+    margin-bottom: 26px;
+  }
+
+  h2 {
+    font-size: 1.05rem;
+    color: var(--accent);
+    margin: 34px 0 8px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 5px;
+  }
+
+  .card {
+    background: var(--soft);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 14px 0;
+  }
+
+  .equation {
+    text-align: center;
+    overflow-x: auto;
+    line-height: 1.9;
+  }
+
+  a {
+    color: var(--accent);
+  }
+
+  figure {
+    margin: 20px 0;
+  }
+
+  .plots {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    padding: 10px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+  }
+
+  .plots svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    background: #fff;
+  }
+
+  figcaption,
+  .src {
+    font-size: .85rem;
+    color: var(--muted);
+  }
+
+  figcaption {
+    margin-top: 8px;
+  }
+
+  details {
+    margin: 16px 0;
+    border-top: 1px solid var(--line);
+    padding-top: 12px;
+  }
+
+  summary {
+    cursor: pointer;
+    color: var(--accent);
+    font-weight: 600;
+    font-size: .9rem;
+  }
+
+  details p {
+    font-size: .9rem;
+  }
+
+  pre {
+    padding: 16px;
+    overflow: auto;
+    max-height: 550px;
+    background: var(--soft);
+    border: 1px solid var(--line);
+    font: 12px/1.5 monospace;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .85rem;
+  }
+
+  th,
+  td {
+    padding: 7px;
+    text-align: right;
+    border-bottom: 1px solid var(--line);
+  }
+
+  th:first-child,
+  td:first-child {
+    text-align: left;
+  }
+
+  .src li {
+    margin-bottom: 12px;
+  }
+
+  @media (max-width: 600px) {
+    .wrap {
+      padding: 24px 16px 50px;
+    }
+
+    .plots {
+      grid-template-columns: 1fr;
+    }
+
+    .plots svg {
+      max-width: 380px;
+      margin: auto;
+    }
+  }
+
+  @media print {
+    .wrap {
+      max-width: none;
+      padding: 0;
+    }
+
+    details {
+      display: none;
+    }
+
+    .plots {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    body {
+      background: white;
+      color: black;
+    }
+  }
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+<h1>WEEK 4 — Extension: Same affinity, different responses to a short pulse</h1>
+
+<p class="meta">
+  Author: zhuxiaomeng · Week 4 (2026-09-28) · CCBS 2026
+</p>
+
+<p class="card">
+  <strong>One sentence:</strong>
+  Equal equilibrium affinity does not guarantee equal output during a
+  finite stimulus, and cumulative output requires a longer pulse than
+  endpoint occupancy to approach its equilibrium prediction.
+</p>
+
+<h2>The point I am adding</h2>
+
+<p>
+  Lecture 7 distinguishes equilibrium occupancies from kinetic
+  timescales [<a href="#ref1">1</a>], while Lecture 8 calculates output
+  from state activities under a fast-binding approximation
+  [<a href="#ref2">2</a>]. I ask how accurate that approximation is
+  during a finite ligand pulse. The extension is a readout-specific
+  error criterion: reaching near-equilibrium occupancy at the end
+  does not imply that the output accumulated earlier is close to
+  the equilibrium prediction.
+</p>
+
+<h2>Work it</h2>
+
+<p>
+  Consider R + L ⇌ C, with association constant
+  k<sub>on</sub>, dissociation rate k<sub>off</sub>, and fixed
+  receptor total. Initially all receptors are unbound. During
+  0 ≤ t ≤ T, free ligand is held at L<sub>0</sub>.
+  The bound fraction f obeys
+  df/dt = k<sub>on</sub>L<sub>0</sub>(1 − f) − k<sub>off</sub>f.
+  Hence f<sub>eq</sub> = L<sub>0</sub>/(K<sub>d</sub> + L<sub>0</sub>),
+  K<sub>d</sub> = k<sub>off</sub>/k<sub>on</sub>, and
+  τ = 1/(k<sub>on</sub>L<sub>0</sub> + k<sub>off</sub>).
+  Assume an ideal output proportional to bound occupancy, without
+  feedback on binding. Its cumulative value during the pulse is
+  proportional to A(T) = ∫<sub>0</sub><sup>T</sup>f(t)dt.
+  Direct integration gives:
+</p>
+
+<div class="card equation">
+  f(t) = f<sub>eq</sub>(1 − e<sup>−t/τ</sup>)
+  <br>
+  A(T) = f<sub>eq</sub>[T − τ(1 − e<sup>−T/τ</sup>)]
+  <br>
+  <strong>
+    A(T)/A<sub>eq</sub>(T) = 1 − (1 − e<sup>−x</sup>)/x
+  </strong>
+  <br>
+  x = T/τ, &nbsp; A<sub>eq</sub>(T) = f<sub>eq</sub>T.
+</div>
+
+<figure>
+  <div class="plots">
+    <svg id="plot-a" viewBox="0 0 320 300"
+         role="img" aria-label="Identical equilibrium binding curves"></svg>
+
+    <svg id="plot-b" viewBox="0 0 320 300"
+         role="img" aria-label="Different responses during a finite pulse"></svg>
+
+    <svg id="plot-c" viewBox="0 0 320 300"
+         role="img" aria-label="Endpoint and cumulative accuracy thresholds"></svg>
+  </div>
+
+  <noscript>
+    <p>
+      Enable JavaScript to display the embedded plots.
+      The formulas, numerical results, and reproducible code remain
+      available below.
+    </p>
+  </noscript>
+
+  <figcaption>
+    <strong>Figure 1.</strong> Analytic model calculations.
+    (A) Identical equilibrium binding curves; the dashed fast curve
+    overlays the slow curve.
+    (B) Bound fractions during a unit-duration pulse at
+    L<sub>0</sub> = K<sub>d</sub>.
+    (C) Endpoint and cumulative responses, normalized to their
+    respective equilibrium predictions. The dotted line marks 0.95;
+    dots mark the two duration thresholds.
+    All parameters are illustrative.
+  </figcaption>
+</figure>
+
+<p>
+  In illustrative units, let L<sub>0</sub> = 1 and T = 1.
+  Compare (k<sub>on</sub>, k<sub>off</sub>) = (0.1, 0.1)
+  with (10, 10): both have K<sub>d</sub> = 1 and
+  f<sub>eq</sub> = 0.5, yet their cumulative outputs reach only
+  <strong>9.37% and 95.00%</strong> of the equilibrium prediction.
+  More generally, 95% accuracy requires T/τ ≈
+  <strong>3.00 for endpoint occupancy but 20.00 for cumulative
+  output</strong> (Figure C). Here “95%” means the actual value
+  reaches 95% of its equilibrium prediction; it is a chosen
+  tolerance, not a biological threshold. Numerical quadrature
+  agrees with the analytic integral.
+</p>
+
+<h2>What I would argue against / where this breaks</h2>
+
+<p>
+  I would argue against using either an identical K<sub>d</sub>
+  or a near-equilibrium endpoint to infer an identical accumulated
+  response. The earlier lag remains in the integral. This result
+  assumes constant free ligand during the pulse, initially unbound
+  receptors, and a linear, nonperturbing readout. Ligand depletion,
+  pre-existing occupancy, receptor trafficking, or nonlinear
+  downstream dynamics require a different model. Only output
+  during the pulse is counted; post-pulse activity is excluded.
+  The calculation tests the accuracy of a timescale approximation,
+  not whether real drugs with faster binding are more effective.
+</p>
+
+<details>
+  <summary>Derivation and numerical checks</summary>
+
+  <p>
+    Writing λ = k<sub>on</sub>L<sub>0</sub> + k<sub>off</sub>
+    reduces the ODE to
+    f′ + λf = k<sub>on</sub>L<sub>0</sub>.
+    With f(0) = 0, its solution is
+    f = f<sub>eq</sub>(1 − e<sup>−λt</sup>).
+    Integrating from 0 to T yields the displayed formula.
+  </p>
+
+  <p>
+    The endpoint error relative to its equilibrium prediction is
+    e<sup>−x</sup>, so a 5% tolerance gives
+    x ≥ −ln(0.05) = 2.995732.
+    The cumulative error is (1 − e<sup>−x</sup>)/x;
+    solving it equal to 0.05 gives x = 19.99999996.
+    At small x, A/A<sub>eq</sub> ≈ x/2;
+    at large x, A/A<sub>eq</sub> ≈ 1 − 1/x.
+    Thus the accumulated fractional deficit decays much more
+    slowly than the endpoint deficit.
+  </p>
+
+  <p>
+    Choose a concentration unit c<sub>0</sub> and time unit
+    t<sub>0</sub>. Association constants are in
+    (c<sub>0</sub>t<sub>0</sub>)<sup>−1</sup>, dissociation
+    rates in t<sub>0</sub><sup>−1</sup>,
+    L<sub>0</sub> = c<sub>0</sub>, and T = t<sub>0</sub>.
+    All values below are model calculations, not measured data.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Quantity</th>
+        <th>Slow</th>
+        <th>Fast</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>τ / t<sub>0</sub></td>
+        <td>5</td>
+        <td>0.05</td>
+      </tr>
+      <tr>
+        <td>f(T)</td>
+        <td>0.09063462</td>
+        <td>0.50000000</td>
+      </tr>
+      <tr>
+        <td>A(T) / t<sub>0</sub></td>
+        <td>0.04682688</td>
+        <td>0.47500000</td>
+      </tr>
+      <tr>
+        <td>A(T) / A<sub>eq</sub>(T)</td>
+        <td>0.09365377</td>
+        <td>0.95000000</td>
+      </tr>
+    </tbody>
+  </table>
+</details>
+
+<details>
+  <summary>Reproducible Python calculation</summary>
+
+  <p>
+    Requires Python, NumPy, and SciPy.
+    This code computes the responses, checks the analytic integral
+    against numerical quadrature, and finds both 95% thresholds.
+    The figure is drawn by the JavaScript embedded in this HTML,
+    using the same analytic formulas.
+  </p>
+
+<pre><code>import numpy as np
+from scipy.integrate import quad
+from scipy.optimize import brentq
+
+# Concentration unit c0; time unit t0.
+# kon: 1/(c0*t0); koff: 1/t0.
+# All parameters are illustrative, not experimental measurements.
+
+L0 = 1.0
+T = 1.0
+
+systems = {
+    "Slow": (0.1, 0.1),
+    "Fast": (10.0, 10.0),
+}
+
+def endpoint_ratio(x):
+    return -np.expm1(-x)
+
+def cumulative_ratio(x):
+    return 1.0 + np.expm1(-x) / x
+
+endpoint_threshold = -np.log(0.05)
+cumulative_threshold = brentq(
+    lambda x: cumulative_ratio(x) - 0.95,
+    1.0,
+    30.0,
+)
+
+print("95% endpoint threshold:", endpoint_threshold)
+print("95% cumulative threshold:", cumulative_threshold)
+
+for name, (kon, koff) in systems.items():
+    kd = koff / kon
+    tau = 1.0 / (kon * L0 + koff)
+    feq = L0 / (kd + L0)
+
+    def f(t):
+        return feq * (-np.expm1(-t / tau))
+
+    area_numeric = quad(f, 0.0, T)[0]
+
+    area_exact = feq * (
+        T - tau * (-np.expm1(-T / tau))
+    )
+
+    area_equilibrium = feq * T
+
+    assert np.isclose(
+        area_numeric,
+        area_exact,
+        rtol=1e-10,
+    )
+
+    print(
+        name,
+        "Kd =", kd,
+        "tau =", tau,
+        "f(T) =", f(T),
+        "A(T) =", area_exact,
+        "A/Aeq =", area_exact / area_equilibrium,
+    )
+
+# Expected results:
+#
+# 95% endpoint threshold: 2.995732273553991
+# 95% cumulative threshold: 19.999999958776918
+#
+# Slow:
+# tau = 5.0
+# f(T) = 0.09063462346100908
+# A/Aeq = 0.09365376538990922
+#
+# Fast:
+# tau = 0.05
+# f(T) = 0.4999999989694232
+# A/Aeq = 0.9500000001030576
+</code></pre>
+</details>
+
+<h2>Sources</h2>
+
+<ol class="src">
+  <li id="ref1">
+    CCBS 2026.
+    <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture07-core.html">
+      Lecture 7: From stationary dynamics to equilibrium weights
+    </a>
+    (2026), §§4 and 7.
+    Read the core-page passages on relaxation rates, equilibrium
+    weights, and the distinction between occupancy and speed.
+    These support the starting distinction, not the new pulse
+    calculation.
+  </li>
+
+  <li id="ref2">
+    CCBS 2026.
+    <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture08-core.html">
+      Lecture 8: The cell as a biomachine
+    </a>
+    (2026), §§3–4 and 9.
+    Read the core-page passages on separated clocks, binding
+    equilibrium, and activity-dependent output.
+    These support the approximation and idealized readout used
+    here. The finite-pulse integral, tolerance comparison, and
+    figure are calculations for this essay; no experimental
+    validation is claimed.
+  </li>
+</ol>
+
+</div>
+
+<script>
+"use strict";
+
+/*
+  Self-contained figure-generation code.
+  No external libraries, fonts, images, or network requests.
+*/
+
+const SVG_NS = "http://www.w3.org/2000/svg";
+
+const COLORS = {
+  slow: "#b65c35",
+  fast: "#247ba0",
+  ink: "#222222",
+  guide: "#666666",
+  grid: "#eeeeee"
+};
+
+function addSVG(parent, tag, attributes = {}, text = "") {
+  const node = document.createElementNS(SVG_NS, tag);
+
+  for (const [key, value] of Object.entries(attributes)) {
+    node.setAttribute(key, String(value));
+  }
+
+  if (text !== "") {
+    node.textContent = text;
+  }
+
+  parent.appendChild(node);
+  return node;
+}
+
+function label(parent, x, y, text, attributes = {}) {
+  return addSVG(parent, "text", {
+    x,
+    y,
+    fill: COLORS.ink,
+    "font-family": "Arial, sans-serif",
+    "font-size": 12,
+    ...attributes
+  }, text);
+}
+
+function makePlot(id, options) {
+  const svg = document.getElementById(id);
+
+  const box = {
+    left: 53,
+    right: 307,
+    top: 38,
+    bottom: 235
+  };
+
+  const {
+    title,
+    xMin,
+    xMax,
+    yMin,
+    yMax,
+    xTicks,
+    yTicks,
+    xLabel,
+    yLabel,
+    logX = false
+  } = options;
+
+  const transformX = logX
+    ? value => Math.log10(value)
+    : value => value;
+
+  const lo = transformX(xMin);
+  const hi = transformX(xMax);
+
+  const X = value =>
+    box.left +
+    (transformX(value) - lo) / (hi - lo) *
+    (box.right - box.left);
+
+  const Y = value =>
+    box.bottom -
+    (value - yMin) / (yMax - yMin) *
+    (box.bottom - box.top);
+
+  addSVG(svg, "rect", {
+    x: 0, y: 0, width: 320, height: 300, fill: "white"
+  });
+
+  label(svg, 160, 20, title, {
+    "text-anchor": "middle",
+    "font-size": 14,
+    "font-weight": "bold"
+  });
+
+  for (const [value, text] of yTicks) {
+    const y = Y(value);
+
+    addSVG(svg, "line", {
+      x1: box.left,
+      x2: box.right,
+      y1: y,
+      y2: y,
+      stroke: COLORS.grid
+    });
+
+    addSVG(svg, "line", {
+      x1: box.left - 4,
+      x2: box.left,
+      y1: y,
+      y2: y,
+      stroke: COLORS.ink
+    });
+
+    label(svg, box.left - 8, y + 4, text, {
+      "text-anchor": "end"
+    });
+  }
+
+  for (const [value, text] of xTicks) {
+    const x = X(value);
+
+    addSVG(svg, "line", {
+      x1: x,
+      x2: x,
+      y1: box.bottom,
+      y2: box.bottom + 4,
+      stroke: COLORS.ink
+    });
+
+    label(svg, x, box.bottom + 19, text, {
+      "text-anchor": "middle"
+    });
+  }
+
+  addSVG(svg, "path", {
+    d: `M ${box.left} ${box.top}
+        L ${box.left} ${box.bottom}
+        L ${box.right} ${box.bottom}`,
+    fill: "none",
+    stroke: COLORS.ink,
+    "stroke-width": 1.2
+  });
+
+  label(svg, (box.left + box.right) / 2, 277, xLabel, {
+    "text-anchor": "middle",
+    "font-size": 12
+  });
+
+  const middleY = (box.top + box.bottom) / 2;
+
+  label(svg, 15, middleY, yLabel, {
+    "text-anchor": "middle",
+    "font-size": 12,
+    transform: `rotate(-90 15 ${middleY})`
+  });
+
+  function curve(fn, color, dash = "", width = 2.4) {
+    const points = [];
+
+    for (let i = 0; i <= 400; i++) {
+      const fraction = i / 400;
+
+      const value = logX
+        ? 10 ** (lo + fraction * (hi - lo))
+        : xMin + fraction * (xMax - xMin);
+
+      points.push(
+        `${i === 0 ? "M" : "L"} ${X(value)} ${Y(fn(value))}`
+      );
+    }
+
+    addSVG(svg, "path", {
+      d: points.join(" "),
+      fill: "none",
+      stroke: color,
+      "stroke-width": width,
+      "stroke-dasharray": dash,
+      "stroke-linejoin": "round"
+    });
+  }
+
+  function horizontal(value, color = COLORS.guide) {
+    addSVG(svg, "line", {
+      x1: box.left,
+      x2: box.right,
+      y1: Y(value),
+      y2: Y(value),
+      stroke: color,
+      "stroke-width": 1.5,
+      "stroke-dasharray": "3 4"
+    });
+  }
+
+  function legend(items, x, y) {
+    items.forEach((item, index) => {
+      const yy = y + index * 18;
+
+      addSVG(svg, "line", {
+        x1: x,
+        x2: x + 24,
+        y1: yy,
+        y2: yy,
+        stroke: item.color,
+        "stroke-width": 2.5,
+        "stroke-dasharray": item.dash || ""
+      });
+
+      label(svg, x + 30, yy + 4, item.text, {
+        "font-size": 11
+      });
+    });
+  }
+
+  return { svg, X, Y, curve, horizontal, legend };
+}
+
+const endpoint = x => -Math.expm1(-x);
+const cumulative = x => 1 + Math.expm1(-x) / x;
+
+/* Panel A: equilibrium binding curves coincide. */
+
+const panelA = makePlot("plot-a", {
+  title: "A  Identical equilibrium",
+  xMin: 0.01,
+  xMax: 100,
+  yMin: 0,
+  yMax: 1.05,
+  logX: true,
+  xTicks: [
+    [0.01, "0.01"],
+    [0.1, "0.1"],
+    [1, "1"],
+    [10, "10"],
+    [100, "100"]
+  ],
+  yTicks: [
+    [0, "0"],
+    [0.25, "0.25"],
+    [0.5, "0.50"],
+    [0.75, "0.75"],
+    [1, "1.00"]
+  ],
+  xLabel: "Ligand / Kd",
+  yLabel: "Equilibrium bound fraction"
+});
+
+panelA.curve(x => x / (1 + x), COLORS.slow, "", 4);
+panelA.curve(x => x / (1 + x), COLORS.fast, "6 4", 2.3);
+
+panelA.legend([
+  { text: "Slow", color: COLORS.slow },
+  { text: "Fast", color: COLORS.fast, dash: "6 4" }
+], 65, 55);
+
+/* Panel B: both systems receive the same pulse. */
+
+const panelB = makePlot("plot-b", {
+  title: "B  Finite-pulse response",
+  xMin: 0,
+  xMax: 1,
+  yMin: 0,
+  yMax: 0.55,
+  xTicks: [
+    [0, "0"],
+    [0.25, "0.25"],
+    [0.5, "0.50"],
+    [0.75, "0.75"],
+    [1, "1.00"]
+  ],
+  yTicks: [
+    [0, "0"],
+    [0.1, "0.1"],
+    [0.2, "0.2"],
+    [0.3, "0.3"],
+    [0.4, "0.4"],
+    [0.5, "0.5"]
+  ],
+  xLabel: "Time / t₀; pulse ends at 1",
+  yLabel: "Bound fraction"
+});
+
+panelB.horizontal(0.5);
+panelB.curve(t => 0.5 * endpoint(t / 5), COLORS.slow);
+panelB.curve(t => 0.5 * endpoint(t / 0.05), COLORS.fast);
+
+panelB.legend([
+  { text: "Slow", color: COLORS.slow },
+  { text: "Fast", color: COLORS.fast },
+  { text: "Equilibrium", color: COLORS.guide, dash: "3 4" }
+], 169, 130);
+
+/* Panel C: different accuracy conditions for different readouts. */
+
+const panelC = makePlot("plot-c", {
+  title: "C  Accuracy depends on readout",
+  xMin: 0.01,
+  xMax: 100,
+  yMin: 0,
+  yMax: 1.05,
+  logX: true,
+  xTicks: [
+    [0.01, "0.01"],
+    [0.1, "0.1"],
+    [1, "1"],
+    [10, "10"],
+    [100, "100"]
+  ],
+  yTicks: [
+    [0, "0"],
+    [0.25, "0.25"],
+    [0.5, "0.50"],
+    [0.75, "0.75"],
+    [1, "1.00"]
+  ],
+  xLabel: "Pulse duration / relaxation time, T/τ",
+  yLabel: "Fraction of equilibrium prediction"
+});
+
+panelC.horizontal(0.95);
+panelC.curve(endpoint, COLORS.fast);
+panelC.curve(cumulative, COLORS.slow);
+
+panelC.legend([
+  { text: "Endpoint", color: COLORS.fast },
+  { text: "Cumulative", color: COLORS.slow }
+], 65, 95);
+
+const thresholds = [
+  {
+    x: -Math.log(0.05),
+    color: COLORS.fast,
+    text: "3.00",
+    offset: 27
+  },
+  {
+    x: 19.999999958776918,
+    color: COLORS.slow,
+    text: "20.00",
+    offset: 49
+  }
+];
+
+for (const item of thresholds) {
+  const px = panelC.X(item.x);
+  const py = panelC.Y(0.95);
+
+  addSVG(panelC.svg, "circle", {
+    cx: px,
+    cy: py,
+    r: 3.5,
+    fill: item.color
+  });
+
+  label(panelC.svg, px, py + item.offset, item.text, {
+    fill: item.color,
+    "text-anchor": "middle",
+    "font-size": 12
+  });
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 4 — Extension: Kinetic proofreading spends energy to buy specificity</title>
+<meta name="author" content="lipeifang">
+<meta name="student-id" content="20261203497">
+<meta name="week" content="week4">
+<style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; --red:#b33a3a; --green:#28734f; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; --red:#f28b8b; --green:#75d0a2; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px;
+    border-bottom:1px solid var(--line); padding-bottom:5px; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:14px 18px; margin:14px 0; }
+  .fig { width:100%; border:1px solid var(--line); border-radius:6px; margin:14px 0; }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; }
+  table { border-collapse:collapse; width:100%; font-size:.92rem; margin:12px 0 4px; }
+  th, td { border-bottom:1px solid var(--line); padding:7px 8px; text-align:right; }
+  th:first-child, td:first-child { text-align:left; }
+  th { color:var(--accent); font-weight:600; }
+  .eq { overflow-x:auto; padding:4px 0; font-family:Georgia,"Times New Roman",serif; }
+  .legend { font-size:.82rem; color:var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Week 4 — Extension: Kinetic proofreading spends energy to buy specificity</h1>
+<p class="meta">Author: lipeifang · Student ID: 20261203497 · Week 4 (2026-09-28) · CCBS 2026</p>
+
+<p class="card"><strong>One sentence:</strong> Equilibrium binding can discriminate only through state weights, whereas a driven kinetic proofreading step can add a second, rate-based discrimination, but the improvement is paid for in yield and fuel consumption.</p>
+
+<h2>The point I am adding</h2>
+<p>The lectures develop a useful equilibrium shortcut: enumerate molecular states, assign compatible weights, normalize them, and attach an activity to each state. They also warn that a stationary distribution is not automatically equilibrium, because a stationary enzyme can keep circulating and dissipating energy. My extension is a concrete consequence of that distinction: <em>kinetic proofreading</em>.</p>
+<p>Suppose an initial selection has already made the incoming wrong:right ratio <span class="eq"><i>f</i><sub>0</sub> = 0.01</span>. A second selection sends every candidate into an intermediate. A right intermediate commits to product at rate <span class="eq"><i>W</i></span> and is discarded at rate <span class="eq"><i>f</i><sub>0</sub>&ell;</span>; a wrong intermediate commits at the same rate <span class="eq"><i>W</i></span> but is discarded at rate <span class="eq">&ell;</span>. The asymmetry is deliberate: the wrong intermediate has a much larger rejection hazard. A fuel-coupled reset is what makes this extra kinetic branch physically possible without equilibrium cancellation.</p>
+<p>For competing exponential clocks, the probability of commitment is the commitment hazard divided by the sum of exit hazards:</p>
+<p class="card eq"><i>s</i><sub>right</sub> = <i>W</i> / (<i>W</i> + <i>f</i><sub>0</sub>&ell;), &nbsp;&nbsp; <i>s</i><sub>wrong</sub> = <i>W</i> / (<i>W</i> + &ell;).</p>
+<p>Therefore the final wrong:right product ratio is</p>
+<p class="card eq"><i>f</i> = <i>f</i><sub>0</sub>(<i>W</i> + <i>f</i><sub>0</sub>&ell;) / (<i>W</i> + &ell;).</p>
+<p>When <span class="eq"><i>W</i> &ll; <i>f</i><sub>0</sub>&ell;</span>, this approaches <span class="eq"><i>f</i><sub>0</sub><sup>2</sup></span>: a second stage approximately squares the pre-existing error. That is qualitatively different from changing an equilibrium affinity. The new discrimination comes from waiting long enough for the two candidate types to be rejected at different rates.</p>
+
+<h2>Work it</h2>
+<p>I evaluated the model with <span class="eq"><i>f</i><sub>0</sub>=0.01</span> and <span class="eq">&ell;=1 s<sup>-1</sup></span>. The yield per intermediate arrival is</p>
+<p class="card eq"><i>Y</i> = [<i>s</i><sub>right</sub> + <i>f</i><sub>0</sub><i>s</i><sub>wrong</sub>] / (1 + <i>f</i><sub>0</sub>).</p>
+<p>I also used the explicit accounting rule that every intermediate arrival consumes one fuel conversion, including successful ones. Thus fuel conversions per product are <span class="eq">1/<i>Y</i></span>. The following values are my calculation, not experimental measurements.</p>
+<table>
+  <thead><tr><th><i>W</i> (s<sup>-1</sup>)</th><th>final <i>f</i></th><th><i>Y</i></th><th>fuel/product</th></tr></thead>
+  <tbody>
+    <tr><td>0.0001</td><td>1.01 &times; 10<sup>-4</sup></td><td>0.0098</td><td>102.0</td></tr>
+    <tr><td>0.001</td><td>1.10 &times; 10<sup>-4</sup></td><td>0.0900</td><td>11.1</td></tr>
+    <tr><td>0.01</td><td>1.98 &times; 10<sup>-4</sup></td><td>0.4951</td><td>2.02</td></tr>
+    <tr><td>0.1</td><td>1.00 &times; 10<sup>-3</sup></td><td>0.9010</td><td>1.11</td></tr>
+    <tr><td>1</td><td>5.05 &times; 10<sup>-3</sup></td><td>0.9852</td><td>1.02</td></tr>
+  </tbody>
+</table>
+<p class="legend">The low-<i>W</i> point gives nearly the squared error (<i>f</i><sub>0</sub><sup>2</sup> = 10<sup>-4</sup>), but only about 1% of attempts produce product. At <i>W</i> = 0.001 s<sup>-1</sup>, the error is still about 1.1 &times; 10<sup>-4</sup>, while yield is 9.0%.</p>
+
+<figure>
+  <svg class="fig" viewBox="0 0 640 350" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two panels showing proofreading error and yield as commitment rate increases">
+    <rect x="0" y="0" width="640" height="350" fill="none"/>
+    <text x="54" y="25" font-size="14" fill="currentColor">A. Final error ratio f</text>
+    <text x="370" y="25" font-size="14" fill="currentColor">B. Yield per arrival Y</text>
+    <g stroke="#9aa" stroke-width="1">
+      <line x1="54" y1="285" x2="300" y2="285"/><line x1="54" y1="55" x2="54" y2="285"/>
+      <line x1="370" y1="285" x2="616" y2="285"/><line x1="370" y1="55" x2="370" y2="285"/>
+      <line x1="54" y1="170" x2="300" y2="170" stroke-dasharray="3 3"/>
+      <line x1="370" y1="170" x2="616" y2="170" stroke-dasharray="3 3"/>
+    </g>
+    <g font-size="11" fill="currentColor">
+      <text x="38" y="289">0</text><text x="28" y="174">0.005</text><text x="25" y="59">0.01</text>
+      <text x="354" y="289">0</text><text x="354" y="174">0.5</text><text x="354" y="59">1.0</text>
+      <text x="47" y="305">10⁻⁴</text><text x="108" y="305">10⁻³</text><text x="170" y="305">10⁻²</text><text x="231" y="305">10⁻¹</text><text x="293" y="305">10⁰</text>
+      <text x="363" y="305">10⁻⁴</text><text x="424" y="305">10⁻³</text><text x="486" y="305">10⁻²</text><text x="547" y="305">10⁻¹</text><text x="609" y="305">10⁰</text>
+      <text x="86" y="325">commitment rate W (s⁻¹, log scale)</text><text x="402" y="325">commitment rate W (s⁻¹, log scale)</text>
+    </g>
+    <polyline points="54,282.7 115.5,282.5 177,280.4 238.5,262.0 300,168.9" fill="none" stroke="#b33a3a" stroke-width="3"/>
+    <g fill="#b33a3a"><circle cx="54" cy="282.7" r="4"/><circle cx="115.5" cy="282.5" r="4"/><circle cx="177" cy="280.4" r="4"/><circle cx="238.5" cy="262" r="4"/><circle cx="300" cy="168.9" r="4"/></g>
+    <polyline points="370,282.7 431.5,264.3 493,171.1 554.5,77.8 616,58.4" fill="none" stroke="#28734f" stroke-width="3"/>
+    <g fill="#28734f"><circle cx="370" cy="282.7" r="4"/><circle cx="431.5" cy="264.3" r="4"/><circle cx="493" cy="171.1" r="4"/><circle cx="554.5" cy="77.8" r="4"/><circle cx="616" cy="58.4" r="4"/></g>
+    <text x="82" y="75" font-size="11" fill="#b33a3a">lower is better</text>
+    <text x="468" y="75" font-size="11" fill="#28734f">higher is better</text>
+  </svg>
+  <figcaption>Figure 1: My calculation from the two-stage limiting model. Increasing <i>W</i> improves yield but erases the extra discrimination; reducing <i>W</i> approaches the squared-error regime while sharply increasing fuel per product. The left panel uses a linear display of <i>f</i> over the narrow range shown; the horizontal axis is logarithmic.</figcaption>
+</figure>
+
+<h2>What I would argue against / where this breaks</h2>
+<p>It would be wrong to read the squared-error formula as a universal law saying that every two-step biological pathway squares its error. First, the model starts after an initial selection and assumes a fixed incoming ratio <span class="eq"><i>f</i><sub>0</sub></span>. Second, it is a limiting attempt model: it specifies exit hazards but not every reverse microscopic reaction. A thermodynamically complete model must include the fuel reservoir, reverse routes, and the chemical potentials needed to compute finite dissipation. Third, I held the attempt flux fixed. A slower commitment can reduce throughput because intermediates occupy enzymes longer; yield is not the same thing as speed.</p>
+<p>The equilibrium lecture therefore remains useful rather than being replaced. It predicts state populations when the fast layer has compatible weights and no unresolved current. Proofreading is the complementary case: energy-driven cycling creates a current and uses time-dependent rejection to improve fidelity. The experimental question is not simply “does the response curve look sharp?” but “does the proposed mechanism account for its fuel use, reverse paths, output rate, and error simultaneously?”</p>
+
+<h2>Sources</h2>
+<ul class="src">
+  <li><em>From a molecular state list to a predictive model</em>, CCBS 2026 Lecture 7 exposition, sections 21–24, local course file: <a href="Lecture%207%20%C2%B7%20From%20a%20molecular%20state%20list%20to%20a%20predictive%20model%20%C2%B7%20exposition%20%C2%B7%20CCBS%202026%20(2026_9_28%2009%EF%BC%9A20%EF%BC%9A38).html">course lecture</a>. It supplies the limiting model, the formulas for <i>f</i>, <i>Y</i>, and fuel conversions, and the warning that the attempt flux and fuel rule must be stated.</li>
+  <li>J. J. Hopfield, “Kinetic proofreading: a new mechanism for reducing errors in biosynthetic processes requiring high specificity,” <em>Proceedings of the National Academy of Sciences</em> 71 (1974): 4135–4139. <a href="https://doi.org/10.1073/pnas.71.10.4135">https://doi.org/10.1073/pnas.71.10.4135</a> — the original proposal that a fuel-coupled, driven intermediate can add discrimination beyond equilibrium binding.</li>
+  <li>J. Ninio, “Kinetic amplification of enzyme discrimination,” <em>Biochimie</em> 57 (1975): 587–595. <a href="https://doi.org/10.1016/S0300-9084(75)80139-8">https://doi.org/10.1016/S0300-9084(75)80139-8</a> — a complementary early analysis of kinetic discrimination and amplification. The numerical example above follows the explicitly stated course limit rather than claiming to reproduce Ninio's full mechanism.</li>
+</ul>
+
+</div>
+</body>
+</html>
