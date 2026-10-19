@@ -1,0 +1,153 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="author" content="Xinyu Wu"><meta name="week" content="week5"><title>Week 5 — Does a lasting drug effect imply bistable memory?</title><style>
+:root{--ink:#21313f;--muted:#576774;--accent:#175b70;--line:#d6e0e5;--bg:#fff;--soft:#f3f7f8}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 "Segoe UI",Arial,sans-serif}
+.wrap{max-width:800px;margin:auto;padding:36px 24px 60px}h1{font-size:1.8rem;line-height:1.2;color:var(--accent);margin:0 0 12px}h2{font-size:1.08rem;color:var(--accent);margin:25px 0 7px;border-bottom:1px solid var(--line);padding-bottom:5px}p{margin:10px 0}.meta,figcaption,.src,.note{color:var(--muted);font-size:.88rem}.card{background:var(--soft);border-left:4px solid var(--accent);padding:12px 16px}.eq{background:var(--soft);padding:10px 15px;text-align:center;line-height:1.9;overflow-wrap:anywhere}figure{margin:18px 0}svg{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:8px}figcaption{margin-top:6px}a{color:var(--accent);overflow-wrap:anywhere}li{margin-bottom:9px}ul{padding-left:22px}summary{cursor:pointer;color:var(--accent);font-weight:600}details{border:1px solid var(--line);padding:12px;margin-top:16px;border-radius:6px}pre{font-size:12px;line-height:1.5;overflow:auto;max-height:420px;background:var(--soft);padding:12px}table{border-collapse:collapse;width:100%;font-size:.89rem}th,td{text-align:left;padding:7px;border-bottom:1px solid var(--line)}.tablewrap{overflow:auto}
+@media(prefers-color-scheme:dark){:root{--ink:#e0e9ed;--muted:#b0bfc8;--accent:#93d4e1;--line:#3b4d58;--bg:#18232b;--soft:#21313c}}
+@media(max-width:480px){.wrap{padding:24px 16px}h1{font-size:1.5rem}body{font-size:15px}}
+@media print{body{font-size:11pt;background:white;color:#18232b}.wrap{max-width:none;padding:0}details{display:none}figure{break-inside:avoid}h2{break-after:avoid}a{color:inherit}}
+</style></head><body><main class="wrap"><h1>Does a lasting drug effect imply bistable memory?</h1>
+<p class="meta">Xinyu Wu (吴新宇) · Week 5 · CCBS 2026 · 15 October 2026<br>Extension of L9: persistence after drug withdrawal</p>
+<p class="card">The drug is gone, but the effect remains. Have the cells switched state, or are they simply waiting for modified targets to be replaced?</p>
+<h2>The effect remains. What is holding it there?</h2>
+<p>Imagine giving cells a short drug pulse and washing it away. The next day, the cells are still inhibited. After Lecture 9, I might call this memory: feedback can keep a system in a new state after the stimulus ends [1]. But working with covalent drugs makes me ask a simpler question first. How much modified protein is still there? Washing away free drug leaves existing covalent adducts behind. Recovery then depends on target renewal and how much active target the cell needs [2].</p>
+<h2>Could slow replacement explain it?</h2>
+<p>My null model is simple target replacement. Let q(t) be the fraction of target that is irreversibly modified and inactive. After free drug is removed, no new modification occurs. Keep total target abundance constant, and replace a fixed fraction of modified protein per hour with unmodified protein:</p>
+<div class="eq">dq/dt = −k<sub>turn</sub>q,<br>q(t) = q(0) × 2<sup>−t/T<sub>1/2</sub></sup>.</div>
+<p>T<sub>1/2</sub> is the replacement half-life. Over time, q falls toward zero; replacement just takes time.</p>
+<p>For a worked example, suppose 90% of the target is modified at washout and its replacement half-life is 24 h. After 24, 48 and 72 h, the modified fractions are 45%, 22.5% and 11.25%. Suppose inhibition remains detectable while at least 20% is modified. These are illustrative assumptions. The time to reach that threshold is</p>
+<div class="eq">t = 24 log<sub>2</sub>(0.9/0.2) ≈ 52.1 h.</div>
+<p>That is over two days of inhibition from slow replacement alone. A next-day measurement would easily catch the cells before they recover.</p>
+<figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 640" role="img" aria-labelledby="pt pd">
+<title id="pt">Slow recovery versus two stable states</title>
+<desc id="pd">Modified target fraction falls from ninety percent with a twenty-four-hour half-life, reaching twenty percent after 52.1 hours. A separate conceptual double-well model has stable states at zero and one, divided by an unstable state at one half.</desc>
+<rect width="760" height="640" rx="8" fill="white"/>
+<g font-family="Arial,sans-serif" font-size="14" fill="#263e4d">
+<text x="25" y="29" font-size="19" font-weight="bold">A. Long persistence with a single recovery endpoint</text>
+<text x="25" y="54">Illustrative turnover: q(0) = 0.9; half-life = 24 h</text>
+<line x1="75" y1="275" x2="715" y2="275" stroke="#e3e9ed"/>
+<text x="62" y="280" text-anchor="end">0</text>
+<line x1="75" y1="237.0" x2="715" y2="237.0" stroke="#e3e9ed"/>
+<text x="62" y="242.0" text-anchor="end">0.2</text>
+<line x1="75" y1="199.0" x2="715" y2="199.0" stroke="#e3e9ed"/>
+<text x="62" y="204.0" text-anchor="end">0.4</text>
+<line x1="75" y1="161.0" x2="715" y2="161.0" stroke="#e3e9ed"/>
+<text x="62" y="166.0" text-anchor="end">0.6</text>
+<line x1="75" y1="123.0" x2="715" y2="123.0" stroke="#e3e9ed"/>
+<text x="62" y="128.0" text-anchor="end">0.8</text>
+<line x1="75" y1="85" x2="715" y2="85" stroke="#e3e9ed"/>
+<text x="62" y="90" text-anchor="end">1</text>
+<path d="M75.00,104.00 L81.67,108.87 L88.33,113.60 L95.00,118.19 L101.67,122.66 L108.33,126.99 L115.00,131.21 L121.67,135.30 L128.33,139.28 L135.00,143.14 L141.67,146.89 L148.33,150.54 L155.00,154.08 L161.67,157.53 L168.33,160.87 L175.00,164.12 L181.67,167.28 L188.33,170.34 L195.00,173.32 L201.67,176.22 L208.33,179.03 L215.00,181.76 L221.67,184.42 L228.33,186.99 L235.00,189.50 L241.67,191.93 L248.33,194.30 L255.00,196.60 L261.67,198.83 L268.33,201.00 L275.00,203.10 L281.67,205.15 L288.33,207.14 L295.00,209.07 L301.67,210.95 L308.33,212.77 L315.00,214.54 L321.67,216.26 L328.33,217.94 L335.00,219.56 L341.67,221.14 L348.33,222.67 L355.00,224.16 L361.67,225.61 L368.33,227.01 L375.00,228.38 L381.67,229.71 L388.33,231.00 L395.00,232.25 L401.67,233.47 L408.33,234.65 L415.00,235.80 L421.67,236.91 L428.33,238.00 L435.00,239.05 L441.67,240.08 L448.33,241.07 L455.00,242.04 L461.67,242.97 L468.33,243.89 L475.00,244.77 L481.67,245.63 L488.33,246.47 L495.00,247.28 L501.67,248.07 L508.33,248.84 L515.00,249.58 L521.67,250.30 L528.33,251.01 L535.00,251.69 L541.67,252.35 L548.33,253.00 L555.00,253.62 L561.67,254.23 L568.33,254.82 L575.00,255.40 L581.67,255.96 L588.33,256.50 L595.00,257.03 L601.67,257.54 L608.33,258.03 L615.00,258.52 L621.67,258.99 L628.33,259.44 L635.00,259.89 L641.67,260.32 L648.33,260.73 L655.00,261.14 L661.67,261.53 L668.33,261.92 L675.00,262.29 L681.67,262.65 L688.33,263.00 L695.00,263.35 L701.67,263.68 L708.33,264.00 L715.00,264.31" fill="none" stroke="#117e89" stroke-width="3"/>
+<path d="M75,237.0 H715" fill="none" stroke="#bd5637" stroke-dasharray="6 5"/>
+<path d="M422.18800023076994,237.0 V275" stroke="#bd5637" stroke-dasharray="3 4"/>
+<circle cx="422.18800023076994" cy="237.0" r="4" fill="#bd5637"/>
+<text x="460" y="221" fill="#9c452b">Assumed response threshold: 20%</text>
+<text x="432.18800023076994" y="265" fill="#9c452b">52.1 h</text>
+<path d="M75,85 V275 H715" fill="none" stroke="#456"/>
+<text transform="translate(22 185) rotate(-90)" text-anchor="middle">Modified target fraction q</text>
+<text x="75.0" y="299" text-anchor="middle">0</text>
+<text x="235.0" y="299" text-anchor="middle">24</text>
+<text x="395.0" y="299" text-anchor="middle">48</text>
+<text x="555.0" y="299" text-anchor="middle">72</text>
+<text x="715.0" y="299" text-anchor="middle">96</text>
+<text x="395" y="322" text-anchor="middle">Time after removal of free drug (h)</text>
+<text x="25" y="365" font-size="19" font-weight="bold">B. Bistability: two resting states under the same conditions</text>
+<text x="25" y="390">Conceptual landscape V(x) = x²(1 − x)²; motion follows −dV/dx</text>
+<path d="M25.00,471.64 L27.50,475.27 L30.00,478.77 L32.50,482.13 L35.00,485.37 L37.50,488.49 L40.00,491.48 L42.50,494.35 L45.00,497.11 L47.50,499.75 L50.00,502.27 L52.50,504.68 L55.00,506.98 L57.50,509.17 L60.00,511.26 L62.50,513.25 L65.00,515.13 L67.50,516.91 L70.00,518.60 L72.50,520.19 L75.00,521.69 L77.50,523.10 L80.00,524.41 L82.50,525.64 L85.00,526.79 L87.50,527.85 L90.00,528.83 L92.50,529.73 L95.00,530.55 L97.50,531.30 L100.00,531.97 L102.50,532.57 L105.00,533.10 L107.50,533.56 L110.00,533.95 L112.50,534.28 L115.00,534.54 L117.50,534.75 L120.00,534.89 L122.50,534.97 L125.00,535.00 L127.50,534.97 L130.00,534.89 L132.50,534.76 L135.00,534.58 L137.50,534.35 L140.00,534.07 L142.50,533.75 L145.00,533.38 L147.50,532.97 L150.00,532.52 L152.50,532.03 L155.00,531.50 L157.50,530.94 L160.00,530.34 L162.50,529.71 L165.00,529.04 L167.50,528.35 L170.00,527.62 L172.50,526.87 L175.00,526.09 L177.50,525.29 L180.00,524.46 L182.50,523.61 L185.00,522.73 L187.50,521.84 L190.00,520.93 L192.50,520.00 L195.00,519.05 L197.50,518.09 L200.00,517.12 L202.50,516.13 L205.00,515.13 L207.50,514.12 L210.00,513.10 L212.50,512.07 L215.00,511.04 L217.50,509.99 L220.00,508.95 L222.50,507.89 L225.00,506.84 L227.50,505.78 L230.00,504.72 L232.50,503.67 L235.00,502.61 L237.50,501.55 L240.00,500.50 L242.50,499.45 L245.00,498.40 L247.50,497.36 L250.00,496.33 L252.50,495.30 L255.00,494.28 L257.50,493.27 L260.00,492.27 L262.50,491.27 L265.00,490.29 L267.50,489.32 L270.00,488.37 L272.50,487.42 L275.00,486.49 L277.50,485.57 L280.00,484.67 L282.50,483.79 L285.00,482.92 L287.50,482.06 L290.00,481.23 L292.50,480.41 L295.00,479.61 L297.50,478.83 L300.00,478.07 L302.50,477.33 L305.00,476.61 L307.50,475.91 L310.00,475.23 L312.50,474.58 L315.00,473.94 L317.50,473.33 L320.00,472.74 L322.50,472.18 L325.00,471.64 L327.50,471.12 L330.00,470.63 L332.50,470.17 L335.00,469.72 L337.50,469.31 L340.00,468.92 L342.50,468.55 L345.00,468.22 L347.50,467.90 L350.00,467.62 L352.50,467.36 L355.00,467.13 L357.50,466.92 L360.00,466.74 L362.50,466.59 L365.00,466.47 L367.50,466.37 L370.00,466.30 L372.50,466.26 L375.00,466.25 L377.50,466.26 L380.00,466.30 L382.50,466.37 L385.00,466.47 L387.50,466.59 L390.00,466.74 L392.50,466.92 L395.00,467.13 L397.50,467.36 L400.00,467.62 L402.50,467.90 L405.00,468.22 L407.50,468.55 L410.00,468.92 L412.50,469.31 L415.00,469.72 L417.50,470.17 L420.00,470.63 L422.50,471.12 L425.00,471.64 L427.50,472.18 L430.00,472.74 L432.50,473.33 L435.00,473.94 L437.50,474.58 L440.00,475.23 L442.50,475.91 L445.00,476.61 L447.50,477.33 L450.00,478.07 L452.50,478.83 L455.00,479.61 L457.50,480.41 L460.00,481.23 L462.50,482.06 L465.00,482.92 L467.50,483.79 L470.00,484.67 L472.50,485.57 L475.00,486.49 L477.50,487.42 L480.00,488.37 L482.50,489.32 L485.00,490.29 L487.50,491.27 L490.00,492.27 L492.50,493.27 L495.00,494.28 L497.50,495.30 L500.00,496.33 L502.50,497.36 L505.00,498.40 L507.50,499.45 L510.00,500.50 L512.50,501.55 L515.00,502.61 L517.50,503.67 L520.00,504.72 L522.50,505.78 L525.00,506.84 L527.50,507.89 L530.00,508.95 L532.50,509.99 L535.00,511.04 L537.50,512.07 L540.00,513.10 L542.50,514.12 L545.00,515.13 L547.50,516.13 L550.00,517.12 L552.50,518.09 L555.00,519.05 L557.50,520.00 L560.00,520.93 L562.50,521.84 L565.00,522.73 L567.50,523.61 L570.00,524.46 L572.50,525.29 L575.00,526.09 L577.50,526.87 L580.00,527.62 L582.50,528.35 L585.00,529.04 L587.50,529.71 L590.00,530.34 L592.50,530.94 L595.00,531.50 L597.50,532.03 L600.00,532.52 L602.50,532.97 L605.00,533.38 L607.50,533.75 L610.00,534.07 L612.50,534.35 L615.00,534.58 L617.50,534.76 L620.00,534.89 L622.50,534.97 L625.00,535.00 L627.50,534.97 L630.00,534.89 L632.50,534.75 L635.00,534.54 L637.50,534.28 L640.00,533.95 L642.50,533.56 L645.00,533.10 L647.50,532.57 L650.00,531.97 L652.50,531.30 L655.00,530.55 L657.50,529.73 L660.00,528.83 L662.50,527.85 L665.00,526.79 L667.50,525.64 L670.00,524.41 L672.50,523.10 L675.00,521.69 L677.50,520.19 L680.00,518.60 L682.50,516.91 L685.00,515.13 L687.50,513.25 L690.00,511.26 L692.50,509.17 L695.00,506.98 L697.50,504.68 L700.00,502.27 L702.50,499.75 L705.00,497.11 L707.50,494.35 L710.00,491.48 L712.50,488.49 L715.00,485.37 L717.50,482.13 L720.00,478.77 L722.50,475.27 L725.00,471.64" fill="none" stroke="#355575" stroke-width="3"/>
+<circle cx="125" cy="535" r="5" fill="#117e89"/>
+<text x="125" y="563" text-anchor="middle" fill="#117e89">Stable state 1</text>
+<circle cx="375.0" cy="466.25" r="5" fill="#bd5637"/>
+<text x="375.0" y="494.25" text-anchor="middle" fill="#bd5637">Unstable boundary</text>
+<circle cx="625" cy="535" r="5" fill="#117e89"/>
+<text x="625" y="563" text-anchor="middle" fill="#117e89">Stable state 2</text>
+<text x="260" y="450" font-size="23">←</text><text x="480" y="450" font-size="23">→</text>
+<text x="380" y="595" text-anchor="middle">Cell-state coordinate x (dimensionless)</text>
+<text x="25" y="625" font-size="12">Panel B is a dynamical illustration, not a measured molecular free-energy landscape.</text>
+</g></svg><figcaption>Figure 1. A: calculated target replacement, with an assumed 20% response threshold. B: a conceptual landscape showing two stable states.</figcaption></figure>
+<h2>What would bistability add?</h2>
+<p>A bistable system can settle in either of two stable states under the same external conditions. Picture the two wells in Figure 1B. A pulse pushes the system over the hill; after the pulse ends, it stays in the other well. Slow replacement takes the cell back toward its original state. A bistable switch gives it another state to stay in. Over a short observation window, both can look persistent.</p>
+<h2>What would I measure next?</h2>
+<p>I would follow target modification and a downstream cell-state readout together. If the effect fades as modified target disappears, replacement offers a straightforward explanation. If target modification returns near baseline but the cell state stays changed, I would look for what is keeping it there.</p>
+<p>Do different pulse histories leave cells in two lasting states in the same environment? Can a brief reverse perturbation switch them back, with that change also lasting? Those observations would support bistability. The observation period needs to span the relevant turnover times, and residual drug, lasting damage and cell death need checking.</p>
+<p>For my next washout experiment, the first useful comparison would be two curves on the same time axis: how much target is still modified, and how far the cell has recovered.</p>
+<details><summary>Calculation and reproducibility</summary>
+<p>Panel A uses the turnover equation above, checked against fourth-order Runge–Kutta integration. Panel B uses V(x)=x²(1−x)² and dx/dτ=−dV/dx, with dimensionless x and τ. States x=0 and x=1 are stable (drift slope −2); x=1/2 is unstable (slope +1). It is a conceptual landscape with arbitrary height.</p>
+<p>The full standard-library Python script is embedded below. It regenerates the figure and checks the threshold crossing, numerical trajectory and fixed-point stability.</p>
+<pre><code>&quot;&quot;&quot;Week 5 illustrative turnover calculation and schematic double-well figure.
+Python 3 standard library. No experimental parameters or data are used.
+&quot;&quot;&quot;
+import math
+from pathlib import Path
+
+def occupancy(t, q0=.9, half_life=24):
+    return q0*2**(-t/half_life)
+
+def potential(x):
+    return x*x*(1-x)*(1-x)
+
+def drift(x):
+    return -2*x*(1-x)*(1-2*x)
+
+def figure():
+    cross=24*math.log2(.9/.2)
+    s=[&#x27;&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 760 640&quot; role=&quot;img&quot; aria-labelledby=&quot;pt pd&quot;&gt;&#x27;,
+    &#x27;&lt;title id=&quot;pt&quot;&gt;Slow recovery versus two stable states&lt;/title&gt;&#x27;,
+    &#x27;&lt;desc id=&quot;pd&quot;&gt;Modified target fraction falls from ninety percent with a twenty-four-hour half-life, reaching twenty percent after 52.1 hours. A separate conceptual double-well model has stable states at zero and one, divided by an unstable state at one half.&lt;/desc&gt;&#x27;,
+    &#x27;&lt;rect width=&quot;760&quot; height=&quot;640&quot; rx=&quot;8&quot; fill=&quot;white&quot;/&gt;&#x27;,
+    &#x27;&lt;g font-family=&quot;Arial,sans-serif&quot; font-size=&quot;14&quot; fill=&quot;#263e4d&quot;&gt;&#x27;,
+    &#x27;&lt;text x=&quot;25&quot; y=&quot;29&quot; font-size=&quot;19&quot; font-weight=&quot;bold&quot;&gt;A. Long persistence with a single recovery endpoint&lt;/text&gt;&#x27;,
+    &#x27;&lt;text x=&quot;25&quot; y=&quot;54&quot;&gt;Illustrative turnover: q(0) = 0.9; half-life = 24 h&lt;/text&gt;&#x27;]
+    px=lambda t:75+t/96*640
+    py=lambda q:275-q*190
+    for q in [0,.2,.4,.6,.8,1]:
+        s += [f&#x27;&lt;line x1=&quot;75&quot; y1=&quot;{py(q)}&quot; x2=&quot;715&quot; y2=&quot;{py(q)}&quot; stroke=&quot;#e3e9ed&quot;/&gt;&#x27;,f&#x27;&lt;text x=&quot;62&quot; y=&quot;{py(q)+5}&quot; text-anchor=&quot;end&quot;&gt;{q:g}&lt;/text&gt;&#x27;]
+    coords=&#x27; &#x27;.join((&#x27;M&#x27; if t==0 else &#x27;L&#x27;)+f&#x27;{px(t):.2f},{py(occupancy(t)):.2f}&#x27; for t in range(97))
+    s += [f&#x27;&lt;path d=&quot;{coords}&quot; fill=&quot;none&quot; stroke=&quot;#117e89&quot; stroke-width=&quot;3&quot;/&gt;&#x27;,
+    f&#x27;&lt;path d=&quot;M75,{py(.2)} H715&quot; fill=&quot;none&quot; stroke=&quot;#bd5637&quot; stroke-dasharray=&quot;6 5&quot;/&gt;&#x27;,
+    f&#x27;&lt;path d=&quot;M{px(cross)},{py(.2)} V275&quot; stroke=&quot;#bd5637&quot; stroke-dasharray=&quot;3 4&quot;/&gt;&#x27;,
+    f&#x27;&lt;circle cx=&quot;{px(cross)}&quot; cy=&quot;{py(.2)}&quot; r=&quot;4&quot; fill=&quot;#bd5637&quot;/&gt;&#x27;,
+    &#x27;&lt;text x=&quot;460&quot; y=&quot;221&quot; fill=&quot;#9c452b&quot;&gt;Assumed response threshold: 20%&lt;/text&gt;&#x27;,
+    f&#x27;&lt;text x=&quot;{px(cross)+10}&quot; y=&quot;265&quot; fill=&quot;#9c452b&quot;&gt;52.1 h&lt;/text&gt;&#x27;,
+    &#x27;&lt;path d=&quot;M75,85 V275 H715&quot; fill=&quot;none&quot; stroke=&quot;#456&quot;/&gt;&#x27;,
+    &#x27;&lt;text transform=&quot;translate(22 185) rotate(-90)&quot; text-anchor=&quot;middle&quot;&gt;Modified target fraction q&lt;/text&gt;&#x27;]
+    for t in [0,24,48,72,96]:s.append(f&#x27;&lt;text x=&quot;{px(t)}&quot; y=&quot;299&quot; text-anchor=&quot;middle&quot;&gt;{t}&lt;/text&gt;&#x27;)
+    s += [&#x27;&lt;text x=&quot;395&quot; y=&quot;322&quot; text-anchor=&quot;middle&quot;&gt;Time after removal of free drug (h)&lt;/text&gt;&#x27;,
+    &#x27;&lt;text x=&quot;25&quot; y=&quot;365&quot; font-size=&quot;19&quot; font-weight=&quot;bold&quot;&gt;B. Bistability: two resting states under the same conditions&lt;/text&gt;&#x27;,
+    &#x27;&lt;text x=&quot;25&quot; y=&quot;390&quot;&gt;Conceptual landscape V(x) = x²(1 − x)²; motion follows −dV/dx&lt;/text&gt;&#x27;]
+    xx=lambda x:125+x*500
+    yy=lambda v:535-v*1100
+    points=[]
+    for i in range(281):
+        x=-.2+i*.005
+        points.append((&#x27;M&#x27; if i==0 else &#x27;L&#x27;)+f&#x27;{xx(x):.2f},{yy(potential(x)):.2f}&#x27;)
+    s.append(f&#x27;&lt;path d=&quot;{&quot; &quot;.join(points)}&quot; fill=&quot;none&quot; stroke=&quot;#355575&quot; stroke-width=&quot;3&quot;/&gt;&#x27;)
+    for x,label,col in [(0,&#x27;Stable state 1&#x27;,&#x27;#117e89&#x27;),(.5,&#x27;Unstable boundary&#x27;,&#x27;#bd5637&#x27;),(1,&#x27;Stable state 2&#x27;,&#x27;#117e89&#x27;)]:
+        s += [f&#x27;&lt;circle cx=&quot;{xx(x)}&quot; cy=&quot;{yy(potential(x))}&quot; r=&quot;5&quot; fill=&quot;{col}&quot;/&gt;&#x27;,f&#x27;&lt;text x=&quot;{xx(x)}&quot; y=&quot;{yy(potential(x))+28}&quot; text-anchor=&quot;middle&quot; fill=&quot;{col}&quot;&gt;{label}&lt;/text&gt;&#x27;]
+    s += [&#x27;&lt;text x=&quot;260&quot; y=&quot;450&quot; font-size=&quot;23&quot;&gt;←&lt;/text&gt;&lt;text x=&quot;480&quot; y=&quot;450&quot; font-size=&quot;23&quot;&gt;→&lt;/text&gt;&#x27;,
+    &#x27;&lt;text x=&quot;380&quot; y=&quot;595&quot; text-anchor=&quot;middle&quot;&gt;Cell-state coordinate x (dimensionless)&lt;/text&gt;&#x27;,
+    &#x27;&lt;text x=&quot;25&quot; y=&quot;625&quot; font-size=&quot;12&quot;&gt;Panel B is a dynamical illustration, not a measured molecular free-energy landscape.&lt;/text&gt;&#x27;,&#x27;&lt;/g&gt;&lt;/svg&gt;&#x27;]
+    return &#x27;\n&#x27;.join(s)
+
+if __name__==&#x27;__main__&#x27;:
+    crossing=24*math.log2(.9/.2)
+    assert abs(occupancy(crossing)-.2)&lt;1e-12
+    for t,expected in [(0,.9),(24,.45),(48,.225),(72,.1125)]:
+        assert abs(occupancy(t)-expected)&lt;1e-12
+        print(f&#x27;{t} h: q={occupancy(t):.6f}&#x27;)
+    # Independent numerical integration of dq/dt = -ln(2)/24*q.
+    q=.9;dt=.01;k=math.log(2)/24
+    for _ in range(9600):
+        a=-k*q;b=-k*(q+dt*a/2);c=-k*(q+dt*b/2);d=-k*(q+dt*c)
+        q+=dt*(a+2*b+2*c+d)/6
+    assert abs(q-occupancy(96))&lt;1e-10
+    for x,slope in [(0,-2),(.5,1),(1,-2)]:
+        assert abs(drift(x))&lt;1e-12
+        numerical=(drift(x+1e-5)-drift(x-1e-5))/2e-5
+        assert abs(numerical-slope)&lt;1e-7
+    print(f&#x27;Threshold crossing: {crossing:.9f} h&#x27;)
+    print(&#x27;PASS: analytic values, independent RK4, and double-well fixed-point stability.&#x27;)
+    Path(__file__).with_name(&#x27;persistence-vs-memory.svg&#x27;).write_text(figure(),encoding=&#x27;utf-8&#x27;)
+</code></pre></details>
+<h2>Sources and reading scope</h2><ol class="src">
+<li>Fangzhou Xiao. <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture09-core.html">Lecture 9: Closing the loop—five behaviors of binding and catalysis</a>, CCBS 2026, §5. Checked the discussion of feedback, switching and memory. The extension asks how to distinguish that memory from persistent covalent target modification.</li>
+<li>Madeeha I. Ali and Peter J. Tonge. <em>Only time will tell: Modelling the kinetics of covalent inhibitors.</em> British Journal of Pharmacology (2026), <a href="https://doi.org/10.1111/bph.70373">doi:10.1111/bph.70373</a>. <a href="https://pubmed.ncbi.nlm.nih.gov/41679291/">Abstract and Figure 2 caption</a> checked: target renewal reduces occupancy after drug removal, and occupancy–response relationships govern persistence. No numerical parameters were taken from this source.</li>
+</ol><p class="note">AI-assisted drafting and coding; calculations executed and checked.</p></main></body></html>
