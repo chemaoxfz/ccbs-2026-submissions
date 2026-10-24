@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 5 — Extension: Fold-change detection: the front end picks the coordinate</title>
+<meta name="author" content="Leo Sin">
+<meta name="week" content="week5">
+<style>
+:root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px;
+    border-bottom:1px solid var(--line); padding-bottom:5px; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:14px 18px; margin:14px 0; }
+  .fig { width:100%; height:auto; border:1px solid var(--line); border-radius:6px;
+    margin:14px 0; background:#fff; }
+  figure { margin:22px 0; }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; }
+  .src li { margin-bottom:8px; }
+  pre { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:12px 14px; overflow-x:auto; font-size:.78rem; line-height:1.45; }
+  code { font-family:"SF Mono",Consolas,Menlo,monospace; }
+  .eq { display:block; text-align:center; margin:14px 0; font-size:1.02rem; }
+  details { margin:12px 0; }
+  summary { cursor:pointer; color:var(--accent); }
+</style>
+</head>
+<body>
+<main class="wrap">
+<h1>Fold-change detection: the front end picks the coordinate, the integral loop keeps it</h1>
+<p class="meta">Leo Sin (施延庆) · Week 5, lectures 9–10 · CCBS 2026 · 19 October 2026</p>
+
+<p class="card"><strong>One sentence:</strong> When a sensor reports the <em>logarithm</em> of its
+ligand and an integral loop cancels the sensor's report, the response to a step
+L&nbsp;→&nbsp;rL is the same at every background L — fold-change detection is not an
+extra gadget a circuit adds, but the symmetry that appears when the integrator and the
+sensor live in the same (log) coordinate.</p>
+
+<h2>The point I am adding</h2>
+<p>Lecture 9 listed adaptation among the five behaviors a binding–catalysis circuit
+computes (its §6, “adaptation comes from high-gain feedback or from opposing input
+paths”); Lecture 10 opened the loop and asked what chemical object the memory is. It
+gave three constructions that hold an integral — zero-order removal, an antithetic
+pair of species, and multiplicative growth, whose logarithm integrates the error
+exactly while Z&nbsp;&gt;&nbsp;0 (its §3b and A2) — and spent §5 on the chemotaxis
+teaching model, where receptor methylation integrates the error of kinase activity:
+<em>ṁ</em>&nbsp;=&nbsp;V<sub>R</sub>&nbsp;−&nbsp;V<sub>B</sub>a/(K<sub>B</sub>+a),
+so a rest of the memory forces a back to its reference a*. I want to add one
+observation about the sensor side and one consequence for the whole loop.</p>
+<p>The observation: an allosteric (MWC) receptor in its low-concentration regime
+reports activity as a logistic in <em>ln&nbsp;L</em>, not in L. Writing the
+Monod–Wyman–Changeux activity as a(m,L)&nbsp;=&nbsp;(1+L/K<sub>I</sub>)<sup>N</sup>&nbsp;/&nbsp;[(1+L/K<sub>I</sub>)<sup>N</sup>&nbsp;+&nbsp;e<sup>ε(m)</sup>(1+L/K<sub>A</sub>)<sup>N</sup>],
+the argument of the logistic is a function of ln&nbsp;L alone, and for
+K<sub>I</sub>&nbsp;≪&nbsp;L&nbsp;≪&nbsp;K<sub>A</sub> it reduces to
+N·ln&nbsp;L&nbsp;−&nbsp;g·m&nbsp;+&nbsp;const. Keymer et&nbsp;al. call these the two
+regimes of a two-state receptor.<sup><a href="#s4">4</a></sup></p>
+<p>The consequence takes two lines. The closed loop
+<span class="eq"><em>ṁ</em> = V<sub>R</sub> − V<sub>B</sub>a/(K<sub>B</sub>+a),&nbsp;&nbsp;a = logistic(N·ln&nbsp;L − g·m + const)</span>
+depends on (m, L) only through the combination N·ln&nbsp;L&nbsp;−&nbsp;g·m. Multiplying
+L by r and shifting m by N·ln&nbsp;r/g leaves that combination unchanged, so every
+trajectory started from rest superposes: the pulse of kinase activity after a doubling
+is identical whether the cell sits at 0.1 or at 10. This is exactly the
+scale-invariance Shoval et&nbsp;al. prove for adapting systems,<sup><a href="#s5">5</a></sup>
+and it is what Lazova et&nbsp;al. measured in <em>E.&nbsp;coli</em>: the response to a
+step rescales with the background, a property called fold-change detection
+(FCD).<sup><a href="#s6">6</a></sup> The methylation integral itself is the
+Barkai–Leibler robust-adaptation mechanism,<sup><a href="#s2">2</a></sup> read as
+integral feedback by Yi et&nbsp;al.<sup><a href="#s3">3</a></sup></p>
+<p>So the answer to "why does the cell sense ratios?" is almost disappointing: the
+receptor already computes in log-coordinates, and the controller can only cancel what
+the sensor reports. Lecture 10's A2 made the same point about the memory side — a
+multiplicative memory integrates in ln&nbsp;Z. FCD is what you get when both sides of
+the loop agree on the coordinate; the molecular identity of the integral construction
+is secondary.</p>
+
+<h2>Work it</h2>
+<p>I simulated the teaching model with the MWC front end above (N&nbsp;=&nbsp;6,
+K<sub>I</sub>&nbsp;=&nbsp;0.01&nbsp;µM, K<sub>A</sub>&nbsp;=&nbsp;100&nbsp;µM,
+g&nbsp;=&nbsp;2; V<sub>R</sub>&nbsp;=&nbsp;1, V<sub>B</sub>&nbsp;=&nbsp;4,
+K<sub>B</sub>&nbsp;=&nbsp;1, so a*&nbsp;=&nbsp;1/3), stepping L from L<sub>0</sub> to
+2L<sub>0</sub>. As a control I replaced only the front end with a level-sensing
+logistic of matched local gain (slope 5.881 per e-fold at 1&nbsp;µM, same methylation
+coupling, same integral loop). All parameters are illustrative; the numbers below are
+my RK4 integration (step 0.002&nbsp;min), not fits to data.</p>
+<figure>
+<svg class="fig" viewBox="0 0 700 240" role="img" aria-labelledby="f1t f1d" xmlns="http://www.w3.org/2000/svg">
+  <title id="f1t">Doubling steps give identical responses in a log-sensing cell, level-dependent responses in a level-sensing cell</title>
+  <desc id="f1d">Left: three doubling steps from different backgrounds superpose (peak deviation about minus 0.97, half recovery near 2 minutes), except a step below the receptor window. Right: the same steps in the level-sensing control give pulses whose amplitude and duration grow with the background level.</desc>
+  <text x="60" y="14" font-size="12" fill="#566">log-sensing front end (MWC receptor)</text>
+  <text x="400" y="14" font-size="12" fill="#566">level-sensing control (same loop, same gain)</text>
+  <!-- left panel frame -->
+  <path d="M60 20V200H330" fill="none" stroke="#5d6872" stroke-width="1.5"/>
+  <path d="M60 115.1H330" fill="none" stroke="#d8dee4" stroke-width="1"/>
+  <path d="M60 42H330 M60 188.3H330" fill="none" stroke="#84929f" stroke-width="1" stroke-dasharray="5 5"/>
+  <!-- right panel frame -->
+  <path d="M400 20V200H670" fill="none" stroke="#5d6872" stroke-width="1.5"/>
+  <path d="M400 115.1H670" fill="none" stroke="#d8dee4" stroke-width="1"/>
+  <path d="M400 42H670 M400 188.3H670" fill="none" stroke="#84929f" stroke-width="1" stroke-dasharray="5 5"/>
+  <!-- y ticks (shared labels, left panel) -->
+  <text x="30" y="46" font-size="11" fill="#333">0</text>
+  <text x="22" y="119" font-size="11" fill="#333">&#8722;0.5</text>
+  <text x="30" y="192" font-size="11" fill="#333">&#8722;1</text>
+  <text x="8" y="120" font-size="11" fill="#333" transform="rotate(-90 12 120)">kinase activity deviation (a&#8722;a*)/a*</text>
+  <!-- x ticks left -->
+  <text x="56" y="214" font-size="11" fill="#333">0</text>
+  <text x="121" y="214" font-size="11" fill="#333">10</text>
+  <text x="189" y="214" font-size="11" fill="#333">20</text>
+  <text x="256" y="214" font-size="11" fill="#333">30</text>
+  <text x="323" y="214" font-size="11" fill="#333">40</text>
+  <text x="115" y="230" font-size="11" fill="#333">time after step (min)</text>
+  <!-- x ticks right -->
+  <text x="396" y="214" font-size="11" fill="#333">0</text>
+  <text x="461" y="214" font-size="11" fill="#333">10</text>
+  <text x="529" y="214" font-size="11" fill="#333">20</text>
+  <text x="596" y="214" font-size="11" fill="#333">30</text>
+  <text x="663" y="214" font-size="11" fill="#333">40</text>
+  <!-- traces, log panel -->
+  <path d="M60.0,183.8 L61.4,181.7 L62.7,178.8 L64.0,174.9 L65.4,169.6 L66.8,162.8 L68.1,154.6 L69.5,145.2 L70.8,134.8 L72.2,124.1 L73.5,113.5 L74.8,103.5 L76.2,94.3 L77.5,86.1 L78.9,78.9 L80.2,72.8 L81.6,67.5 L83.0,63.1 L84.3,59.4 L85.7,56.4 L87.0,53.8 L88.3,51.7 L89.7,50.0 L91.1,48.5 L92.4,47.4 L93.8,46.4 L95.1,45.6 L96.5,44.9 L97.8,44.4 L99.2,44.0 L100.5,43.6 L101.8,43.3 L103.2,43.1 L104.6,42.9 L105.9,42.7 L107.2,42.6 L108.6,42.4 L110.0,42.4 L111.3,42.3 L112.7,42.2 L114.0,42.2 L115.3,42.1 L116.7,42.1 L118.0,42.1 L119.4,42.1 L120.8,42.0 L122.1,42.0 L123.5,42.0 L124.8,42.0 L126.2,42.0 L127.5,42.0 L128.9,42.0 L130.2,42.0 L131.6,42.0 L132.9,42.0 L134.2,42.0 L135.6,42.0 L136.9,42.0 L138.3,42.0 L139.7,42.0 L141.0,42.0 L142.4,42.0 L143.7,42.0 L145.1,42.0 L146.4,42.0 L147.8,42.0 L149.1,42.0 L150.4,42.0 L151.8,42.0 L153.2,42.0 L154.5,42.0 L155.9,42.0 L157.2,42.0 L158.6,42.0 L159.9,42.0 L161.2,42.0 L162.6,42.0 L163.9,42.0 L165.3,42.0 L166.7,42.0 L168.0,42.0 L169.3,42.0 L170.7,42.0 L172.1,42.0 L173.4,42.0 L174.8,42.0 L176.1,42.0 L177.5,42.0 L178.8,42.0 L180.2,42.0 L181.5,42.0 L182.8,42.0 L184.2,42.0 L185.6,42.0 L186.9,42.0 L188.2,42.0 L189.6,42.0 L191.0,42.0 L192.3,42.0 L193.7,42.0 L195.0,42.0 L196.3,42.0 L197.7,42.0 L199.1,42.0 L200.4,42.0 L201.8,42.0 L203.1,42.0 L204.5,42.0 L205.8,42.0 L207.2,42.0 L208.5,42.0 L209.8,42.0 L211.2,42.0 L212.6,42.0 L213.9,42.0 L215.2,42.0 L216.6,42.0 L218.0,42.0 L219.3,42.0 L220.7,42.0 L222.0,42.0 L223.3,42.0 L224.7,42.0 L226.1,42.0 L227.4,42.0 L228.8,42.0 L230.1,42.0 L231.5,42.0 L232.8,42.0 L234.2,42.0 L235.5,42.0 L236.8,42.0 L238.2,42.0 L239.6,42.0 L240.9,42.0 L242.2,42.0 L243.6,42.0 L245.0,42.0 L246.3,42.0 L247.7,42.0 L249.0,42.0 L250.3,42.0 L251.7,42.0 L253.1,42.0 L254.4,42.0 L255.8,42.0 L257.1,42.0 L258.5,42.0 L259.8,42.0 L261.1,42.0 L262.5,42.0 L263.9,42.0 L265.2,42.0 L266.6,42.0 L267.9,42.0 L269.2,42.0 L270.6,42.0 L271.9,42.0 L273.3,42.0 L274.6,42.0 L276.0,42.0 L277.4,42.0 L278.7,42.0 L280.1,42.0 L281.4,42.0 L282.8,42.0 L284.1,42.0 L285.4,42.0 L286.8,42.0 L288.1,42.0 L289.5,42.0 L290.9,42.0 L292.2,42.0 L293.6,42.0 L294.9,42.0 L296.2,42.0 L297.6,42.0 L298.9,42.0 L300.3,42.0 L301.7,42.0 L303.0,42.0 L304.4,42.0 L305.7,42.0 L307.1,42.0 L308.4,42.0 L309.8,42.0 L311.1,42.0 L312.4,42.0 L313.8,42.0 L315.2,42.0 L316.5,42.0 L317.9,42.0 L319.2,42.0 L320.6,42.0 L321.9,42.0 L323.2,42.0 L324.6,42.0 L325.9,42.0 L327.3,42.0 L328.7,42.0 L330.0,42.0" fill="none" stroke="#8ab4e8" stroke-width="3.2"/>
+  <path d="M60.0,184.6 L61.4,182.9 L62.7,180.4 L64.0,177.0 L65.4,172.4 L66.8,166.5 L68.1,159.0 L69.5,150.1 L70.8,140.2 L72.2,129.6 L73.5,118.8 L74.8,108.5 L76.2,98.8 L77.5,90.1 L78.9,82.4 L80.2,75.8 L81.6,70.1 L83.0,65.3 L84.3,61.2 L85.7,57.9 L87.0,55.1 L88.3,52.7 L89.7,50.8 L91.1,49.2 L92.4,47.9 L93.8,46.9 L95.1,46.0 L96.5,45.2 L97.8,44.7 L99.2,44.2 L100.5,43.8 L101.8,43.4 L103.2,43.2 L104.6,42.9 L105.9,42.8 L107.2,42.6 L108.6,42.5 L110.0,42.4 L111.3,42.3 L112.7,42.3 L114.0,42.2 L115.3,42.2 L116.7,42.1 L118.0,42.1 L119.4,42.1 L120.8,42.0 L122.1,42.0 L123.5,42.0 L124.8,42.0 L126.2,42.0 L127.5,42.0 L128.9,42.0 L130.2,42.0 L131.6,42.0 L132.9,42.0 L134.2,42.0 L135.6,42.0 L136.9,42.0 L138.3,42.0 L139.7,42.0 L141.0,42.0 L142.4,42.0 L143.7,42.0 L145.1,42.0 L146.4,42.0 L147.8,42.0 L149.1,42.0 L150.4,42.0 L151.8,42.0 L153.2,42.0 L154.5,42.0 L155.9,42.0 L157.2,42.0 L158.6,42.0 L159.9,42.0 L161.2,42.0 L162.6,42.0 L163.9,42.0 L165.3,42.0 L166.7,42.0 L168.0,42.0 L169.3,42.0 L170.7,42.0 L172.1,42.0 L173.4,42.0 L174.8,42.0 L176.1,42.0 L177.5,42.0 L178.8,42.0 L180.2,42.0 L181.5,42.0 L182.8,42.0 L184.2,42.0 L185.6,42.0 L186.9,42.0 L188.2,42.0 L189.6,42.0 L191.0,42.0 L192.3,42.0 L193.7,42.0 L195.0,42.0 L196.3,42.0 L197.7,42.0 L199.1,42.0 L200.4,42.0 L201.8,42.0 L203.1,42.0 L204.5,42.0 L205.8,42.0 L207.2,42.0 L208.5,42.0 L209.8,42.0 L211.2,42.0 L212.6,42.0 L213.9,42.0 L215.2,42.0 L216.6,42.0 L218.0,42.0 L219.3,42.0 L220.7,42.0 L222.0,42.0 L223.3,42.0 L224.7,42.0 L226.1,42.0 L227.4,42.0 L228.8,42.0 L230.1,42.0 L231.5,42.0 L232.8,42.0 L234.2,42.0 L235.5,42.0 L236.8,42.0 L238.2,42.0 L239.6,42.0 L240.9,42.0 L242.2,42.0 L243.6,42.0 L245.0,42.0 L246.3,42.0 L247.7,42.0 L249.0,42.0 L250.3,42.0 L251.7,42.0 L253.1,42.0 L254.4,42.0 L255.8,42.0 L257.1,42.0 L258.5,42.0 L259.8,42.0 L261.1,42.0 L262.5,42.0 L263.9,42.0 L265.2,42.0 L266.6,42.0 L267.9,42.0 L269.2,42.0 L270.6,42.0 L271.9,42.0 L273.3,42.0 L274.6,42.0 L276.0,42.0 L277.4,42.0 L278.7,42.0 L280.1,42.0 L281.4,42.0 L282.8,42.0 L284.1,42.0 L285.4,42.0 L286.8,42.0 L288.1,42.0 L289.5,42.0 L290.9,42.0 L292.2,42.0 L293.6,42.0 L294.9,42.0 L296.2,42.0 L297.6,42.0 L298.9,42.0 L300.3,42.0 L301.7,42.0 L303.0,42.0 L304.4,42.0 L305.7,42.0 L307.1,42.0 L308.4,42.0 L309.8,42.0 L311.1,42.0 L312.4,42.0 L313.8,42.0 L315.2,42.0 L316.5,42.0 L317.9,42.0 L319.2,42.0 L320.6,42.0 L321.9,42.0 L323.2,42.0 L324.6,42.0 L325.9,42.0 L327.3,42.0 L328.7,42.0 L330.0,42.0" fill="none" stroke="#4a90d9" stroke-width="3.2"/>
+  <path d="M60.0,184.6 L61.4,182.9 L62.7,180.4 L64.0,177.0 L65.4,172.4 L66.8,166.5 L68.1,159.0 L69.5,150.1 L70.8,140.2 L72.2,129.6 L73.5,118.8 L74.8,108.5 L76.2,98.8 L77.5,90.1 L78.9,82.4 L80.2,75.8 L81.6,70.1 L83.0,65.3 L84.3,61.2 L85.7,57.9 L87.0,55.1 L88.3,52.7 L89.7,50.8 L91.1,49.2 L92.4,47.9 L93.8,46.9 L95.1,46.0 L96.5,45.2 L97.8,44.7 L99.2,44.2 L100.5,43.8 L101.8,43.4 L103.2,43.2 L104.6,42.9 L105.9,42.8 L107.2,42.6 L108.6,42.5 L110.0,42.4 L111.3,42.3 L112.7,42.3 L114.0,42.2 L115.3,42.2 L116.7,42.1 L118.0,42.1 L119.4,42.1 L120.8,42.0 L122.1,42.0 L123.5,42.0 L124.8,42.0 L126.2,42.0 L127.5,42.0 L128.9,42.0 L130.2,42.0 L131.6,42.0 L132.9,42.0 L134.2,42.0 L135.6,42.0 L136.9,42.0 L138.3,42.0 L139.7,42.0 L141.0,42.0 L142.4,42.0 L143.7,42.0 L145.1,42.0 L146.4,42.0 L147.8,42.0 L149.1,42.0 L150.4,42.0 L151.8,42.0 L153.2,42.0 L154.5,42.0 L155.9,42.0 L157.2,42.0 L158.6,42.0 L159.9,42.0 L161.2,42.0 L162.6,42.0 L163.9,42.0 L165.3,42.0 L166.7,42.0 L168.0,42.0 L169.3,42.0 L170.7,42.0 L172.1,42.0 L173.4,42.0 L174.8,42.0 L176.1,42.0 L177.5,42.0 L178.8,42.0 L180.2,42.0 L181.5,42.0 L182.8,42.0 L184.2,42.0 L185.6,42.0 L186.9,42.0 L188.2,42.0 L189.6,42.0 L191.0,42.0 L192.3,42.0 L193.7,42.0 L195.0,42.0 L196.3,42.0 L197.7,42.0 L199.1,42.0 L200.4,42.0 L201.8,42.0 L203.1,42.0 L204.5,42.0 L205.8,42.0 L207.2,42.0 L208.5,42.0 L209.8,42.0 L211.2,42.0 L212.6,42.0 L213.9,42.0 L215.2,42.0 L216.6,42.0 L218.0,42.0 L219.3,42.0 L220.7,42.0 L222.0,42.0 L223.3,42.0 L224.7,42.0 L226.1,42.0 L227.4,42.0 L228.8,42.0 L230.1,42.0 L231.5,42.0 L232.8,42.0 L234.2,42.0 L235.5,42.0 L236.8,42.0 L238.2,42.0 L239.6,42.0 L240.9,42.0 L242.2,42.0 L243.6,42.0 L245.0,42.0 L246.3,42.0 L247.7,42.0 L249.0,42.0 L250.3,42.0 L251.7,42.0 L253.1,42.0 L254.4,42.0 L255.8,42.0 L257.1,42.0 L258.5,42.0 L259.8,42.0 L261.1,42.0 L262.5,42.0 L263.9,42.0 L265.2,42.0 L266.6,42.0 L267.9,42.0 L269.2,42.0 L270.6,42.0 L271.9,42.0 L273.3,42.0 L274.6,42.0 L276.0,42.0 L277.4,42.0 L278.7,42.0 L280.1,42.0 L281.4,42.0 L282.8,42.0 L284.1,42.0 L285.4,42.0 L286.8,42.0 L288.1,42.0 L289.5,42.0 L290.9,42.0 L292.2,42.0 L293.6,42.0 L294.9,42.0 L296.2,42.0 L297.6,42.0 L298.9,42.0 L300.3,42.0 L301.7,42.0 L303.0,42.0 L304.4,42.0 L305.7,42.0 L307.1,42.0 L308.4,42.0 L309.8,42.0 L311.1,42.0 L312.4,42.0 L313.8,42.0 L315.2,42.0 L316.5,42.0 L317.9,42.0 L319.2,42.0 L320.6,42.0 L321.9,42.0 L323.2,42.0 L324.6,42.0 L325.9,42.0 L327.3,42.0 L328.7,42.0 L330.0,42.00" fill="none" stroke="#1f4e79" stroke-width="3.2"/>
+  <path d="M60.0,67.8 L61.4,63.4 L62.7,59.6 L64.0,56.5 L65.4,54.0 L66.8,51.8 L68.1,50.1 L69.5,48.6 L70.8,47.4 L72.2,46.4 L73.5,45.6 L74.8,45.0 L76.2,44.4 L77.5,44.0 L78.9,43.6 L80.2,43.3 L81.6,43.1 L83.0,42.9 L84.3,42.7 L85.7,42.6 L87.0,42.5 L88.3,42.4 L89.7,42.3 L91.1,42.2 L92.4,42.2 L93.8,42.1 L95.1,42.1 L96.5,42.1 L97.8,42.1 L99.2,42.0 L100.5,42.0 L101.8,42.0 L103.2,42.0 L104.6,42.0 L105.9,42.0 L107.2,42.0 L108.6,42.0 L110.0,42.0 L111.3,42.0 L112.7,42.0 L114.0,42.0 L115.3,42.0 L116.7,42.0 L118.0,42.0 L119.4,42.0 L120.8,42.0 L122.1,42.0 L123.5,42.0 L124.8,42.0 L126.2,42.0 L127.5,42.0 L128.9,42.0 L130.2,42.0 L131.6,42.0 L132.9,42.0 L134.2,42.0 L135.6,42.0 L136.9,42.0 L138.3,42.0 L139.7,42.0 L141.0,42.0 L142.4,42.0 L143.7,42.0 L145.1,42.0 L146.4,42.0 L147.8,42.0 L149.1,42.0 L150.4,42.0 L151.8,42.0 L153.2,42.0 L154.5,42.0 L155.9,42.0 L157.2,42.0 L158.6,42.0 L159.9,42.0 L161.2,42.0 L162.6,42.0 L163.9,42.0 L165.3,42.0 L166.7,42.0 L168.0,42.0 L169.3,42.0 L170.7,42.0 L172.1,42.0 L173.4,42.0 L174.8,42.0 L176.1,42.0 L177.5,42.0 L178.8,42.0 L180.2,42.0 L181.5,42.0 L182.8,42.0 L184.2,42.0 L185.6,42.0 L186.9,42.0 L188.2,42.0 L189.6,42.0 L191.0,42.0 L192.3,42.0 L193.7,42.0 L195.0,42.0 L196.3,42.0 L197.7,42.0 L199.1,42.0 L200.4,42.0 L201.8,42.0 L203.1,42.0 L204.5,42.0 L205.8,42.0 L207.2,42.0 L208.5,42.0 L209.8,42.0 L211.2,42.0 L212.6,42.0 L213.9,42.0 L215.2,42.0 L216.6,42.0 L218.0,42.0 L219.3,42.0 L220.7,42.0 L222.0,42.0 L223.3,42.0 L224.7,42.0 L226.1,42.0 L227.4,42.0 L228.8,42.0 L230.1,42.0 L231.5,42.0 L232.8,42.0 L234.2,42.0 L235.5,42.0 L236.8,42.0 L238.2,42.0 L239.6,42.0 L240.9,42.0 L242.2,42.0 L243.6,42.0 L245.0,42.0 L246.3,42.0 L247.7,42.0 L249.0,42.0 L250.3,42.0 L251.7,42.0 L253.1,42.0 L254.4,42.0 L255.8,42.0 L257.1,42.0 L258.5,42.0 L259.8,42.0 L261.1,42.0 L262.5,42.0 L263.9,42.0 L265.2,42.0 L266.6,42.0 L267.9,42.0 L269.2,42.0 L270.6,42.0 L271.9,42.0 L273.3,42.0 L274.6,42.0 L276.0,42.0 L277.4,42.0 L278.7,42.0 L280.1,42.0 L281.4,42.0 L282.8,42.0 L284.1,42.0 L285.4,42.0 L286.8,42.0 L288.1,42.0 L289.5,42.0 L290.9,42.0 L292.2,42.0 L293.6,42.0 L294.9,42.0 L296.2,42.0 L297.6,42.0 L298.9,42.0 L300.3,42.0 L301.7,42.0 L303.0,42.0 L304.4,42.0 L305.7,42.0 L307.1,42.0 L308.4,42.0 L309.8,42.0 L311.1,42.0 L312.4,42.0 L313.8,42.0 L315.2,42.0 L316.5,42.0 L317.9,42.0 L319.2,42.0 L320.6,42.0 L321.9,42.0 L323.2,42.0 L324.6,42.0 L325.9,42.0 L327.3,42.0 L328.7,42.0 L330.0,42.0" fill="none" stroke="#999" stroke-width="2" stroke-dasharray="6 4"/>
+  <!-- traces, level panel -->
+  <path d="M400.0,92.9 L401.4,84.9 L402.7,77.9 L404.1,71.9 L405.4,66.8 L406.8,62.5 L408.1,58.9 L409.4,55.9 L410.8,53.5 L412.1,51.4 L413.5,49.7 L414.9,48.3 L416.2,47.2 L417.6,46.2 L418.9,45.5 L420.2,44.8 L421.6,44.3 L422.9,43.9 L424.3,43.5 L425.6,43.3 L427.0,43.0 L428.4,42.8 L429.7,42.7 L431.1,42.5 L432.4,42.4 L433.8,42.3 L435.1,42.3 L436.4,42.2 L437.8,42.2 L439.1,42.1 L440.5,42.1 L441.9,42.1 L443.2,42.0 L444.6,42.0 L445.9,42.0 L447.2,42.0 L448.6,42.0 L449.9,42.0 L451.3,42.0 L452.6,42.0 L454.0,42.0 L455.4,42.0 L456.7,42.0 L458.1,42.0 L459.4,42.0 L460.8,42.0 L462.1,42.0 L463.4,42.0 L464.8,42.0 L466.1,42.0 L467.5,42.0 L468.9,42.0 L470.2,42.0 L471.6,42.0 L472.9,42.0 L474.2,42.0 L475.6,42.0 L476.9,42.0 L478.3,42.0 L479.6,42.0 L481.0,42.0 L482.4,42.0 L483.7,42.0 L485.1,42.0 L486.4,42.0 L487.8,42.0 L489.1,42.0 L490.4,42.0 L491.8,42.0 L493.1,42.0 L494.5,42.0 L495.9,42.0 L497.2,42.0 L498.6,42.0 L499.9,42.0 L501.2,42.0 L502.6,42.0 L503.9,42.0 L505.3,42.0 L506.6,42.0 L508.0,42.0 L509.4,42.0 L510.7,42.0 L512.0,42.0 L513.4,42.0 L514.8,42.0 L516.1,42.0 L517.5,42.0 L518.8,42.0 L520.1,42.0 L521.5,42.0 L522.9,42.0 L524.2,42.0 L525.5,42.0 L526.9,42.0 L528.2,42.0 L529.6,42.0 L531.0,42.0 L532.3,42.0 L533.6,42.0 L535.0,42.0 L536.4,42.0 L537.7,42.0 L539.0,42.0 L540.4,42.0 L541.8,42.0 L543.1,42.0 L544.5,42.0 L545.8,42.0 L547.1,42.0 L548.5,42.0 L549.9,42.0 L551.2,42.0 L552.5,42.0 L553.9,42.0 L555.2,42.0 L556.6,42.0 L558.0,42.0 L559.3,42.0 L560.6,42.0 L562.0,42.0 L563.4,42.0 L564.7,42.0 L566.0,42.0 L567.4,42.0 L568.8,42.0 L570.1,42.0 L571.5,42.0 L572.8,42.0 L574.1,42.0 L575.5,42.0 L576.9,42.0 L578.2,42.0 L579.5,42.0 L580.9,42.0 L582.2,42.0 L583.6,42.0 L585.0,42.0 L586.3,42.0 L587.6,42.0 L589.0,42.0 L590.4,42.0 L591.7,42.0 L593.0,42.0 L594.4,42.0 L595.8,42.0 L597.1,42.0 L598.5,42.0 L599.8,42.0 L601.1,42.0 L602.5,42.0 L603.9,42.0 L605.2,42.0 L606.5,42.0 L607.9,42.0 L609.2,42.0 L610.6,42.0 L612.0,42.0 L613.3,42.0 L614.6,42.0 L616.0,42.0 L617.4,42.0 L618.7,42.0 L620.0,42.0 L621.4,42.0 L622.8,42.0 L624.1,42.0 L625.5,42.0 L626.8,42.0 L628.1,42.0 L629.5,42.0 L630.9,42.0 L632.2,42.0 L633.5,42.0 L634.9,42.0 L636.2,42.0 L637.6,42.0 L639.0,42.0 L640.3,42.0 L641.7,42.0 L643.0,42.0 L644.4,42.0 L645.7,42.0 L647.0,42.0 L648.4,42.0 L649.8,42.0 L651.1,42.0 L652.5,42.0 L653.8,42.0 L655.2,42.0 L656.5,42.0 L657.9,42.0 L659.2,42.0 L660.5,42.0 L661.9,42.0 L663.2,42.0 L664.6,42.0 L666.0,42.0 L667.3,42.0 L668.7,42.0 L670.0,42.0" fill="none" stroke="#e09a63" stroke-width="3.2"/>
+  <path d="M400.0,187.7 L401.4,187.4 L402.7,186.9 L404.1,186.3 L405.4,185.3 L406.8,184.0 L408.1,182.0 L409.4,179.2 L410.8,175.3 L412.1,170.2 L413.5,163.6 L414.9,155.6 L416.2,146.2 L417.6,136.0 L418.9,125.3 L420.2,114.6 L421.6,104.5 L422.9,95.2 L424.3,86.9 L425.6,79.7 L427.0,73.4 L428.4,68.1 L429.7,63.6 L431.1,59.8 L432.4,56.7 L433.8,54.1 L435.1,51.9 L436.4,50.1 L437.8,48.7 L439.1,47.5 L440.5,46.5 L441.9,45.7 L443.2,45.0 L444.6,44.4 L445.9,44.0 L447.2,43.6 L448.6,43.3 L449.9,43.1 L451.3,42.9 L452.6,42.7 L454.0,42.6 L455.4,42.5 L456.7,42.4 L458.1,42.3 L459.4,42.2 L460.8,42.2 L462.1,42.1 L463.4,42.1 L464.8,42.1 L466.1,42.1 L467.5,42.0 L468.9,42.0 L470.2,42.0 L471.6,42.0 L472.9,42.0 L474.2,42.0 L475.6,42.0 L476.9,42.0 L478.3,42.0 L479.6,42.0 L481.0,42.0 L482.4,42.0 L483.7,42.0 L485.1,42.0 L486.4,42.0 L487.8,42.0 L489.1,42.0 L490.4,42.0 L491.8,42.0 L493.1,42.0 L494.5,42.0 L495.9,42.0 L497.2,42.0 L498.6,42.0 L499.9,42.0 L501.2,42.0 L502.6,42.0 L503.9,42.0 L505.3,42.0 L506.6,42.0 L508.0,42.0 L509.4,42.0 L510.7,42.0 L512.0,42.0 L513.4,42.0 L514.8,42.0 L516.1,42.0 L517.5,42.0 L518.8,42.0 L520.1,42.0 L521.5,42.0 L522.9,42.0 L524.2,42.0 L525.5,42.0 L526.9,42.0 L528.2,42.0 L529.6,42.0 L531.0,42.0 L532.3,42.0 L533.6,42.0 L535.0,42.0 L536.4,42.0 L537.7,42.0 L539.0,42.0 L540.4,42.0 L541.8,42.0 L543.1,42.0 L544.5,42.0 L545.8,42.0 L547.1,42.0 L548.5,42.0 L549.9,42.0 L551.2,42.0 L552.5,42.0 L553.9,42.0 L555.2,42.0 L556.6,42.0 L558.0,42.0 L559.3,42.0 L560.6,42.0 L562.0,42.0 L563.4,42.0 L564.7,42.0 L566.0,42.0 L567.4,42.0 L568.8,42.0 L570.1,42.0 L571.5,42.0 L572.8,42.0 L574.1,42.0 L575.5,42.0 L576.9,42.0 L578.2,42.0 L579.5,42.0 L580.9,42.0 L582.2,42.0 L583.6,42.0 L585.0,42.0 L586.3,42.0 L587.6,42.0 L589.0,42.0 L590.4,42.0 L591.7,42.0 L593.0,42.0 L594.4,42.0 L595.8,42.0 L597.1,42.0 L598.5,42.0 L599.8,42.0 L601.1,42.0 L602.5,42.0 L603.9,42.0 L605.2,42.0 L606.5,42.0 L607.9,42.0 L609.2,42.0 L610.6,42.0 L612.0,42.0 L613.3,42.0 L614.6,42.0 L616.0,42.0 L617.4,42.0 L618.7,42.0 L620.0,42.0 L621.4,42.0 L622.8,42.0 L624.1,42.0 L625.5,42.0 L626.8,42.0 L628.1,42.0 L629.5,42.0 L630.9,42.0 L632.2,42.0 L633.5,42.0 L634.9,42.0 L636.2,42.0 L637.6,42.0 L639.0,42.0 L640.3,42.0 L641.7,42.0 L643.0,42.0 L644.4,42.0 L645.7,42.0 L647.0,42.0 L648.4,42.0 L649.8,42.0 L651.1,42.0 L652.5,42.0 L653.8,42.0 L655.2,42.0 L656.5,42.0 L657.9,42.0 L659.2,42.0 L660.5,42.0 L661.9,42.0 L663.2,42.0 L664.6,42.0 L666.0,42.0 L667.3,42.0 L668.7,42.0 L670.0,42.0" fill="none" stroke="#c96f3b" stroke-width="3.2"/>
+  <path d="M400.0,187.7 L401.4,187.4 L402.7,186.9 L404.1,186.3 L405.4,185.3 L406.8,184.0 L408.1,182.0 L409.4,179.2 L410.8,175.3 L412.1,170.2 L413.5,163.6 L414.9,155.6 L416.2,146.2 L417.6,136.0 L418.9,125.3 L420.2,114.6 L421.6,104.5 L422.9,95.2 L424.3,86.9 L425.6,79.7 L427.0,73.4 L428.4,68.1 L429.7,63.6 L431.1,59.8 L432.4,56.7 L433.8,54.1 L435.1,51.9 L436.4,50.1 L437.8,48.7 L439.1,47.5 L440.5,46.5 L441.9,45.7 L443.2,45.0 L444.6,44.4 L445.9,44.0 L447.2,43.6 L448.6,43.3 L449.9,43.1 L451.3,42.9 L452.6,42.7 L454.0,42.6 L455.4,42.5 L456.7,42.4 L458.1,42.3 L459.4,42.2 L460.8,42.2 L462.1,42.1 L463.4,42.1 L464.8,42.1 L466.1,42.1 L467.5,42.0 L468.9,42.0 L470.2,42.0 L471.6,42.0 L472.9,42.0 L474.2,42.0 L475.6,42.0 L476.9,42.0 L478.3,42.0 L479.6,42.0 L481.0,42.0 L482.4,42.0 L483.7,42.0 L485.1,42.0 L486.4,42.0 L487.8,42.0 L489.1,42.0 L490.4,42.0 L491.8,42.0 L493.1,42.0 L494.5,42.0 L495.9,42.0 L497.2,42.0 L498.6,42.0 L499.9,42.0 L501.2,42.0 L502.6,42.0 L503.9,42.0 L505.3,42.0 L506.6,42.0 L508.0,42.0 L509.4,42.0 L510.7,42.0 L512.0,42.0 L513.4,42.0 L514.8,42.0 L516.1,42.0 L517.5,42.0 L518.8,42.0 L520.1,42.0 L521.5,42.0 L522.9,42.0 L524.2,42.0 L525.5,42.0 L526.9,42.0 L528.2,42.0 L529.6,42.0 L531.0,42.0 L532.3,42.0 L533.6,42.0 L535.0,42.0 L536.4,42.0 L537.7,42.0 L539.0,42.0 L540.4,42.0 L541.8,42.0 L543.1,42.0 L544.5,42.0 L545.8,42.0 L547.1,42.0 L548.5,42.0 L549.9,42.0 L551.2,42.0 L552.5,42.0 L553.9,42.0 L555.2,42.0 L556.6,42.0 L558.0,42.0 L559.3,42.0 L560.6,42.0 L562.0,42.0 L563.4,42.0 L564.7,42.0 L566.0,42.0 L567.4,42.0 L568.8,42.0 L570.1,42.0 L571.5,42.0 L572.8,42.0 L574.1,42.0 L575.5,42.0 L576.9,42.0 L578.2,42.0 L579.5,42.0 L580.9,42.0 L582.2,42.0 L583.6,42.0 L585.0,42.0 L586.3,42.0 L587.6,42.0 L589.0,42.0 L590.4,42.0 L591.7,42.0 L593.0,42.0 L594.4,42.0 L595.8,42.0 L597.1,42.0 L598.5,42.0 L599.8,42.0 L601.1,42.0 L602.5,42.0 L603.9,42.0 L605.2,42.0 L606.5,42.0 L607.9,42.0 L609.2,42.0 L610.6,42.0 L612.0,42.0 L613.3,42.0 L614.6,42.0 L616.0,42.0 L617.4,42.0 L618.7,42.0 L620.0,42.0 L621.4,42.0 L622.8,42.0 L624.1,42.0 L625.5,42.0 L626.8,42.0 L628.1,42.0 L629.5,42.0 L630.9,42.0 L632.2,42.0 L633.5,42.0 L634.9,42.0 L636.2,42.0 L637.6,42.0 L639.0,42.0 L640.3,42.0 L641.7,42.0 L643.0,42.0 L644.4,42.0 L645.7,42.0 L647.0,42.0 L648.4,42.0 L649.8,42.0 L651.1,42.0 L652.5,42.0 L653.8,42.0 L655.2,42.0 L656.5,42.0 L657.9,42.0 L659.2,42.0 L660.5,42.0 L661.9,42.0 L663.2,42.0 L664.6,42.0 L666.0,42.0 L667.3,42.0 L668.7,42.0 L670.0,42.00" fill="none" stroke="#a24b25" stroke-width="3.2"/>
+  <!-- labels left -->
+  <text x="70" y="60" font-size="11" fill="#1f4e79">0.1&#8594;0.2, 1&#8594;2, 10&#8594;20 &#181;M: one curve</text>
+  <text x="70" y="76" font-size="11" fill="#777">5&#215;10&#8315;&#8308;&#8594;10&#8315;&#179; &#181;M (below window)</text>
+  <!-- labels right -->
+  <text x="500" y="150" font-size="11" fill="#a24b25">10&#8594;20 &#181;M (t&#189; &#8776; 30 min)</text>
+  <text x="555" y="120" font-size="11" fill="#c96f3b">1&#8594;2 &#181;M</text>
+  <text x="425" y="56" font-size="11" fill="#b3773f">0.1&#8594;0.2 &#181;M</text>
+</svg>
+<figcaption>Figure 1. Activity deviation (a−a*)/a* after a doubling step, from three
+backgrounds. <strong>Left:</strong> log-sensing front end — the three steps give one
+curve (peak deviations −0.969, −0.975, −0.961; half-recovery 2.2, 2.2, 2.0&nbsp;min),
+except the step from 5×10⁻⁴&nbsp;µM (dashed), which sits below K<sub>I</sub> where the
+receptor saturates. <strong>Right:</strong> level-sensing control — pulse amplitude
+grows with background (−0.348, −0.996, −1.000) and so does duration
+(half-recovery 0.8, 3.0, 29.6&nbsp;min). My own simulation.</figcaption>
+</figure>
+<figure>
+<svg class="fig" viewBox="0 0 700 240" role="img" aria-labelledby="f2t f2d" xmlns="http://www.w3.org/2000/svg">
+  <title id="f2t">The MWC receptor reports a logistic in the log of ligand over four decades; the level sensor over a fraction of one</title>
+  <desc id="f2d">Activity against the natural log of ligand, methylation fixed. The blue log-sensing curve falls from one to zero between K I and K A, four decades wide. The orange level-sensing curve falls within a fraction of a decade near one micromolar. The dashed line marks the rest activity one third.</desc>
+  <rect x="161.7" y="20" width="376.6" height="180" fill="#1f4e79" opacity="0.06"/>
+  <path d="M60 20V200H640" fill="none" stroke="#5d6872" stroke-width="1.5"/>
+  <path d="M60 200H640 M161.7 20V200 M350 20V200 M538.3 20V200" fill="none" stroke="#d8dee4" stroke-width="1"/>
+  <path d="M60 80H640" fill="none" stroke="#84929f" stroke-width="1" stroke-dasharray="5 5"/>
+  <text x="30" y="204" font-size="11" fill="#333">0</text>
+  <text x="30" y="84" font-size="11" fill="#333">1/3</text>
+  <text x="30" y="24" font-size="11" fill="#333">1</text>
+  <text x="46" y="214" font-size="11" fill="#333">10&#8315;&#179;</text>
+  <text x="150" y="214" font-size="11" fill="#333">K&#7522;=10&#8315;&#178;</text>
+  <text x="338" y="214" font-size="11" fill="#333">1 &#181;M</text>
+  <text x="518" y="214" font-size="11" fill="#333">K&#7562;=10&#178;</text>
+  <text x="618" y="214" font-size="11" fill="#333">10&#179;</text>
+  <text x="255" y="230" font-size="11" fill="#333">ligand L (&#181;M, log scale; axis is ln L)</text>
+  <text x="8" y="120" font-size="11" fill="#333" transform="rotate(-90 12 120)">kinase activity a</text>
+  <text x="170" y="34" font-size="11" fill="#1f4e79">log window K&#7522; &#8804; L &#8804; K&#7562;</text>
+  <path d="M60.0,20.0 L62.9,20.0 L65.8,20.0 L68.7,20.0 L71.6,20.0 L74.5,20.0 L77.4,20.0 L80.3,20.0 L83.2,20.0 L86.1,20.0 L89.0,20.0 L91.9,20.0 L94.8,20.0 L97.7,20.0 L100.6,20.0 L103.5,20.0 L106.4,20.0 L109.3,20.0 L112.2,20.0 L115.1,20.0 L118.0,20.0 L120.9,20.0 L123.8,20.0 L126.7,20.0 L129.6,20.0 L132.5,20.0 L135.4,20.0 L138.3,20.0 L141.2,20.0 L144.1,20.0 L147.0,20.0 L149.9,20.0 L152.8,20.0 L155.7,20.0 L158.6,20.0 L161.5,20.0 L164.4,20.0 L167.3,20.0 L170.2,20.0 L173.1,20.0 L176.0,20.0 L178.9,20.0 L181.8,20.0 L184.7,20.0 L187.6,20.0 L190.5,20.0 L193.4,20.0 L196.3,20.0 L199.2,20.0 L202.1,20.0 L205.0,20.0 L207.9,20.0 L210.8,20.0 L213.7,20.0 L216.6,20.0 L219.5,20.0 L222.4,20.0 L225.3,20.0 L228.2,20.0 L231.1,20.0 L234.0,20.0 L236.9,20.0 L239.8,20.0 L242.7,20.0 L245.6,20.0 L248.5,20.0 L251.4,20.0 L254.3,20.0 L257.2,20.0 L260.1,20.0 L263.0,20.0 L265.9,20.0 L268.8,20.0 L271.7,20.0 L274.6,20.0 L277.5,20.1 L280.4,20.1 L283.3,20.1 L286.2,20.2 L289.1,20.2 L292.0,20.3 L294.9,20.5 L297.8,20.6 L300.7,20.9 L303.6,21.3 L306.5,21.8 L309.4,22.6 L312.3,23.6 L315.2,25.1 L318.1,27.2 L321.0,30.0 L323.9,33.9 L326.8,39.2 L329.7,46.1 L332.6,54.9 L335.5,65.9 L338.4,79.0 L341.3,93.7 L344.2,109.4 L347.1,125.2 L350.0,140.0 L352.9,153.2 L355.8,164.4 L358.7,173.4 L361.6,180.4 L364.5,185.8 L367.4,189.8 L370.3,192.7 L373.2,194.8 L376.1,196.3 L379.0,197.4 L381.9,198.2 L384.8,198.7 L387.7,199.1 L390.6,199.4 L393.5,199.5 L396.4,199.7 L399.3,199.8 L402.2,199.8 L405.1,199.9 L408.0,199.9 L410.9,199.9 L413.8,200.0 L416.7,200.0 L419.6,200.0 L422.5,200.0 L425.4,200.0 L428.3,200.0 L431.2,200.0 L434.1,200.0 L437.0,200.0 L439.9,200.0 L442.8,200.0 L445.7,200.0 L448.6,200.0 L451.5,200.0 L454.4,200.0 L457.3,200.0 L460.2,200.0 L463.1,200.0 L466.0,200.0 L468.9,200.0 L471.8,200.0 L474.7,200.0 L477.6,200.0 L480.5,200.0 L483.4,200.0 L486.3,200.0 L489.2,200.0 L492.1,200.0 L495.0,200.0 L497.9,200.0 L500.8,200.0 L503.7,200.0 L506.6,200.0 L509.5,200.0 L512.4,200.0 L515.3,200.0 L518.2,200.0 L521.1,200.0 L524.0,200.0 L526.9,200.0 L529.8,200.0 L532.7,200.0 L535.6,200.0 L538.5,200.0 L541.4,200.0 L544.3,200.0 L547.2,200.0 L550.1,200.0 L553.0,200.0 L555.9,200.0 L558.8,200.0 L561.7,200.0 L564.6,200.0 L567.5,200.0 L570.4,200.0 L573.3,200.0 L576.2,200.0 L579.1,200.0 L582.0,200.0 L584.9,200.0 L587.8,200.0 L590.7,200.0 L593.6,200.0 L596.5,200.0 L599.4,200.0 L602.3,200.0 L605.2,200.0 L608.1,200.0 L611.0,200.0 L613.9,200.0 L616.8,200.0 L619.7,200.0 L622.6,200.0 L625.5,200.0 L628.4,200.0 L631.3,200.0 L634.2,200.0 L637.1,200.0 L640.0,200.0" fill="none" stroke="#1f4e79" stroke-width="3"/>
+  <path d="M60.0,21.0 L62.9,21.0 L65.8,21.0 L68.7,21.0 L71.6,21.0 L74.5,21.0 L77.4,21.0 L80.3,21.0 L83.2,21.0 L86.1,21.0 L89.0,21.0 L91.9,21.0 L94.8,21.0 L97.7,21.0 L100.6,21.0 L103.5,21.0 L106.4,21.0 L109.3,21.0 L112.2,21.0 L115.1,21.0 L118.0,21.0 L120.9,21.1 L123.8,21.1 L126.7,21.1 L129.6,21.1 L132.5,21.1 L135.4,21.1 L138.3,21.1 L141.2,21.1 L144.1,21.1 L147.0,21.1 L149.9,21.1 L152.8,21.1 L155.7,21.1 L158.6,21.1 L161.5,21.1 L164.4,21.1 L167.3,21.1 L170.2,21.2 L173.1,21.2 L176.0,21.2 L178.9,21.2 L181.8,21.2 L184.7,21.2 L187.6,21.2 L190.5,21.2 L193.4,21.3 L196.3,21.3 L199.2,21.3 L202.1,21.3 L205.0,21.3 L207.9,21.4 L210.8,21.4 L213.7,21.4 L216.6,21.4 L219.5,21.5 L222.4,21.5 L225.3,21.6 L228.2,21.6 L231.1,21.6 L234.0,21.7 L236.9,21.8 L239.8,21.8 L242.7,21.9 L245.6,22.0 L248.5,22.0 L251.4,22.1 L254.3,22.2 L257.2,22.3 L260.1,22.5 L263.0,22.6 L265.9,22.8 L268.8,23.0 L271.7,23.2 L274.6,23.4 L277.5,23.7 L280.4,24.0 L283.3,24.3 L286.2,24.7 L289.1,25.2 L292.0,25.7 L294.9,26.4 L297.8,27.1 L300.7,28.0 L303.6,29.1 L306.5,30.3 L309.4,31.9 L312.3,33.8 L315.2,36.0 L318.1,38.8 L321.0,42.2 L323.9,46.4 L326.8,51.5 L329.7,57.8 L332.6,65.5 L335.5,74.6 L338.4,85.4 L341.3,97.7 L344.2,111.3 L347.1,125.6 L350.0,140.0 L352.9,153.6 L355.8,165.6 L358.7,175.6 L361.6,183.4 L364.5,189.2 L367.4,193.2 L370.3,195.9 L373.2,197.6 L376.1,198.7 L379.0,199.3 L381.9,199.6 L384.8,199.8 L387.7,199.9 L390.6,200.0 L393.5,200.0 L396.4,200.0 L399.3,200.0 L402.2,200.0 L405.1,200.0 L408.0,200.0 L410.9,200.0 L413.8,200.0 L416.7,200.0 L419.6,200.0 L422.5,200.0 L425.4,200.0 L428.3,200.0 L431.2,200.0 L434.1,200.0 L437.0,200.0 L439.9,200.0 L442.8,200.0 L445.7,200.0 L448.6,200.0 L451.5,200.0 L454.4,200.0 L457.3,200.0 L460.2,200.0 L463.1,200.0 L466.0,200.0 L468.9,200.0 L471.8,200.0 L474.7,200.0 L477.6,200.0 L480.5,200.0 L483.4,200.0 L486.3,200.0 L489.2,200.0 L492.1,200.0 L495.0,200.0 L497.9,200.0 L500.8,200.0 L503.7,200.0 L506.6,200.0 L509.5,200.0 L512.4,200.0 L515.3,200.0 L518.2,200.0 L521.1,200.0 L524.0,200.0 L526.9,200.0 L529.8,200.0 L532.7,200.0 L535.6,200.0 L538.5,200.0 L541.4,200.0 L544.3,200.0 L547.2,200.0 L550.1,200.0 L553.0,200.0 L555.9,200.0 L558.8,200.0 L561.7,200.0 L564.6,200.0 L567.5,200.0 L570.4,200.0 L573.3,200.0 L576.2,200.0 L579.1,200.0 L582.0,200.0 L584.9,200.0 L587.8,200.0 L590.7,200.0 L593.6,200.0 L596.5,200.0 L599.4,200.0 L602.3,200.0 L605.2,200.0 L608.1,200.0 L611.0,200.0 L613.9,200.0 L616.8,200.0 L619.7,200.0 L622.6,200.0 L625.5,200.0 L628.4,200.0 L631.3,200.0 L634.2,200.0 L637.1,200.0 L640.0,200.0" fill="none" stroke="#c96f3b" stroke-width="3"/>
+  <text x="520" y="120" font-size="11" fill="#1f4e79">log-sensing</text>
+  <text x="420" y="168" font-size="11" fill="#c96f3b">level-sensing</text>
+</svg>
+<figcaption>Figure 2. Why: the two front ends drawn against ln&nbsp;L at fixed
+methylation. The MWC receptor (blue) is a logistic in ln&nbsp;L spanning
+K<sub>I</sub>&nbsp;≤&nbsp;L&nbsp;≤&nbsp;K<sub>A</sub> (shaded); the matched
+level sensor (orange) falls within a fraction of a decade. The dashed line marks the
+rest activity a* = 1/3. My own evaluation of the two formulas.</figcaption>
+</figure>
+<details><summary>Code that produced Figures 1 and 2 (Python 3, standard library)</summary>
+<pre><code>import math
+
+N, KI, KA, g = 6, 1e-2, 1e2, 2.0          # MWC receptor, illustrative
+VR, VB, KB = 1.0, 4.0, 1.0                # Barkai-Leibler teaching law
+CSTAR = KB*VR/(VB-VR)                     # = 1/3, the rest activity
+EPS0 = math.log(2) + g*2.0 - N*math.log((1+1/KI)/(1+1/KA))  # m*(1 uM) = 2
+A0 = N*(1/(KI+1) - 1/(KA+1))              # front-end gain at 1 uM: 5.881
+
+def a(m, L, log_front=True):
+    if log_front:
+        S = N*math.log((1+L/KI)/(1+L/KA)) - g*m + EPS0
+    else:
+        S = A0*(L-1.0) - g*(m-2.0) + math.log(2)   # same gain, level coordinate
+    return 1.0/(1.0+math.exp(max(-40.0, min(40.0, S))))
+
+def mstar(L0, log_front):
+    lo, hi = -60.0, 60.0                       # bisection on a = CSTAR
+    for _ in range(200):
+        mid = 0.5*(lo+hi)
+        if a(mid, L0, log_front) < CSTAR: lo = mid
+        else: hi = mid
+    return 0.5*(lo+hi)
+
+def step(L0, r=2.0, log_front=True, T=40.0, h=0.002):
+    m, L = mstar(L0, log_front), L0*r
+    out = [(0.0, a(m, L, log_front))]
+    for i in range(1, int(T/h)+1):
+        f = lambda mm: VR - VB*a(mm, L, log_front)/(KB + a(mm, L, log_front))
+        k1 = f(m); k2 = f(m+0.5*h*k1); k3 = f(m+0.5*h*k2); k4 = f(m+h*k3)
+        m += h*(k1+2*k2+2*k3+k4)/6
+        if i % 100 == 0:
+            out.append((i*h, a(m, L, log_front)))
+    return out</code></pre></details>
+
+<h2>What I would argue against / where this breaks</h2>
+<p><strong>Direction of the implication.</strong> I showed log-sensing + integral ⇒
+FCD. The converse is false, so FCD cannot diagnose integral feedback: an incoherent
+feedforward loop — no memory at all — can also produce FCD,<sup><a href="#s7">7</a></sup>
+and β-catenin signaling reads fold-changes with no integral loop in the
+picture.<sup><a href="#s8">8</a></sup> My claim is about what the chemotaxis-style
+architecture guarantees, not about what FCD proves.</p>
+<p><strong>The window is finite.</strong> The invariance is exact only for
+K<sub>I</sub>&nbsp;≪&nbsp;L&nbsp;≪&nbsp;K<sub>A</sub>; the crossover "+1" terms break
+it at the edges. My own numbers show both: the in-window peak spread is ~1.5%, while
+a doubling below K<sub>I</sub> gives a pulse five times smaller (Figure 1, dashed).
+FCD is a regime property, like every other behavior in this course.</p>
+<p><strong>A coordinate is also a commitment.</strong> A cell that must act on absolute
+level — osmotic shock, essential-nutrient thresholds — cannot spend this loop on
+log-coordinates; and a log sensor throws away resolution at high L. The absorbing
+boundary that A2 warns about for the multiplicative memory (Z&nbsp;=&nbsp;0 rests
+anywhere) is the same commitment in another costume: log-coordinates have no zero.</p>
+
+<h2>Sources and what I used</h2>
+<ul class="src">
+<li id="s1"><a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture10-core.html">F. Xiao,
+  “Lecture 10: The adaptation biomachine,” CCBS 2026</a>, §3b (three chemical
+  integrals), §5 (the methylation teaching model), A2 (the multiplicative memory,
+  its eq. E13). The loop I simulate is §5's teaching law with an MWC activity
+  a(m,L).</li>
+<li id="s2"><a href="https://doi.org/10.1038/43199">N. Barkai and S. Leibler, “Robustness
+  in simple biochemical networks,” <em>Nature</em> 387, 913–917 (1997)</a>. Source of
+  the activity-independent adaptation idea that §5's teaching model reduces.</li>
+<li id="s3"><a href="https://doi.org/10.1073/pnas.97.9.4649">T.-M. Yi, Y. Huang, M. I. Simon
+  and J. C. Doyle, “Robust perfect adaptation in bacterial chemotaxis through
+  integral feedback control,” <em>PNAS</em> 97(9), 4649–4653 (2000)</a>. Reads
+  methylation as integral feedback — the loop structure I reuse.</li>
+<li id="s4"><a href="https://doi.org/10.1073/pnas.0507438103">J. E. Keymer, R. G. Endres,
+  M. Skoge, Y. Meir and N. S. Wingreen, “Chemosensing in <em>Escherichia coli</em>:
+  two regimes of two-state receptors,” <em>PNAS</em> 103(6), 1786–1791 (2006)</a>.
+  The MWC activity used here; the “low” regime is the log window of Figure 2.</li>
+<li id="s5"><a href="https://doi.org/10.1073/pnas.1002352107">O. Shoval, L. Goentoro,
+  Y. Hart, A. Mayo, E. D. Sontag and U. Alon, “Fold-change detection and scalar
+  symmetry of sensory input fields,” <em>PNAS</em> 107(36), 15995–16000 (2010)</a>.
+  The scale-invariance statement my two-line argument specializes; FCD coined.</li>
+<li id="s6"><a href="https://doi.org/10.1073/pnas.1108608108">M. D. Lazova, T. Ahmed,
+  D. Bellomo, R. Stocker and T. S. Shimizu, “Response rescaling in bacterial
+  chemotaxis,” <em>PNAS</em> 108(33), 13870–13875 (2011)</a>. The measurement: step
+  responses rescale with background in <em>E. coli</em>.</li>
+<li id="s7"><a href="https://doi.org/10.1016/j.molcel.2009.11.018">L. Goentoro, O. Shoval,
+  M. W. Kirschner and U. Alon, “The incoherent feedforward loop can provide fold-change
+  detection in gene regulation,” <em>Molecular Cell</em> 36, 894–899 (2009)</a>. The
+  counterexample for the converse of my claim.</li>
+<li id="s8"><a href="https://doi.org/10.1016/j.molcel.2009.11.017">L. Goentoro and
+  M. W. Kirschner, “Evidence that fold-change, and not absolute level, of β-catenin
+  dictates Wnt signaling,” <em>Molecular Cell</em> 36, 872–884 (2009)</a>. FCD without
+  an integral loop in a mammalian pathway.</li>
+</ul>
+<p class="src">All model parameters are illustrative teaching values; every number and
+curve in Figures 1–2 is computed by the code shown above.</p>
+</main>
+</body>
+</html>

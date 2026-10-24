@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 5 — Extension: A fixed free repressor does not fix total transcription</title>
+<meta name="author" content="Kehan Lang">
+<meta name="week" content="week5">
+<style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; --blue:#276fbf; --orange:#c45508; --green:#287b67; --gray:#727d87; }
+  @media (prefers-color-scheme: dark) { :root { --ink:#e8e8e8; --muted:#aab6b6; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; --blue:#78b7ff; --orange:#f0a36d; --green:#65d1b3; --gray:#aeb8c2; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.64; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px; border-bottom:1px solid var(--line); padding-bottom:5px; }
+  h3 { font-size:1rem; margin:22px 0 6px; }
+  .meta, .small { color:var(--muted); font-size:.92rem; }
+  .meta { margin-bottom:26px; }
+  .card, .equation, .result { background:var(--soft); border:1px solid var(--line); border-radius:6px; padding:14px 18px; margin:14px 0; }
+  .equation { overflow-x:auto; font-family:Georgia,"Times New Roman",serif; line-height:1.85; text-align:center; }
+  .result { border-left:4px solid var(--accent); }
+  .fig { width:100%; display:block; border:1px solid var(--line); border-radius:6px; margin:14px 0 0; background:var(--bg); }
+  figcaption { font-size:.87rem; color:var(--muted); margin-top:7px; }
+  a { color:var(--accent); }
+  table { border-collapse:collapse; width:100%; margin:15px 0; font-size:.92rem; }
+  th, td { text-align:left; padding:8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--accent); }
+  td.num { text-align:right; font-variant-numeric:tabular-nums; }
+  .legend { display:flex; flex-wrap:wrap; gap:8px 15px; margin:9px 0 0; color:var(--muted); font-size:.84rem; }
+  .key { width:18px; height:3px; display:inline-block; vertical-align:middle; margin:-2px 5px 0 0; }
+  .dash { background:repeating-linear-gradient(90deg,var(--gray) 0 6px,transparent 6px 10px); }
+  details { margin:16px 0; }
+  summary { cursor:pointer; color:var(--accent); font-weight:600; }
+  pre { overflow:auto; padding:13px; background:var(--soft); border:1px solid var(--line); border-radius:6px; font:0.76rem/1.45 ui-monospace,SFMono-Regular,Menlo,monospace; }
+  code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+  svg text { font-family:"Segoe UI",Roboto,Arial,sans-serif; fill:currentColor; }
+  @media (max-width:520px) { .wrap { padding:27px 16px 60px; } }
+</style>
+</head>
+<body>
+<main class="wrap">
+
+<h1>Week 5 — Extension: A fixed free repressor does not fix total transcription</h1>
+<p class="meta">Author: Kehan Lang · Week 5 (2026-10-19) · CCBS 2026</p>
+
+<p class="card"><strong>One sentence:</strong> If an adaptive controller pins the <em>free</em> repressor concentration, it also pins promoter occupancy per gene copy, but it does not protect the total transcriptional flux from a change in promoter copy number.</p>
+
+<h2>The point I am adding</h2>
+<p>Lecture 9 builds gene regulation from the allocation of finite binding pools: a repressor occupies a promoter, and the free promoter is the transcriptionally active state. It also stresses that changing a total, such as promoter copy number, is a physical perturbation rather than a cosmetic rescaling. <a href="#lecture9">[1]</a> Lecture 10 asks a complementary question for adaptation: which <em>observable</em> does an identity actually pin, and which changes to the model are outside its robustness claim? <a href="#lecture10">[2]</a></p>
+
+<p>I combine those two questions. Imagine that an upstream adaptive module has already done its job: after a persistent disturbance it restores a free repressor concentration <i>R</i> to a set value <i>R</i><sup>*</sup>. A natural but too-fast conclusion is then that the repressed gene is protected. That conclusion is true for one observable—the <em>fraction</em> of each promoter copy that remains free—but false for another—the total number of free promoters and hence the total transcriptional flux. Gene dosage is not only a hypothetical perturbation: replication-associated copy-number changes can alter expression in bacteria. <a href="#slager">[3]</a></p>
+
+<p>The distinction matters because “the output adapts” is incomplete until the output has been named. This essay does not claim that promoter duplication is an ordinary input to the upstream controller. It is a change of the network boundary. The calculation shows exactly what remains invariant under that change and what does not.</p>
+
+<h2>Work it</h2>
+<p>Take one repressor and one promoter state. Free repressor <i>R</i> binds a free promoter <i>D</i> to make a repressed complex <i>C</i>. Let the promoter total <i>D</i><sub>T</sub> count all copies, whether free or occupied. Binding is assumed fast relative to transcription and to the adaptive controller:</p>
+
+<div class="equation">
+<i>R</i> + <i>D</i> ⇌ <i>C</i>, &nbsp;&nbsp;
+<i>K</i><sub>D</sub> = <i>R</i><i>D</i>/<i>C</i>, &nbsp;&nbsp;
+<i>D</i><sub>T</sub> = <i>D</i> + <i>C</i>.
+</div>
+
+<p>At binding equilibrium, <i>C</i> = <i>R</i><i>D</i>/<i>K</i><sub>D</sub>. Substitute this into the promoter balance, then solve for the two quantities that an experiment might call “the output”:</p>
+
+<div class="equation">
+<i>D</i> = <i>D</i><sub>T</sub> <i>K</i><sub>D</sub>/(<i>K</i><sub>D</sub> + <i>R</i>),
+&nbsp;&nbsp;
+<i>f</i><sub>free</sub> ≡ <i>D</i>/<i>D</i><sub>T</sub> = <i>K</i><sub>D</sub>/(<i>K</i><sub>D</sub> + <i>R</i>).
+</div>
+
+<p>The fraction <i>f</i><sub>free</sub> is an intensive observable: it says what share of copies is open. The amount <i>D</i> is extensive: it counts open copies. If every free promoter initiates transcription at rate α, then total transcript production is</p>
+
+<div class="equation">
+<i>J</i> = α<i>D</i> = α<i>D</i><sub>T</sub><i>K</i><sub>D</sub>/(<i>K</i><sub>D</sub> + <i>R</i>).
+</div>
+
+<h3>What the adaptive controller fixes</h3>
+<p>Now impose the stated controller result: at its resting state it fixes the <em>free</em> repressor at <i>R</i> = <i>R</i><sup>*</sup>. It follows directly that</p>
+
+<div class="equation">
+<i>f</i><sub>free</sub><sup>*</sup> = <i>K</i><sub>D</sub>/(<i>K</i><sub>D</sub> + <i>R</i><sup>*</sup>)
+&nbsp;&nbsp; is independent of <i>D</i><sub>T</sub>,<br>
+<i>J</i><sup>*</sup> = α<i>D</i><sub>T</sub><i>K</i><sub>D</sub>/(<i>K</i><sub>D</sub> + <i>R</i><sup>*</sup>)
+&nbsp;&nbsp; is proportional to <i>D</i><sub>T</sub>.
+</div>
+
+<p>For a concrete normalization, choose <i>R</i><sup>*</sup> = <i>K</i><sub>D</sub>. Every promoter copy is then free half of the time in the equilibrium ensemble: <i>f</i><sub>free</sub><sup>*</sup> = 1/2. A duplication changes <i>D</i><sub>T</sub> to 2<i>D</i><sub>T</sub>, leaves that fraction at 1/2, and changes <i>J</i><sup>*</sup> to 2<i>J</i><sup>*</sup>. The controller has protected the <em>per-copy regulatory state</em>; it has not protected the total flux from additional copies.</p>
+
+<figure>
+  <svg id="idealPlot" class="fig" viewBox="0 0 710 330" role="img" aria-labelledby="idealTitle idealDesc">
+    <title id="idealTitle">Fixed free repressor: promoter fraction versus total transcriptional flux</title>
+    <desc id="idealDesc">The left panel shows a constant free-promoter fraction as promoter copy number increases. The right panel shows total transcriptional flux rising linearly with copy number.</desc>
+  </svg>
+  <div class="legend"><span><i class="key" style="background:var(--blue)"></i>free-promoter fraction</span><span><i class="key" style="background:var(--orange)"></i>total transcription flux</span><span><i class="key dash"></i>one-copy reference</span></div>
+  <figcaption><strong>Figure 1.</strong> Exact equilibrium calculation for <i>R</i><sup>*</sup> = <i>K</i><sub>D</sub>, with α = 1 in arbitrary flux units per promoter copy. The controller is assumed to hold free <i>R</i> at its stated set point, so each copy remains half free. The left observable is invariant; the right observable is not.</figcaption>
+</figure>
+
+<h3>Putting a downstream protein on the same accounting</h3>
+<p>Suppose transcription produces a downstream product <i>X</i>, with first-order removal δ<i>X</i>. Under the same boundary, its balance is ẋ<i>X</i> = <i>J</i> − δ<i>X</i>. At rest,</p>
+
+<div class="equation">
+<i>X</i><sup>*</sup> = α<i>D</i><sub>T</sub><i>K</i><sub>D</sub>/[δ(<i>K</i><sub>D</sub> + <i>R</i><sup>*</sup>)].
+</div>
+
+<p>Thus the conclusion is not confined to an abstract flux. If the measured output is a total mRNA or protein made from these copies, that output changes with dosage even while free repressor and fractional occupancy return perfectly. This is the same observable discipline as Lecture 10's warning that a pinned free species need not imply that every pool containing it has the same invariance.</p>
+
+<h3>The assumption that makes Figure 1 possible</h3>
+<p>Figure 1 intentionally gives the controller enough authority to restore <i>R</i> after duplication. A finite pool gives a useful contrast. If what is fixed is instead the total repressor constituent <i>R</i><sub>T</sub> = <i>R</i> + <i>C</i>, the free repressor must solve</p>
+
+<div class="equation">
+<i>R</i><sub>T</sub> = <i>R</i> + <i>D</i><sub>T</sub><i>R</i>/(<i>K</i><sub>D</sub> + <i>R</i>).
+</div>
+
+<p>Here extra promoters titrate repressor into <i>C</i>. The same duplication lowers free <i>R</i>, raises the free-promoter fraction, and can increase flux by more than the simple twofold gene-dose factor. This is not a contradiction of Figure 1: it is a different boundary condition. It distinguishes an adaptive controller that pins a free concentration from a finite repressor reservoir that only conserves a total. Experiments on transcription-factor titration likewise show why copies and binding-site demand cannot be ignored when interpreting repression. <a href="#brewster">[4]</a></p>
+
+<figure>
+  <svg id="finitePlot" class="fig" viewBox="0 0 710 350" role="img" aria-labelledby="finiteTitle finiteDesc">
+    <title id="finiteTitle">A finite repressor pool is titrated by added promoter copies</title>
+    <desc id="finiteDesc">Free repressor falls and free-promoter fraction rises as promoter copies are added when total repressor is fixed.</desc>
+  </svg>
+  <div class="legend"><span><i class="key" style="background:var(--blue)"></i>free repressor <i>R</i></span><span><i class="key" style="background:var(--orange)"></i>free-promoter fraction</span><span><i class="key dash"></i>fixed-free-repressor prediction</span></div>
+  <figcaption><strong>Figure 2.</strong> Same binding model, but now the total repressor is fixed at <i>R</i><sub>T</sub> = 2<i>K</i><sub>D</sub> rather than holding free <i>R</i> fixed. The plotted free concentration is the positive root of the displayed total-balance equation; the fraction follows from the binding allocation. This is a different model boundary, not a correction to the adaptive case.</figcaption>
+</figure>
+
+<div class="result"><strong>Interpretation.</strong> “Free repressor adapts” and “transcription adapts” are equivalent only after specifying which transcriptional quantity is meant. In this model, adaptation of <i>R</i> protects the per-copy occupancy <i>D</i>/<i>D</i><sub>T</sub>. It does not make a new promoter copy disappear, nor does it hold the total production rate α<i>D</i> fixed. The proposed distinction is exact for the stated rapid-equilibrium and fixed-free-repressor model.</div>
+
+<h2>What I would argue against / where this breaks</h2>
+<p>I would argue against calling gene duplication a failure of the controller's original disturbance-rejection claim without first naming that claim. If the controller was designed to restore free <i>R</i> against an input disturbance, Figure 1 says it can still do exactly that after dosage changes. The conclusion that fails is stronger and different: that every downstream quantity is thereby held fixed. Conversely, Figure 2 should not be presented as a failure of an ideal controller; it deliberately replaces that controller's free-concentration constraint with conservation of a finite total.</p>
+
+<p>The calculation assumes one noncooperative binding site per promoter, fast binding equilibrium, identical promoter copies, a well-mixed compartment, constant α, and no resource limitation by RNA polymerase or ribosomes. Real duplication can also change growth, chromosome position, dosage through the cell cycle, and the controller itself. At very low copy number, promoter occupancy is stochastic rather than the continuous fraction written here. Those cases require a kinetic or stochastic model. The claim here is narrower: within the model, promoter fraction and total transcription are distinct observables with different invariances.</p>
+
+<h2>Code used for both figures</h2>
+<p class="small">The self-contained browser code below evaluates the exact equilibrium formulas and draws both SVG figures. No external data or libraries are used.</p>
+<details>
+  <summary>Show the calculation used in the figures</summary>
+  <pre><code>const KD = 1, Rstar = 1, alpha = 1;
+const freeFraction = R =&gt; KD / (KD + R);
+const fixedFreeFlux = DT =&gt; alpha * DT * freeFraction(Rstar);
+
+// Positive root of RT = R + DT*R/(KD + R), for Figure 2.
+function freeRfromTotal(DT, RT = 2) {
+  const b = KD + DT - RT;
+  return (-b + Math.sqrt(b*b + 4*RT*KD)) / 2;
+}
+// Figure 2 then uses freeFraction(freeRfromTotal(DT)).</code></pre>
+</details>
+
+<h2>Sources</h2>
+<ul class="src">
+  <li id="lecture9">CCBS 2026, <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture09-core.html">Lecture 9: “Closing the loop: five behaviors of binding and catalysis”</a>. Used for promoter–repressor allocation, finite pools, and the instruction to perturb totals rather than treat them as labels.</li>
+  <li id="lecture10">CCBS 2026, <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture10-exposition.html">Lecture 10: “From chemical balances to an adaptation claim”</a>. Used for the distinction between the quantity an identity pins, the measured observable, and the class of changes under which an adaptation claim is made.</li>
+  <li id="slager">Slager, J., Kjos, M., Attaiech, L., &amp; Veening, J.-W. (2014). <a href="https://doi.org/10.1016/j.cell.2014.01.068">“Antibiotic-induced replication stress triggers bacterial competence by increasing gene dosage near the origin.”</a> <em>Cell</em>, 157(2), 395–406. Used only for the biological premise that replication-associated gene dosage can raise expression of origin-proximal genes.</li>
+  <li id="brewster">Brewster, R. C., Weinert, F. M., Garcia, H. G., Song, D., Rydenfelt, M., &amp; Phillips, R. (2014). <a href="https://doi.org/10.1016/j.cell.2014.02.053">“The transcription factor titration effect dictates level of gene expression.”</a> <em>Cell</em>, 156(6), 1312–1323. Used for the external motivation that transcription-factor demand and binding-site copy number can affect expression.</li>
+</ul>
+</main>
+
+<script>
+(() => {
+  const root = document.documentElement;
+  const color = name => getComputedStyle(root).getPropertyValue(name).trim();
+  const blue = color('--blue'), orange = color('--orange'), gray = color('--gray'), line = color('--line'), bg = color('--bg');
+  const text = color('--ink'), muted = color('--muted');
+  const KD = 1, Rstar = 1, alpha = 1;
+  const fraction = R => KD / (KD + R);
+  const rFromTotal = (DT, RT=2) => {
+    const b = KD + DT - RT;
+    return (-b + Math.sqrt(b*b + 4*RT*KD)) / 2;
+  };
+  const svg = (id, markup) => document.getElementById(id).innerHTML = markup;
+  const axis = (x,y,w,h, xlabel, ylabel) => `<path d="M${x},${y}V${y+h}H${x+w}" fill="none" stroke="${text}" stroke-width="1"/><text x="${x+w/2}" y="${y+h+35}" text-anchor="middle" font-size="13">${xlabel}</text><text x="${x-42}" y="${y+h/2}" text-anchor="middle" font-size="13" transform="rotate(-90 ${x-42} ${y+h/2})">${ylabel}</text>`;
+  const ticks = (x,y,w,h,xmax,ymax,xticks,yticks) => {
+    let s = '';
+    for(let i=0;i<=xticks;i++){ const v=i*xmax/xticks, px=x+w*i/xticks; s += `<line x1="${px}" y1="${y}" x2="${px}" y2="${y+h}" stroke="${line}"/><text x="${px}" y="${y+h+18}" text-anchor="middle" font-size="11" fill="${muted}">${v.toFixed(v%1?1:0)}</text>`; }
+    for(let i=0;i<=yticks;i++){ const v=i*ymax/yticks, py=y+h-h*i/yticks; s += `<line x1="${x}" y1="${py}" x2="${x+w}" y2="${py}" stroke="${line}"/><text x="${x-8}" y="${py+4}" text-anchor="end" font-size="11" fill="${muted}">${v.toFixed(v%1?1:0)}</text>`; }
+    return s;
+  };
+  const poly = (fn, xmin, xmax, n, mapx, mapy) => {
+    let d=''; for(let i=0;i<=n;i++){ const x=xmin+(xmax-xmin)*i/n; d += `${i?'L':'M'}${mapx(x).toFixed(2)},${mapy(fn(x)).toFixed(2)}`; } return d;
+  };
+
+  function ideal(){
+    const x1=72,y=48,w=235,h=205,x2=408, xmax=4, yfrac=1, yflux=2;
+    const mx1=x=>x1+w*x/xmax, my1=v=>y+h-h*v/yfrac;
+    const mx2=x=>x2+w*x/xmax, my2=v=>y+h-h*v/yflux;
+    let s=`<rect width="710" height="330" fill="${bg}"/>`;
+    s+=ticks(x1,y,w,h,xmax,yfrac,4,4)+axis(x1,y,w,h,'promoter total Dₜ (copies)','free fraction D/Dₜ');
+    s+=ticks(x2,y,w,h,xmax,yflux,4,4)+axis(x2,y,w,h,'promoter total Dₜ (copies)','flux J (α = 1)');
+    s+=`<path d="${poly(()=>.5,0,xmax,80,mx1,my1)}" fill="none" stroke="${blue}" stroke-width="3"/>`;
+    s+=`<path d="${poly(x=>.5*x,0,xmax,80,mx2,my2)}" fill="none" stroke="${orange}" stroke-width="3"/>`;
+    [x1+w/4,x2+w/4].forEach(px=>s+=`<line x1="${px}" y1="${y}" x2="${px}" y2="${y+h}" stroke="${gray}" stroke-dasharray="5 5"/>`);
+    s+=`<text x="${x1+w/4}" y="${y-11}" text-anchor="middle" font-size="12" fill="${muted}">one copy</text><text x="${x2+w/4}" y="${y-11}" text-anchor="middle" font-size="12" fill="${muted}">one-copy flux</text>`;
+    s+=`<circle cx="${mx1(1)}" cy="${my1(.5)}" r="4" fill="${blue}"/><circle cx="${mx1(2)}" cy="${my1(.5)}" r="4" fill="${blue}"/><circle cx="${mx2(1)}" cy="${my2(.5)}" r="4" fill="${orange}"/><circle cx="${mx2(2)}" cy="${my2(1)}" r="4" fill="${orange}"/>`;
+    svg('idealPlot',s);
+  }
+
+  function finite(){
+    const x1=72,y=48,w=235,h=220,x2=408,xmax=6,rmax=2,fmax=1;
+    const mx1=x=>x1+w*x/xmax, my1=v=>y+h-h*v/rmax;
+    const mx2=x=>x2+w*x/xmax, my2=v=>y+h-h*v/fmax;
+    let s=`<rect width="710" height="350" fill="${bg}"/>`;
+    s+=ticks(x1,y,w,h,xmax,rmax,3,4)+axis(x1,y,w,h,'promoter total Dₜ','free repressor R');
+    s+=ticks(x2,y,w,h,xmax,fmax,3,4)+axis(x2,y,w,h,'promoter total Dₜ','free fraction D/Dₜ');
+    s+=`<path d="${poly(x=>rFromTotal(x),0,xmax,160,mx1,my1)}" fill="none" stroke="${blue}" stroke-width="3"/>`;
+    s+=`<path d="${poly(x=>fraction(rFromTotal(x)),0,xmax,160,mx2,my2)}" fill="none" stroke="${orange}" stroke-width="3"/>`;
+    s+=`<line x1="${x1}" y1="${my1(1)}" x2="${x1+w}" y2="${my1(1)}" stroke="${gray}" stroke-width="2" stroke-dasharray="6 5"/><line x1="${x2}" y1="${my2(.5)}" x2="${x2+w}" y2="${my2(.5)}" stroke="${gray}" stroke-width="2" stroke-dasharray="6 5"/>`;
+    s+=`<text x="${x1+w-2}" y="${my1(1)-7}" text-anchor="end" font-size="11" fill="${muted}">ideal free R = Kᴅ</text><text x="${x2+w-2}" y="${my2(.5)-7}" text-anchor="end" font-size="11" fill="${muted}">ideal fraction = 1/2</text>`;
+    svg('finitePlot',s);
+  }
+  ideal(); finite();
+})();
+</script>
+</body>
+</html>

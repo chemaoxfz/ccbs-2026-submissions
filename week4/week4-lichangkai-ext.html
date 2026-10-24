@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 4 Extension - Kinetic Proofreading</title>
+<meta name="author" content="Li Changkai">
+
+<!-- MathJax: render LaTeX mathematical expressions -->
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)']],
+    displayMath: [['\\[', '\\]']]
+  },
+  options: {
+    skipHtmlTags: [
+      'script', 'noscript', 'style',
+      'textarea', 'pre', 'code'
+    ]
+  },
+  chtml: {
+    scale: 1
+  }
+};
+</script>
+<script
+  defer
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+</script>
+
+<style>
+:root {
+  --ink: #1a1a1a;
+  --muted: #56616b;
+  --accent: #1f4e79;
+  --line: #d8dee4;
+  --bg: #ffffff;
+  --soft: #f6f8fa;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #e8e8e8;
+    --muted: #a5afb8;
+    --accent: #8ab4e8;
+    --line: #3a4652;
+    --bg: #15191d;
+    --soft: #1e242a;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.7;
+}
+main {
+  max-width: 850px;
+  margin: 0 auto;
+  padding: 36px 24px 70px;
+}
+h1 {
+  color: var(--accent);
+  line-height: 1.3;
+  font-size: 1.8rem;
+}
+h2 {
+  color: var(--accent);
+  font-size: 1.2rem;
+  margin-top: 34px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 6px;
+}
+.meta, .note, figcaption {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+.card {
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 14px 18px;
+  margin: 16px 0;
+}
+a { color: var(--accent); overflow-wrap: anywhere; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 18px 0;
+  font-size: 0.9rem;
+}
+th, td {
+  padding: 9px 7px;
+  border-bottom: 1px solid var(--line);
+  text-align: right;
+}
+th { color: var(--accent); }
+th:first-child, td:first-child { text-align: left; }
+code, pre {
+  font-family: Consolas, Monaco, monospace;
+}
+pre {
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 14px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 0.84rem;
+  overflow-x: auto;
+}
+figure { margin: 22px 0; }
+#chart {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+}
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  font-size: 0.88rem;
+  margin: 10px 0;
+}
+.legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.key {
+  width: 22px;
+  height: 3px;
+  display: inline-block;
+}
+.key.one { background: #2878b5; }
+.key.two { background: #d16a35; }
+.key.limit {
+  height: 0;
+  border-top: 2px dashed #2878b5;
+}
+@media (max-width: 600px) {
+  main { padding: 22px 14px 45px; }
+  h1 { font-size: 1.5rem; }
+  table { font-size: 0.78rem; }
+  th, td { padding: 6px 4px; }
+}
+</style>
+</head>
+
+<body>
+<main>
+
+<h1>Week 4 Extension: A Delay Cannot Be an Equilibrium Property</h1>
+
+<p class="meta">
+  Author: Li Changkai · CCBS 2026 Fall · Week 4 · Lectures 7–8
+</p>
+
+<div class="card">
+  <strong>Central claim.</strong>
+  Kinetic proofreading can outperform equilibrium recognition because
+  a fuel-driven step creates a directional delay. In the course's
+  binding-catalysis framework, this step belongs to the driven catalytic
+  layer rather than the equilibrium binding layer.
+</div>
+
+<h2>1. The Point I Am Adding</h2>
+
+<p>
+Lecture 7 distinguishes stationarity from detailed balance: at
+equilibrium, each reversible edge has equal forward and reverse
+probability flux. Lecture 8 then classifies fast, undriven reversible
+transitions as the binding layer, while driven or chemistry-changing
+steps belong to catalysis.
+</p>
+
+<p>
+Kinetic proofreading is a useful boundary test for this distinction.
+A reversible binding equilibrium can prefer the correct substrate,
+but equilibrium binding alone cannot sustain a directional,
+fuel-consuming cycle that provides additional opportunities for
+incorrect substrates to dissociate.
+</p>
+
+<p>
+Hopfield's central idea was to couple an intermediate transition to
+a fuel-consuming reaction, such as nucleotide-triphosphate hydrolysis.
+This driven transition breaks detailed balance and allows additional
+discrimination beyond what a single equilibrium recognition step
+can provide. The key is not merely waiting longer; it is using a
+nonequilibrium reaction network to make the waiting period selective.
+</p>
+
+<h2>2. Work It: A Minimal Quantitative Model</h2>
+
+<p>
+Consider a simplified model in which a correct substrate (C) or
+wrong substrate (W) has already bound. Product formation occurs
+at a common rate \(k_p\), while dissociation occurs at
+substrate-specific rates \(k_{\mathrm{off,C}}\) and
+\(k_{\mathrm{off,W}}\).
+</p>
+
+<p>
+For two competing exponential processes, the probability that
+product forms before dissociation is
+</p>
+
+<div class="card">
+  \[
+  P_i = \frac{k_p}{k_p+k_{\mathrm{off},i}}
+  \]
+  <p>
+  Assuming equal incoming amounts of correct and wrong substrates,
+  the wrong-to-correct product ratio for one selection stage is
+  </p>
+  \[
+  f_1 = \frac{P_W}{P_C}
+  = \frac{k_p+k_{\mathrm{off,C}}}
+         {k_p+k_{\mathrm{off,W}}}.
+  \]
+</div>
+
+<p>
+Choose illustrative rates
+\(k_{\mathrm{off,C}}=1\,\mathrm{s}^{-1}\) and
+\(k_{\mathrm{off,W}}=10\,\mathrm{s}^{-1}\).
+These values are chosen to demonstrate the model and are not
+fitted ribosome measurements.
+</p>
+
+<p>
+At \(k_p=1\,\mathrm{s}^{-1}\), the correct complex passes with
+probability \(1/2\), whereas the wrong complex passes with
+probability \(1/11\). Therefore,
+</p>
+
+<div class="card">
+  \[
+  f_1 = \frac{1/11}{1/2}
+      = \frac{2}{11}
+      \approx 0.1818.
+  \]
+  <p>
+  In an idealized model with two independent, identical filters,
+  the wrong-to-correct ratio becomes
+  </p>
+  \[
+  f_2=f_1^2=\frac{4}{121}\approx 0.0331.
+  \]
+</div>
+
+<p>
+This is about a 5.5-fold reduction in the wrong-to-correct ratio
+relative to one stage. The wrong fraction among all products falls
+from approximately 15.4% to 3.2%. However, the probability that
+a correct complex completes both stages falls from 50% to 25%.
+Thus, improved discrimination comes with a cost in successful
+product formation.
+</p>
+
+<h2>3. The Speed–Discrimination Trade-off</h2>
+
+<p>
+When \(k_p\) becomes large, product commitment outruns dissociation.
+Both correct and wrong complexes pass readily, so \(f_1\) approaches
+1 and discrimination disappears. When \(k_p\) becomes small,
+the one-stage ratio approaches
+\(k_{\mathrm{off,C}}/k_{\mathrm{off,W}}=0.1\), and the idealized
+two-stage ratio approaches 0.01. However, successful product
+formation becomes slow and rare.
+</p>
+
+<figure>
+  <svg id="chart"
+       viewBox="0 0 760 410"
+       role="img"
+       aria-label="Logarithmic plot of wrong-to-correct product ratio against product formation rate">
+    <text x="380" y="200" text-anchor="middle"
+          fill="currentColor">
+      The chart is drawn when JavaScript is enabled.
+    </text>
+  </svg>
+
+  <div class="legend">
+    <span><i class="key one"></i> One-stage ratio, f₁</span>
+    <span><i class="key two"></i> Two-stage ratio, f₂ = f₁²</span>
+    <span><i class="key limit"></i> One-stage low-rate limit</span>
+  </div>
+
+  <figcaption>
+    Figure 1. Illustrative model using
+    k_off,C = 1 s⁻¹ and k_off,W = 10 s⁻¹.
+    The two-stage curve is an idealized independent-filter benchmark,
+    not a fit to a real ribosome. The dashed line marks the
+    one-stage low-rate limit.
+  </figcaption>
+</figure>
+
+<table>
+<thead>
+<tr>
+  <th>kₚ (s⁻¹)</th>
+  <th>f₁</th>
+  <th>f₂</th>
+  <th>Correct pass, 1 stage</th>
+  <th>Correct pass, 2 stages</th>
+  <th>Wrong share, 1 stage</th>
+  <th>Wrong share, 2 stages</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>0.1</td>
+  <td>0.1089</td>
+  <td>0.0119</td>
+  <td>9.1%</td>
+  <td>0.8%</td>
+  <td>9.8%</td>
+  <td>1.2%</td>
+</tr>
+<tr>
+  <td>1</td>
+  <td>0.1818</td>
+  <td>0.0331</td>
+  <td>50.0%</td>
+  <td>25.0%</td>
+  <td>15.4%</td>
+  <td>3.2%</td>
+</tr>
+<tr>
+  <td>10</td>
+  <td>0.5500</td>
+  <td>0.3025</td>
+  <td>90.9%</td>
+  <td>82.6%</td>
+  <td>35.5%</td>
+  <td>23.2%</td>
+</tr>
+<tr>
+  <td>100</td>
+  <td>0.9182</td>
+  <td>0.8431</td>
+  <td>99.0%</td>
+  <td>98.0%</td>
+  <td>47.9%</td>
+  <td>45.7%</td>
+</tr>
+</tbody>
+</table>
+
+<p class="note">
+  Reproducibility note: the table follows from the equations above.
+  The two-stage calculation squares the one-stage wrong-to-correct
+  ratio and the one-stage correct-pass probability. It is a
+  transparent toy model, not a claim that all biological proofreading
+  systems have identical checkpoints.
+</p>
+
+<h2>4. What I Would Argue Against: Limitations</h2>
+
+<p>
+This calculation is not a complete ribosome model. It assumes equal
+incoming substrate fluxes, a common product formation rate, fixed
+dissociation rates, and two independent identical filters. Real
+proofreading networks can contain branching, backtracking,
+fuel-coupled cycles, and constraints on reaction rates. Their energy
+cost depends on how many futile attempts occur before a correct
+product forms.
+</p>
+
+<p>
+The calculation establishes a qualitative trade-off, not a biological
+parameter estimate. It also does not imply that every driven reaction
+is proofreading: additional specificity requires an appropriate
+network topology and kinetic ordering. The central point is narrower:
+a model claiming proofreading beyond equilibrium discrimination must
+represent the fuel-driven transitions and nonequilibrium currents
+rather than hide them inside equilibrium binding weights.
+</p>
+
+<h2>5. Conclusion</h2>
+
+<p>
+The minimal calculation shows how serial kinetic selection can lower
+the wrong-to-correct product ratio, while also reducing the probability
+of completing the correct pathway. This makes the specificity–speed
+trade-off explicit. In the language of CCBS Lectures 7 and 8,
+equilibrium weights describe reversible binding preferences, whereas
+fuel-driven catalytic transitions can sustain nonequilibrium cycles.
+Kinetic proofreading depends on this distinction: the extra
+discrimination is a property of the driven network, not simply a
+property of equilibrium binding.
+</p>
+
+<h2>6. Sources</h2>
+
+<ul>
+<li>
+F. Xiao.
+<a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture07-core.html">
+Lecture 7: From Stationary Dynamics to Equilibrium Weights</a>.
+CCBS 2026. Referenced for the equilibrium criterion and detailed balance.
+</li>
+
+<li>
+F. Xiao.
+<a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture08-core.html">
+Lecture 8: The Cell as a Biomachine</a>.
+CCBS 2026. Referenced for the distinction between undriven binding
+and driven catalysis.
+</li>
+
+<li>
+Hopfield, J. J. (1974).
+<a href="https://doi.org/10.1073/pnas.71.10.4135">
+Kinetic Proofreading: A New Mechanism for Reducing Errors in
+Biosynthetic Processes Requiring High Specificity</a>.
+<em>Proceedings of the National Academy of Sciences</em>,
+71(10), 4135–4139.
+DOI: 10.1073/pnas.71.10.4135.
+</li>
+
+<li>
+Murugan, A., Huse, D. A., &amp; Leibler, S. (2012).
+<a href="https://doi.org/10.1073/pnas.1119911109">
+Speed, Dissipation, and Error in Kinetic Proofreading</a>.
+<em>Proceedings of the National Academy of Sciences</em>,
+109(30), 12034–12039.
+DOI: 10.1073/pnas.1119911109.
+</li>
+</ul>
+
+<p class="note">
+The numerical rates in this essay are illustrative choices and are
+not taken from either research paper. The two-stage model is used to
+explain the logic of serial filtering, not to fit experimental data.
+</p>
+
+<h2>Appendix: Reproduce the Figure</h2>
+
+<p>
+The following Python code reproduces the model curves with NumPy
+and Matplotlib. It is included for reproducibility; the HTML figure
+itself is drawn with embedded JavaScript and needs no external library.
+</p>
+
+<details>
+<summary>Show Python source</summary>
+<pre><code>import numpy as np
+import matplotlib.pyplot as plt
+
+k_off_correct = 1.0
+k_off_wrong = 10.0
+
+kp = np.logspace(-1, 2, 300)
+
+f_one = (kp + k_off_correct) / (kp + k_off_wrong)
+f_two = f_one ** 2
+
+fig, ax = plt.subplots(figsize=(7.4, 4.0))
+
+ax.loglog(kp, f_one, linewidth=2.4,
+          label="One-stage selection: f1")
+ax.loglog(kp, f_two, linewidth=2.4,
+          label="Two-stage idealized filter: f2 = f1^2")
+
+ax.axhline(k_off_correct / k_off_wrong,
+           linestyle="--", linewidth=1.4,
+           label="One-stage low-rate limit: 0.1")
+
+kp0 = 1.0
+f1 = (kp0 + k_off_correct) / (kp0 + k_off_wrong)
+f2 = f1 ** 2
+
+ax.scatter([kp0, kp0], [f1, f2], zorder=5)
+ax.set_xlabel("Product formation rate kp (s^-1)")
+ax.set_ylabel("Wrong : correct product ratio")
+ax.set_xlim(0.1, 100)
+ax.set_ylim(0.008, 1.1)
+ax.grid(True, which="both", alpha=0.22)
+ax.legend(frameon=False)
+ax.set_title("Faster commitment reduces discrimination")
+
+plt.tight_layout()
+plt.savefig("week4-proofreading.svg", format="svg")
+plt.show()
+</code></pre>
+</details>
+
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  const svg = document.getElementById("chart");
+  const NS = "http://www.w3.org/2000/svg";
+
+  const left = 82;
+  const right = 730;
+  const top = 34;
+  const bottom = 330;
+
+  const ymin = 0.008;
+  const ymax = 1.1;
+
+  function xPos(v) {
+    return left + (Math.log10(v) + 1) / 3 * (right - left);
+  }
+
+  function yPos(v) {
+    return bottom -
+      (Math.log10(v) - Math.log10(ymin)) /
+      (Math.log10(ymax) - Math.log10(ymin)) *
+      (bottom - top);
+  }
+
+  function add(tag, attrs, parent) {
+    const node = document.createElementNS(NS, tag);
+    Object.keys(attrs || {}).forEach(function (key) {
+      node.setAttribute(key, attrs[key]);
+    });
+    (parent || svg).appendChild(node);
+    return node;
+  }
+
+  function label(x, y, text, attrs) {
+    const node = add("text", Object.assign({
+      x: x,
+      y: y,
+      fill: "currentColor",
+      "font-size": "12",
+      "font-family": "Arial, Helvetica, sans-serif"
+    }, attrs || {}));
+    node.textContent = text;
+    return node;
+  }
+
+  function pathFor(fn) {
+    let d = "";
+    const count = 300;
+
+    for (let i = 0; i < count; i++) {
+      const logW = -1 + 3 * i / (count - 1);
+      const w = Math.pow(10, logW);
+      const val = fn(w);
+      const px = xPos(w);
+      const py = yPos(val);
+
+      d += (i === 0 ? "M " : " L ") +
+        px.toFixed(2) + " " + py.toFixed(2);
+    }
+
+    return d;
+  }
+
+  function f1(w) {
+    return (w + 1) / (w + 10);
+  }
+
+  function f2(w) {
+    return Math.pow(f1(w), 2);
+  }
+
+  // Grid and axes
+  [0.1, 1, 10, 100].forEach(function (v) {
+    const x = xPos(v);
+
+    add("line", {
+      x1: x, y1: top, x2: x, y2: bottom,
+      stroke: "#8a969f",
+      "stroke-opacity": "0.3"
+    });
+
+    label(x, bottom + 22, String(v), {
+      "text-anchor": "middle"
+    });
+  });
+
+  [0.01, 0.03, 0.1, 0.3, 1].forEach(function (v) {
+    const y = yPos(v);
+
+    add("line", {
+      x1: left, y1: y, x2: right, y2: y,
+      stroke: "#8a969f",
+      "stroke-opacity": "0.3"
+    });
+
+    label(left - 12, y + 4, String(v), {
+      "text-anchor": "end"
+    });
+  });
+
+  add("line", {
+    x1: left, y1: bottom, x2: right, y2: bottom,
+    stroke: "currentColor"
+  });
+
+  add("line", {
+    x1: left, y1: top, x2: left, y2: bottom,
+    stroke: "currentColor"
+  });
+
+  // One-stage and two-stage curves
+  add("path", {
+    d: pathFor(f1),
+    fill: "none",
+    stroke: "#2878b5",
+    "stroke-width": "3"
+  });
+
+  add("path", {
+    d: pathFor(f2),
+    fill: "none",
+    stroke: "#d16a35",
+    "stroke-width": "3"
+  });
+
+  // One-stage low-rate limit
+  add("line", {
+    x1: left,
+    y1: yPos(0.1),
+    x2: right,
+    y2: yPos(0.1),
+    stroke: "#2878b5",
+    "stroke-width": "1.5",
+    "stroke-dasharray": "7 5"
+  });
+
+  // Mark the example at kp = 1
+  const w0 = 1;
+  const p1 = f1(w0);
+  const p2 = f2(w0);
+  const x0 = xPos(w0);
+
+  add("line", {
+    x1: x0, y1: top, x2: x0, y2: bottom,
+    stroke: "#777777",
+    "stroke-dasharray": "3 5"
+  });
+
+  [[p1, "#2878b5"], [p2, "#d16a35"]].forEach(function (item) {
+    add("circle", {
+      cx: x0,
+      cy: yPos(item[0]),
+      r: 5,
+      fill: item[1],
+      stroke: "#ffffff",
+      "stroke-width": "1.5"
+    });
+  });
+
+  label(x0 + 12, yPos(p1) - 10, "f1 = 0.182", {
+    fill: "#2878b5",
+    "font-size": "13",
+    "font-weight": "bold"
+  });
+
+  label(x0 + 12, yPos(p2) + 18, "f2 = 0.033", {
+    fill: "#d16a35",
+    "font-size": "13",
+    "font-weight": "bold"
+  });
+
+  label((left + right) / 2, 390,
+        "Product formation rate kp (s^-1)", {
+    "text-anchor": "middle",
+    "font-size": "14"
+  });
+
+  label(19, (top + bottom) / 2,
+        "Wrong : correct product ratio", {
+    "text-anchor": "middle",
+    "font-size": "14",
+    transform:
+      "rotate(-90 19 " + ((top + bottom) / 2) + ")"
+  });
+
+  label(left + 10, top + 15, "Illustrative model", {
+    "font-size": "11",
+    fill: "#66727c"
+  });
+})();
+</script>
+
+</body>
+</html>
