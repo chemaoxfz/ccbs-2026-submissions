@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WEEK 6 — Extension: From enzyme saturation to vanishing gradients</title>
+<meta name="author" content="Weihan Luo">
+<meta name="week" content="week6">
+<style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px;
+    border-bottom:1px solid var(--line); padding-bottom:5px; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:14px 18px; margin:14px 0; }
+  .equation { overflow-x:auto; padding:18px; text-align:center; }
+  math { font-size:1.05em; }
+  figure { margin:22px 0; }
+  .fig { width:100%; height:auto; display:block; background:#fff;
+    border:1px solid var(--line); border-radius:6px; }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:8px; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; padding-left:24px; }
+  .src li { margin-bottom:10px; }
+  code { font-family:ui-monospace,SFMono-Regular,Consolas,monospace; font-size:.9em; }
+  pre { overflow-x:auto; background:var(--soft); border:1px solid var(--line);
+    border-radius:6px; padding:14px; line-height:1.5; }
+  summary { color:var(--accent); cursor:pointer; font-size:.92rem; }
+  table { border-collapse:collapse; width:100%; margin:18px 0; font-size:.92rem; }
+  th, td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--line); }
+  th { background:var(--soft); }
+  .table-wrap { overflow-x:auto; }
+</style>
+</head>
+<body>
+<main class="wrap">
+
+<h1>WEEK 6 — Extension: From enzyme saturation to vanishing gradients</h1>
+<p class="meta">Author: Weihan Luo · Week 6 (2026-10-26) · CCBS 2026</p>
+
+<p class="card"><strong>One sentence:</strong> An enzyme’s saturating response becomes a sigmoid in log-concentration coordinates, giving a concrete way to understand how repeated small derivatives can suppress gradients across neural-network layers.</p>
+
+<h2>The point I am adding</h2>
+<p>An enzyme helps convert substrate into product. When substrate is abundant, adding more barely increases the conversion rate: the enzyme is saturated. Lecture 11, Section 1, describes this using fast binding, dilute enzyme and a fixed enzyme total. Write the substrate total as <var>q</var><sub>S</sub>, the binding scale as <var>K</var><sub>d</sub>, and the maximum rate as <var>V</var><sub>max</sub>. The normalized rate <var>p</var> and its reaction order <var>H</var> are <a href="#source-1">[1]</a></p>
+
+<div class="card equation">
+  <math xmlns="http://www.w3.org/1998/Math/MathML" display="block" aria-label="p equals v over V max equals q S over K d plus q S; H equals partial log v over partial log q S equals 1 minus p">
+    <mi>p</mi><mo>=</mo><mfrac><mi>v</mi><msub><mi>V</mi><mtext>max</mtext></msub></mfrac><mo>=</mo>
+    <mfrac><msub><mi>q</mi><mi>S</mi></msub><mrow><msub><mi>K</mi><mi>d</mi></msub><mo>+</mo><msub><mi>q</mi><mi>S</mi></msub></mrow></mfrac>
+    <mo>,</mo><mspace width="1em"/><mi>H</mi><mo>=</mo>
+    <mfrac><mrow><mo>∂</mo><mi>ln</mi><mi>v</mi></mrow><mrow><mo>∂</mo><mi>ln</mi><msub><mi>q</mi><mi>S</mi></msub></mrow></mfrac><mo>=</mo><mn>1</mn><mo>−</mo><mi>p</mi>
+  </math>
+</div>
+
+<p>Reaction order measures a percentage response: <var>H</var> = 0.01 means a small 1% substrate increase produces approximately a 0.01% rate increase. Now set <var>a</var> = ln(<var>q</var><sub>S</sub>/<var>K</var><sub>d</sub>). Substitution gives exactly the logistic sigmoid used in neural networks, together with its familiar derivative:</p>
+
+<div class="card equation">
+  <math xmlns="http://www.w3.org/1998/Math/MathML" display="block" aria-label="p of a equals 1 over 1 plus exp minus a equals sigmoid of a; d p over d a equals p times 1 minus p">
+    <mi>p</mi><mo>(</mo><mi>a</mi><mo>)</mo><mo>=</mo>
+    <mfrac><mn>1</mn><mrow><mn>1</mn><mo>+</mo><msup><mi>e</mi><mrow><mo>−</mo><mi>a</mi></mrow></msup></mrow></mfrac>
+    <mo>=</mo><mi>σ</mi><mo>(</mo><mi>a</mi><mo>)</mo><mo>,</mo><mspace width="1em"/>
+    <mfrac><mrow><mi>d</mi><mi>p</mi></mrow><mrow><mi>d</mi><mi>a</mi></mrow></mfrac><mo>=</mo><mi>p</mi><mo>(</mo><mn>1</mn><mo>−</mo><mi>p</mi><mo>)</mo>
+  </math>
+</div>
+
+<p>The two sensitivities are related but different: <var>H</var> = 1 − <var>p</var> describes fractional output change, whereas d<var>p</var>/d<var>a</var> = <var>pH</var> describes absolute change in normalized output. Near maximum activity, both become small. My extension is to compose sigmoid responses and ask how much of an upstream change survives. For scalar neural layers,</p>
+
+<div class="card equation">
+  <math xmlns="http://www.w3.org/1998/Math/MathML" display="block" aria-label="h ell equals sigmoid of w ell times h ell minus one plus b ell">
+    <msub><mi>h</mi><mi>ℓ</mi></msub><mo>=</mo><mi>σ</mi><mo>(</mo>
+    <msub><mi>w</mi><mi>ℓ</mi></msub><msub><mi>h</mi><mrow><mi>ℓ</mi><mo>−</mo><mn>1</mn></mrow></msub>
+    <mo>+</mo><msub><mi>b</mi><mi>ℓ</mi></msub><mo>)</mo>
+  </math>
+  <math xmlns="http://www.w3.org/1998/Math/MathML" display="block" aria-label="G N equals partial h N over partial h zero equals product from ell one to N of w ell times h ell times 1 minus h ell">
+    <msub><mi>G</mi><mi>N</mi></msub><mo>=</mo>
+    <mfrac><mrow><mo>∂</mo><msub><mi>h</mi><mi>N</mi></msub></mrow><mrow><mo>∂</mo><msub><mi>h</mi><mn>0</mn></msub></mrow></mfrac><mo>=</mo>
+    <munderover><mo>∏</mo><mrow><mi>ℓ</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></munderover>
+    <msub><mi>w</mi><mi>ℓ</mi></msub><msub><mi>h</mi><mi>ℓ</mi></msub><mo>(</mo><mn>1</mn><mo>−</mo><msub><mi>h</mi><mi>ℓ</mi></msub><mo>)</mo>
+  </math>
+</div>
+
+<p>This is the chain rule. Backpropagation multiplies the final loss derivative by these same local factors when propagating it toward earlier layers. Glorot and Bengio studied how saturated sigmoid units hinder gradient propagation and training <a href="#source-2">[2]</a>. The enzyme curve supplies an accessible starting point for that sensitivity calculation.</p>
+
+<h2>Work it</h2>
+<p>I compare two deliberately controlled chains: all weights are 1, and each layer has output <var>p</var> = 0.5 or 0.99 at the reference input. Choosing <var>h</var><sub>0</sub> = <var>p</var> and every bias as ln(<var>p</var>/(1 − <var>p</var>)) − <var>p</var> keeps each layer at that chosen output. Thus the input-output derivative is exactly [<var>p</var>(1 − <var>p</var>)]<sup><var>N</var></sup>. These are local derivatives of two specified networks, rather than a training experiment.</p>
+
+<div class="table-wrap">
+<table>
+  <caption>My calculation: saturation compounds across layers.</caption>
+  <thead><tr><th scope="col">Output in each layer</th><th scope="col">One-layer derivative</th><th scope="col">Five-layer derivative</th></tr></thead>
+  <tbody>
+    <tr><td>0.5 (mid-response)</td><td>0.25</td><td>9.766 × 10<sup>−4</sup></td></tr>
+    <tr><td>0.99 (saturated)</td><td>0.0099</td><td>9.510 × 10<sup>−11</sup></td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>After five layers, the saturated chain transmits a derivative about ten million times smaller. Even the mid-response chain shrinks sensitivity under unit weights; saturation makes the reduction much stronger.</p>
+
+<figure>
+<svg class="fig" role="img" aria-labelledby="saturation-figure-title" xmlns:xlink="http://www.w3.org/1999/xlink" width="518.4pt" height="489.6pt" viewBox="0 0 518.4 489.6" xmlns="http://www.w3.org/2000/svg" version="1.1">
+<title id="saturation-figure-title">Enzyme saturation and sensitivity across sigmoid layers</title>
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 489.6
+L 518.4 489.6
+L 518.4 0
+L 0 0
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 60.202344 199.977656
+L 501.12 199.977656
+L 501.12 46.091419
+L 60.202344 46.091419
+z
+" style="fill: #ffffff"/>
+   </g>
+   <g id="matplotlib.axis_1">
+    <g id="xtick_1">
+     <g id="line2d_1">
+      <path d="M 60.202344 199.977656
+L 60.202344 46.091419
+" clip-path="url(#pf827453cc2)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_2">
+      <defs>
+       <path id="m76ad936761" d="M 0 0
+L 0 3.5
+" style="stroke: #000000; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#m76ad936761" x="60.202344" y="199.977656" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_1">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="60.202344" y="214.575312" transform="rotate(-0 60.202344 214.575312)">−6</text>
+     </g>
+    </g>
+    <g id="xtick_2">
+     <g id="line2d_3">
+      <path d="M 133.68862 199.977656
+L 133.68862 46.091419
+" clip-path="url(#pf827453cc2)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_4">
+      <g>
+       <use xlink:href="#m76ad936761" x="133.68862" y="199.977656" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_2">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="133.68862" y="214.575312" transform="rotate(-0 133.68862 214.575312)">−4</text>
+     </g>
+    </g>
+    <g id="xtick_3">
+     <g id="line2d_5">
+      <path d="M 207.174896 199.977656
+L 207.174896 46.091419
+" clip-path="url(#pf827453cc2)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_6">
+      <g>
+       <use xlink:href="#m76ad936761" x="207.174896" y="199.977656" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_3">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="207.174896" y="214.575312" transform="rotate(-0 207.174896 214.575312)">−2</text>
+     </g>
+    </g>
+    <g id="xtick_4">
+     <g id="line2d_7">
+      <path d="M 280.661172 199.977656
+L 280.661172 46.091419
+" clip-path="url(#pf827453cc2)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_8">
+      <g>
+       <use xlink:href="#m76ad936761" x="280.661172" y="199.977656" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_4">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="280.661172" y="214.575312" transform="rotate(-0 280.661172 214.575312)">0</text>
+     </g>
+    </g>
+    <g id="xtick_5">
+     <g id="line2d_9">
+      <path d="M 354.147448 199.977656
+L 354.147448 46.091419
+" clip-path="url(#pf827453cc2)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_10">
+      <g>
+       <use xlink:href="#m76ad936761" x="354.147448" y="199.977656" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_5">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="354.147448" y="214.575312" transform="rotate(-0 354.147448 214.575312)">2</text>
+     </g>
+    </g>
+    <g id="xtick_6">
+     <g id="line2d_11">
+      <path d="M 427.633724 199.977656
+L 427.633724 46.091419
+" clip-path="url(#pf827453cc2)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_12">
+      <g>
+       <use xlink:href="#m76ad936761" x="427.633724" y="199.977656" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_6">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="427.633724" y="214.575312" transform="rotate(-0 427.633724 214.575312)">4</text>
+     </g>
+    </g>
+    <g id="xtick_7">
+     <g id="line2d_13">
+      <path d="M 501.12 199.977656
+L 501.12 46.091419
+" clip-path="url(#pf827453cc2)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_14">
+      <g>
+       <use xlink:href="#m76ad936761" x="501.12" y="199.977656" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_7">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="501.12" y="214.575312" transform="rotate(-0 501.12 214.575312)">6</text>
+     </g>
+    </g>
+    <g id="text_8">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="280.661172" y="228.576094" transform="rotate(-0 280.661172 228.576094)">Log concentration ratio  a = ln(q_S / K_d)</text>
+    </g>
+   </g>
+   <g id="matplotlib.axis_2">
+    <g id="ytick_1">
+     <g id="line2d_15">
+      <path d="M 60.202344 199.977656
+L 501.12 199.977656
+" clip-path="url(#pf827453cc2)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_16">
+      <defs>
+       <path id="m50206165ea" d="M 0 0
+L -3.5 0
+" style="stroke: #000000; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#m50206165ea" x="60.202344" y="199.977656" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_9">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="53.202344" y="203.776484" transform="rotate(-0 53.202344 203.776484)">0.0</text>
+     </g>
+    </g>
+    <g id="ytick_2">
+     <g id="line2d_17">
+      <path d="M 60.202344 170.384149
+L 501.12 170.384149
+" clip-path="url(#pf827453cc2)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_18">
+      <g>
+       <use xlink:href="#m50206165ea" x="60.202344" y="170.384149" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_10">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="53.202344" y="174.182977" transform="rotate(-0 53.202344 174.182977)">0.2</text>
+     </g>
+    </g>
+    <g id="ytick_3">
+     <g id="line2d_19">
+      <path d="M 60.202344 140.790642
+L 501.12 140.790642
+" clip-path="url(#pf827453cc2)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_20">
+      <g>
+       <use xlink:href="#m50206165ea" x="60.202344" y="140.790642" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_11">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="53.202344" y="144.58947" transform="rotate(-0 53.202344 144.58947)">0.4</text>
+     </g>
+    </g>
+    <g id="ytick_4">
+     <g id="line2d_21">
+      <path d="M 60.202344 111.197135
+L 501.12 111.197135
+" clip-path="url(#pf827453cc2)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_22">
+      <g>
+       <use xlink:href="#m50206165ea" x="60.202344" y="111.197135" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_12">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="53.202344" y="114.995963" transform="rotate(-0 53.202344 114.995963)">0.6</text>
+     </g>
+    </g>
+    <g id="ytick_5">
+     <g id="line2d_23">
+      <path d="M 60.202344 81.603627
+L 501.12 81.603627
+" clip-path="url(#pf827453cc2)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_24">
+      <g>
+       <use xlink:href="#m50206165ea" x="60.202344" y="81.603627" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_13">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="53.202344" y="85.402456" transform="rotate(-0 53.202344 85.402456)">0.8</text>
+     </g>
+    </g>
+    <g id="ytick_6">
+     <g id="line2d_25">
+      <path d="M 60.202344 52.01012
+L 501.12 52.01012
+" clip-path="url(#pf827453cc2)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_26">
+      <g>
+       <use xlink:href="#m50206165ea" x="60.202344" y="52.01012" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_14">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="53.202344" y="55.808948" transform="rotate(-0 53.202344 55.808948)">1.0</text>
+     </g>
+    </g>
+    <g id="text_15">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="30.896875" y="123.034537" transform="rotate(-90 30.896875 123.034537)">Response or local gain</text>
+    </g>
+   </g>
+   <g id="line2d_27">
+    <path d="M 60.202344 199.611788
+L 85.92254 199.242731
+L 104.294109 198.769861
+L 118.991365 198.183042
+L 131.851463 197.443855
+L 142.874404 196.577751
+L 152.060189 195.640398
+L 161.245973 194.454489
+L 168.594601 193.286938
+L 175.943229 191.886596
+L 183.291856 190.213425
+L 188.803327 188.753108
+L 194.314798 187.094748
+L 199.826268 185.217822
+L 205.337739 183.101606
+L 210.84921 180.725826
+L 216.36068 178.071477
+L 221.872151 175.121831
+L 227.383622 171.863593
+L 232.895092 168.288186
+L 238.406563 164.393079
+L 243.918034 160.183057
+L 249.429505 155.671314
+L 254.940975 150.880218
+L 260.452446 145.841601
+L 267.801074 138.810478
+L 276.986858 129.689997
+L 293.52127 113.177298
+L 300.869898 106.146175
+L 306.381368 101.107558
+L 311.892839 96.316462
+L 317.40431 91.80472
+L 322.915781 87.594697
+L 328.427251 83.69959
+L 333.938722 80.124184
+L 339.450193 76.865946
+L 344.961663 73.916299
+L 350.473134 71.261951
+L 355.984605 68.88617
+L 361.496076 66.769954
+L 367.007546 64.893028
+L 372.519017 63.234668
+L 378.030488 61.774351
+L 385.379115 60.10118
+L 392.727743 58.700838
+L 400.07637 57.533288
+L 407.424998 56.562912
+L 416.610783 55.580136
+L 425.796567 54.805369
+L 436.819508 54.09108
+L 449.679607 53.482664
+L 466.214019 52.952454
+L 486.422745 52.555268
+L 501.12 52.375988
+L 501.12 52.375988
+" clip-path="url(#pf827453cc2)" style="fill: none; stroke: #167d8d; stroke-width: 2.4; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_28">
+    <path d="M 60.202344 199.612693
+L 85.92254 199.246381
+L 104.294109 198.779719
+L 118.991365 198.204807
+L 131.851463 197.487244
+L 142.874404 196.655872
+L 152.060189 195.767532
+L 161.245973 194.660651
+L 170.431758 193.292977
+L 177.780385 191.98177
+L 185.129013 190.454717
+L 192.477641 188.694392
+L 199.826268 186.690123
+L 207.174896 184.442014
+L 214.523523 181.965666
+L 223.709308 178.606547
+L 249.429505 168.938089
+L 254.940975 167.171349
+L 260.452446 165.648057
+L 265.963917 164.426866
+L 269.63823 163.805762
+L 273.312544 163.353239
+L 276.986858 163.078098
+L 280.661172 162.985772
+L 284.335486 163.078098
+L 288.009799 163.353239
+L 291.684113 163.805762
+L 295.358427 164.426866
+L 300.869898 165.648057
+L 306.381368 167.171349
+L 311.892839 168.938089
+L 319.241467 171.563828
+L 332.101565 176.497443
+L 343.124507 180.652246
+L 350.473134 183.230652
+L 357.821762 185.595995
+L 365.170389 187.723049
+L 372.519017 189.604582
+L 379.867645 191.24643
+L 387.216272 192.663093
+L 394.5649 193.87414
+L 403.750684 195.13227
+L 412.936469 196.146837
+L 423.95941 197.100181
+L 434.982352 197.823876
+L 447.84245 198.446582
+L 462.539705 198.944234
+L 480.911274 199.34737
+L 501.12 199.612693
+L 501.12 199.612693
+" clip-path="url(#pf827453cc2)" style="fill: none; stroke: #b44660; stroke-width: 2.4; stroke-linecap: square"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 60.202344 199.977656
+L 60.202344 46.091419
+" style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 60.202344 199.977656
+L 501.12 199.977656
+" style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="legend_1">
+    <g id="line2d_29">
+     <path d="M 63.802344 20.600881
+L 72.802344 20.600881
+L 81.802344 20.600881
+" style="fill: none; stroke: #167d8d; stroke-width: 2.4; stroke-linecap: square"/>
+    </g>
+    <g id="text_16">
+     <text style="font-size: 9px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: start" x="89.002344" y="23.750881" transform="rotate(-0 89.002344 23.750881)">Normalized enzyme rate = sigmoid</text>
+    </g>
+    <g id="line2d_30">
+     <path d="M 63.802344 34.101585
+L 72.802344 34.101585
+L 81.802344 34.101585
+" style="fill: none; stroke: #b44660; stroke-width: 2.4; stroke-linecap: square"/>
+    </g>
+    <g id="text_17">
+     <text style="font-size: 9px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: start" x="89.002344" y="37.251585" transform="rotate(-0 89.002344 37.251585)">Slope with respect to log input</text>
+    </g>
+   </g>
+  </g>
+  <g id="axes_2">
+   <g id="patch_5">
+    <path d="M 60.202344 447.477656
+L 501.12 447.477656
+L 501.12 293.591419
+L 60.202344 293.591419
+z
+" style="fill: #ffffff"/>
+   </g>
+   <g id="matplotlib.axis_3">
+    <g id="xtick_8">
+     <g id="line2d_31">
+      <path d="M 60.202344 447.477656
+L 60.202344 293.591419
+" clip-path="url(#pe309d6e07f)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_32">
+      <g>
+       <use xlink:href="#m76ad936761" x="60.202344" y="447.477656" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_18">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="60.202344" y="462.075312" transform="rotate(-0 60.202344 462.075312)">0</text>
+     </g>
+    </g>
+    <g id="xtick_9">
+     <g id="line2d_33">
+      <path d="M 148.385875 447.477656
+L 148.385875 293.591419
+" clip-path="url(#pe309d6e07f)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_34">
+      <g>
+       <use xlink:href="#m76ad936761" x="148.385875" y="447.477656" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_19">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="148.385875" y="462.075312" transform="rotate(-0 148.385875 462.075312)">2</text>
+     </g>
+    </g>
+    <g id="xtick_10">
+     <g id="line2d_35">
+      <path d="M 236.569406 447.477656
+L 236.569406 293.591419
+" clip-path="url(#pe309d6e07f)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_36">
+      <g>
+       <use xlink:href="#m76ad936761" x="236.569406" y="447.477656" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_20">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="236.569406" y="462.075312" transform="rotate(-0 236.569406 462.075312)">4</text>
+     </g>
+    </g>
+    <g id="xtick_11">
+     <g id="line2d_37">
+      <path d="M 324.752937 447.477656
+L 324.752937 293.591419
+" clip-path="url(#pe309d6e07f)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_38">
+      <g>
+       <use xlink:href="#m76ad936761" x="324.752937" y="447.477656" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_21">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="324.752937" y="462.075312" transform="rotate(-0 324.752937 462.075312)">6</text>
+     </g>
+    </g>
+    <g id="xtick_12">
+     <g id="line2d_39">
+      <path d="M 412.936469 447.477656
+L 412.936469 293.591419
+" clip-path="url(#pe309d6e07f)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_40">
+      <g>
+       <use xlink:href="#m76ad936761" x="412.936469" y="447.477656" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_22">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="412.936469" y="462.075312" transform="rotate(-0 412.936469 462.075312)">8</text>
+     </g>
+    </g>
+    <g id="xtick_13">
+     <g id="line2d_41">
+      <path d="M 501.12 447.477656
+L 501.12 293.591419
+" clip-path="url(#pe309d6e07f)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_42">
+      <g>
+       <use xlink:href="#m76ad936761" x="501.12" y="447.477656" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_23">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="501.12" y="462.075312" transform="rotate(-0 501.12 462.075312)">10</text>
+     </g>
+    </g>
+    <g id="text_24">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="280.661172" y="476.076094" transform="rotate(-0 280.661172 476.076094)">Number of sigmoid layers (unit weights)</text>
+    </g>
+   </g>
+   <g id="matplotlib.axis_4">
+    <g id="ytick_7">
+     <g id="line2d_43">
+      <path d="M 60.202344 295.766167
+L 501.12 295.766167
+" clip-path="url(#pe309d6e07f)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_44">
+      <g>
+       <use xlink:href="#m50206165ea" x="60.202344" y="295.766167" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_25">
+
+      <g transform="translate(35.602344 300.466167)">
+       <text>
+        <tspan x="0" y="-0.674688" style="font-size: 10px; font-family: 'DejaVu Sans'">1</tspan>
+        <tspan x="6.362305" y="-0.674688" style="font-size: 10px; font-family: 'DejaVu Sans'">0</tspan>
+        <tspan x="12.820312" y="-4.804688" style="font-size: 7px; font-family: 'DejaVu Sans'">0</tspan>
+       </text>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_8">
+     <g id="line2d_45">
+      <path d="M 60.202344 324.663593
+L 501.12 324.663593
+" clip-path="url(#pe309d6e07f)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_46">
+      <g>
+       <use xlink:href="#m50206165ea" x="60.202344" y="324.663593" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_26">
+
+      <g transform="translate(29.702344 329.313593)">
+       <text>
+        <tspan x="0" y="-0.762187" style="font-size: 10px; font-family: 'DejaVu Sans'">1</tspan>
+        <tspan x="6.362305" y="-0.762187" style="font-size: 10px; font-family: 'DejaVu Sans'">0</tspan>
+        <tspan x="12.820312" y="-4.892187" style="font-size: 7px; font-family: 'DejaVu Sans'">−</tspan>
+        <tspan x="18.685547" y="-4.892187" style="font-size: 7px; font-family: 'DejaVu Sans'">4</tspan>
+       </text>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_9">
+     <g id="line2d_47">
+      <path d="M 60.202344 353.56102
+L 501.12 353.56102
+" clip-path="url(#pe309d6e07f)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_48">
+      <g>
+       <use xlink:href="#m50206165ea" x="60.202344" y="353.56102" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_27">
+
+      <g transform="translate(29.702344 358.26102)">
+       <text>
+        <tspan x="0" y="-0.674688" style="font-size: 10px; font-family: 'DejaVu Sans'">1</tspan>
+        <tspan x="6.362305" y="-0.674688" style="font-size: 10px; font-family: 'DejaVu Sans'">0</tspan>
+        <tspan x="12.820312" y="-4.804688" style="font-size: 7px; font-family: 'DejaVu Sans'">−</tspan>
+        <tspan x="18.685547" y="-4.804688" style="font-size: 7px; font-family: 'DejaVu Sans'">8</tspan>
+       </text>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_10">
+     <g id="line2d_49">
+      <path d="M 60.202344 382.458446
+L 501.12 382.458446
+" clip-path="url(#pe309d6e07f)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_50">
+      <g>
+       <use xlink:href="#m50206165ea" x="60.202344" y="382.458446" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_28">
+
+      <g transform="translate(25.302344 387.158446)">
+       <text>
+        <tspan x="0" y="-0.674688" style="font-size: 10px; font-family: 'DejaVu Sans'">1</tspan>
+        <tspan x="6.362305" y="-0.674688" style="font-size: 10px; font-family: 'DejaVu Sans'">0</tspan>
+        <tspan x="12.820312" y="-4.804688" style="font-size: 7px; font-family: 'DejaVu Sans'">−</tspan>
+        <tspan x="18.685547" y="-4.804688" style="font-size: 7px; font-family: 'DejaVu Sans'">1</tspan>
+        <tspan x="23.13916" y="-4.804688" style="font-size: 7px; font-family: 'DejaVu Sans'">2</tspan>
+       </text>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_11">
+     <g id="line2d_51">
+      <path d="M 60.202344 411.355873
+L 501.12 411.355873
+" clip-path="url(#pe309d6e07f)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_52">
+      <g>
+       <use xlink:href="#m50206165ea" x="60.202344" y="411.355873" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_29">
+
+      <g transform="translate(25.302344 416.055873)">
+       <text>
+        <tspan x="0" y="-0.674688" style="font-size: 10px; font-family: 'DejaVu Sans'">1</tspan>
+        <tspan x="6.362305" y="-0.674688" style="font-size: 10px; font-family: 'DejaVu Sans'">0</tspan>
+        <tspan x="12.820312" y="-4.804688" style="font-size: 7px; font-family: 'DejaVu Sans'">−</tspan>
+        <tspan x="18.685547" y="-4.804688" style="font-size: 7px; font-family: 'DejaVu Sans'">1</tspan>
+        <tspan x="23.13916" y="-4.804688" style="font-size: 7px; font-family: 'DejaVu Sans'">6</tspan>
+       </text>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_12">
+     <g id="line2d_53">
+      <path d="M 60.202344 440.2533
+L 501.12 440.2533
+" clip-path="url(#pe309d6e07f)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_54">
+      <g>
+       <use xlink:href="#m50206165ea" x="60.202344" y="440.2533" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_30">
+
+      <g transform="translate(25.302344 444.9533)">
+       <text>
+        <tspan x="0" y="-0.674688" style="font-size: 10px; font-family: 'DejaVu Sans'">1</tspan>
+        <tspan x="6.362305" y="-0.674688" style="font-size: 10px; font-family: 'DejaVu Sans'">0</tspan>
+        <tspan x="12.820312" y="-4.804688" style="font-size: 7px; font-family: 'DejaVu Sans'">−</tspan>
+        <tspan x="18.685547" y="-4.804688" style="font-size: 7px; font-family: 'DejaVu Sans'">2</tspan>
+        <tspan x="23.13916" y="-4.804688" style="font-size: 7px; font-family: 'DejaVu Sans'">0</tspan>
+       </text>
+      </g>
+     </g>
+    </g>
+    <g id="text_31">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="18.9" y="370.534537" transform="rotate(-90 18.9 370.534537)">Input-output sensitivity |dh_N / dh_0|</text>
+    </g>
+   </g>
+   <g id="line2d_55">
+    <path d="M 60.202344 295.766167
+L 104.294109 300.115663
+L 148.385875 304.465159
+L 192.477641 308.814655
+L 236.569406 313.164151
+L 280.661172 317.513647
+L 324.752937 321.863143
+L 368.844703 326.212639
+L 412.936469 330.562136
+L 457.028234 334.911632
+L 501.12 339.261128
+" clip-path="url(#pe309d6e07f)" style="fill: none; stroke: #167d8d; stroke-width: 2; stroke-linecap: square"/>
+    <defs>
+     <path id="m9c2ea5bf70" d="M 0 2
+C 0.530406 2 1.03916 1.789267 1.414214 1.414214
+C 1.789267 1.03916 2 0.530406 2 0
+C 2 -0.530406 1.789267 -1.03916 1.414214 -1.414214
+C 1.03916 -1.789267 0.530406 -2 0 -2
+C -0.530406 -2 -1.03916 -1.789267 -1.414214 -1.414214
+C -1.789267 -1.03916 -2 -0.530406 -2 0
+C -2 0.530406 -1.789267 1.03916 -1.414214 1.414214
+C -1.03916 1.789267 -0.530406 2 0 2
+z
+" style="stroke: #167d8d"/>
+    </defs>
+    <g clip-path="url(#pe309d6e07f)">
+     <use xlink:href="#m9c2ea5bf70" x="60.202344" y="295.766167" style="fill: #167d8d; stroke: #167d8d"/>
+     <use xlink:href="#m9c2ea5bf70" x="104.294109" y="300.115663" style="fill: #167d8d; stroke: #167d8d"/>
+     <use xlink:href="#m9c2ea5bf70" x="148.385875" y="304.465159" style="fill: #167d8d; stroke: #167d8d"/>
+     <use xlink:href="#m9c2ea5bf70" x="192.477641" y="308.814655" style="fill: #167d8d; stroke: #167d8d"/>
+     <use xlink:href="#m9c2ea5bf70" x="236.569406" y="313.164151" style="fill: #167d8d; stroke: #167d8d"/>
+     <use xlink:href="#m9c2ea5bf70" x="280.661172" y="317.513647" style="fill: #167d8d; stroke: #167d8d"/>
+     <use xlink:href="#m9c2ea5bf70" x="324.752937" y="321.863143" style="fill: #167d8d; stroke: #167d8d"/>
+     <use xlink:href="#m9c2ea5bf70" x="368.844703" y="326.212639" style="fill: #167d8d; stroke: #167d8d"/>
+     <use xlink:href="#m9c2ea5bf70" x="412.936469" y="330.562136" style="fill: #167d8d; stroke: #167d8d"/>
+     <use xlink:href="#m9c2ea5bf70" x="457.028234" y="334.911632" style="fill: #167d8d; stroke: #167d8d"/>
+     <use xlink:href="#m9c2ea5bf70" x="501.12" y="339.261128" style="fill: #167d8d; stroke: #167d8d"/>
+    </g>
+   </g>
+   <g id="line2d_56">
+    <path d="M 60.202344 295.766167
+L 104.294109 310.246413
+L 148.385875 324.726659
+L 192.477641 339.206905
+L 236.569406 353.687152
+L 280.661172 368.167398
+L 324.752937 382.647644
+L 368.844703 397.12789
+L 412.936469 411.608136
+L 457.028234 426.088383
+L 501.12 440.568629
+" clip-path="url(#pe309d6e07f)" style="fill: none; stroke: #b44660; stroke-width: 2; stroke-linecap: square"/>
+    <defs>
+     <path id="m583e7e9476" d="M 0 2
+C 0.530406 2 1.03916 1.789267 1.414214 1.414214
+C 1.789267 1.03916 2 0.530406 2 0
+C 2 -0.530406 1.789267 -1.03916 1.414214 -1.414214
+C 1.03916 -1.789267 0.530406 -2 0 -2
+C -0.530406 -2 -1.03916 -1.789267 -1.414214 -1.414214
+C -1.789267 -1.03916 -2 -0.530406 -2 0
+C -2 0.530406 -1.789267 1.03916 -1.414214 1.414214
+C -1.03916 1.789267 -0.530406 2 0 2
+z
+" style="stroke: #b44660"/>
+    </defs>
+    <g clip-path="url(#pe309d6e07f)">
+     <use xlink:href="#m583e7e9476" x="60.202344" y="295.766167" style="fill: #b44660; stroke: #b44660"/>
+     <use xlink:href="#m583e7e9476" x="104.294109" y="310.246413" style="fill: #b44660; stroke: #b44660"/>
+     <use xlink:href="#m583e7e9476" x="148.385875" y="324.726659" style="fill: #b44660; stroke: #b44660"/>
+     <use xlink:href="#m583e7e9476" x="192.477641" y="339.206905" style="fill: #b44660; stroke: #b44660"/>
+     <use xlink:href="#m583e7e9476" x="236.569406" y="353.687152" style="fill: #b44660; stroke: #b44660"/>
+     <use xlink:href="#m583e7e9476" x="280.661172" y="368.167398" style="fill: #b44660; stroke: #b44660"/>
+     <use xlink:href="#m583e7e9476" x="324.752937" y="382.647644" style="fill: #b44660; stroke: #b44660"/>
+     <use xlink:href="#m583e7e9476" x="368.844703" y="397.12789" style="fill: #b44660; stroke: #b44660"/>
+     <use xlink:href="#m583e7e9476" x="412.936469" y="411.608136" style="fill: #b44660; stroke: #b44660"/>
+     <use xlink:href="#m583e7e9476" x="457.028234" y="426.088383" style="fill: #b44660; stroke: #b44660"/>
+     <use xlink:href="#m583e7e9476" x="501.12" y="440.568629" style="fill: #b44660; stroke: #b44660"/>
+    </g>
+   </g>
+   <g id="patch_6">
+    <path d="M 60.202344 447.477656
+L 60.202344 293.591419
+" style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 60.202344 447.477656
+L 501.12 447.477656
+" style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="legend_2">
+    <g id="line2d_57">
+     <path d="M 63.802344 268.100882
+L 72.802344 268.100882
+L 81.802344 268.100882
+" style="fill: none; stroke: #167d8d; stroke-width: 2; stroke-linecap: square"/>
+     <g>
+      <use xlink:href="#m9c2ea5bf70" x="72.802344" y="268.100882" style="fill: #167d8d; stroke: #167d8d"/>
+     </g>
+    </g>
+    <g id="text_32">
+     <text style="font-size: 9px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: start" x="89.002344" y="271.250881" transform="rotate(-0 89.002344 271.250881)">Each layer at p = 0.5</text>
+    </g>
+    <g id="line2d_58">
+     <path d="M 63.802344 281.601585
+L 72.802344 281.601585
+L 81.802344 281.601585
+" style="fill: none; stroke: #b44660; stroke-width: 2; stroke-linecap: square"/>
+     <g>
+      <use xlink:href="#m583e7e9476" x="72.802344" y="281.601585" style="fill: #b44660; stroke: #b44660"/>
+     </g>
+    </g>
+    <g id="text_33">
+     <text style="font-size: 9px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: start" x="89.002344" y="284.751585" transform="rotate(-0 89.002344 284.751585)">Each layer at p = 0.99</text>
+    </g>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pf827453cc2">
+   <rect x="60.202344" y="46.091419" width="440.917656" height="153.886237"/>
+  </clipPath>
+  <clipPath id="pe309d6e07f">
+   <rect x="60.202344" y="293.591419" width="440.917656" height="153.886237"/>
+  </clipPath>
+ </defs>
+</svg>
+  <figcaption>Figure 1: My exact calculation using the code below. Top: the normalized enzyme rate on a log-concentration axis is a sigmoid; its slope falls near saturation. Bottom: the chain-rule derivative falls with depth in the two controlled unit-weight networks. The vertical axis is logarithmic. Legends sit above each plotting area.</figcaption>
+</figure>
+
+<details>
+  <summary>Reproduce the figure and numerical comparison (Python, NumPy and Matplotlib)</summary>
+<pre><code>import numpy as np
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+
+def sigmoid(preactivation):
+    return 1 / (1 + np.exp(-preactivation))
+
+log_ratio = np.linspace(-6, 6, 241)
+response = sigmoid(log_ratio)
+local_gain = response * (1 - response)
+depths = np.arange(0, 11)
+operating_points = (0.5, 0.99)
+colors = ("#167d8d", "#b44660")
+
+plt.rcParams.update({"font.size": 10, "svg.fonttype": "none"})
+figure, axes = plt.subplots(2, 1, figsize=(7.2, 6.8))
+axes[0].plot(log_ratio, response, color=colors[0], lw=2.4,
+             label="Normalized enzyme rate = sigmoid")
+axes[0].plot(log_ratio, local_gain, color=colors[1], lw=2.4,
+             label="Slope with respect to log input")
+axes[0].set(xlabel="Log concentration ratio  a = ln(q_S / K_d)",
+            ylabel="Response or local gain", xlim=(-6, 6), ylim=(0, 1.04))
+
+for target_output, color in zip(operating_points, colors):
+    bias = np.log(target_output / (1 - target_output)) - target_output
+    hidden = target_output
+    sensitivity = 1.0
+    sensitivities = [sensitivity]
+    for layer in depths[1:]:
+        hidden = sigmoid(hidden + bias)
+        sensitivity *= hidden * (1 - hidden)
+        sensitivities.append(sensitivity)
+    np.testing.assert_allclose(
+        sensitivities, (target_output * (1 - target_output)) ** depths,
+        rtol=1e-12, atol=0,
+    )
+    axes[1].semilogy(depths, sensitivities, "o-", color=color, lw=2,
+                     markersize=4, label=f"Each layer at p = {target_output:g}")
+    print(f"p={target_output:g}: one-layer gain="
+          f"{target_output * (1 - target_output):.6g}; "
+          f"five-layer gain={sensitivities[5]:.12g}")
+
+axes[1].set(xlabel="Number of sigmoid layers (unit weights)",
+            ylabel="Input-output sensitivity |dh_N / dh_0|",
+            xlim=(0, 10), ylim=(1e-21, 2))
+axes[1].set_xticks(np.arange(0, 11, 2))
+axes[1].set_yticks([1, 1e-4, 1e-8, 1e-12, 1e-16, 1e-20])
+
+for axis in axes:
+    axis.legend(loc="lower left", bbox_to_anchor=(0, 1.02),
+                borderaxespad=0, frameon=False, fontsize=9)
+    axis.grid(alpha=0.18)
+    axis.spines[["top", "right"]].set_visible(False)
+
+figure.tight_layout(h_pad=2.7)
+figure.savefig("week6-saturation.svg", metadata={"Date": None})</code></pre>
+</details>
+
+<h2>What I would argue against / where this breaks</h2>
+<p>The coordinate change establishes the same response function; it does not show that enzymes train by backpropagation. Reaction order and activation derivative also should not be conflated: at low substrate, <var>H</var> approaches 1 while d<var>p</var>/d<var>a</var> approaches zero. A biochemical cascade needs its own concentration balances and dynamics. The neural example isolates one mechanism: weights, biases, other activation functions and additional paths change the gradient product, so depth alone does not determine whether learning succeeds. What carries across is the need to track sensitivity through the whole composition.</p>
+
+<h2>Sources</h2>
+<ol class="src">
+  <li id="source-1">Fangzhou Xiao (2026), <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture11-core.html">CCBS Lecture 11: “Reaction orders connect structure to dynamics,” Section 1</a> — the fast-binding, trace-enzyme rate law and logarithmic reaction-order definition used here. The sigmoid coordinate change and controlled layer comparison are my derivations.</li>
+  <li id="source-2">Xavier Glorot and Yoshua Bengio (2010), <a href="https://proceedings.mlr.press/v9/glorot10a.html">“Understanding the difficulty of training deep feedforward neural networks,”</a> AISTATS, PMLR 9:249–256, especially Section 3 — experiments and analysis relating sigmoid saturation, gradient propagation and training difficulty. The figure above is my calculation, not a reproduction of their experiments.</li>
+</ol>
+
+</main>
+</body>
+</html>
