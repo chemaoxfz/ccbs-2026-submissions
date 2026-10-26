@@ -1,0 +1,344 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 5 — Extension: A clock can oscillate but lose the time</title>
+<meta name="author" content="Li Changkai">
+<meta name="week" content="week5">
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --muted: #566;
+    --accent: #1f4e79;
+    --line: #d8dee4;
+    --bg: #fff;
+    --soft: #f6f8fa;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #e8e8e8;
+      --muted: #9aa;
+      --accent: #8ab4e8;
+      --line: #3a4652;
+      --bg: #15191d;
+      --soft: #1e242a;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.6;
+  }
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 40px 22px 80px;
+  }
+  h1 {
+    font-size: 1.6rem;
+    line-height: 1.25;
+    margin: 0 0 6px;
+    color: var(--accent);
+  }
+  .meta { color: var(--muted); font-size: .92rem; margin-bottom: 26px; }
+  h2 {
+    font-size: 1.05rem;
+    color: var(--accent);
+    margin: 34px 0 8px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 5px;
+  }
+  .card {
+    background: var(--soft);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 14px 0;
+  }
+  .eq {
+    font-family: Cambria, "Times New Roman", serif;
+    font-size: 1.08rem;
+    overflow-x: auto;
+    padding: 10px 0;
+  }
+  figure { margin: 20px 0; }
+  .fig {
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    margin: 14px 0 0;
+  }
+  figcaption { font-size: .85rem; color: var(--muted); margin-top: 6px; }
+  a { color: var(--accent); overflow-wrap: anywhere; }
+  .src { font-size: .9rem; padding-left: 23px; }
+  .src li { margin: 12px 0; }
+  pre {
+    background: var(--soft);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 14px;
+    overflow-x: auto;
+    font-size: .82rem;
+    line-height: 1.5;
+  }
+  .small { font-size: .88rem; color: var(--muted); }
+  @media (max-width: 480px) {
+    .wrap { padding: 26px 16px 50px; }
+    h1 { font-size: 1.4rem; }
+  }
+  @media print {
+    .wrap { max-width: none; padding: 0; }
+    figure, .card { break-inside: avoid; }
+    h2 { break-after: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Week 5 — Extension: A clock can oscillate but lose the time</h1>
+<p class="meta">Author: Li Changkai · Week 5 · CCBS 2026</p>
+
+<p class="card">
+  <strong>One sentence:</strong>
+  A stable deterministic limit cycle is not automatically a precise
+  biological clock: independent molecular noise diffuses phase, so a
+  population can lose synchrony even while individual cells keep oscillating.
+</p>
+
+<h2>The point I am adding</h2>
+
+<p>
+Lecture 9 uses the repressilator, a ring of mutually repressing genes,
+to illustrate how a closed biochemical circuit can generate oscillation.
+But a clock must do more than oscillate: it must also keep track of time
+reliably. Two cells can both oscillate with similar periods while reaching
+the same phase at different times.
+</p>
+
+<p>
+The distinction comes from the geometry of a stable limit cycle. A
+deterministic perturbation away from the cycle can decay, restoring the
+oscillation's amplitude. However, motion along the cycle corresponds to
+a shift in phase. There is no preferred phase at which an autonomous
+oscillator must remain. Molecular fluctuations can therefore accumulate
+as timing errors even when the oscillation itself persists.
+</p>
+
+<p>
+A minimal model isolates this effect. Let θ be the oscillator's phase,
+ω its mean angular frequency, and D its phase-diffusion coefficient.
+Represent the accumulated random timing error by
+</p>
+
+<div class="card eq">
+  dθ = ω dt + √(2D) dW(t)
+  <br><br>
+  Var[θ(t) − ωt] = 2Dt
+</div>
+
+<p>
+Here W(t) is a standard Wiener process. The first equation says that
+phase advances on average at a constant rate but receives random
+increments. The second follows because independent Wiener increments
+accumulate variance linearly with time.
+</p>
+
+<p>
+For cells synchronized at time zero, define the population's phase
+coherence as
+</p>
+
+<div class="card eq">
+  R(t) = |⟨exp(i[θ(t) − ωt])⟩| = exp(−Dt).
+</div>
+
+<p>
+The last equality follows from the characteristic function of a Gaussian
+random variable with variance 2Dt. R = 1 means perfect phase alignment;
+R near zero means that phases are broadly dispersed. Importantly, R is
+not the fraction of cells that are still oscillating. It measures how
+closely their phases agree.
+</p>
+
+<h2>Work it: how fast does synchrony disappear?</h2>
+
+<p>
+I calculated R(t) for two illustrative phase-diffusion coefficients:
+D = 0.020 h⁻¹ and D = 0.005 h⁻¹. These values are chosen to demonstrate
+the model; they are not estimates fitted to a biological experiment.
+The predicted coherence half-time is obtained by setting R(t) = 1/2:
+</p>
+
+<div class="card eq">
+  t<sub>1/2</sub> = ln(2)/D
+</div>
+
+<p>
+For D = 0.020 h⁻¹, the half-time is 34.7 hours. For D = 0.005 h⁻¹,
+it is 138.6 hours. At 20 hours, the corresponding coherence values are
+0.670 and 0.905. Thus, reducing D fourfold increases the coherence
+half-time fourfold, without changing the model's mean frequency ω.
+</p>
+
+<figure>
+<svg class="fig" viewBox="0 0 640 250"
+     xmlns="http://www.w3.org/2000/svg"
+     role="img"
+     aria-label="Phase coherence decays exponentially with time. The lower diffusion coefficient retains coherence longer.">
+  <rect x="0" y="0" width="640" height="250" fill="none"/>
+  <g stroke="currentColor" stroke-opacity=".12" stroke-width="1">
+    <line x1="60" y1="30" x2="620" y2="30"/>
+    <line x1="60" y1="110" x2="620" y2="110"/>
+    <line x1="60" y1="190" x2="620" y2="190"/>
+    <line x1="60" y1="30" x2="60" y2="190"/>
+    <line x1="200" y1="30" x2="200" y2="190"/>
+    <line x1="340" y1="30" x2="340" y2="190"/>
+    <line x1="480" y1="30" x2="480" y2="190"/>
+    <line x1="620" y1="30" x2="620" y2="190"/>
+  </g>
+  <g stroke="currentColor" stroke-width="1.2" fill="none">
+    <line x1="60" y1="30" x2="60" y2="190"/>
+    <line x1="60" y1="190" x2="620" y2="190"/>
+  </g>
+  <g fill="currentColor" font-size="11">
+    <text x="48" y="194" text-anchor="end">0</text>
+    <text x="48" y="114" text-anchor="end">0.5</text>
+    <text x="48" y="34" text-anchor="end">1.0</text>
+    <text x="60" y="207" text-anchor="middle">0</text>
+    <text x="200" y="207" text-anchor="middle">35</text>
+    <text x="340" y="207" text-anchor="middle">70</text>
+    <text x="480" y="207" text-anchor="middle">105</text>
+    <text x="620" y="207" text-anchor="middle">140</text>
+    <text x="340" y="235" text-anchor="middle">Time after synchronization (h)</text>
+    <text x="15" y="110" text-anchor="middle"
+          transform="rotate(-90 15 110)">Phase coherence R(t)</text>
+  </g>
+  <polyline fill="none" stroke="#c44e52" stroke-width="2.5"
+    stroke-dasharray="6 4"
+    points="60,30 100,59 140,82.7 180,102.2 220,118.1 260,131.1 300,141.8 340,150.5 380,157.7 420,163.6 460,168.3 500,172.3 540,175.5 580,178.1 620,180.3"/>
+  <polyline fill="none" stroke="#2878a5" stroke-width="2.5"
+    points="60,30 100,37.8 140,45.2 180,52.3 220,59 260,65.4 300,71.5 340,77.2 380,82.7 420,88 460,93 500,97.7 540,102.2 580,106.5 620,110.5"/>
+  <g font-size="11" fill="currentColor">
+    <line x1="365" y1="16" x2="389" y2="16"
+          stroke="#2878a5" stroke-width="2.5"/>
+    <text x="395" y="20">D = 0.005 h⁻¹</text>
+    <line x1="495" y1="16" x2="519" y2="16"
+          stroke="#c44e52" stroke-width="2.5" stroke-dasharray="6 4"/>
+    <text x="525" y="20">D = 0.020</text>
+  </g>
+</svg>
+<figcaption>
+Figure 1. Model-predicted phase coherence R(t) = exp(−Dt). The lower
+diffusion coefficient retains population phase coherence longer.
+Both curves start from perfect synchrony. The parameters are illustrative,
+not experimental fits.
+</figcaption>
+</figure>
+
+<h2>What I would argue against / where this breaks</h2>
+
+<p>
+This calculation does not prove that a particular genetic circuit will
+have either diffusion coefficient. It starts by assuming that a stable
+oscillation already exists and then models only its phase. Near the
+boundary between oscillation and a stable resting state, molecular noise
+can also change amplitude, period, or whether oscillation persists at all.
+Stochastic simulations of the repressilator show why a deterministic
+rate equation alone may miss these effects [3].
+</p>
+
+<p>
+Nor must every population lose synchrony at the same rate. Reducing
+important noise sources can improve clock precision: a redesigned
+repressilator demonstrated long-term oscillations and phase coherence
+under the tested conditions [4]. Coupling between cells or an external
+periodic signal can also alter phase dispersion. The useful conclusion
+is narrower: oscillation, phase precision, and synchronization are
+different performance properties and should be measured separately.
+</p>
+
+<h2>Reproduce the calculation</h2>
+
+<p>
+The following Python code generates the plotted curves and prints the
+two numerical comparisons. It evaluates the phase model directly; it is
+not a Gillespie simulation and does not infer noise strength from
+molecular reaction rates.
+</p>
+
+<pre><code>import math
+import numpy as np
+import matplotlib.pyplot as plt
+
+D_values = [0.020, 0.005]  # illustrative values, per hour
+t = np.linspace(0, 140, 500)
+
+fig, ax = plt.subplots(figsize=(7.2, 3.2))
+
+for D in D_values:
+    R = np.exp(-D * t)
+    ax.plot(t, R, label=f"D = {D:.3f} h^-1")
+    R20 = math.exp(-D * 20)
+    half_time = math.log(2) / D
+    print(
+        f"D={D:.3f}: R(20 h)={R20:.3f}; "
+        f"coherence half-time={half_time:.1f} h"
+    )
+
+ax.set_xlabel("Time after synchronization (h)")
+ax.set_ylabel("Phase coherence R(t)")
+ax.set_xlim(0, 140)
+ax.set_ylim(0, 1.02)
+ax.grid(alpha=0.25)
+ax.legend(frameon=False)
+fig.tight_layout()
+fig.savefig("phase_coherence.svg", bbox_inches="tight")
+plt.show()</code></pre>
+
+<h2>Sources</h2>
+<ul class="src">
+  <li>
+    <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture09-core.html">
+      CCBS 2026, Lecture 9 core: Closing the loop: five behaviors of binding
+      and catalysis.
+    </a>
+    Course context for the repressilator and the distinction between
+    a circuit's mechanism and its resulting dynamics.
+  </li>
+  <li>
+    <a href="https://doi.org/10.1038/35002125">
+      [2] Elowitz, M. B. &amp; Leibler, S. (2000). A synthetic oscillatory
+      network of transcriptional regulators. Nature, 403, 335–338.
+    </a>
+    The original synthetic repressilator experiment and its noisy
+    oscillatory behavior.
+  </li>
+  <li>
+    <a href="https://doi.org/10.1103/PhysRevE.76.051917">
+      [3] Loinger, A. &amp; Biham, O. (2007). Stochastic simulations of the
+      repressilator circuit. Physical Review E, 76, 051917.
+    </a>
+    A stochastic analysis of how molecular fluctuations affect oscillation
+    conditions, amplitude, and period.
+  </li>
+  <li>
+    <a href="https://doi.org/10.1038/nature19841">
+      [4] Potvin-Trottier, L., Lord, N. D., Vinnicombe, G. &amp; Paulsson, J.
+      (2016). Synchronous long-term oscillations in a synthetic gene circuit.
+      Nature, 538, 514–517.
+    </a>
+    Evidence that circuit redesign can improve long-term oscillatory
+    precision under specified experimental conditions.
+  </li>
+</ul>
+
+</div>
+</body>
+</html>
