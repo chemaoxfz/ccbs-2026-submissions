@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 6 — Extension: a reporter can move the threshold it reads</title>
+<meta name="author" content="Kehan Lang">
+<meta name="week" content="week6">
+<style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; --blue:#20639b; --orange:#d05a2a; --green:#29755a; --red:#a43d4f; }
+  @media (prefers-color-scheme: dark) { :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; --blue:#72b7e8; --orange:#f09a70; --green:#7bc59c; --red:#ed8796; } }
+  * { box-sizing:border-box; } body { margin:0; background:var(--bg); color:var(--ink); font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; } h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; } h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px; border-bottom:1px solid var(--line); padding-bottom:5px; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px; padding:14px 18px; margin:14px 0; } .fig { width:100%; border:1px solid var(--line); border-radius:6px; margin:14px 0; background:var(--bg); }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; } a { color:var(--accent); } .src { font-size:.9rem; }
+  .equation { overflow-x:auto; text-align:center; padding:9px 4px; font-family:Georgia,"Times New Roman",serif; font-size:1.07rem; }
+  .controls { display:grid; grid-template-columns:minmax(185px,1fr) minmax(150px,2fr) auto; gap:8px 14px; align-items:center; background:var(--soft); border:1px solid var(--line); border-radius:6px; padding:13px 16px; margin:18px 0 8px; }
+  .controls label { font-size:.92rem; } .controls input { width:100%; accent-color:var(--accent); } output { min-width:6.8em; font-variant-numeric:tabular-nums; font-size:.9rem; color:var(--muted); }
+  .readout { display:flex; gap:14px; flex-wrap:wrap; font-size:.91rem; margin:9px 0 2px; } .good { color:var(--green); font-weight:600; } .bad { color:var(--red); font-weight:600; }
+  pre { background:var(--soft); border:1px solid var(--line); border-radius:6px; padding:14px; overflow:auto; font-size:.78rem; line-height:1.45; } details summary { cursor:pointer; color:var(--accent); }
+  @media (max-width:560px) { .controls { grid-template-columns:1fr; gap:3px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Week 6 — Extension: a reporter can move the threshold it reads</h1>
+<p class="meta">Author: Kehan Lang · Week 6 (2026-10-26) · CCBS 2026</p>
+
+<p class="card"><strong>One sentence:</strong> When a finite reporter binds the regulator it measures, the reporter is not a passive readout: its abundance shifts the total input required to cross the decision threshold.</p>
+
+<h2>The point I am adding</h2>
+<p>Lecture 12 builds a molecular threshold unit in which free protein <i>S</i> represses an output reporter. The calculation is deliberately made with a rare reporter, so that the reporter does not appreciably change the allocation of the proteins that implement the comparison. That is a useful approximation, but it hides a design condition: a reporter can only report a threshold without moving it if its binding load is negligible compared with the relevant molecular pools.</p>
+
+<p>Here I relax the rare-reporter approximation by allowing a finite reporter pool. If the input is controlled as a total amount of repressor, how does reporter sequestration change the dose at which the reporter crosses a chosen activity threshold? For one equilibrium binding pair, the answer is exact: the threshold shifts linearly with reporter abundance.</p>
+
+<h2>Work it</h2>
+<p>Let free repressor <i>S</i> bind an available reporter site <i>P</i> to form an inactive complex <i>C</i>. The reporter's unbound fraction is its normalized activity, <i>r</i> = <i>P</i>/<i>q</i><sub>P</sub>. Binding and conservation give</p>
+
+<div class="equation"><i>S</i> + <i>P</i> ⇌ <i>C</i>, &nbsp; K<i>C</i> = <i>SP</i>, &nbsp; <i>q</i><sub>S</sub> = <i>S</i> + <i>C</i>, &nbsp; <i>q</i><sub>P</sub> = <i>P</i> + <i>C</i>.</div>
+
+<p>Here <i>K</i> is the dissociation concentration, while <i>q</i><sub>S</sub> and <i>q</i><sub>P</sub> are the total repressor and reporter-site concentrations. Eliminating the free pools gives a quadratic for the bound reporter:</p>
+
+<div class="equation"><i>C</i><sup>2</sup> − (<i>q</i><sub>S</sub> + <i>q</i><sub>P</sub> + <i>K</i>)<i>C</i> + <i>q</i><sub>S</sub><i>q</i><sub>P</sub> = 0.</div>
+
+<p>The physical root is the smaller one, because it lies between zero and the smaller total. If the reporter is rare, <i>q</i><sub>P</sub> → 0, free repressor approaches <i>q</i><sub>S</sub>, and the usual unloaded response is recovered:</p>
+
+<div class="equation"><i>r</i><sub>unloaded</sub>(<i>q</i><sub>S</sub>) = <i>K</i>/(<i>K</i> + <i>q</i><sub>S</sub>).</div>
+
+<p>For a loaded reporter, it is simpler to locate a decision boundary by specifying the threshold first. At <i>r</i> = θ, free reporter is <i>P</i> = θ<i>q</i><sub>P</sub>, so the bound fraction is <i>C</i> = (1 − θ)<i>q</i><sub>P</sub>. The binding equation then requires free repressor <i>S</i> = <i>K</i>(1 − θ)/θ. Adding the free and bound repressor gives the total repressor threshold:</p>
+
+<div class="equation"><i>q</i><sub>S,θ</sub> = <i>K</i>(1 − θ)/θ + (1 − θ)<i>q</i><sub>P</sub>.</div>
+
+<p>The first term is the unloaded threshold. The second is repressor captured by the reporter. At the common half-activity readout θ = 1/2, the boundary becomes <i>q</i><sub>S,1/2</sub> = <i>K</i> + <i>q</i><sub>P</sub>/2. Thus every additional two reporter sites per concentration unit require one additional repressor unit to reach half repression.</p>
+
+<div class="controls" aria-label="Interactive reporter-loading controls">
+  <label for="repressor">Total repressor q<sub>S</sub>/K</label><input id="repressor" type="range" min="0" max="8" value="1" step="0.02"><output id="repressorOut"></output>
+  <label for="reporter">Reporter loading q<sub>P</sub>/K</label><input id="reporter" type="range" min="0.02" max="4" value="1" step="0.02"><output id="reporterOut"></output>
+  <label for="threshold">Decision threshold θ</label><input id="threshold" type="range" min="0.1" max="0.9" value="0.5" step="0.01"><output id="thresholdOut"></output>
+</div>
+<div class="readout"><span>Reporter activity r = <strong id="activity"></strong></span><span>Required q<sub>S,θ</sub>/K = <strong id="boundary"></strong></span><span id="decision"></span></div>
+
+<figure>
+  <svg id="responsePlot" class="fig" viewBox="0 0 700 330" role="img" aria-labelledby="responseTitle responseDesc"><title id="responseTitle">Reporter activity against total repressor under finite loading</title><desc id="responseDesc">Unloaded and reporter-loaded response curves, with a horizontal decision threshold and a vertical selected repressor total.</desc></svg>
+  <figcaption><strong>Figure 1.</strong> The blue curve is the rare-reporter approximation. The orange curve uses the exact binding root for the selected finite reporter abundance. Reporter binding lowers free repressor at the same total dose, so the loaded reporter remains more active and crosses the threshold later. Curves are calculated from the equilibrium stated above.</figcaption>
+</figure>
+
+<figure>
+  <svg id="boundaryPlot" class="fig" viewBox="0 0 700 305" role="img" aria-labelledby="boundaryTitle boundaryDesc"><title id="boundaryTitle">Reporter abundance shifts total-input thresholds</title><desc id="boundaryDesc">Total repressor threshold versus reporter loading for three readout thresholds, with the selected condition highlighted.</desc></svg>
+  <figcaption><strong>Figure 2.</strong> For each threshold, the total repressor boundary rises linearly with reporter abundance. The slope is 1 − θ: a more stringent low-activity threshold binds more of the reporter and therefore incurs a larger loading cost. The orange marker is the selected condition above.</figcaption>
+</figure>
+
+<h2>Interpretation</h2>
+<p>The shift is not a failure of equilibrium binding; it is a conservation effect. A total repressor intervention must supply both the free repressor that determines the reporter occupancy and the repressor captured in complexes. Consequently, the phrase “the reporter sees the input” is incomplete when input means a total concentration. The reporter changes the free concentration that it is intended to sense.</p>
+
+<p>This gives an operational criterion for the rare-reporter approximation. Near a threshold θ, the loading correction is small only when (1 − θ)<i>q</i><sub>P</sub> is small compared with the unloaded threshold <i>K</i>(1 − θ)/θ; equivalently, <i>q</i><sub>P</sub> ≪ <i>K</i>/θ. The condition is most demanding for a high-activity threshold. A circuit designer can reduce loading by lowering reporter abundance, weakening its binding, or using a downstream readout whose occupancy does not materially deplete <i>S</i>.</p>
+
+<h2>What I would argue against / where this breaks</h2>
+<p>This model has one binding site, one repressor species, and equilibrium allocation before the readout is interpreted. It treats the reporter-site total as fixed and equates its unbound fraction with activity. Production, degradation, cooperative promoter binding, multiple reporter sites, and slow binding kinetics would require an enlarged model. The result also concerns total repressor control. If an external reservoir instead fixes free <i>S</i>, adding reporter changes the amount that must be supplied by the reservoir but does not move the free-concentration threshold. Finally, a reporter may be deliberately designed to load the system; in that case the shift is a mechanism, not a measurement error.</p>
+
+<h2>Code used for both figures</h2>
+<details><summary>Show the JavaScript that evaluates the physical binding root and draws the figures</summary><pre><code>// Concentrations are normalized by K.
+function complex(qS, qP) {
+  const B = qS + qP + 1;
+  return (B - Math.sqrt(B * B - 4 * qS * qP)) / 2;
+}
+function activity(qS, qP) { return 1 - complex(qS, qP) / qP; }
+function totalBoundary(qP, theta) { return (1 - theta) / theta + (1 - theta) * qP; }</code></pre></details>
+
+<h2>Sources</h2>
+<ul class="src">
+  <li><a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture12-core.html">CCBS 2026, Lecture 12, “The computation biomachine”</a>. The competitive-binding threshold construction supplies the free-repressor reporter interpretation and explicitly states the rare-reporter assumption that this extension relaxes.</li>
+  <li><a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture11-exposition.html">CCBS 2026, Lecture 11, “Calculate dynamics from reaction orders”</a>. Its binding treatment distinguishes free concentrations from constituent totals and motivates retaining the conservation laws in the calculation above.</li>
+</ul>
+</div>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const repressor = $('repressor'), reporter = $('reporter'), threshold = $('threshold');
+  const color = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  function complex(qS, qP) { const B = qS + qP + 1; return (B - Math.sqrt(Math.max(0, B * B - 4 * qS * qP))) / 2; }
+  function activity(qS, qP) { return qP === 0 ? 1 / (1 + qS) : 1 - complex(qS, qP) / qP; }
+  function boundary(qP, theta) { return (1 - theta) / theta + (1 - theta) * qP; }
+  function path(points, sx, sy) { return points.map((p,i) => `${i ? 'L' : 'M'}${sx(p[0]).toFixed(2)},${sy(p[1]).toFixed(2)}`).join(' '); }
+  function responseFigure(qS, qP, theta) {
+    const svg=$('responsePlot'), W=700,H=330,L=61,R=24,U=28,B=48,xmax=8, sx=x=>L+(W-L-R)*x/xmax, sy=y=>U+(H-U-B)*(1-y);
+    const grid=[]; for(let i=0;i<=5;i++){const y=i/5;grid.push(`<line x1="${L}" y1="${sy(y)}" x2="${W-R}" y2="${sy(y)}" stroke="${color('--line')}"/><text x="${L-9}" y="${sy(y)+4}" text-anchor="end" font-size="12" fill="${color('--muted')}">${y.toFixed(1)}</text>`);} for(let x=0;x<=8;x+=2)grid.push(`<line x1="${sx(x)}" y1="${U}" x2="${sx(x)}" y2="${H-B}" stroke="${color('--line')}"/><text x="${sx(x)}" y="${H-B+20}" text-anchor="middle" font-size="12" fill="${color('--muted')}">${x}</text>`);
+    const unloaded=[], loaded=[]; for(let i=0;i<=240;i++){const x=xmax*i/240;unloaded.push([x,activity(x,0)]);loaded.push([x,activity(x,qP)]);}
+    svg.innerHTML=`<rect width="700" height="330" fill="${color('--bg')}"/>${grid.join('')}<line x1="${L}" y1="${H-B}" x2="${W-R}" y2="${H-B}" stroke="${color('--ink')}"/><line x1="${L}" y1="${U}" x2="${L}" y2="${H-B}" stroke="${color('--ink')}"/><line x1="${L}" y1="${sy(theta)}" x2="${W-R}" y2="${sy(theta)}" stroke="${color('--red')}" stroke-dasharray="5 4"/><line x1="${sx(qS)}" y1="${U}" x2="${sx(qS)}" y2="${H-B}" stroke="${color('--ink')}" stroke-dasharray="4 4"/><path d="${path(unloaded,sx,sy)}" fill="none" stroke="${color('--blue')}" stroke-width="3"/><path d="${path(loaded,sx,sy)}" fill="none" stroke="${color('--orange')}" stroke-width="3"/><circle cx="${sx(qS)}" cy="${sy(activity(qS,qP))}" r="4.5" fill="${color('--orange')}"/><text x="${(L+W-R)/2}" y="${H-8}" text-anchor="middle" font-size="13" fill="${color('--ink')}">total repressor qₛ / K</text><text x="17" y="${(U+H-B)/2}" text-anchor="middle" font-size="13" fill="${color('--ink')}" transform="rotate(-90 17 ${(U+H-B)/2})">unbound reporter fraction r</text><text x="${W-R-4}" y="${sy(.91)}" text-anchor="end" font-size="12" fill="${color('--blue')}">rare reporter</text><text x="${W-R-4}" y="${sy(.79)}" text-anchor="end" font-size="12" fill="${color('--orange')}">qₚ/K = ${qP.toFixed(2)}</text><text x="${W-R-4}" y="${sy(theta)-7}" text-anchor="end" font-size="12" fill="${color('--red')}">θ</text>`;
+  }
+  function boundaryFigure(qP, theta) {
+    const svg=$('boundaryPlot'),W=700,H=305,L=65,R=24,U=28,B=48,xmax=4,ymax=10,sx=x=>L+(W-L-R)*x/xmax,sy=y=>U+(H-U-B)*(1-y/ymax);
+    const grid=[];for(let y=0;y<=ymax;y+=2)grid.push(`<line x1="${L}" y1="${sy(y)}" x2="${W-R}" y2="${sy(y)}" stroke="${color('--line')}"/><text x="${L-9}" y="${sy(y)+4}" text-anchor="end" font-size="12" fill="${color('--muted')}">${y}</text>`);for(let x=0;x<=4;x+=1)grid.push(`<line x1="${sx(x)}" y1="${U}" x2="${sx(x)}" y2="${H-B}" stroke="${color('--line')}"/><text x="${sx(x)}" y="${H-B+20}" text-anchor="middle" font-size="12" fill="${color('--muted')}">${x}</text>`);
+    const curves=[[.2,'--blue'],[.5,'--green'],[.8,'--red']].map(([t,c])=>{const p=[];for(let i=0;i<=150;i++){const x=xmax*i/150;p.push([x,Math.min(ymax,boundary(x,t))]);}return `<path d="${path(p,sx,sy)}" fill="none" stroke="${color(c)}" stroke-width="2.5"/>`;}).join(''); const b=boundary(qP,theta);
+    svg.innerHTML=`<rect width="700" height="305" fill="${color('--bg')}"/>${grid.join('')}<line x1="${L}" y1="${H-B}" x2="${W-R}" y2="${H-B}" stroke="${color('--ink')}"/><line x1="${L}" y1="${U}" x2="${L}" y2="${H-B}" stroke="${color('--ink')}"/>${curves}<line x1="${sx(qP)}" y1="${U}" x2="${sx(qP)}" y2="${H-B}" stroke="${color('--orange')}" stroke-dasharray="4 4"/><circle cx="${sx(qP)}" cy="${sy(Math.min(ymax,b))}" r="5" fill="${color('--orange')}"/><text x="${(L+W-R)/2}" y="${H-8}" text-anchor="middle" font-size="13" fill="${color('--ink')}">reporter loading qₚ / K</text><text x="17" y="${(U+H-B)/2}" text-anchor="middle" font-size="13" fill="${color('--ink')}" transform="rotate(-90 17 ${(U+H-B)/2})">threshold qₛ,θ / K</text><text x="${W-R-4}" y="${U+16}" text-anchor="end" font-size="12" fill="${color('--blue')}">θ = 0.20</text><text x="${W-R-4}" y="${U+32}" text-anchor="end" font-size="12" fill="${color('--green')}">θ = 0.50</text><text x="${W-R-4}" y="${U+48}" text-anchor="end" font-size="12" fill="${color('--red')}">θ = 0.80</text>`;
+  }
+  function update(){const qS=+repressor.value,qP=+reporter.value,t=+threshold.value,a=activity(qS,qP),b=boundary(qP,t),pass=a<=t;$('repressorOut').textContent=qS.toFixed(2);$('reporterOut').textContent=qP.toFixed(2);$('thresholdOut').textContent=t.toFixed(2);$('activity').textContent=a.toFixed(3);$('boundary').textContent=b.toFixed(3);$('decision').innerHTML=pass?'<span class="good">At or below the activity threshold</span>':'<span class="bad">Above the activity threshold</span>';responseFigure(qS,qP,t);boundaryFigure(qP,t);}
+  [repressor,reporter,threshold].forEach(el=>el.addEventListener('input',update));update();
+})();
+</script>
+</body>
+</html>
