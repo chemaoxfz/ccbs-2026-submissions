@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 7 — Extension: The map is exact; the ceiling belongs to the sensor</title>
+<meta name="author" content="Zheng Haobo">
+<meta name="week" content="week7">
+<style>
+:root { --ink:#20282c; --muted:#53636c; --accent:#355c91; --line:#cbd5dc; --gridc:#e6ebf0;
+  --bg:#fcfcfa; --soft:#f0f4f7; --sans:"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+  --teal:#0b7d70; --rose:#ae4663; --plum:#5c4b8a; --amber:#8a6416;
+  /* text that sits on the shaded region: same hues as --teal/--amber, darkened to clear 4.5:1 */
+  --teal-ink:#0a6b60; --amber-ink:#7d5a11; }
+@media (prefers-color-scheme: dark) {
+:root { --ink:#e5e9ed; --muted:#b0bec9; --accent:#9abcf1; --line:#3c4b58; --gridc:#2b3842;
+  --bg:#151d24; --soft:#1d2933; --sans:"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+  --teal:#63d3c6; --rose:#f294ad; --plum:#b6a6ee; --amber:#e2b95f;
+  --teal-ink:#74ded1; --amber-ink:#e8c169; }
+}
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans); font-size:16px; line-height:1.42; }
+.wrap { max-width:1160px; padding:16px 32px 12px; margin:auto; }
+h1 { font-size:28px; line-height:1.2; margin:0 0 4px; color:var(--accent); }
+.meta { color:var(--muted); font-size:15px; margin-bottom:10px; }
+h2 { font-size:19px; color:var(--accent); margin:6px 0 2px; border-bottom:1px solid var(--line); padding-bottom:3px; }
+p { margin:3px 0; }
+a { color:var(--accent); text-underline-offset:3px; }
+.card { background:var(--soft); border-left:4px solid var(--accent); padding:9px 15px; margin-bottom:10px; font-size:16px; }
+.eq { display:block; background:var(--soft); padding:4px 11px; margin:5px 0; font-size:15.5px; line-height:1.45; overflow-x:auto; }
+.matrix { display:inline-grid; grid-template-columns:auto auto; gap:0 11px; line-height:1.1; vertical-align:middle;
+  border-left:1px solid var(--ink); border-right:1px solid var(--ink); padding:1px 6px; margin:0 3px; }
+figure { margin:4px 0 2px; }
+figure svg { display:block; width:100%; background:var(--bg); border:1px solid var(--line); border-radius:6px; }
+figure svg .shade { fill-opacity:0.13; }
+@media (prefers-color-scheme: dark) { figure svg .shade { fill-opacity:0.22; } }
+figcaption { font-size:14px; color:var(--muted); margin:5px 0 0; line-height:1.38; }
+.src { padding-left:20px; font-size:14px; margin:5px 0; line-height:1.38; }
+.src li { margin:4px 0; }
+details { margin-top:6px; border:1px solid var(--line); border-radius:6px; padding:8px 13px; font-size:14.5px; }
+summary { cursor:pointer; color:var(--accent); font-weight:600; }
+pre { overflow-x:auto; padding:12px; background:var(--soft); font-size:12.5px; line-height:1.4; margin:8px -2px 2px; }
+@media (max-width:700px) { .wrap { padding:20px 16px; } h1 { font-size:24px; } figure { overflow:auto; } figure svg { min-width:900px; } }
+</style>
+</head>
+<body><main class="wrap">
+<h1>Week 7 — Extension: The map is exact; the ceiling belongs to the sensor</h1>
+<div class="meta">Author: Zheng Haobo · Week 7 (2026-11-02) · CCBS 2026</div>
+
+<div class="card"><strong>One sentence:</strong> These two models are one model in two coordinate systems, yet
+h ∈ (1, 2.7) belongs to the one sensor that ties angle to rate in the ratio κ : −1. Free both weights and
+stability becomes two half-planes with no ceiling; a standard PD point 25× past the angle threshold still
+decays.</div>
+
+<h2>The point I am adding</h2>
+<p>Both are two-state linear models dx/dt = A x + b u with one input, in deviations from an operating point.
+Glycolysis has x = (intermediate pool, ATP pool), with κ the intermediate reaction rate and g the strength of
+ATP's downstream feedback; the cart has z = (θ, ω), angle from upright and its rate, ω = dθ/dt. At κ = 1.1 and
+g = 0.3 the plants, their measurements and a single-gain controller are</p>
+<div class="eq">A<sub>gly</sub> = <span class="matrix"><span>−κ</span><span>1 + g</span><span>2κ</span><span>−1 − 2g</span></span>,
+b<sub>gly</sub> = (−1, 1)<sup>T</sup>, &nbsp; y = (0 &nbsp;1) x, &nbsp; u = h y;<br>
+A<sub>cart</sub> = <span class="matrix"><span>0</span><span>1</span><span>κ</span><span>−(κ + 1 + 2g)</span></span>,
+b<sub>cart</sub> = (0, −(κ + g))<sup>T</sup>, &nbsp; y<sub>cart</sub> = (κθ − ω)/(κ + g), &nbsp; u = h y<sub>cart</sub>.</div>
+<p>One change of coordinates, z = T x with</p>
+<div class="eq">T = <span class="matrix"><span>1</span><span>1</span><span>κ</span><span>−g</span></span> = <span class="matrix"><span>1</span><span>1</span><span>1.1</span><span>−0.3</span></span>, &nbsp;
+A<sub>cart</sub> = T A<sub>gly</sub> T<sup>−1</sup>, &nbsp; b<sub>cart</sub> = T b<sub>gly</sub>, &nbsp; y<sub>cart</sub> = x<sub>2</sub>,</div>
+<p>links them. These are matrix equalities, not an analogy: below, the largest elementwise difference is
+2.2 × 10<sup>−16</sup>, floating-point zero. They do not say that θ <em>is</em> ATP: T's first row reads
+θ = x<sub>1</sub> + x<sub>2</sub>, so the angle is the sum of both pools, and
+<a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture13-core.html#s3-plant">the course page</a> says the
+map does not identify a metabolite with a mechanical angle.</p>
+
+<p>Read A<sub>cart</sub> by rows: the first row (0, 1) only integrates the rate; the second holds the destabilising κ
+and the whole input column (0, −(κ + g)). A controller using both measurements, u = h<sub>θ</sub>θ + h<sub>ω</sub>ω, touches only that row:</p>
+<div class="eq">A<sub>cl</sub> = <span class="matrix"><span>0</span><span>1</span><span>κ − (κ + g)h<sub>θ</sub></span><span>−(κ + 1 + 2g) − (κ + g)h<sub>ω</sub></span></span>, &nbsp;
+det = (κ + g)h<sub>θ</sub> − κ, &nbsp; trace = −(κ + 1 + 2g) − (κ + g)h<sub>ω</sub>.</div>
+<p>Det is minus the off-diagonal product and trace is the diagonal, so det holds only h<sub>θ</sub> and trace only
+h<sub>ω</sub>. Stability for a real 2 × 2 matrix is exactly trace &lt; 0 and det &gt; 0:
+h<sub>θ</sub> &gt; κ/(κ + g) = 0.785714, h<sub>ω</sub> &gt; −(κ + 1 + 2g)/(κ + g) = −1.928571. The first cancels the
+unstable mode, the second stops over-cancelling damping; neither has an upper bound.</p>
+
+<p>The course's single gain is one line through this plane: u = h y<sub>cart</sub> gives
+(h<sub>θ</sub>, h<sub>ω</sub>) = h(0.785714, −0.714286), a ray. Substituting gives det = κ(h − 1) and
+trace = h − (κ + 1 + 2g), so both tests collapse to 1 &lt; h &lt; 2.7: the window is the segment of that ray
+inside the stable set, entering at h = 1 where det vanishes and leaving at h = 2.7 where trace vanishes. On the ray
+2.7 is exactly right (purely imaginary eigenvalues), but it is not a property of the glycolysis plant.</p>
+
+<h2>Work it</h2>
+<p>The script below recomputes it. <em>Isomorphism:</em> max |T A<sub>gly</sub> T<sup>−1</sup> − A<sub>cart</sub>| =
+2.220446 × 10<sup>−16</sup> and max |T b<sub>gly</sub> − b<sub>cart</sub>| = 0, both open-loop determinants
+−κ = −1.1. <em>Stable set:</em> at the four gain pairs the script tests, closed-loop det and trace match the
+formulas above to 3.6 × 10<sup>−15</sup>; the boundaries 0.785714 and −1.928571 come from those formulas,
+not from the spot checks.</p>
+<figure>
+<svg viewBox="0 0 1080 344" role="img" aria-labelledby="fig-title fig-desc" xmlns="http://www.w3.org/2000/svg" font-family="var(--sans)">
+<title id="fig-title">The stable gain set is two half-planes, and the metabolic sensor is one ray through them</title>
+<desc id="fig-desc">Gain plane, angle weight on a logarithmic horizontal axis. The shaded region is the stable set; the straight line is the one-parameter sensor family; one point marks a standard PD controller.</desc>
+<rect x="233.5" y="60.0" width="788.5" height="187.7" fill="var(--teal)" class="shade"/>
+<line x1="98.0" y1="60" x2="98.0" y2="276" stroke="var(--gridc)" stroke-width="1"/>
+<line x1="142.8" y1="60" x2="142.8" y2="276" stroke="var(--gridc)" stroke-width="1"/>
+<line x1="210.3" y1="60" x2="210.3" y2="276" stroke="var(--gridc)" stroke-width="1"/>
+<line x1="281.8" y1="60" x2="281.8" y2="276" stroke="var(--gridc)" stroke-width="1"/>
+<line x1="363.2" y1="60" x2="363.2" y2="276" stroke="var(--gridc)" stroke-width="1"/>
+<line x1="420.9" y1="60" x2="420.9" y2="276" stroke="var(--gridc)" stroke-width="1"/>
+<line x1="502.3" y1="60" x2="502.3" y2="276" stroke="var(--gridc)" stroke-width="1"/>
+<line x1="604.8" y1="60" x2="604.8" y2="276" stroke="var(--gridc)" stroke-width="1"/>
+<line x1="743.8" y1="60" x2="743.8" y2="276" stroke="var(--gridc)" stroke-width="1"/>
+<line x1="882.9" y1="60" x2="882.9" y2="276" stroke="var(--gridc)" stroke-width="1"/>
+<line x1="1022.0" y1="60" x2="1022.0" y2="276" stroke="var(--gridc)" stroke-width="1"/>
+<line x1="98" y1="252.0" x2="1022" y2="252.0" stroke="var(--gridc)" stroke-width="1"/>
+<line x1="98" y1="222.0" x2="1022" y2="222.0" stroke="var(--gridc)" stroke-width="1"/>
+<line x1="98" y1="192.0" x2="1022" y2="192.0" stroke="var(--gridc)" stroke-width="1"/>
+<line x1="98" y1="162.0" x2="1022" y2="162.0" stroke="var(--gridc)" stroke-width="1"/>
+<line x1="98" y1="132.0" x2="1022" y2="132.0" stroke="var(--gridc)" stroke-width="1"/>
+<line x1="98" y1="102.0" x2="1022" y2="102.0" stroke="var(--gridc)" stroke-width="1"/>
+<line x1="98" y1="72.0" x2="1022" y2="72.0" stroke="var(--gridc)" stroke-width="1"/>
+<rect x="98" y="60" width="924" height="216" fill="none" stroke="var(--line)" stroke-width="1"/>
+<line x1="233.5" y1="60" x2="233.5" y2="276" stroke="var(--rose)" stroke-width="1.7" stroke-dasharray="7 6"/>
+<line x1="98" y1="247.7" x2="1022" y2="247.7" stroke="var(--accent)" stroke-width="1.7" stroke-dasharray="7 6"/>
+<path d="M98.0,153.8 L111.6,155.3 L124.3,156.9 L136.2,158.4 L147.5,159.9 L158.2,161.5 L168.4,163.0 L178.0,164.5 L187.2,166.0 L196.0,167.6 L204.5,169.1 L212.6,170.6 L220.3,172.1 L227.8,173.7 L235.1,175.2 L242.0,176.7 L248.8,178.3 L255.3,179.8 L261.6,181.3 L267.7,182.8 L273.7,184.4 L279.4,185.9 L285.0,187.4 L290.5,188.9 L295.8,190.5 L301.0,192.0 L306.0,193.5 L310.9,195.1 L315.7,196.6 L320.4,198.1 L325.0,199.6 L329.5,201.2 L333.9,202.7 L338.2,204.2 L342.4,205.7 L346.5,207.3 L350.5,208.8 L354.5,210.3 L358.3,211.9 L362.1,213.4 L365.9,214.9 L369.5,216.4 L373.1,218.0 L376.7,219.5 L380.1,221.0 L383.5,222.5 L386.9,224.1 L390.2,225.6 L393.4,227.1 L396.6,228.7 L399.8,230.2 L402.9,231.7 L405.9,233.2 L408.9,234.8 L411.9,236.3 L414.8,237.8 L417.7,239.3 L420.5,240.9 L423.3,242.4 L426.1,243.9 L428.8,245.5 L431.5,247.0 L434.1,248.5 L436.7,250.0 L439.3,251.6 L441.9,253.1 L444.4,254.6 L446.9,256.1 L449.3,257.7 L451.7,259.2 L454.1,260.7 L456.5,262.3 L458.8,263.8 L461.2,265.3 L463.4,266.8 L465.7,268.4 L467.9,269.9 L470.1,271.4 L472.3,272.9 L474.5,274.5 L476.6,276.0" fill="none" stroke="var(--plum)" stroke-width="1.6" stroke-opacity="0.7" stroke-linecap="round"/>
+<path d="M233.5,174.9 L241.8,176.7 L249.8,178.5 L257.5,180.3 L265.0,182.1 L272.1,184.0 L279.0,185.8 L285.7,187.6 L292.2,189.4 L298.4,191.2 L304.5,193.1 L310.4,194.9 L316.1,196.7 L321.7,198.5 L327.1,200.4 L332.4,202.2 L337.6,204.0 L342.6,205.8 L347.5,207.6 L352.2,209.5 L356.9,211.3 L361.5,213.1 L365.9,214.9 L370.3,216.8 L374.5,218.6 L378.7,220.4 L382.8,222.2 L386.8,224.0 L390.7,225.9 L394.6,227.7 L398.4,229.5 L402.1,231.3 L405.7,233.1 L409.3,235.0 L412.8,236.8 L416.3,238.6 L419.7,240.4 L423.0,242.3 L426.3,244.1 L429.6,245.9 L432.8,247.7" fill="none" stroke="var(--plum)" stroke-width="4.5" stroke-linecap="round"/>
+<path d="M610,50 L610,34" stroke="var(--muted)" stroke-width="1.6"/>
+<path d="M610,28 L604,40 L616,40 Z" fill="var(--muted)"/>
+<path d="M1004,156 L1026,156" stroke="var(--muted)" stroke-width="1.6"/>
+<path d="M1032,156 L1020,150 L1020,162 Z" fill="var(--muted)"/>
+<circle cx="233.5" cy="174.9" r="6" fill="var(--plum)"/>
+<circle cx="432.8" cy="247.7" r="6" fill="var(--plum)"/>
+<circle cx="882.9" cy="102.0" r="7.5" fill="var(--amber)" stroke="var(--bg)" stroke-width="2.5"/>
+<line x1="98.0" y1="276" x2="98.0" y2="281" stroke="var(--muted)" stroke-width="1"/>
+<text x="98.0" y="298" text-anchor="middle" font-size="17" fill="var(--muted)">0.4</text>
+<line x1="142.8" y1="276" x2="142.8" y2="281" stroke="var(--muted)" stroke-width="1"/>
+<text x="142.8" y="298" text-anchor="middle" font-size="17" fill="var(--muted)">0.5</text>
+<line x1="210.3" y1="276" x2="210.3" y2="281" stroke="var(--muted)" stroke-width="1"/>
+<text x="210.3" y="298" text-anchor="middle" font-size="17" fill="var(--muted)">0.7</text>
+<line x1="281.8" y1="276" x2="281.8" y2="281" stroke="var(--muted)" stroke-width="1"/>
+<text x="281.8" y="298" text-anchor="middle" font-size="17" fill="var(--muted)">1</text>
+<line x1="363.2" y1="276" x2="363.2" y2="281" stroke="var(--muted)" stroke-width="1"/>
+<text x="363.2" y="298" text-anchor="middle" font-size="17" fill="var(--muted)">1.5</text>
+<line x1="420.9" y1="276" x2="420.9" y2="281" stroke="var(--muted)" stroke-width="1"/>
+<text x="420.9" y="298" text-anchor="middle" font-size="17" fill="var(--muted)">2</text>
+<line x1="502.3" y1="276" x2="502.3" y2="281" stroke="var(--muted)" stroke-width="1"/>
+<text x="502.3" y="298" text-anchor="middle" font-size="17" fill="var(--muted)">3</text>
+<line x1="604.8" y1="276" x2="604.8" y2="281" stroke="var(--muted)" stroke-width="1"/>
+<text x="604.8" y="298" text-anchor="middle" font-size="17" fill="var(--muted)">5</text>
+<line x1="743.8" y1="276" x2="743.8" y2="281" stroke="var(--muted)" stroke-width="1"/>
+<text x="743.8" y="298" text-anchor="middle" font-size="17" fill="var(--muted)">10</text>
+<line x1="882.9" y1="276" x2="882.9" y2="281" stroke="var(--muted)" stroke-width="1"/>
+<text x="882.9" y="298" text-anchor="middle" font-size="17" fill="var(--muted)">20</text>
+<line x1="1022.0" y1="276" x2="1022.0" y2="281" stroke="var(--muted)" stroke-width="1"/>
+<text x="1022.0" y="298" text-anchor="middle" font-size="17" fill="var(--muted)">40</text>
+<line x1="93" y1="276.0" x2="98" y2="276.0" stroke="var(--muted)" stroke-width="1"/>
+<text x="87" y="282.0" text-anchor="end" font-size="17" fill="var(--muted)">−2.4</text>
+<line x1="93" y1="252.0" x2="98" y2="252.0" stroke="var(--muted)" stroke-width="1"/>
+<text x="87" y="258.0" text-anchor="end" font-size="17" fill="var(--muted)">−2</text>
+<line x1="93" y1="222.0" x2="98" y2="222.0" stroke="var(--muted)" stroke-width="1"/>
+<text x="87" y="228.0" text-anchor="end" font-size="17" fill="var(--muted)">−1.5</text>
+<line x1="93" y1="192.0" x2="98" y2="192.0" stroke="var(--muted)" stroke-width="1"/>
+<text x="87" y="198.0" text-anchor="end" font-size="17" fill="var(--muted)">−1</text>
+<line x1="93" y1="162.0" x2="98" y2="162.0" stroke="var(--muted)" stroke-width="1"/>
+<text x="87" y="168.0" text-anchor="end" font-size="17" fill="var(--muted)">−0.5</text>
+<line x1="93" y1="132.0" x2="98" y2="132.0" stroke="var(--muted)" stroke-width="1"/>
+<text x="87" y="138.0" text-anchor="end" font-size="17" fill="var(--muted)">0</text>
+<line x1="93" y1="102.0" x2="98" y2="102.0" stroke="var(--muted)" stroke-width="1"/>
+<text x="87" y="108.0" text-anchor="end" font-size="17" fill="var(--muted)">0.5</text>
+<line x1="93" y1="72.0" x2="98" y2="72.0" stroke="var(--muted)" stroke-width="1"/>
+<text x="87" y="78.0" text-anchor="end" font-size="17" fill="var(--muted)">1</text>
+<text x="560" y="326" text-anchor="middle" font-size="18" fill="var(--muted)">angle weight  h<tspan font-size="14" dy="4">θ</tspan><tspan dy="-4">  (log scale)</tspan></text>
+<text transform="translate(32,168) rotate(-90)" text-anchor="middle" font-size="18" fill="var(--muted)">rate weight  h<tspan font-size="14" dy="4">ω</tspan></text>
+<text x="233.5" y="48" text-anchor="middle" font-size="17" fill="var(--rose)">det = 0</text>
+<text x="1016" y="235.7" text-anchor="end" font-size="17" fill="var(--accent)">trace = 0</text>
+<text x="641" y="168" text-anchor="middle" font-size="20" fill="var(--teal-ink)">stable</text>
+<text x="106" y="104" font-size="17" fill="var(--plum)">metabolic</text>
+<text x="106" y="128" font-size="17" fill="var(--plum)">sensor ray</text>
+<text x="223.5" y="205.9" text-anchor="end" font-size="18" fill="var(--plum)">h = 1</text>
+<text x="446.8" y="236.7" font-size="18" fill="var(--plum)">h = 2.7</text>
+<text x="867.9" y="89.0" text-anchor="end" font-size="18" fill="var(--amber-ink)">standard PD (20, 0.5)</text>
+<text x="867.9" y="113.0" text-anchor="end" font-size="17" fill="var(--amber-ink)">λ = −1.70 ± 4.9i,  h<tspan font-size="14" dy="3">θ</tspan><tspan dy="-3"> ≈ 25.5 × threshold</tspan></text>
+<text x="622" y="44" font-size="17" fill="var(--muted)">no h<tspan font-size="14" dy="3">ω</tspan><tspan dy="-3"> ceiling</tspan></text>
+<text x="996" y="150" text-anchor="end" font-size="17" fill="var(--muted)">no h<tspan font-size="14" dy="3">θ</tspan><tspan dy="-3"> ceiling</tspan></text>
+</svg>
+<figcaption><strong>Figure 1.</strong> (h<sub>θ</sub>, h<sub>ω</sub>) gain plane for A<sub>cart</sub> with u = h<sub>θ</sub>θ + h<sub>ω</sub>ω, κ = 1.1, g = 0.3. Shaded:
+det = 1.4h<sub>θ</sub> − 1.1 &gt; 0 and trace = −2.7 − 1.4h<sub>ω</sub> &lt; 0; dashed: the boundaries; line: the sensor
+h(0.785714, −0.714286), thin outside h ∈ (1, 2.7) and thick inside. h<sub>θ</sub> is logarithmic so that (20, 0.5) fits, which is
+why the ray is slightly bent. All from the code; eigenvalues:
+h = 1.2 → (−0.164765, −1.335235); 2.0 → −0.35 ± 0.988686i; 2.5 → −0.10 ± 1.280625i; 2.7 → ±1.367479i;
+2.8 → +0.05 ± 1.406236i; (20, 0.5) → −1.7 ± 4.9i.</figcaption>
+</figure>
+<p><em>Eigenvalues:</em> along the ray the pair is real and negative at h = 1.2, a decaying complex pair at 2.0 and
+2.5, on the imaginary axis at 2.7 and positive at 2.8 (numbers in the caption) — the window, and the same
+statement as the <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture13-core.html#s7">course's
+2b − κ &lt; a &lt; 0</a>, where a = 1 − h and b = −g = −0.3 are the ATP reaction orders
+(log-slopes of each flux against ATP) of the upstream and downstream reactions. <em>Counterexample:</em> at
+(20, 0.5) the loop has trace −3.4, det 26.9 and eigenvalues −1.7 ± 4.9i: stable and ringing, at 25.45 times
+the angle threshold and far from every boundary.</p>
+
+<details id="reproduce"><summary>Reproduce it — the full script that produced every number above</summary>
+<div>Python 3.12.3; NumPy 2.4.1. Dimensionless throughout: normalized pools, normalized time, κ = 1.1, g = 0.3, so κ + g = 1.4. The script prints one JSON object; the figure and every number in the text and caption are read from it.</div>
+<pre><code class="language-python">&quot;&quot;&quot;Exact coordinate change between the two-pool glycolysis plant and the cart-pole plant,
+then the closed-loop stability set when angle and rate feedback carry separate weights.
+All quantities are dimensionless (normalized pools, normalized time, κ = 1.1, g = 0.3).&quot;&quot;&quot;
+
+import json
+import platform
+import numpy as np
+
+KAPPA, G = 1.1, 0.3                     # intermediate rate; downstream ATP feedback strength
+KP = KAPPA + G                          # input gain of the cart plant
+A_GLY = np.array([[-KAPPA, 1 + G], [2 * KAPPA, -1 - 2 * G]])
+B_GLY = np.array([-1.0, 1.0])
+A_CART = np.array([[0.0, 1.0], [KAPPA, -(KAPPA + 1 + 2 * G)]])
+B_CART = np.array([0.0, -KP])
+T = np.array([[1.0, 1.0], [KAPPA, -G]])
+H_THETA_STAR = KAPPA / KP                         # det = 0
+H_OMEGA_STAR = -(KAPPA + 1 + 2 * G) / KP          # trace = 0
+XMIN, XMAX, YMIN, YMAX = 0.4, 40.0, -2.4, 1.2     # plotting frame of the (h_θ, h_ω) plane
+
+
+def closed_loop(h_theta, h_omega):
+    &quot;&quot;&quot;u = h_theta*theta + h_omega*omega, with the input entering A_cart&#x27;s second row.&quot;&quot;&quot;
+    return A_CART + np.outer(B_CART, [h_theta, h_omega])
+
+
+def eigenvalues(matrix):
+    &quot;&quot;&quot;Eigenvalues as (re, im) pairs, positive imaginary part first, then larger real part.&quot;&quot;&quot;
+    pairs = sorted(((complex(z).real, complex(z).imag) for z in np.linalg.eigvals(matrix)),
+                   key=lambda p: (round(p[1], 9), round(p[0], 9)), reverse=True)
+    return [{&quot;re&quot;: round(re, 12), &quot;im&quot;: round(im, 12)} for re, im in pairs]
+
+
+def report(h_theta, h_omega, **extra):
+    &quot;&quot;&quot;Closed-loop determinant, trace, eigenvalue pair, and the two test inequalities.&quot;&quot;&quot;
+    m = closed_loop(h_theta, h_omega)
+    det, trace = round(float(np.linalg.det(m)), 12), round(float(np.trace(m)), 12)
+    entry = dict(h_theta=h_theta, h_omega=h_omega, det=det, trace=trace,
+                 det_linear=round(KP * h_theta - KAPPA, 12), trace_linear=round(-(KAPPA + 1 + 2 * G) - KP * h_omega, 12),
+                 stable=bool(det &gt; 0 and trace &lt; 0), eigenvalues=eigenvalues(m))
+    entry.update(extra)
+    return entry
+
+
+# (a) the coordinate change: A_cart = T A_gly T^-1 and b_cart = T b_gly, elementwise
+A_MAPPED, B_MAPPED = T @ A_GLY @ np.linalg.inv(T), T @ B_GLY
+isomorphism = {&quot;T&quot;: T.tolist(), &quot;T_inv&quot;: np.linalg.inv(T).tolist(),
+               &quot;A_cart_mapped&quot;: A_MAPPED.tolist(), &quot;A_cart&quot;: A_CART.tolist(),
+               &quot;max_abs_diff_A&quot;: float(np.max(np.abs(A_MAPPED - A_CART))),
+               &quot;b_cart_mapped&quot;: B_MAPPED.tolist(), &quot;b_cart&quot;: B_CART.tolist(),
+               &quot;max_abs_diff_b&quot;: float(np.max(np.abs(B_MAPPED - B_CART))),
+               &quot;det_gly&quot;: float(np.linalg.det(A_GLY)), &quot;det_cart&quot;: float(np.linalg.det(A_CART))}
+
+# (b) two independent weights: thresholds, plus a symbolic-versus-numeric audit on a grid
+probes = [report(ht, hw) for ht in (0.5, H_THETA_STAR, 2.0, 20.0) for hw in (-2.5, H_OMEGA_STAR, 0.5)]
+weights = {&quot;det_const&quot;: round(KP, 12), &quot;det_offset&quot;: -KAPPA, &quot;trace_const&quot;: round(-(KAPPA + 1 + 2 * G), 12), &quot;trace_slope&quot;: round(-KP, 12),
+           &quot;h_theta_star&quot;: H_THETA_STAR, &quot;h_omega_star&quot;: H_OMEGA_STAR,
+           &quot;formula_max_error&quot;: float(max(max(abs(np.linalg.det(closed_loop(a, b)) - (KP * a - KAPPA)),
+                                              abs(np.trace(closed_loop(a, b)) - (-(KAPPA + 1 + 2 * G) - KP * b)))
+                                          for a, b in ((0.5, -2.5), (2.0, 0.5), (20.0, -1.9), (0.9, 1.1)))),
+           &quot;probes&quot;: probes}
+
+# (c) the metabolic sensor u = h*(kappa*theta - omega)/(kappa+g) is a ray through the origin
+direction = np.array([KAPPA, -1.0]) / KP
+h_at_det_zero = float(H_THETA_STAR / direction[0])          # 1
+h_at_trace_zero = float(H_OMEGA_STAR / direction[1])        # 1 + kappa + 2g
+h_lo, h_hi = XMIN / direction[0], YMIN / direction[1]       # ray clipped to the plotting frame
+ray_h = np.linspace(h_lo, h_hi, 81)
+ray = {&quot;direction&quot;: direction.tolist(), &quot;h_at_det_zero&quot;: h_at_det_zero, &quot;h_at_trace_zero&quot;: h_at_trace_zero,
+       &quot;point_at_det_zero&quot;: (h_at_det_zero * direction).tolist(),
+       &quot;point_at_trace_zero&quot;: (h_at_trace_zero * direction).tolist(),
+       &quot;h_frame&quot;: [float(h_lo), float(h_hi)], &quot;points&quot;: (np.outer(ray_h, direction)).tolist(),
+       # the stable window, sampled so that a plot can follow the ray itself rather than a chord
+       &quot;stable_points&quot;: (np.outer(np.linspace(h_at_det_zero, h_at_trace_zero, 41), direction)).tolist()}
+
+# (d) eigenvalues along the ray and at a standard PD point
+ray_cases = [report(h * direction[0], h * direction[1], h=float(h)) for h in (1.2, 2.0, 2.5, 2.7, 2.8)]
+pd = report(20.0, 0.5)
+pd[&quot;ratio_to_threshold&quot;] = 20.0 / H_THETA_STAR
+
+# (e) everything the figure needs, in data coordinates
+figure = {&quot;h_theta_range&quot;: [XMIN, XMAX], &quot;h_omega_range&quot;: [YMIN, YMAX],
+          &quot;shade&quot;: [[H_THETA_STAR, H_OMEGA_STAR], [XMAX, YMAX]],
+          &quot;det_boundary&quot;: {&quot;h_theta&quot;: H_THETA_STAR, &quot;h_omega&quot;: [YMIN, YMAX]},
+          &quot;trace_boundary&quot;: {&quot;h_omega&quot;: H_OMEGA_STAR, &quot;h_theta&quot;: [XMIN, XMAX]},
+          &quot;ray_visible&quot;: ray[&quot;points&quot;],
+          &quot;ray_stable&quot;: [ray[&quot;point_at_det_zero&quot;], ray[&quot;point_at_trace_zero&quot;]],
+          &quot;ray_stable_points&quot;: ray[&quot;stable_points&quot;],
+          &quot;pd&quot;: {&quot;h_theta&quot;: pd[&quot;h_theta&quot;], &quot;h_omega&quot;: pd[&quot;h_omega&quot;]},
+          &quot;corner&quot;: report(XMAX, YMAX, label=&quot;upper-right corner of the frame&quot;)}
+
+checks = {&quot;isomorphism_A_exact&quot;: isomorphism[&quot;max_abs_diff_A&quot;] &lt; 1e-15,
+          &quot;isomorphism_b_exact&quot;: isomorphism[&quot;max_abs_diff_b&quot;] == 0.0,
+          &quot;det_trace_formulas&quot;: weights[&quot;formula_max_error&quot;] &lt; 1e-14,
+          &quot;ray_window_is_1_to_2p7&quot;: bool(abs(h_at_det_zero - 1) &lt; 1e-12 and abs(h_at_trace_zero - 2.7) &lt; 1e-12),
+          &quot;ray_segment_ends_on_boundaries&quot;: bool(np.allclose(ray[&quot;stable_points&quot;][0], ray[&quot;point_at_det_zero&quot;])
+                                                 and np.allclose(ray[&quot;stable_points&quot;][-1], ray[&quot;point_at_trace_zero&quot;])),
+          &quot;thresholds&quot;: bool(abs(H_THETA_STAR - 0.785714) &lt; 1e-6 and abs(H_OMEGA_STAR + 1.928571) &lt; 1e-6),
+          &quot;pd_stable&quot;: bool(pd[&quot;stable&quot;] and abs(pd[&quot;ratio_to_threshold&quot;] - 25.45) &lt; 0.01),
+          &quot;corner_stable&quot;: bool(figure[&quot;corner&quot;][&quot;stable&quot;])}
+
+print(json.dumps({&quot;versions&quot;: {&quot;python&quot;: platform.python_version(), &quot;numpy&quot;: np.__version__},
+                  &quot;parameters&quot;: {&quot;kappa&quot;: KAPPA, &quot;g&quot;: G, &quot;kappa_plus_g&quot;: round(KP, 12)},
+                  &quot;isomorphism&quot;: isomorphism, &quot;weights&quot;: weights, &quot;ray&quot;: ray,
+                  &quot;eigenvalues&quot;: {&quot;ray&quot;: ray_cases, &quot;pd&quot;: pd},
+                  &quot;figure&quot;: figure, &quot;checks&quot;: checks}, indent=2))
+</code></pre>
+</details>
+
+<h2>What I would argue against / where this breaks</h2>
+<p>The arithmetic of 2.7 is not in dispute: on the metabolic ray it is exact. What I would argue against is the
+sentence that usually follows, that the glycolysis plant destabilises once feedback exceeds 2.7. The plant has
+two knobs, both bounded below and neither above; the bound appears only when the mixing ratio is fixed.</p>
+<p>Where this breaks. Everything above is a linearisation at one operating point: small angles, matched gravity,
+no saturation, delay or noise; large tilts, a force limit or a lagging measurement deform the stable set, and I
+have not computed those. A demand step moves the operating point, so both thresholds need a
+fresh Jacobian. And in a cell the sensor is not a knob: if ATP sensing really is the fixed mixture of the two pools
+the model assumes, then 1 &lt; h &lt; 2.7 is a true constraint on that organism — my claim is about what the constraint
+is a property of, not about gains one could install.</p>
+
+<h2>Sources</h2>
+<ul class="src">
+<li><strong>CCBS course materials.</strong> “The metabolic biomachine: from chemical processing to flux exponent
+control,” core page (Lecture 13), 22 October 2026. <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture13-core.html">Public course page</a>.
+Read: §3 (Hill laws; Figure 3 fixes κ = 1.1, g = 0.3), §4 (both plants, y<sub>cart</sub>, the coordinate change T and
+the three identities), §18 (2b − κ &lt; a &lt; 0), Appendix A2 (1 &lt; h &lt; 1 + κ + 2g). Supplies the plants, the map
+and the window re-derived here.</li>
+<li><strong>F. A. Chandra, G. Buzi, J. C. Doyle.</strong> “Glycolytic oscillations and limits on robust efficiency.”
+<em>Science</em> 333: 187–192 (2011). DOI 10.1126/science.1200705.
+<a href="https://doyle.caltech.edu/images/doyle/7/71/CorrectedScienceGlycolyticOscOnlineFinal.pdf">Author-hosted PDF</a>.
+Read: p. 187 and the left column of p. 188 (Eq. 1.1, 1.2, 2.1, 2.2, Table 1); the supporting online material was
+not read, so nothing is claimed about the proof of Eq. 2.2. Eq. 1.2 is the split the course page specialises to
+q = 1, a = 1; Eq. 2.2 gives that window for one scalar gain on one scalar output, upper end 2.7 here.</li>
+<li><strong>K. J. Åström, R. M. Murray.</strong> <em>Feedback Systems</em>, 2nd ed., electronic version v3.1.5 (2020),
+Princeton University Press. <a href="https://www.cds.caltech.edu/~murray/books/AM08/pdf/fbs-statefbk_24Jul2020.pdf">Chapter
+7, state feedback</a>. Read: §7.1 with Example 7.2 (the cart-pole), §7.2 (Theorem 7.3, eigenvalue assignment by state
+feedback) and §7.3 (its pole placement). Supports the two weights as standard design freedom — det [b<sub>cart</sub>,
+A<sub>cart</sub>b<sub>cart</sub>] = −1.96 ≠ 0 here, my check — and is not used for any bound.</li>
+</ul>
+</main></body></html>

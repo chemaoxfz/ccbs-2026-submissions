@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 6 — Extension: A stable circuit can still amplify a disturbance</title>
+<meta name="author" content="wangsiheng">
+<meta name="week" content="week6">
+<meta name="description" content="A short extension of CCBS Lecture 11: an exact two-pool example separates asymptotic stability from transient amplification, with an original interactive figure and its code.">
+<style>
+  :root { color-scheme:light dark; --ink:#202c33; --muted:#596970; --accent:#1f596b;
+    --line:#d9e0e0; --bg:#fcfcfa; --soft:#f0f4f3; --paper:#fff;
+    --warm:#b14a2b; --cool:#176a75; --code:#f4f5f3; }
+  @media (prefers-color-scheme:dark) {
+    :root { --ink:#e5e9e8; --muted:#abbabf; --accent:#91c9d4; --line:#39464b;
+      --bg:#171e22; --soft:#212c30; --paper:#1b2428; --warm:#f3a486;
+      --cool:#8dd1d6; --code:#212b30; }
+  }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.68; }
+  .wrap { max-width:1020px; margin:auto; padding:46px 30px 54px; }
+  header { border-top:3px solid var(--accent); padding-top:20px; }
+  .eyebrow { display:flex; justify-content:space-between; gap:12px; color:var(--accent);
+    font:600 .72rem/1.4 "Segoe UI",Arial,sans-serif; letter-spacing:.12em; text-transform:uppercase; }
+  h1 { max-width:800px; font-family:Georgia,"Times New Roman",serif; font-size:clamp(1.9rem,4.5vw,2.7rem);
+    line-height:1.14; font-weight:500; letter-spacing:-.025em; margin:20px 0 14px; }
+  .meta { color:var(--muted); font-size:.88rem; margin:0 0 24px; }
+  h2 { font-size:1.05rem; font-weight:650; color:var(--accent); margin:32px 0 10px;
+    border-bottom:1px solid var(--line); padding-bottom:7px; }
+  p { margin:12px 0; }
+  .prose { max-width:830px; }
+  .card { background:var(--soft); border-left:3px solid var(--accent); padding:15px 20px; margin:0 0 28px; }
+  .card strong { color:var(--accent); }
+  a { color:var(--accent); text-underline-offset:3px; }
+  a:hover { text-decoration-thickness:2px; }
+  :focus-visible { outline:3px solid var(--warm); outline-offset:4px; }
+  .math { font-family:Georgia,"Times New Roman",serif; }
+  .equations { background:var(--paper); border:1px solid var(--line); border-radius:5px;
+    padding:18px 22px; margin:18px 0; font-family:Georgia,"Times New Roman",serif; }
+  .equation-row { display:flex; flex-wrap:wrap; column-gap:32px; row-gap:6px; font-size:1.08rem; }
+  .equation-note { color:var(--muted); font: .83rem/1.6 "Segoe UI",Arial,sans-serif; margin:10px 0 0; }
+  .scheme { display:flex; gap:16px; align-items:center; margin-bottom:14px;
+    font: .8rem/1.5 "Segoe UI",Arial,sans-serif; color:var(--muted); }
+  .scheme b { color:var(--ink); font-family:Georgia,serif; font-size:1.2rem; }
+  .scheme .arrow { color:var(--accent); text-align:center; min-width:80px; }
+  .scheme .arrow span { display:block; font-size:1.5rem; line-height:.7; padding-bottom:5px; }
+  .experiment { border:1px solid var(--line); border-radius:6px; margin:22px 0; background:var(--paper); overflow:hidden; }
+  .experiment-head { display:flex; justify-content:space-between; align-items:center; gap:12px;
+    padding:14px 18px; background:var(--soft); border-bottom:1px solid var(--line); }
+  .experiment-head strong { color:var(--accent); font-size:.91rem; }
+  .small { color:var(--muted); font-size:.78rem; }
+  .controls { display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding:16px 18px 8px; font-size:.86rem; }
+  input[type="range"] { flex:1; min-width:110px; max-width:200px; accent-color:var(--accent); cursor:pointer; }
+  output { min-width:32px; font-variant-numeric:tabular-nums; font-weight:650; }
+  button { background:var(--paper); border:1px solid var(--line); color:var(--ink); border-radius:4px;
+    padding:6px 10px; font:inherit; cursor:pointer; }
+  button:hover { border-color:var(--accent); }
+  button:disabled, input:disabled { cursor:default; opacity:.65; }
+  .lab-grid { display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,1fr); }
+  figure { margin:0; min-width:0; padding:0 16px 16px; }
+  .legend { display:flex; flex-wrap:wrap; gap:7px 15px; margin:9px 0 0 18px; font-size:.75rem; }
+  .legend span { display:flex; align-items:center; gap:6px; }
+  .legend i { width:23px; border-top:3px solid var(--warm); }
+  .legend .weighted-key { border-color:var(--cool); border-top-style:dashed; }
+  svg { display:block; width:100%; height:auto; overflow:visible; }
+  svg text { fill:var(--muted); font:13px "Segoe UI",Arial,sans-serif; }
+  svg .gridline { stroke:var(--line); stroke-width:1; }
+  svg .tick { stroke:var(--muted); stroke-width:1; }
+  svg .reference { stroke:var(--muted); stroke-dasharray:3 5; stroke-width:1; opacity:.6; }
+  svg .ordinary { stroke:var(--warm); stroke-width:3; fill:none; }
+  svg .weighted { stroke:var(--cool); stroke-width:2.5; stroke-dasharray:8 5; fill:none; }
+  svg .peak-dot { fill:var(--warm); stroke:var(--paper); stroke-width:2; }
+  svg .peak-label { fill:var(--warm); font-weight:600; }
+  figcaption { color:var(--muted); font-size:.78rem; line-height:1.6; margin:0 6px; }
+  .code-panel { min-width:0; border-left:1px solid var(--line); background:var(--code); padding:15px 16px; }
+  .code-panel h3 { font-size:.8rem; color:var(--accent); margin:0 0 9px; font-weight:650; }
+  pre { margin:0; overflow-x:auto; font: .68rem/1.67 Consolas,"SFMono-Regular","Courier New",monospace; }
+  code { font-family:Consolas,"SFMono-Regular","Courier New",monospace; }
+  .metrics { display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid var(--line); }
+  .metric { padding:12px 18px; border-right:1px solid var(--line); }
+  .metric:last-child { border-right:0; }
+  .metric strong { display:block; font-size:1.3rem; font-weight:550; color:var(--accent); font-variant-numeric:tabular-nums; }
+  .metric span { color:var(--muted); font-size:.72rem; }
+  .hint { margin:0; padding:10px 18px 14px; color:var(--muted); font-size:.79rem; border-top:1px solid var(--line); }
+  .proof { font-size:1.03rem; overflow-wrap:anywhere; }
+  .src { padding-left:22px; font-size:.83rem; color:var(--muted); }
+  .src li { margin:12px 0; padding-left:4px; }
+  .src a { overflow-wrap:anywhere; }
+  footer { border-top:1px solid var(--line); margin-top:30px; padding-top:12px;
+    color:var(--muted); font-size:.72rem; display:flex; flex-wrap:wrap; justify-content:space-between; gap:6px; }
+  noscript p { font-size:.8rem; padding:10px 18px; background:var(--soft); }
+  @media(max-width:780px) {
+    .lab-grid { grid-template-columns:1fr; }
+    .code-panel { border-left:0; border-top:1px solid var(--line); }
+    pre { font-size:.76rem; }
+  }
+  @media(max-width:480px) {
+    .wrap { padding:24px 18px 36px; }
+    .eyebrow { font-size:.63rem; letter-spacing:.07em; }
+    .card { padding:12px 15px; }
+    .equations { padding:15px; }
+    .metrics { grid-template-columns:1fr; }
+    .metric { border-right:0; border-bottom:1px solid var(--line); padding:8px 16px; display:flex; align-items:center; justify-content:space-between; gap:8px; }
+    .metric:last-child { border-bottom:0; }
+    .metric strong { font-size:1.15rem; }
+    .experiment-head { align-items:flex-start; flex-direction:column; gap:1px; }
+  }
+  @media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
+  @media print {
+    :root { color-scheme:light; --ink:#202c33; --muted:#596970; --accent:#1f596b; --line:#d9e0e0;
+      --bg:#fff; --soft:#f0f4f3; --paper:#fff; --warm:#b14a2b; --cool:#176a75; --code:#f4f5f3; }
+    body { font-size:10pt; }
+    .wrap { max-width:none; padding:0; }
+    .controls { display:none; }
+    h1 { font-size:24pt; }
+    h2 { break-after:avoid; }
+    .lab-grid { grid-template-columns:1.25fr 1fr; }
+    .code-panel { border-left:1px solid var(--line); border-top:0; }
+    pre { font-size:6.5pt; white-space:pre-wrap; }
+    .experiment, .equations { break-inside:avoid; }
+    .metrics { grid-template-columns:repeat(3,1fr); }
+    .metric { display:block; border-bottom:0; }
+  }
+</style>
+</head>
+<body>
+<main class="wrap">
+<header>
+  <div class="eyebrow"><span>CCBS 2026 · Extension mini-essay</span><span>Week 06 / Lectures 11–12</span></div>
+  <h1>A stable circuit can still<br>amplify a disturbance</h1>
+  <p class="meta">Author: Wang Siheng (wangsiheng) · 24 October 2026 · Extending Lecture 11</p>
+</header>
+<p class="card"><strong>One sentence:</strong> Even a circuit that is stable for every fixed positive turnover time can transiently amplify a small disturbance; a stability certificate guarantees eventual return, not a small excursion in the quantities we measure.</p>
+
+<section aria-labelledby="point">
+<h2 id="point">The point I am adding</h2>
+<p class="prose">Lecture 11 writes local dynamics in relative concentrations and uses a diagonal Lyapunov certificate to prove stability across turnover times <a href="#s1">[1]</a>. I want to ask a different design question: <em>how far can a disturbance grow before it disappears?</em> The distinction is familiar from nonnormal linear systems, where stable eigenvalues can coexist with transient amplification <a href="#s2">[2]</a>. Here is a two-pool example that makes the gap explicit, including why it does not contradict the lecture’s certificate.</p>
+</section>
+
+<section aria-labelledby="work-it">
+<h2 id="work-it">Work it: a decaying signal can still drive another pool</h2>
+<p class="prose">Let <span class="math">x = δq<sub>X</sub>/q<sub>X</sub>*</span> and <span class="math">y = δq<sub>Y</sub>/q<sub>Y</sub>*</span> be small fractional deviations from a positive equilibrium. Choose equal turnover times and measure time in that common lifetime. The illustrative balance-order matrix is <span class="math">H = [−1, κ; 0, −1]</span>, with feedforward coupling <span class="math">κ ≥ 0</span>. Both eigenvalues are −1 for every κ. Even with unequal fixed clocks, the matrix remains triangular, with eigenvalues <span class="math">−1/τ<sub>X</sub></span> and <span class="math">−1/τ<sub>Y</sub></span>: it is D-stable. Nevertheless, a pulse in Y feeds X while both deviations relax.</p>
+
+<div class="equations">
+  <div class="scheme" role="img" aria-label="A deviation in upstream pool Y drives downstream pool X with coupling kappa. Each pool has its own first-order relaxation.">
+    <div><b>Y</b> &nbsp; upstream pulse<br>first-order relaxation</div>
+    <div class="arrow">coupling κ<span>⟶</span></div>
+    <div><b>X</b> &nbsp; downstream response<br>first-order relaxation</div>
+  </div>
+  <div class="equation-row"><span>dx/dt = −x + κy</span><span>dy/dt = −y</span><span>(x(0), y(0)) = (0, ε)</span></div>
+  <div class="equation-row"><span>y(t) = εe<sup>−t</sup></span><span>x(t) = κεte<sup>−t</sup></span></div>
+  <p class="equation-note">Exact solution of the stated linear model. κ is a dimensionless local coupling; ε is a small initial fractional deviation. All parameters are illustrative.</p>
+</div>
+
+<p class="prose">The solution follows by substituting <span class="math">y(t)</span> into the X equation and multiplying by <span class="math">e<sup>t</sup></span>. The downstream response peaks at <span class="math">t = 1</span>, with <span class="math">x<sub>max</sub>/ε = κ/e</span>. At <strong>κ = 8</strong>, a 1% upstream deviation therefore produces a <strong>2.94% downstream peak</strong> in this linear model. The combined fractional disturbance has gain <span class="math">g(t) = √(x² + y²)/ε = e<sup>−t</sup>√(1 + κ²t²)</span>; its peak is <strong>2.966 at t = 0.984</strong>. These are calculations from the displayed equations, not experimental data. Increasing κ changes the excursion without moving either eigenvalue.</p>
+
+<div class="experiment" id="experiment">
+  <div class="experiment-head"><strong>Figure 1 · Same stable eigenvalues, different excursions</strong><span class="small">Exact solution · no numerical integration</span></div>
+  <div class="controls">
+    <label for="coupling">Coupling κ</label>
+    <input type="range" id="coupling" min="0" max="12" step="0.5" value="8" disabled>
+    <output id="coupling-value" for="coupling">8.0</output>
+    <button type="button" id="reset" disabled>Reset to 8</button>
+  </div>
+  <div class="lab-grid">
+    <figure>
+      <div class="legend"><span><i></i>Ordinary size g(t)</span><span><i class="weighted-key"></i>Weighted size ℓ(t)</span></div>
+      <svg id="plot" viewBox="0 0 600 356" role="img" aria-labelledby="plot-title plot-desc" xmlns="http://www.w3.org/2000/svg">
+        <title id="plot-title">Ordinary and Lyapunov-weighted disturbance sizes, κ = 8</title>
+        <desc id="plot-desc">The ordinary size starts at one, briefly declines, then reaches 2.966 near t equals 0.984 before returning toward zero. The normalized weighted size decreases throughout. Both eigenvalues are minus one.</desc>
+        <text x="64" y="29">Size relative to its initial value</text>
+        <line class="gridline" x1="64" y1="292.0" x2="556" y2="292.0"/><text x="49" y="296.0" text-anchor="end">0</text>
+        <line class="gridline" x1="64" y1="244.0" x2="556" y2="244.0"/><text x="49" y="248.0" text-anchor="end">1</text>
+        <line class="gridline" x1="64" y1="196.0" x2="556" y2="196.0"/><text x="49" y="200.0" text-anchor="end">2</text>
+        <line class="gridline" x1="64" y1="148.0" x2="556" y2="148.0"/><text x="49" y="152.0" text-anchor="end">3</text>
+        <line class="gridline" x1="64" y1="100.0" x2="556" y2="100.0"/><text x="49" y="104.0" text-anchor="end">4</text>
+        <line class="gridline" x1="64" y1="52.0" x2="556" y2="52.0"/><text x="49" y="56.0" text-anchor="end">5</text>
+        <line class="tick" x1="64.0" y1="292" x2="64.0" y2="297"/><text x="64.0" y="316" text-anchor="middle">0</text>
+        <line class="tick" x1="146.0" y1="292" x2="146.0" y2="297"/><text x="146.0" y="316" text-anchor="middle">1</text>
+        <line class="tick" x1="228.0" y1="292" x2="228.0" y2="297"/><text x="228.0" y="316" text-anchor="middle">2</text>
+        <line class="tick" x1="310.0" y1="292" x2="310.0" y2="297"/><text x="310.0" y="316" text-anchor="middle">3</text>
+        <line class="tick" x1="392.0" y1="292" x2="392.0" y2="297"/><text x="392.0" y="316" text-anchor="middle">4</text>
+        <line class="tick" x1="474.0" y1="292" x2="474.0" y2="297"/><text x="474.0" y="316" text-anchor="middle">5</text>
+        <line class="tick" x1="556.0" y1="292" x2="556.0" y2="297"/><text x="556.0" y="316" text-anchor="middle">6</text>
+        <line class="reference" x1="64" y1="244" x2="556" y2="244"/>
+        <text x="550" y="237" text-anchor="end">initial size = 1</text>
+        <path id="ordinary-path" class="ordinary" d="M64.00,244.00 L65.64,244.35 L67.28,243.58 L68.92,241.86 L70.56,239.39 L72.20,236.38 L73.84,232.99 L75.48,229.35 L77.12,225.56 L78.76,221.71 L80.40,217.85 L82.04,214.02 L83.68,210.26 L85.32,206.58 L86.96,203.01 L88.60,199.55 L90.24,196.20 L91.88,192.99 L93.52,189.90 L95.16,186.95 L96.80,184.13 L98.44,181.44 L100.08,178.88 L101.72,176.45 L103.36,174.14 L105.00,171.96 L106.64,169.90 L108.28,167.97 L109.92,166.14 L111.56,164.44 L113.20,162.84 L114.84,161.35 L116.48,159.96 L118.12,158.68 L119.76,157.50 L121.40,156.41 L123.04,155.41 L124.68,154.50 L126.32,153.68 L127.96,152.95 L129.60,152.29 L131.24,151.71 L132.88,151.21 L134.52,150.79 L136.16,150.43 L137.80,150.14 L139.44,149.92 L141.08,149.76 L142.72,149.66 L144.36,149.62 L146.00,149.63 L147.64,149.71 L149.28,149.83 L150.92,150.00 L152.56,150.22 L154.20,150.49 L155.84,150.80 L157.48,151.16 L159.12,151.55 L160.76,151.99 L162.40,152.46 L164.04,152.97 L165.68,153.51 L167.32,154.08 L168.96,154.69 L170.60,155.32 L172.24,155.99 L173.88,156.68 L175.52,157.40 L177.16,158.14 L178.80,158.90 L180.44,159.69 L182.08,160.50 L183.72,161.32 L185.36,162.17 L187.00,163.03 L188.64,163.91 L190.28,164.81 L191.92,165.72 L193.56,166.64 L195.20,167.58 L196.84,168.53 L198.48,169.48 L200.12,170.45 L201.76,171.43 L203.40,172.42 L205.04,173.42 L206.68,174.42 L208.32,175.43 L209.96,176.45 L211.60,177.47 L213.24,178.50 L214.88,179.53 L216.52,180.56 L218.16,181.60 L219.80,182.64 L221.44,183.68 L223.08,184.72 L224.72,185.77 L226.36,186.81 L228.00,187.86 L229.64,188.90 L231.28,189.95 L232.92,190.99 L234.56,192.04 L236.20,193.08 L237.84,194.11 L239.48,195.15 L241.12,196.18 L242.76,197.22 L244.40,198.24 L246.04,199.27 L247.68,200.29 L249.32,201.30 L250.96,202.31 L252.60,203.32 L254.24,204.32 L255.88,205.32 L257.52,206.31 L259.16,207.30 L260.80,208.28 L262.44,209.26 L264.08,210.23 L265.72,211.19 L267.36,212.15 L269.00,213.10 L270.64,214.05 L272.28,214.98 L273.92,215.92 L275.56,216.84 L277.20,217.76 L278.84,218.67 L280.48,219.58 L282.12,220.47 L283.76,221.36 L285.40,222.25 L287.04,223.12 L288.68,223.99 L290.32,224.85 L291.96,225.71 L293.60,226.55 L295.24,227.39 L296.88,228.22 L298.52,229.05 L300.16,229.86 L301.80,230.67 L303.44,231.47 L305.08,232.26 L306.72,233.05 L308.36,233.83 L310.00,234.60 L311.64,235.36 L313.28,236.11 L314.92,236.86 L316.56,237.60 L318.20,238.33 L319.84,239.05 L321.48,239.77 L323.12,240.48 L324.76,241.18 L326.40,241.87 L328.04,242.56 L329.68,243.24 L331.32,243.91 L332.96,244.57 L334.60,245.23 L336.24,245.88 L337.88,246.52 L339.52,247.15 L341.16,247.78 L342.80,248.40 L344.44,249.01 L346.08,249.62 L347.72,250.21 L349.36,250.80 L351.00,251.39 L352.64,251.97 L354.28,252.54 L355.92,253.10 L357.56,253.66 L359.20,254.20 L360.84,254.75 L362.48,255.28 L364.12,255.81 L365.76,256.34 L367.40,256.85 L369.04,257.36 L370.68,257.87 L372.32,258.36 L373.96,258.85 L375.60,259.34 L377.24,259.82 L378.88,260.29 L380.52,260.76 L382.16,261.22 L383.80,261.67 L385.44,262.12 L387.08,262.56 L388.72,263.00 L390.36,263.43 L392.00,263.85 L393.64,264.27 L395.28,264.69 L396.92,265.10 L398.56,265.50 L400.20,265.90 L401.84,266.29 L403.48,266.67 L405.12,267.06 L406.76,267.43 L408.40,267.80 L410.04,268.17 L411.68,268.53 L413.32,268.89 L414.96,269.24 L416.60,269.59 L418.24,269.93 L419.88,270.26 L421.52,270.60 L423.16,270.92 L424.80,271.25 L426.44,271.57 L428.08,271.88 L429.72,272.19 L431.36,272.50 L433.00,272.80 L434.64,273.09 L436.28,273.39 L437.92,273.67 L439.56,273.96 L441.20,274.24 L442.84,274.51 L444.48,274.79 L446.12,275.05 L447.76,275.32 L449.40,275.58 L451.04,275.84 L452.68,276.09 L454.32,276.34 L455.96,276.58 L457.60,276.83 L459.24,277.06 L460.88,277.30 L462.52,277.53 L464.16,277.76 L465.80,277.98 L467.44,278.21 L469.08,278.42 L470.72,278.64 L472.36,278.85 L474.00,279.06 L475.64,279.26 L477.28,279.47 L478.92,279.67 L480.56,279.86 L482.20,280.06 L483.84,280.25 L485.48,280.43 L487.12,280.62 L488.76,280.80 L490.40,280.98 L492.04,281.16 L493.68,281.33 L495.32,281.50 L496.96,281.67 L498.60,281.84 L500.24,282.00 L501.88,282.16 L503.52,282.32 L505.16,282.48 L506.80,282.63 L508.44,282.78 L510.08,282.93 L511.72,283.08 L513.36,283.22 L515.00,283.37 L516.64,283.51 L518.28,283.64 L519.92,283.78 L521.56,283.91 L523.20,284.05 L524.84,284.18 L526.48,284.30 L528.12,284.43 L529.76,284.55 L531.40,284.67 L533.04,284.79 L534.68,284.91 L536.32,285.03 L537.96,285.14 L539.60,285.26 L541.24,285.37 L542.88,285.48 L544.52,285.58 L546.16,285.69 L547.80,285.79 L549.44,285.89 L551.08,286.00 L552.72,286.09 L554.36,286.19 L556.00,286.29"/>
+        <path id="weighted-path" class="weighted" d="M64.00,244.00 L65.64,244.92 L67.28,245.74 L68.92,246.49 L70.56,247.16 L72.20,247.76 L73.84,248.29 L75.48,248.76 L77.12,249.17 L78.76,249.53 L80.40,249.85 L82.04,250.12 L83.68,250.35 L85.32,250.55 L86.96,250.71 L88.60,250.86 L90.24,250.97 L91.88,251.07 L93.52,251.15 L95.16,251.22 L96.80,251.27 L98.44,251.32 L100.08,251.35 L101.72,251.38 L103.36,251.41 L105.00,251.44 L106.64,251.46 L108.28,251.49 L109.92,251.51 L111.56,251.54 L113.20,251.57 L114.84,251.61 L116.48,251.65 L118.12,251.69 L119.76,251.74 L121.40,251.80 L123.04,251.86 L124.68,251.93 L126.32,252.00 L127.96,252.09 L129.60,252.18 L131.24,252.27 L132.88,252.38 L134.52,252.49 L136.16,252.60 L137.80,252.73 L139.44,252.86 L141.08,253.00 L142.72,253.14 L144.36,253.30 L146.00,253.46 L147.64,253.62 L149.28,253.79 L150.92,253.97 L152.56,254.15 L154.20,254.34 L155.84,254.54 L157.48,254.74 L159.12,254.94 L160.76,255.15 L162.40,255.37 L164.04,255.58 L165.68,255.81 L167.32,256.04 L168.96,256.27 L170.60,256.51 L172.24,256.74 L173.88,256.99 L175.52,257.23 L177.16,257.48 L178.80,257.74 L180.44,257.99 L182.08,258.25 L183.72,258.51 L185.36,258.77 L187.00,259.04 L188.64,259.31 L190.28,259.58 L191.92,259.85 L193.56,260.12 L195.20,260.39 L196.84,260.67 L198.48,260.94 L200.12,261.22 L201.76,261.50 L203.40,261.78 L205.04,262.06 L206.68,262.33 L208.32,262.61 L209.96,262.90 L211.60,263.18 L213.24,263.46 L214.88,263.74 L216.52,264.02 L218.16,264.30 L219.80,264.58 L221.44,264.86 L223.08,265.14 L224.72,265.41 L226.36,265.69 L228.00,265.97 L229.64,266.24 L231.28,266.52 L232.92,266.79 L234.56,267.07 L236.20,267.34 L237.84,267.61 L239.48,267.88 L241.12,268.15 L242.76,268.42 L244.40,268.68 L246.04,268.95 L247.68,269.21 L249.32,269.47 L250.96,269.73 L252.60,269.99 L254.24,270.25 L255.88,270.50 L257.52,270.76 L259.16,271.01 L260.80,271.26 L262.44,271.51 L264.08,271.76 L265.72,272.00 L267.36,272.24 L269.00,272.49 L270.64,272.73 L272.28,272.96 L273.92,273.20 L275.56,273.43 L277.20,273.66 L278.84,273.89 L280.48,274.12 L282.12,274.35 L283.76,274.57 L285.40,274.80 L287.04,275.02 L288.68,275.23 L290.32,275.45 L291.96,275.66 L293.60,275.88 L295.24,276.09 L296.88,276.29 L298.52,276.50 L300.16,276.70 L301.80,276.91 L303.44,277.11 L305.08,277.30 L306.72,277.50 L308.36,277.69 L310.00,277.89 L311.64,278.08 L313.28,278.26 L314.92,278.45 L316.56,278.63 L318.20,278.82 L319.84,279.00 L321.48,279.17 L323.12,279.35 L324.76,279.52 L326.40,279.70 L328.04,279.87 L329.68,280.03 L331.32,280.20 L332.96,280.36 L334.60,280.53 L336.24,280.69 L337.88,280.85 L339.52,281.00 L341.16,281.16 L342.80,281.31 L344.44,281.46 L346.08,281.61 L347.72,281.76 L349.36,281.91 L351.00,282.05 L352.64,282.19 L354.28,282.33 L355.92,282.47 L357.56,282.61 L359.20,282.75 L360.84,282.88 L362.48,283.01 L364.12,283.14 L365.76,283.27 L367.40,283.40 L369.04,283.52 L370.68,283.65 L372.32,283.77 L373.96,283.89 L375.60,284.01 L377.24,284.13 L378.88,284.24 L380.52,284.36 L382.16,284.47 L383.80,284.58 L385.44,284.69 L387.08,284.80 L388.72,284.91 L390.36,285.02 L392.00,285.12 L393.64,285.22 L395.28,285.33 L396.92,285.43 L398.56,285.52 L400.20,285.62 L401.84,285.72 L403.48,285.81 L405.12,285.91 L406.76,286.00 L408.40,286.09 L410.04,286.18 L411.68,286.27 L413.32,286.36 L414.96,286.44 L416.60,286.53 L418.24,286.61 L419.88,286.69 L421.52,286.78 L423.16,286.86 L424.80,286.93 L426.44,287.01 L428.08,287.09 L429.72,287.17 L431.36,287.24 L433.00,287.31 L434.64,287.39 L436.28,287.46 L437.92,287.53 L439.56,287.60 L441.20,287.67 L442.84,287.73 L444.48,287.80 L446.12,287.87 L447.76,287.93 L449.40,287.99 L451.04,288.06 L452.68,288.12 L454.32,288.18 L455.96,288.24 L457.60,288.30 L459.24,288.36 L460.88,288.42 L462.52,288.47 L464.16,288.53 L465.80,288.58 L467.44,288.64 L469.08,288.69 L470.72,288.74 L472.36,288.79 L474.00,288.85 L475.64,288.90 L477.28,288.95 L478.92,288.99 L480.56,289.04 L482.20,289.09 L483.84,289.14 L485.48,289.18 L487.12,289.23 L488.76,289.27 L490.40,289.32 L492.04,289.36 L493.68,289.40 L495.32,289.44 L496.96,289.48 L498.60,289.52 L500.24,289.56 L501.88,289.60 L503.52,289.64 L505.16,289.68 L506.80,289.72 L508.44,289.76 L510.08,289.79 L511.72,289.83 L513.36,289.86 L515.00,289.90 L516.64,289.93 L518.28,289.97 L519.92,290.00 L521.56,290.03 L523.20,290.06 L524.84,290.09 L526.48,290.13 L528.12,290.16 L529.76,290.19 L531.40,290.22 L533.04,290.25 L534.68,290.27 L536.32,290.30 L537.96,290.33 L539.60,290.36 L541.24,290.39 L542.88,290.41 L544.52,290.44 L546.16,290.46 L547.80,290.49 L549.44,290.51 L551.08,290.54 L552.72,290.56 L554.36,290.59 L556.00,290.61"/>
+        <circle id="peak-dot" class="peak-dot" cx="144.70" cy="149.62" r="5"/>
+        <text id="peak-label" class="peak-label" x="156.70" y="134.62">peak 2.966</text>
+        <text x="310" y="346" text-anchor="middle">Time t / common turnover lifetime</text>
+      </svg>
+      <figcaption>Original plot from 301 samples of the exact solution. Solid: Euclidean size g(t). Dashed: ℓ(t) = √[V(t)/V(0)], with V = x² + (1 + κ²/4)y². Each curve is normalized by its own initial size; they measure different things. The adjacent JavaScript computes both curves and the global peak of g for this initial condition.</figcaption>
+    </figure>
+    <aside class="code-panel" aria-label="Reproducible figure code">
+      <h3>The code behind the figure · JavaScript</h3>
+      <pre><code>// Exact solution, normalized by the initial y pulse.
+function sample(t, k) {
+  const y = Math.exp(-t);
+  const x = k * t * y;
+  const p = 1 + k * k / 4;
+  return {
+    ordinary: Math.hypot(x, y),
+    weighted: Math.sqrt((x*x + p*y*y) / p)
+  };
+}
+
+// Global peak for this initial condition, t &gt;= 0.
+function peak(k) {
+  if (k &lt;= 2) return {t: 0, gain: 1};
+  const t = (1 + Math.sqrt(1 - 4/(k*k))) / 2;
+  const gain = sample(t, k).ordinary;
+  return gain &gt; 1 ? {t, gain} : {t: 0, gain: 1};
+}
+
+// Plot 301 exact samples on 0 &lt;= t &lt;= 6.
+function curves(k) {
+  return Array.from({length: 301}, (_, i) =&gt; {
+    const t = i * 6 / 300;
+    return {t, ...sample(t, k)};
+  });
+}</code></pre>
+    </aside>
+  </div>
+  <div class="metrics" aria-live="polite" aria-atomic="true">
+    <div class="metric"><strong id="peak-value">2.966×</strong><span>peak ordinary size / initial size</span></div>
+    <div class="metric"><strong id="peak-time">0.984</strong><span>time of global peak</span></div>
+    <div class="metric"><strong>−1, −1</strong><span>eigenvalues for every κ shown</span></div>
+  </div>
+  <p class="hint">Try κ = 0, then κ = 8. The weighted size keeps decreasing even when the ordinary size exceeds one. The solid curve is for the specified Y-only pulse, not the worst case over all initial directions.</p>
+  <noscript><p>JavaScript is off. The complete default figure (κ = 8), results and reproducible code remain visible.</p></noscript>
+</div>
+
+<p class="prose">The certificate still works. Choose <span class="math">P = diag(1, 1 + κ²/4)</span>, so <span class="math">V = x² + (1 + κ²/4)y²</span>. Direct differentiation gives the expression below, which is strictly negative away from equilibrium. At κ = 8, V gives Y a weight of 17: transfer from Y into X can increase ordinary distance while this weighted distance shrinks. Thus the certificate proves decay in a particular metric; it does not promise that every concentration excursion is small. The orange curve displays the extra quantity a circuit designer should check.</p>
+<div class="equations proof" aria-label="Derivative of the Lyapunov function">
+  dV/dt = −2x² + 2κxy − 2(1 + κ²/4)y²<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= −2(x − κy/2)² − 2y² &lt; 0 &nbsp; for (x, y) ≠ (0, 0).
+</div>
+</section>
+
+<section aria-labelledby="limits">
+<h2 id="limits">What I would argue against / where this breaks</h2>
+<p class="prose">I would argue against using “stable” as shorthand for “small response.” This example is a local, deterministic model, not evidence that a particular biological circuit has κ = 8. Large excursions can invalidate the linearization, and biochemical mechanisms may constrain attainable coupling. The plotted gains assume equal clocks; unequal clocks change the transient even though stability remains. Finally, amplification depends on the chosen coordinates and metric: fractional concentrations make the comparison explicit, but another readout or weighting asks another question. The correct conclusion is to specify and calculate a transient gain <em>alongside</em> stability.</p>
+</section>
+
+<section aria-labelledby="sources">
+<h2 id="sources">Sources</h2>
+<ol class="src">
+  <li id="s1">CCBS 2026. <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture11-core.html"><em>Lecture 11: Reaction orders connect structure to dynamics</em></a>, 15 October 2026, §§2–4. Supplies the relative-coordinate linearization, D-stability definition and diagonal Lyapunov certificate; the two-pool example and its calculations are developed here.</li>
+  <li id="s2">L. N. Trefethen, A. E. Trefethen, S. C. Reddy and T. A. Driscoll. <a href="https://doi.org/10.1126/science.261.5121.578">“Hydrodynamic Stability Without Eigenvalues.”</a> <em>Science</em> 261(5121), 578–584 (1993). <a href="https://people.maths.ox.ac.uk/trefethen/ttrd.pdf">Author-hosted full text</a>. Establishes the broader distinction between stable eigenmodes and transient amplification in nonnormal systems; it does not supply biological parameters for this example.</li>
+</ol>
+</section>
+<footer><span>CCBS 2026 · Week 6 · wangsiheng</span><span>Self-contained HTML · original model figure + code</span></footer>
+</main>
+<script>
+'use strict';
+// Exact solution, normalized by the initial y pulse.
+function sample(t, k) {
+  const y = Math.exp(-t);
+  const x = k * t * y;
+  const p = 1 + k * k / 4;
+  return {
+    ordinary: Math.hypot(x, y),
+    weighted: Math.sqrt((x*x + p*y*y) / p)
+  };
+}
+
+// Global peak for this initial condition, t >= 0.
+function peak(k) {
+  if (k <= 2) return {t: 0, gain: 1};
+  const t = (1 + Math.sqrt(1 - 4/(k*k))) / 2;
+  const gain = sample(t, k).ordinary;
+  return gain > 1 ? {t, gain} : {t: 0, gain: 1};
+}
+
+// Plot 301 exact samples on 0 <= t <= 6.
+function curves(k) {
+  return Array.from({length: 301}, (_, i) => {
+    const t = i * 6 / 300;
+    return {t, ...sample(t, k)};
+  });
+}
+
+// Rendering only: the calculation above is exactly the code printed beside Figure 1.
+const slider = document.getElementById('coupling');
+const reset = document.getElementById('reset');
+const px = t => 64 + 492 * t / 6;
+const py = gain => 292 - 240 * gain / 5;
+function update() {
+  const k = Number(slider.value);
+  const data = curves(k);
+  for (const name of ['ordinary', 'weighted']) {
+    const d = data.map((row, i) =>
+      `${i ? 'L' : 'M'}${px(row.t).toFixed(2)},${py(row[name]).toFixed(2)}`).join(' ');
+    document.getElementById(name + '-path').setAttribute('d', d);
+  }
+  const result = peak(k);
+  document.getElementById('coupling-value').textContent = k.toFixed(1);
+  document.getElementById('peak-value').textContent = result.gain.toFixed(3) + '×';
+  document.getElementById('peak-time').textContent = result.t.toFixed(3);
+  const dot = document.getElementById('peak-dot');
+  dot.setAttribute('cx', px(result.t));
+  dot.setAttribute('cy', py(result.gain));
+  const label = document.getElementById('peak-label');
+  label.setAttribute('x', px(result.t) + 12);
+  label.setAttribute('y', py(result.gain) - 15);
+  label.textContent = 'peak ' + result.gain.toFixed(3);
+  document.getElementById('plot-title').textContent =
+    'Ordinary and Lyapunov-weighted disturbance sizes, κ = ' + k.toFixed(1);
+  document.getElementById('plot-desc').textContent =
+    `For κ = ${k}, the ordinary size peaks at ${result.gain.toFixed(3)} at t = ${result.t.toFixed(3)}. ` +
+    'The normalized weighted size decreases throughout. Both eigenvalues are minus one.';
+}
+slider.disabled = false;
+reset.disabled = false;
+slider.addEventListener('input', update);
+reset.addEventListener('click', () => { slider.value = '8'; update(); });
+update();
+</script>
+</body>
+</html>

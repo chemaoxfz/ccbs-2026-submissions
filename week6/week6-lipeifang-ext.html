@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lecture 12 — Extension: A decision is a boundary, not a state count</title>
+<meta name="author" content="fanglipei">
+<meta name="week" content="lecture12">
+<style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.62; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.55rem; line-height:1.28; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px;
+    border-bottom:1px solid var(--line); padding-bottom:5px; }
+  h3 { font-size:.98rem; margin:22px 0 5px; color:var(--ink); }
+  p { margin:10px 0; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:14px 18px; margin:14px 0; }
+  .note { border-left:2px solid var(--line); padding:4px 0 4px 14px; margin:16px 0;
+    color:var(--muted); font-size:.94rem; }
+  .eqblock { font-family:Georgia,"Times New Roman",serif; font-size:1rem;
+    border-left:2px solid var(--line); padding:8px 0 8px 16px; margin:14px 0; line-height:2.0; }
+  .eqblock sub, .eqblock sup { font-size:.72em; }
+  pre.code { background:var(--soft); border:1px solid var(--line); border-radius:4px;
+    padding:12px 14px; overflow-x:auto; font-size:.80rem; line-height:1.48; }
+  pre.out { background:var(--soft); border:1px solid var(--line); border-radius:4px;
+    padding:10px 14px; font-size:.82rem; line-height:1.5; }
+  code { font-family:Consolas,"Courier New",monospace; }
+  table { border-collapse:collapse; width:100%; margin:14px 0; font-size:.92rem; }
+  th, td { border-bottom:1px solid var(--line); padding:6px 8px; text-align:right; }
+  th:first-child, td:first-child { text-align:left; }
+  caption { caption-side:top; text-align:left; font-size:.85rem; color:var(--muted); padding-bottom:5px; }
+  figure { margin:18px 0; }
+  .fig { width:100%; height:auto; border:1px solid var(--line); border-radius:6px;
+    margin:0; background:var(--bg); }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+  /* SVG classes: inline SVG inherits these, so dark mode works */
+  .fig .ax { stroke:var(--line); stroke-width:1; }
+  .fig .c1 { stroke:var(--accent); stroke-width:2; }
+  .fig .c2 { stroke:var(--muted); stroke-width:1.6; stroke-dasharray:5 4; }
+  .fig .dash { stroke:var(--muted); stroke-width:1.2; stroke-dasharray:4 4; }
+  .fig .fold { stroke:var(--muted); stroke-width:1.2; stroke-dasharray:2 4; }
+  .fig .p1 { fill:var(--accent); }
+  .fig .p0 { fill:var(--bg); stroke:var(--accent); stroke-width:1.6; }
+  .fig .pab { fill:var(--bg); stroke:var(--muted); stroke-width:1.4; }
+  .fig .pstart { fill:none; stroke:var(--ink); stroke-width:1.4; }
+  .fig .arw { fill:var(--muted); }
+  .fig .lb { fill:var(--ink); font-size:12px; }
+  .fig .lb2 { fill:var(--muted); font-size:11px; }
+  .fig .tk { fill:var(--muted); font-size:10.5px; }
+  .fig .lbinv { fill:var(--bg); font-size:12px; }
+  .fig .shade { fill:var(--soft); }
+  .fig .shade2 { fill:var(--line); opacity:.55; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; }
+  .src li { margin:8px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Lecture 12 — Extension: A decision is a boundary, not a state count</h1>
+<p class="meta">Author: fanglipei (20261203497) · Lecture 12 (20 October 2026) · CCBS 2026</p>
+
+<p class="card"><strong>One sentence:</strong> MultiFate's three stable states are three
+outcomes, but choosing among them is a crossing problem — a pulse commits only if it
+carries the state across the separatrix, the minimum duration diverges at the
+saddle-node, and equal doses can produce opposite fates.</p>
+
+<h2>The point I am adding</h2>
+
+<p>Section 9 of the lecture ends with an experimental fact: a six-day doxycycline pulse
+moves a sorted A-high population into a both-high state that survives withdrawal of the
+drug. Appendix A2 reproduces the direction of that switch with eq. (25), using a
+five-lifetime pulse at full induction. Both are existence arguments. They show that a
+transient signal can select a state; they do not say what makes a pulse sufficient. The
+lecture calls the duration and fold-change illustrative, so the sufficiency condition is
+left open.</p>
+
+<p>I want to fill that gap with the model's own phase plane. The three stable states are
+usually read as three decisions, and the combinatorial count (3, 7, 15, …) as the size of
+the decision library. But a decision is not a point; it is the boundary between points. A
+pulse commits the state exactly when, at the moment it ends, the state lies on the far
+side of the separatrix of the A-high basin. This turns "how much signal is enough" into a
+geometric question, and the geometry has two consequences: the minimum duration diverges
+as the pulse amplitude approaches the saddle-node, and the same integrated dose can land
+on opposite sides of the boundary.</p>
+
+<p>The rest of this note computes that boundary from the lecture's equations, checks that
+the code reproduces the lecture's three states, and exhibits two pulses with identical
+dose and opposite outcomes. The point is not that the experiment is wrong. It is that
+<em>dose</em> is the wrong control variable for a dynamic decision.</p>
+
+<h2>Work it</h2>
+
+<h3>The model, from the lecture's equations</h3>
+
+<p>I use eqs. (24)–(25) exactly, with γ = 1 and the lecture's parameter values. The only
+change is notation: q<sub>A</sub> and q<sub>B</sub> are total amounts divided by
+K<sub>M</sub>, and τ is time in units of the baseline removal lifetime.</p>
+
+<div class="eqblock">
+<div>φ = 2 / (1 + √(1 + 8(q<sub>A</sub> + q<sub>B</sub>)/K<sub>d</sub>))</div>
+<div>C<sub>AA</sub> = φ²q<sub>A</sub>²/K<sub>d</sub>, &nbsp;&nbsp; C<sub>BB</sub> = φ²q<sub>B</sub>²/K<sub>d</sub></div>
+<div>h(C) = C<sup>n</sup> / (1 + C<sup>n</sup>), &nbsp;&nbsp; n = 1.5</div>
+<div>dq<sub>A</sub>/dτ = 0.8 + 20 h(C<sub>AA</sub>) − q<sub>A</sub></div>
+<div>dq<sub>B</sub>/dτ = 0.8 + 20 [ h(C<sub>BB</sub>) + s<sub>B</sub>(1 − h(C<sub>BB</sub>)) ] − q<sub>B</sub></div>
+</div>
+
+<p>Here α/(K<sub>M</sub>δ) = 0.8, β/(K<sub>M</sub>δ) = 20, K<sub>d</sub>/K<sub>M</sub> = 1,
+and s<sub>B</sub> ∈ [0,1] is the control. With s<sub>B</sub> = 0, Newton's method from a
+grid returns exactly the lecture's states: (19.985, 0.834), (0.834, 19.985) and
+(18.694, 18.694), with saddles at (19.761, 4.659) and (4.659, 19.761). The match to the
+lecture's Fig. 14 is the check that this is the lecture's model and not a lookalike. The
+A-high start is (19.985, 0.834).</p>
+
+<figure>
+<svg class="fig" viewBox="0 0 720 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Molecular circuit and pulse protocol">
+  <defs>
+    <marker id="ah" markerWidth="7" markerHeight="7" refX="6.5" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" class="arw"/>
+    </marker>
+    <marker id="ahb" markerWidth="7" markerHeight="7" refX="0.5" refY="3.5" orient="auto">
+      <path d="M7,0 L0,3.5 L7,7 z" class="arw"/>
+    </marker>
+  </defs>
+
+  <!-- gene A -->
+  <line x1="55" y1="38" x2="55" y2="62" class="ax"/>
+  <line x1="55" y1="50" x2="125" y2="50" class="c1" marker-end="url(#ah)"/>
+  <text x="90" y="40" class="lb" text-anchor="middle">gene A</text>
+  <!-- production A -->
+  <line x1="90" y1="52" x2="90" y2="92" class="c1" marker-end="url(#ah)"/>
+  <circle cx="90" cy="108" r="12" class="p1"/>
+  <text x="90" y="112" class="lbinv" text-anchor="middle">A</text>
+
+  <!-- homodimer -->
+  <line x1="82" y1="118" x2="70" y2="152" class="c1" marker-end="url(#ah)"/>
+  <line x1="98" y1="118" x2="110" y2="152" class="c1" marker-end="url(#ah)"/>
+  <circle cx="60" cy="170" r="12" class="p1"/>
+  <circle cx="100" cy="170" r="12" class="p1"/>
+  <line x1="66" y1="164" x2="94" y2="164" class="c1"/>
+  <text x="80" y="200" class="lb2" text-anchor="middle">A₂ (active)</text>
+
+  <!-- activation loop -->
+  <path d="M52,160 C20,140 18,70 47,57" fill="none" class="c1" marker-end="url(#ah)"/>
+
+  <!-- gene B -->
+  <line x1="330" y1="38" x2="330" y2="62" class="ax"/>
+  <line x1="330" y1="50" x2="400" y2="50" class="c1" marker-end="url(#ah)"/>
+  <text x="365" y="40" class="lb" text-anchor="middle">gene B</text>
+  <!-- control -->
+  <line x1="330" y1="22" x2="330" y2="36" class="c2" marker-end="url(#ah)"/>
+  <text x="330" y="15" class="lb2" text-anchor="middle">s_B (control)</text>
+  <!-- production B -->
+  <line x1="365" y1="52" x2="365" y2="92" class="c1" marker-end="url(#ah)"/>
+  <circle cx="365" cy="108" r="12" class="p1"/>
+  <text x="365" y="112" class="lbinv" text-anchor="middle">B</text>
+
+  <!-- heterodimer -->
+  <line x1="102" y1="116" x2="204" y2="160" class="c1" marker-end="url(#ah)"/>
+  <line x1="353" y1="116" x2="256" y2="160" class="c1" marker-end="url(#ah)"/>
+  <circle cx="218" cy="172" r="12" class="pab"/>
+  <circle cx="258" cy="172" r="12" class="pab"/>
+  <line x1="224" y1="166" x2="252" y2="166" class="c2"/>
+  <text x="238" y="202" class="lb2" text-anchor="middle">AB (inactive)</text>
+
+  <!-- sequestration -->
+  <line x1="206" y1="172" x2="116" y2="172" class="dash"/>
+  <line x1="118" y1="164" x2="118" y2="180" class="c2"/>
+  <text x="160" y="190" class="lb2" text-anchor="middle">sequesters A</text>
+
+  <!-- panel b: pulse -->
+  <line x1="500" y1="200" x2="700" y2="200" class="ax"/>
+  <line x1="500" y1="200" x2="500" y2="55" class="ax"/>
+  <polyline points="500,200 540,200 540,85 620,85 620,200 700,200" fill="none" class="c1"/>
+  <line x1="500" y1="85" x2="540" y2="85" class="dash"/>
+  <text x="490" y="89" class="tk" text-anchor="end">σ</text>
+  <line x1="540" y1="212" x2="620" y2="212" class="ax"/>
+  <line x1="540" y1="208" x2="540" y2="216" class="ax"/>
+  <line x1="620" y1="208" x2="620" y2="216" class="ax"/>
+  <text x="580" y="227" class="tk" text-anchor="middle">T</text>
+  <text x="600" y="45" class="lb" text-anchor="middle">input s_B(t)</text>
+  <text x="600" y="238" class="lb2" text-anchor="middle">amplitude σ, duration T</text>
+</svg>
+
+<figcaption>Figure 1. The MultiFate motif, drawn from eqs. (15)–(17): A forms an activating homodimer, B sequesters A in an inactive heterodimer, and the control s<sub>B</sub> adds B production. The right panel defines the pulse: amplitude σ, duration T. Schematic, not a data plot.</figcaption>
+</figure>
+
+<h3>The separatrix and two pulses</h3>
+
+<p>The basin boundary is computed by bisection: for each q<sub>A</sub>, find the
+q<sub>B</sub> at which the final state switches from A-high to both-high. It passes through
+the saddle and sits at q<sub>B</sub> ≈ 4.6 when q<sub>A</sub> ≈ 20 (Fig. 2b). The start is
+far below it. A pulse is now a vertical excursion: s<sub>B</sub> = σ for 0 ≤ τ &lt; T,
+then zero.</p>
+
+<p>Take two pulses with the same dose σT = 0.30. Pulse 1 has σ = 1, T = 0.30; pulse 2 has
+σ = 0.08, T = 3.75. Pulse 1 crosses the boundary at τ = 0.214 and ends at
+(18.694, 18.694). Pulse 2 peaks at q<sub>B</sub> = 3.771, which is 0.90 below the boundary
+at that q<sub>A</sub>, and returns to (19.985, 0.834). Same dose, opposite fates. The
+reason is the removal filter: B has lifetime 1, so a short strong pulse accumulates B
+faster than it is removed, while a long weak pulse settles at a quasi-steady B level that
+never reaches the boundary.</p>
+
+<figure>
+<svg class="fig" viewBox="0 0 720 350" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Pulse commitment and phase plane">
+<line x1="64.00" y1="280.00" x2="332.00" y2="280.00" class="ax"/>
+<line x1="64.00" y1="30.00" x2="64.00" y2="280.00" class="ax"/>
+<line x1="64.00" y1="280.00" x2="64.00" y2="284.00" class="ax"/>
+<text x="64.00" y="296.00" class="tk" text-anchor="middle" >0</text>
+<line x1="131.00" y1="280.00" x2="131.00" y2="284.00" class="ax"/>
+<text x="131.00" y="296.00" class="tk" text-anchor="middle" >2</text>
+<line x1="198.00" y1="280.00" x2="198.00" y2="284.00" class="ax"/>
+<text x="198.00" y="296.00" class="tk" text-anchor="middle" >4</text>
+<line x1="265.00" y1="280.00" x2="265.00" y2="284.00" class="ax"/>
+<text x="265.00" y="296.00" class="tk" text-anchor="middle" >6</text>
+<line x1="332.00" y1="280.00" x2="332.00" y2="284.00" class="ax"/>
+<text x="332.00" y="296.00" class="tk" text-anchor="middle" >8</text>
+<line x1="60.00" y1="280.00" x2="64.00" y2="280.00" class="ax"/>
+<text x="56.00" y="283.50" class="tk" text-anchor="end" >0</text>
+<line x1="60.00" y1="217.50" x2="64.00" y2="217.50" class="ax"/>
+<text x="56.00" y="221.00" class="tk" text-anchor="end" >5</text>
+<line x1="60.00" y1="155.00" x2="64.00" y2="155.00" class="ax"/>
+<text x="56.00" y="158.50" class="tk" text-anchor="end" >10</text>
+<line x1="60.00" y1="92.50" x2="64.00" y2="92.50" class="ax"/>
+<text x="56.00" y="96.00" class="tk" text-anchor="end" >15</text>
+<line x1="60.00" y1="30.00" x2="64.00" y2="30.00" class="ax"/>
+<text x="56.00" y="33.50" class="tk" text-anchor="end" >20</text>
+<text x="198.00" y="314.00" class="lb2" text-anchor="middle" >time τ (removal lifetimes)</text>
+<text x="26.00" y="155.00" class="lb2" text-anchor="middle" transform="rotate(-90 26.00 155.00)">q_B / K_M</text>
+<rect x="64.00" y="30.00" width="125.62" height="250.00" class="shade"/>
+<rect x="64.00" y="30.00" width="10.05" height="250.00" class="shade2"/>
+<line x1="64.00" y1="221.75" x2="332.00" y2="221.75" class="dash"/>
+<text x="326.00" y="234.75" class="tk" text-anchor="end" >separatrix level ≈ 4.7</text>
+<polyline points="64.07,269.07 65.07,261.71 66.08,254.57 67.08,247.64 68.09,240.91 69.09,234.38 70.10,228.04 71.10,221.90 72.11,215.93 73.11,210.14 74.39,204.74 75.39,204.28 76.40,203.80 77.40,203.32 78.41,202.81 79.41,202.30 80.42,201.76 81.76,201.03 82.76,200.46 83.77,199.88 84.77,199.27 85.78,198.65 86.78,198.02 87.79,197.36 88.79,196.69 89.80,196.00 90.80,195.29 91.81,194.56 92.81,193.81 93.82,193.04 94.82,192.25 95.83,191.44 96.83,190.61 98.17,189.47 99.18,188.59 100.18,187.69 101.19,186.77 102.19,185.83 103.20,184.86 104.20,183.88 105.21,182.87 106.21,181.85 107.22,180.80 108.22,179.73 109.23,178.64 110.23,177.53 111.24,176.40 112.24,175.25 113.25,174.08 114.25,172.90 115.26,171.69 116.26,170.47 117.27,169.23 118.27,167.98 119.28,166.71 120.28,165.42 121.29,164.12 122.29,162.81 123.30,161.48 124.30,160.15 125.31,158.80 126.31,157.44 127.32,156.08 128.32,154.71 129.33,153.33 130.33,151.94 131.67,150.08 133.01,148.22 134.35,146.36 135.69,144.49 137.03,142.62 138.37,140.75 139.71,138.89 141.05,137.04 142.39,135.19 143.73,133.35 145.07,131.52 146.41,129.71 147.75,127.91 149.09,126.13 150.43,124.37 151.77,122.62 153.11,120.89 154.45,119.19 155.79,117.51 157.13,115.85 158.47,114.21 159.81,112.60 161.15,111.01 162.49,109.45 163.83,107.91 165.17,106.40 166.51,104.92 167.85,103.46 169.19,102.03 170.53,100.62 171.87,99.25 173.21,97.90 174.55,96.58 175.89,95.28 177.23,94.02 178.57,92.77 179.91,91.56 181.25,90.37 182.59,89.21 183.93,88.08 185.27,86.97 186.61,85.88 187.95,84.82 189.29,83.79 190.63,82.78 191.97,81.79 193.31,80.83 194.65,79.89 195.99,78.98 197.33,78.08 198.67,77.21 200.01,76.36 201.35,75.54 202.69,74.73 204.03,73.94 205.37,73.18 206.71,72.43 208.05,71.70 209.39,71.00 210.73,70.31 212.07,69.64 213.41,68.98 214.75,68.35 216.09,67.73 217.43,67.12 218.77,66.54 220.11,65.97 221.45,65.41 222.79,64.87 224.13,64.34 225.47,63.83 226.81,63.33 228.15,62.85 229.49,62.38 230.83,61.92 232.17,61.48 233.51,61.04 234.85,60.62 236.19,60.22 237.53,59.82 238.87,59.43 240.21,59.06 241.55,58.69 242.89,58.34 244.23,57.99 245.57,57.65 246.91,57.33 248.25,57.01 249.59,56.70 250.93,56.41 252.27,56.11 253.61,55.83 254.95,55.56 256.29,55.29 257.63,55.03 258.97,54.78 260.31,54.54 261.65,54.30 262.99,54.07 264.33,53.85 265.67,53.63 267.01,53.42 268.35,53.21 269.69,53.01 271.03,52.82 272.37,52.63 273.71,52.45 275.05,52.27 276.39,52.10 277.73,51.93 279.07,51.77 280.41,51.61 281.75,51.46 283.09,51.31 284.43,51.16 285.77,51.02 287.11,50.89 288.45,50.76 289.79,50.63 291.13,50.50 292.47,50.38 293.81,50.26 295.15,50.15 296.49,50.04 297.83,49.93 299.17,49.83 300.51,49.72 301.85,49.63 303.19,49.53 304.53,49.44 305.87,49.35 307.21,49.26 308.55,49.17 309.89,49.09 311.23,49.01 312.57,48.93 313.91,48.86 315.25,48.78 316.59,48.71 317.93,48.64 319.27,48.58 320.61,48.51 321.95,48.45 323.29,48.39 324.63,48.33 325.97,48.27 327.31,48.21 328.65,48.16 329.99,48.11 331.33,48.05" fill="none" class="c1"/>
+<polyline points="64.07,269.53 65.07,268.94 66.08,268.37 67.08,267.81 68.09,267.26 69.09,266.73 70.10,266.21 71.10,265.70 72.11,265.21 73.11,264.72 74.12,264.25 75.12,263.79 76.13,263.34 77.13,262.90 78.14,262.47 79.14,262.04 80.15,261.63 81.22,261.19 82.22,260.80 83.23,260.41 84.23,260.02 85.24,259.65 86.24,259.28 87.25,258.92 88.25,258.56 89.26,258.21 90.26,257.87 91.27,257.53 92.27,257.20 93.28,256.87 94.28,256.55 95.29,256.23 96.29,255.92 97.30,255.61 98.37,255.29 99.38,254.99 100.38,254.69 101.39,254.40 102.39,254.11 103.40,253.82 104.40,253.54 105.41,253.26 106.41,252.99 107.42,252.72 108.42,252.45 109.43,252.18 110.43,251.92 111.44,251.66 112.44,251.40 113.45,251.14 114.45,250.89 115.46,250.63 116.46,250.38 117.47,250.14 118.47,249.89 119.48,249.65 120.48,249.40 121.49,249.16 122.49,248.92 123.50,248.68 124.50,248.45 125.51,248.21 126.51,247.98 127.52,247.74 128.52,247.51 129.53,247.28 130.53,247.05 131.60,246.81 132.67,246.56 133.75,246.32 134.82,246.08 135.89,245.84 136.96,245.60 138.03,245.35 139.11,245.11 140.18,244.88 141.25,244.64 142.32,244.40 143.39,244.16 144.47,243.92 145.54,243.68 146.61,243.44 147.68,243.20 148.75,242.96 149.83,242.72 150.90,242.48 151.97,242.24 153.04,242.00 154.11,241.76 155.19,241.52 156.26,241.27 157.33,241.03 158.40,240.79 159.47,240.54 160.55,240.29 161.62,240.05 162.69,239.80 163.76,239.55 164.83,239.29 165.91,239.04 166.98,238.79 168.05,238.53 169.12,238.27 170.19,238.01 171.27,237.75 172.34,237.48 173.41,237.22 174.48,236.95 175.55,236.68 176.63,236.41 177.70,236.13 178.77,235.85 179.84,235.57 180.91,235.29 181.99,235.00 183.06,234.71 184.13,234.42 185.20,234.12 186.27,233.82 187.35,233.52 188.42,233.21 189.49,232.90 190.63,233.09 191.97,233.42 193.31,233.74 194.65,234.08 195.99,234.42 197.33,234.77 198.67,235.12 200.01,235.48 201.35,235.85 202.69,236.22 204.03,236.60 205.37,236.98 206.71,237.37 208.05,237.77 209.39,238.17 210.73,238.58 212.07,238.99 213.41,239.41 214.75,239.83 216.09,240.25 217.43,240.68 218.77,241.12 220.11,241.55 221.45,241.99 222.79,242.44 224.13,242.88 225.47,243.33 226.81,243.78 228.15,244.24 229.49,244.69 230.83,245.15 232.17,245.60 233.51,246.06 234.85,246.51 236.19,246.97 237.53,247.42 238.87,247.88 240.21,248.33 241.55,248.78 242.89,249.23 244.23,249.67 245.57,250.11 246.91,250.55 248.25,250.99 249.59,251.42 250.93,251.85 252.27,252.27 253.61,252.69 254.95,253.10 256.29,253.51 257.63,253.92 258.97,254.31 260.31,254.70 261.65,255.09 262.99,255.47 264.33,255.84 265.67,256.21 267.01,256.57 268.35,256.93 269.69,257.27 271.03,257.62 272.37,257.95 273.71,258.28 275.05,258.60 276.39,258.91 277.73,259.22 279.07,259.52 280.41,259.81 281.75,260.10 283.09,260.38 284.43,260.65 285.77,260.92 287.11,261.18 288.45,261.43 289.79,261.68 291.13,261.92 292.47,262.16 293.81,262.39 295.15,262.61 296.49,262.82 297.83,263.03 299.17,263.24 300.51,263.44 301.85,263.63 303.19,263.82 304.53,264.00 305.87,264.18 307.21,264.35 308.55,264.52 309.89,264.68 311.23,264.84 312.57,264.99 313.91,265.14 315.25,265.28 316.59,265.42 317.93,265.56 319.27,265.69 320.61,265.82 321.95,265.94 323.29,266.06 324.63,266.17 325.97,266.29 327.31,266.40 328.65,266.50 329.99,266.60 331.33,266.70" fill="none" class="c2"/>
+<circle cx="71.17" cy="221.50" r="3.20" class="p1"/>
+<text x="82.42" y="205.00" class="tk" text-anchor="start" >pulse 1 crosses at τ = 0.214</text>
+<circle cx="189.62" cy="232.86" r="3.20" class="p0"/>
+<text x="185.62" y="224.86" class="tk" text-anchor="end" >peak 3.77</text>
+<text x="72.00" y="46.00" class="lb" text-anchor="start" >σ = 1, T = 0.30</text>
+<text x="72.00" y="62.00" class="lb2" text-anchor="start" >σ = 0.08, T = 3.75</text>
+<text x="198.00" y="330.00" class="lb2" text-anchor="middle" >same dose  σT = 0.30</text>
+<line x1="430.00" y1="280.00" x2="696.00" y2="280.00" class="ax"/>
+<line x1="430.00" y1="30.00" x2="430.00" y2="280.00" class="ax"/>
+<line x1="430.00" y1="280.00" x2="430.00" y2="284.00" class="ax"/>
+<text x="430.00" y="296.00" class="tk" text-anchor="middle" >0</text>
+<line x1="490.45" y1="280.00" x2="490.45" y2="284.00" class="ax"/>
+<text x="490.45" y="296.00" class="tk" text-anchor="middle" >5</text>
+<line x1="550.91" y1="280.00" x2="550.91" y2="284.00" class="ax"/>
+<text x="550.91" y="296.00" class="tk" text-anchor="middle" >10</text>
+<line x1="611.36" y1="280.00" x2="611.36" y2="284.00" class="ax"/>
+<text x="611.36" y="296.00" class="tk" text-anchor="middle" >15</text>
+<line x1="671.82" y1="280.00" x2="671.82" y2="284.00" class="ax"/>
+<text x="671.82" y="296.00" class="tk" text-anchor="middle" >20</text>
+<line x1="426.00" y1="280.00" x2="430.00" y2="280.00" class="ax"/>
+<text x="422.00" y="283.50" class="tk" text-anchor="end" >0</text>
+<line x1="426.00" y1="223.18" x2="430.00" y2="223.18" class="ax"/>
+<text x="422.00" y="226.68" class="tk" text-anchor="end" >5</text>
+<line x1="426.00" y1="166.36" x2="430.00" y2="166.36" class="ax"/>
+<text x="422.00" y="169.86" class="tk" text-anchor="end" >10</text>
+<line x1="426.00" y1="109.55" x2="430.00" y2="109.55" class="ax"/>
+<text x="422.00" y="113.05" class="tk" text-anchor="end" >15</text>
+<line x1="426.00" y1="52.73" x2="430.00" y2="52.73" class="ax"/>
+<text x="422.00" y="56.23" class="tk" text-anchor="end" >20</text>
+<text x="563.00" y="314.00" class="lb2" text-anchor="middle" >q_A / K_M</text>
+<text x="392.00" y="155.00" class="lb2" text-anchor="middle" transform="rotate(-90 392.00 155.00)">q_B / K_M</text>
+<polyline points="436.05,274.59 439.14,271.83 442.24,269.23 445.34,266.85 448.44,264.69 451.54,262.77 454.64,261.06 457.73,259.53 460.83,258.17 463.93,256.93 467.03,255.82 470.13,254.80 473.23,253.85 476.32,252.98 479.42,252.16 482.52,251.40 485.62,250.67 488.72,249.98 491.81,249.32 494.91,248.70 498.01,248.09 501.11,247.51 504.21,246.95 507.31,246.41 510.40,245.88 513.50,245.36 516.60,244.86 519.70,244.38 522.80,243.90 525.90,243.43 528.99,242.97 532.09,242.53 535.19,242.09 538.29,241.65 541.39,241.23 544.49,240.81 547.58,240.40 550.68,239.99 553.78,239.59 556.88,239.19 559.98,238.80 563.08,238.42 566.17,238.04 569.27,237.66 572.37,237.29 575.47,236.92 578.57,236.55 581.67,236.19 584.76,235.83 587.86,235.48 590.96,235.13 594.06,234.78 597.16,234.43 600.26,234.09 603.35,233.75 606.45,233.41 609.55,233.08 612.65,232.74 615.75,232.41 618.84,232.09 621.94,231.76 625.04,231.44 628.14,231.12 631.24,230.80 634.34,230.48 637.43,230.16 640.53,229.85 643.63,229.54 646.73,229.23 649.83,228.92 652.93,228.62 656.02,228.31 659.12,228.01 662.22,227.71 665.32,227.41 668.42,227.11 671.52,226.81 674.61,226.52 677.71,226.22 680.81,225.93 683.91,225.64" fill="none" class="c1"/>
+<circle cx="670.10" cy="237.15" r="3.40" class="p0"/>
+<text x="662.10" y="232.15" class="tk" text-anchor="end" >2</text>
+<circle cx="671.64" cy="270.52" r="3.60" class="p1"/>
+<circle cx="440.08" cy="52.90" r="3.60" class="p1"/>
+<circle cx="656.03" cy="67.57" r="3.60" class="p1"/>
+<circle cx="668.93" cy="227.06" r="3.60" class="p0"/>
+<circle cx="486.33" cy="55.44" r="3.60" class="p0"/>
+<rect x="667.44" y="266.32" width="8.40" height="8.40" class="pstart"/>
+<text x="663.64" y="286.52" class="tk" text-anchor="end" >start</text>
+<text x="648.03" y="59.57" class="tk" text-anchor="end" >both high</text>
+<text x="678.93" y="219.06" class="tk" text-anchor="start" >saddle</text>
+<text x="438.00" y="46.00" class="tk" text-anchor="start" >separatrix</text>
+</svg>
+<figcaption>Figure 2. Computed from eq. (25) with the lecture's parameters. (a) q<sub>B</sub> during two pulses with the same dose σT = 0.30. The strong short pulse crosses the basin boundary at τ = 0.214 and commits; the weak long pulse peaks at 3.77 and falls back. (b) The phase plane at s<sub>B</sub> = 0: the computed separatrix and the five fixed points (filled: stable; open: saddle). The square is the start. Pulse 1 reaches the separatrix near the saddle; the open dot marked 2 is where pulse 2 peaks, below it.</figcaption>
+</figure>
+
+<h3>The commitment boundary</h3>
+
+<p>Repeating the bisection over σ gives the commitment boundary T*(σ) (Fig. 3a). At full
+induction T* = 0.214; at σ = 0.2, 1.24; at σ = 0.1, 3.15; at σ = 0.05, 29.8. The boundary
+has a vertical asymptote at σ<sub>c</sub> = 0.0482, the saddle-node value where the A-high
+state and the saddle merge. Below σ<sub>c</sub> no duration commits, because the induced B
+level never reaches the separatrix. The threshold dose D* = σT* is not constant: it falls
+from 2.29 near the fold to 0.214 at σ = 1. A constant-dose line therefore crosses the
+boundary — for D = 0.30, at σ ≈ 0.11 — which is the general form of the two-pulse result.</p>
+
+<table>
+<caption>Table 1. Computed commitment threshold at four amplitudes. T* is in baseline
+removal lifetimes; the last column is the dose at threshold.</caption>
+<thead><tr><th>σ</th><th>T* (lifetimes)</th><th>D* = σT*</th></tr></thead>
+<tbody>
+<tr><td>0.05</td><td>29.8</td><td>1.49</td></tr>
+<tr><td>0.10</td><td>3.15</td><td>0.32</td></tr>
+<tr><td>0.20</td><td>1.24</td><td>0.25</td></tr>
+<tr><td>1.00</td><td>0.214</td><td>0.214</td></tr>
+</tbody>
+</table>
+
+<p>Near the fold the divergence has a universal exponent. In the normal form
+ẋ = r + x², with r ∝ σ − σ<sub>c</sub> during the pulse, the time from the old stable
+point x ≈ −√μ to the ghost is
+T = (1/√r)[π/2 + arctan(√(μ/r))], which tends to π/√r as r → 0. Hence
+T* ∝ (σ − σ<sub>c</sub>)<sup>−1/2</sup>. The computed points give a log–log slope of
+−0.52 over the nearest decade (Fig. 3b). This is the saddle-node of Lecture 11 seen at the
+nonlinear level: the eigenvalue goes to zero, and the time to leave the ghost diverges.</p>
+
+<figure>
+<svg class="fig" viewBox="0 0 720 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Commitment boundary">
+<line x1="64.00" y1="260.00" x2="364.00" y2="260.00" class="ax"/>
+<line x1="64.00" y1="30.00" x2="64.00" y2="260.00" class="ax"/>
+<line x1="74.19" y1="260.00" x2="74.19" y2="264.00" class="ax"/>
+<text x="74.19" y="276.00" class="tk" text-anchor="middle" >0.05</text>
+<line x1="141.25" y1="260.00" x2="141.25" y2="264.00" class="ax"/>
+<text x="141.25" y="276.00" class="tk" text-anchor="middle" >0.1</text>
+<line x1="208.30" y1="260.00" x2="208.30" y2="264.00" class="ax"/>
+<text x="208.30" y="276.00" class="tk" text-anchor="middle" >0.2</text>
+<line x1="296.94" y1="260.00" x2="296.94" y2="264.00" class="ax"/>
+<text x="296.94" y="276.00" class="tk" text-anchor="middle" >0.5</text>
+<line x1="364.00" y1="260.00" x2="364.00" y2="264.00" class="ax"/>
+<text x="364.00" y="276.00" class="tk" text-anchor="middle" >1</text>
+<line x1="60.00" y1="260.00" x2="64.00" y2="260.00" class="ax"/>
+<text x="56.00" y="263.50" class="tk" text-anchor="end" >0.2</text>
+<line x1="60.00" y1="223.05" x2="64.00" y2="223.05" class="ax"/>
+<text x="56.00" y="226.55" class="tk" text-anchor="end" >0.5</text>
+<line x1="60.00" y1="195.10" x2="64.00" y2="195.10" class="ax"/>
+<text x="56.00" y="198.60" class="tk" text-anchor="end" >1</text>
+<line x1="60.00" y1="167.15" x2="64.00" y2="167.15" class="ax"/>
+<text x="56.00" y="170.65" class="tk" text-anchor="end" >2</text>
+<line x1="60.00" y1="130.20" x2="64.00" y2="130.20" class="ax"/>
+<text x="56.00" y="133.70" class="tk" text-anchor="end" >5</text>
+<line x1="60.00" y1="102.25" x2="64.00" y2="102.25" class="ax"/>
+<text x="56.00" y="105.75" class="tk" text-anchor="end" >10</text>
+<line x1="60.00" y1="74.30" x2="64.00" y2="74.30" class="ax"/>
+<text x="56.00" y="77.80" class="tk" text-anchor="end" >20</text>
+<line x1="60.00" y1="37.35" x2="64.00" y2="37.35" class="ax"/>
+<text x="56.00" y="40.85" class="tk" text-anchor="end" >50</text>
+<text x="214.00" y="294.00" class="lb2" text-anchor="middle" >induction amplitude  σ</text>
+<text x="24.00" y="145.00" class="lb2" text-anchor="middle" transform="rotate(-90 24.00 145.00)">minimum duration  T*</text>
+<line x1="70.67" y1="30.00" x2="70.67" y2="260.00" class="fold"/>
+<text x="75.67" y="44.00" class="tk" text-anchor="start" >fold σ_c = 0.048</text>
+<polyline points="72.24,40.02 74.19,58.17 77.99,75.62 83.41,89.98 91.83,104.41 99.57,114.21 106.74,121.75 119.66,133.13 131.06,141.76 141.25,148.78 158.89,159.76 180.47,171.98 208.30,186.49 229.89,197.17 247.53,205.43 275.36,218.34 296.94,228.02 329.50,242.33 364.00,257.28" fill="none" class="c1"/>
+<polyline points="119.66,141.80 364.00,243.65" fill="none" class="c2"/>
+<circle cx="364.00" cy="243.65" r="3.60" class="p1"/>
+<circle cx="119.66" cy="141.80" r="3.60" class="p0"/>
+<text x="360.00" y="234.65" class="tk" text-anchor="end" >σ=1, T=0.30 commits</text>
+<text x="125.66" y="155.80" class="tk" text-anchor="start" >σ=0.08, T=3.75 fails</text>
+<line x1="440.00" y1="260.00" x2="690.00" y2="260.00" class="ax"/>
+<line x1="440.00" y1="30.00" x2="440.00" y2="260.00" class="ax"/>
+<line x1="440.00" y1="260.00" x2="440.00" y2="264.00" class="ax"/>
+<text x="440.00" y="276.00" class="tk" text-anchor="middle" >10⁻⁵</text>
+<line x1="523.33" y1="260.00" x2="523.33" y2="264.00" class="ax"/>
+<text x="523.33" y="276.00" class="tk" text-anchor="middle" >10⁻⁴</text>
+<line x1="606.67" y1="260.00" x2="606.67" y2="264.00" class="ax"/>
+<text x="606.67" y="276.00" class="tk" text-anchor="middle" >10⁻³</text>
+<line x1="690.00" y1="260.00" x2="690.00" y2="264.00" class="ax"/>
+<text x="690.00" y="276.00" class="tk" text-anchor="middle" >10⁻²</text>
+<line x1="436.00" y1="260.00" x2="440.00" y2="260.00" class="ax"/>
+<text x="432.00" y="263.50" class="tk" text-anchor="end" >5</text>
+<line x1="436.00" y1="221.06" x2="440.00" y2="221.06" class="ax"/>
+<text x="432.00" y="224.56" class="tk" text-anchor="end" >10</text>
+<line x1="436.00" y1="182.12" x2="440.00" y2="182.12" class="ax"/>
+<text x="432.00" y="185.62" class="tk" text-anchor="end" >20</text>
+<line x1="436.00" y1="130.65" x2="440.00" y2="130.65" class="ax"/>
+<text x="432.00" y="134.15" class="tk" text-anchor="end" >50</text>
+<line x1="436.00" y1="91.71" x2="440.00" y2="91.71" class="ax"/>
+<text x="432.00" y="95.21" class="tk" text-anchor="end" >100</text>
+<line x1="436.00" y1="52.78" x2="440.00" y2="52.78" class="ax"/>
+<text x="432.00" y="56.28" class="tk" text-anchor="end" >200</text>
+<text x="565.00" y="294.00" class="lb2" text-anchor="middle" >σ − σ_c</text>
+<text x="406.00" y="145.00" class="lb2" text-anchor="middle" transform="rotate(-90 406.00 145.00)">T*</text>
+<polyline points="479.76,38.96 523.33,73.54 563.09,105.53 606.67,141.59 646.43,176.25 690.00,217.92" fill="none" class="c1"/>
+<circle cx="479.76" cy="38.96" r="2.80" class="p1"/>
+<circle cx="523.33" cy="73.54" r="2.80" class="p1"/>
+<circle cx="563.09" cy="105.53" r="2.80" class="p1"/>
+<circle cx="606.67" cy="141.59" r="2.80" class="p1"/>
+<circle cx="646.43" cy="176.25" r="2.80" class="p1"/>
+<circle cx="690.00" cy="217.92" r="2.80" class="p1"/>
+<polyline points="523.33,73.62 646.43,169.15" fill="none" class="c2"/>
+<text x="598.59" y="124.03" class="tk" text-anchor="start" >slope −1/2</text>
+<text x="450.00" y="46.00" class="lb" text-anchor="start" >near the fold</text>
+</svg>
+<figcaption>Figure 3. The commitment boundary. (a) Minimum duration T*(σ), log–log; the vertical line is the saddle-node σ<sub>c</sub> = 0.0482. The dashed line is the constant-dose curve σT = 0.30; it crosses the boundary, so its two endpoints have opposite outcomes. (b) Near the fold, T* against σ − σ<sub>c</sub>; the guide line has slope −1/2, and the computed points give −0.52.</figcaption>
+</figure>
+
+<p>One number is worth stating plainly. At full induction the model needs
+T* = 0.214 lifetimes, while the lecture's illustrative protocol uses 5. The lecture says
+the protocol is not fitted, so this is not evidence against the experiment. It says that
+the model's full-induction threshold is about twenty times shorter than the illustrated
+pulse, which places the experiment well inside the committed region. That is what an
+existence demonstration wants.</p>
+
+<h3>The code</h3>
+
+<p>The computation is a two-variable RK4 integration plus a bisection on the pulse
+duration. The core is below; the figures use the same functions.</p>
+
+<pre class="code"><code>import math
+
+ALPHA, BETA, KD, N = 0.8, 20.0, 1.0, 1.5
+Q0 = (19.98541, 0.83420)          # the A-high state, from the lecture
+
+def phi(qA, qB):
+    return 2.0 / (1.0 + math.sqrt(1.0 + 8.0*(qA + qB)/KD))
+
+def hill(C):
+    z = C**N
+    return z / (1.0 + z)
+
+def rhs(q, sB, gamma=1.0):
+    qA, qB = q
+    p = phi(qA, qB)
+    CA, CB = p*p*qA*qA/KD, p*p*qB*qB/KD
+    return (ALPHA + BETA*hill(CA) - gamma*qA,
+            ALPHA + BETA*(hill(CB) + sB*(1.0 - hill(CB))) - gamma*qB)
+
+def rk4(q, T, sB, dt=0.004):
+    n = int(round(T/dt))
+    for _ in range(n):
+        k1 = rhs(q, sB)
+        k2 = rhs((q[0]+dt*k1[0]/2, q[1]+dt*k1[1]/2), sB)
+        k3 = rhs((q[0]+dt*k2[0]/2, q[1]+dt*k2[1]/2), sB)
+        k4 = rhs((q[0]+dt*k3[0],   q[1]+dt*k3[1]),   sB)
+        q = (q[0] + dt*(k1[0]+2*k2[0]+2*k3[0]+k4[0])/6,
+             q[1] + dt*(k1[1]+2*k2[1]+2*k3[1]+k4[1])/6)
+    return q
+
+def ends_high(sB, T):
+    q = rk4(Q0, T, sB)
+    q = rk4(q, 120.0, 0.0, dt=0.01)   # relax after the pulse
+    return q[1] &gt; 5.0                # committed (high B) vs A-high
+
+def T_star(sB):
+    lo, hi = 0.0, 1.0
+    while not ends_high(sB, hi):
+        hi *= 1.5
+        if hi &gt; 5000: return float('inf')   # below the fold
+    for _ in range(40):
+        mid = (lo + hi)/2
+        if ends_high(sB, mid): hi = mid
+        else: lo = mid
+    return (lo + hi)/2</code></pre>
+
+<pre class="out"><code>&gt;&gt;&gt; T_star(1.0), T_star(0.2), T_star(0.1), T_star(0.08)
+(0.214, 1.238, 3.154, 4.650)
+&gt;&gt;&gt; ends_high(1.00, 0.30), ends_high(0.08, 3.75)
+(True, False)</code></pre>
+
+<h2>What I would argue against / where this breaks</h2>
+
+<p><strong>Noise.</strong> The calculation is deterministic. A real cell reads a separatrix
+through noisy molecule counts; near the boundary, commitment is a probability, not a
+yes/no. The right object is P(commit | σ, T), and its 50% contour will not coincide with my
+T*(σ). The lecture's appendix B2 draws the same distinction between a tolerance on the
+mean and an error probability. My curve is a deterministic first-passage time: it says
+where the mean trajectory crosses, not where a single cell decides.</p>
+
+<p><strong>Parameters and control.</strong> The numbers are conditional on the lecture's
+illustrative parameters and on the step control. A ramp, a change in removal (protocol
+two), or a different Hill exponent moves σ<sub>c</sub> and T*. The fold and the −1/2
+exponent are robust because they are codimension-one features of a saddle-node; the
+numerical values are not predictions for Zhu et al.'s experiment.</p>
+
+<p><strong>Reversibility.</strong> "Commitment" here means basin membership, and that is
+reversible: a second pulse can move the state back, as the lecture's protocol two does. If
+commitment means an irreversible developmental point of no return, the relevant object is
+a slower variable or a destroyed saddle, not this separatrix. The calculation establishes
+the cost of choosing a state, not the cost of making the choice permanent.</p>
+
+<p><strong>The state count.</strong> This is where I would push the lecture's accounting
+further, not where I think it is wrong. Counting stable states — 3, 7, 15, 30, 56, 99 —
+counts the outcomes a circuit can hold; it does not count the difficulty of selecting one.
+The difficulty is the distance to the boundary and the shape of the basin, which the count
+does not see. Two circuits with the same number of states can have very different
+commitment costs. A decision library should be measured by its boundaries, not only by its
+shelves.</p>
+
+<h2>Sources</h2>
+<ul class="src">
+  <li id="r1">[1] CCBS 2026, <em>Lecture 12: The computation biomachine</em>, 20 October
+  2026. §9, eqs. (15)–(17) and (24)–(25), Fig. 14–15, and appendix A2. This supplies the
+  model, the parameter values, the three stable states, the 5-lifetime protocol, and the
+  statement that the duration and fold-change are illustrative.</li>
+  <li id="r2">[2] R. Zhu et al., "Synthetic multistability in mammalian cells," <em>Science</em>
+  375, eabg9765 (2022). <a href="https://doi.org/10.1126/science.abg9765">doi</a>. The
+  MultiFate experiments: seven states maintained for at least 18 days, and the transient
+  inductions that select them.</li>
+  <li id="r3">[3] W. Xiong and J. E. Ferrell Jr., "A positive-feedback-based bistable
+  'memory module' that governs a cell fate decision," <em>Nature</em> 426, 460–465 (2003).
+  <a href="https://doi.org/10.1038/nature02089">doi</a>. The biological precedent that a
+  transient stimulus can leave a sustained state.</li>
+  <li id="r4">[4] S. H. Strogatz, <em>Nonlinear Dynamics and Chaos</em>, 2nd ed., ch. 3.
+  Saddle-node bifurcation and the ghost of the vanished fixed point; the source of the
+  (σ − σ<sub>c</sub>)<sup>−1/2</sup> passage-time scaling.</li>
+</ul>
+
+</div>
+</body>
+</html>

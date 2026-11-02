@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 6 — Extension: Shadow prices turn an FBA optimum into a local decision rule</title>
+<meta name="author" content="Peng Su">
+<meta name="week" content="week6">
+<style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px;
+    border-bottom:1px solid var(--line); padding-bottom:5px; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:14px 18px; margin:14px 0; }
+  .fig { width:100%; border:1px solid var(--line); border-radius:6px; margin:14px 0; }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Week 6 Shadow prices turn an FBA optimum into a local decision rule</h1>
+<p class="meta">Author: Peng Su week6 (2026-10-25) · CCBS 2026</p>
+
+<p class="card"><strong>One sentence:</strong> Lecture 13 already shows that only an active metabolic limit changes the optimum; Based on this point, throughout any region with the same active constraints, the exact derivatives λ<sub><em>j</em></sub>=∂μ<sup>*</sup>/∂<em>U</em><sub><em>j</em></sub> form a linear decision rule, while the identity of the active constraint is itself a Lecture-12 threshold computation.</p>
+
+<h2>From molecular decisions to metabolic decisions</h2>
+
+<p>Lecture 12 constructed a linear threshold unit whose decision follows from weighted inputs. Lecture 13 used objectives and constraints to select an FBA optimum, and it showed that relaxing an uptake bound can raise the optimum and then produce a plateau, while Section 15 explained that extra enzyme helps only when its capacity is active. Then based on these results as background, the main extension is to determine whether their slopes and changes of active constraint form an explicit computation.</p>
+
+<p>Attach λ<sub><em>j</em></sub> to the nutrient-uptake upper bound <em>U</em><sub><em>j</em></sub>. “Shadow price” was used for this uptake-bound dual value while some FBA literature uses the phrase for mass-balance duals instead. In a growth-maximizing model, λ<sub><em>j</em></sub>=∂μ<sup>*</sup>/∂<em>U</em><sub><em>j</em></sub> is the return from one extra unit of capacity. While the active constraints remain unchanged,</p>
+
+<p class="card" style="text-align: center;">
+  Δμ<sup>*</sup> =
+  Σ<sub><em>j</em></sub>
+  λ<sub><em>j</em></sub>Δ<em>U</em><sub><em>j</em></sub>.
+</p>
+
+<p>This is exact throughout an active-set region, rather than merely a small-change approximation. It has Lecture 12's form: nutrient changes are inputs, dual values are weights, and a benefit threshold gives a yes-or-no decision. Crossing a boundary selects a different linear rule.</p>
+
+<h2>A two-nutrient calculation makes the weights switch</h2>
+
+<p>Consider a deliberately small biomass reaction that requires two carbon units and one nitrogen unit per unit biomass. Let <em>U</em><sub>C</sub> and <em>U</em><sub>N</sub> be the available carbon and nitrogen uptake capacities. The FBA problem is</p>
+
+<p class="card" style="text-align: center;">
+  maximize μ,
+  &nbsp;&nbsp;subject to&nbsp;&nbsp;
+  2μ ≤ <em>U</em><sub>C</sub>,
+  &nbsp;
+  μ ≤ <em>U</em><sub>N</sub>,
+  &nbsp;
+  μ ≥ 0.
+</p>
+
+<p>The answer can be read without a solver:</p>
+
+<p class="card" style="text-align: center;">
+  μ<sup>*</sup> =
+  min(<em>U</em><sub>C</sub>/2,
+  <em>U</em><sub>N</sub>).
+</p>
+
+<p>At <em>U</em><sub>C</sub>=10 and <em>U</em><sub>N</sub>=8, growth is 5 and carbon is limiting. One extra carbon unit raises optimal growth by 0.5, whereas one extra nitrogen unit does nothing. The local weights are therefore λ<sub>C</sub>=0.5 and λ<sub>N</sub>=0. At <em>U</em><sub>C</sub>=20 and <em>U</em><sub>N</sub>=8, growth is 8 and nitrogen is limiting. The weights switch to λ<sub>C</sub>=0 and λ<sub>N</sub>=1.</p>
+
+<p>The identity of the limiting nutrient is itself a linear classification. Nitrogen is limiting when <em>U</em><sub>C</sub>−2<em>U</em><sub>N</sub>&gt;0, carbon is limiting when this expression is below zero. Thus the boundary has weights +1 and −2 with threshold zero. On either side, the dual-value rule is exact. At the boundary, <em>U</em><sub>C</sub>=2<em>U</em><sub>N</sub>, the ordinary derivative is not unique: the carbon supergradient, equivalently its admissible dual value, can take any value λ<sub>C</sub>∈[0,0.5], with λ<sub>N</sub>=1−2λ<sub>C</sub>.</p>
+
+<figure>
+  <svg class="fig" viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two-resource metabolic decision boundary and optimal growth curve">
+    <rect x="0" y="0" width="640" height="220" fill="none"/>
+
+    <text x="20" y="22" font-size="13" fill="currentColor">A · Limiting-resource classifier</text>
+    <line x1="45" y1="180" x2="295" y2="180" stroke="#888"/>
+    <line x1="45" y1="180" x2="45" y2="35" stroke="#888"/>
+    <polygon points="45,180 295,35 45,35" fill="#8ab4e8" opacity="0.24"/>
+    <polygon points="45,180 295,35 295,180" fill="#d77a61" opacity="0.22"/>
+    <line x1="45" y1="180" x2="295" y2="35" stroke="#1f4e79" stroke-width="3"/>
+    <text x="82" y="68" font-size="12" fill="currentColor">carbon limited</text>
+    <text x="190" y="158" font-size="12" fill="currentColor">nitrogen limited</text>
+    <text x="105" y="128" font-size="11" fill="#1f4e79">U<tspan baseline-shift="sub" font-size="9">C</tspan> = 2U<tspan baseline-shift="sub" font-size="9">N</tspan></text>
+    <text x="266" y="202" font-size="11" fill="currentColor">U<tspan baseline-shift="sub" font-size="9">C</tspan></text>
+    <text x="14" y="42" font-size="11" fill="currentColor">U<tspan baseline-shift="sub" font-size="9">N</tspan></text>
+
+    <text x="345" y="22" font-size="13" fill="currentColor">B · Carbon dual value at U<tspan baseline-shift="sub" font-size="10">N</tspan> = 8</text>
+    <line x1="365" y1="180" x2="615" y2="180" stroke="#888"/>
+    <line x1="365" y1="180" x2="365" y2="35" stroke="#888"/>
+    <line x1="365" y1="70" x2="528" y2="70" stroke="#1f4e79" stroke-width="4"/>
+    <line x1="536" y1="170" x2="615" y2="170" stroke="#1f4e79" stroke-width="4"/>
+    <line x1="532" y1="70" x2="532" y2="170" stroke="#1f4e79" stroke-width="3" stroke-dasharray="4 4"/>
+    <circle cx="532" cy="70" r="5" fill="none" stroke="#1f4e79" stroke-width="2"/>
+    <circle cx="532" cy="170" r="5" fill="none" stroke="#1f4e79" stroke-width="2"/>
+    <text x="514" y="198" font-size="11" fill="currentColor">16</text>
+    <text x="334" y="43" font-size="11" fill="currentColor">λ<tspan baseline-shift="sub" font-size="9">C</tspan></text>
+    <text x="585" y="202" font-size="11" fill="currentColor">U<tspan baseline-shift="sub" font-size="9">C</tspan></text>
+    <text x="346" y="74" font-size="11" fill="currentColor">0.5</text>
+    <text x="350" y="174" font-size="11" fill="currentColor">0</text>
+    <text x="405" y="61" font-size="11" fill="currentColor">carbon active</text>
+    <text x="548" y="161" font-size="11" fill="currentColor">inactive</text>
+    <text x="538" y="118" font-size="10" fill="#1f4e79">[0, 0.5]</text>
+  </svg>
+  <figcaption>Figure 1: The new object is the active-set computation, not the plateau already illustrated in Lecture 13 Figure 7. Left, the line <em>U</em><sub>C</sub>=2<em>U</em><sub>N</sub> is a linear threshold boundary between carbon- and nitrogen-limited environments. Right, at fixed <em>U</em><sub>N</sub>=8, the uptake-bound dual value λ<sub>C</sub>=∂μ<sup>*</sup>/∂<em>U</em><sub>C</sub> switches from 0.5 to 0 at <em>U</em><sub>C</sub>=16; the dashed interval shows the admissible dual values at the kink. I derived both panels from the two inequalities above.</figcaption>
+</figure>
+
+<h2>Where the classifier analogy breaks</h2>
+
+<p>FBA should not be called as a literal molecular computer. The dual-value rule is a sensitivity statement about an optimized model, not a biochemical mechanism that measures λ. It remains exact while the same constraints stay active, but a sufficiently large nutrient change can cross a boundary and replace the entire linear rule. At the boundary the supergradient is set-valued rather than a unique derivative. As Lecture 13 already notes, larger networks can also have alternate internal flux optima with the same objective value.</p>
+
+<p>The calculation also inherits FBA's steady-balance assumption and omits the time needed to express enzymes or switch pathways. Objective dependence is background from Lecture 13: survival, ATP maintenance and secretion can value the same uptake bound differently. The extension is narrower: each unchanged active set gives an exact weighted rule, and crossing its threshold selects another.</p>
+
+<h2>Sources</h2>
+<ul class="src">
+  <li>Lecture 12: The computation biomachine. CCBS 2026 course materials, 2026. The lecture supplies the linear-threshold comparison used here.</li>
+  <li>Lecture 13: The metabolic biomachine. CCBS 2026 course materials, 2026. Figure 7 and Section 15 supply the background that relaxing an active bound can raise an optimum whereas inactive capacity may have no value; the derivative identity and threshold interpretation are my extension.</li>
+  <li>Orth, J. D., Thiele, I. and Palsson, B. Ø. “What is flux balance analysis?” Nature Biotechnology 28, 245–248, 2010. This source describes FBA as linear optimization under stoichiometric and flux constraints.</li>
+  <li>Boyd, S. and Vandenberghe, L. Convex Optimization. Cambridge University Press, 2004. The dual-sensitivity interpretation supports reading a shadow price as the local value of relaxing a constraint.</li>
+</ul>
+
+</div>
+</body>
+</html>

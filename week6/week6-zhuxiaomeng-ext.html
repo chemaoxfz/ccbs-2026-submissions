@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Week 6: When AND Depends on Time | zhuxiaomeng</title>
+<meta name="author" content="zhuxiaomeng"><meta name="student-id" content="20261104507"><meta name="week" content="week6">
+<meta name="description" content="A short medical extension on antigen history and CAR-expression persistence in a synNotch circuit, with reproducible Python analysis.">
+<style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px;
+    border-bottom:1px solid var(--line); padding-bottom:5px; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:14px 18px; margin:14px 0; }
+  .fig { width:100%; border:1px solid var(--line); border-radius:6px; margin:14px 0; }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; }
+
+:root[data-theme="light"] { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; }
+:root[data-theme="dark"] { --ink:#e8e8e8; --muted:#aabbbb; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; }
+#tt {float:right;font-size:13px;margin:0 0 8px 12px;}
+body { font-size:16px; }
+.wrap {padding-top:28px;}
+h2 {margin-top:23px;}
+p {margin:10px 0;}
+figure {margin:16px 0;}
+figure svg {display:block; width:100%; height:auto;}
+.figure-frame {border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#fff;}
+.math-line {text-align:center; margin:12px 0; overflow-x:auto;}
+math {font-size:1.08em;}
+sup a {text-decoration:none;}
+details {margin:14px 0; border:1px solid var(--line);border-radius:6px;padding:10px 12px;}
+summary {cursor:pointer;color:var(--accent);}
+pre {overflow:auto;max-height:340px;font-size:12px;line-height:1.45;background:var(--soft);padding:12px;}
+button {font:inherit;cursor:pointer;padding:6px 10px;margin:8px 0;color:var(--accent);background:var(--soft);border:1px solid var(--line);border-radius:4px;}
+.src li {margin-bottom:10px;}
+@media(max-width:480px){body{font-size:15px}.wrap{padding:22px 16px 42px}h1{font-size:1.4rem}}
+</style></head><body><main class="wrap">
+<button id="tt" type="button" aria-label="Toggle light and dark theme">Light / dark</button>
+<h1>Week 6: Extension: When AND Depends on Time</h1>
+<p class="meta">Author: zhuxiaomeng · Student ID: 20261104507<br>Week 6 (2026-10-26) · CCBS 2026 · Lecture 12</p>
+<p class="card"><strong>One sentence:</strong> In a synNotch–CAR T-cell circuit, receptor persistence makes antigen history part of the decision, so a static AND truth table alone is incomplete.</p>
+
+<h2 id="point">The point I am adding</h2>
+<p>Lecture 12 connects molecular logic to decisions that depend on a cell's history.<sup><a href="#r-core">1</a></sup> I want to make that connection concrete in immunotherapy. A static AND gate reads two current inputs. In Roybal and colleagues' circuit, antigen A activates a synthetic Notch receptor (synNotch), which induces a chimeric antigen receptor (CAR) recognizing antigen B.<sup><a href="#r-roybal">2</a></sup> This introduces an internal state: the amount of CAR already expressed. What happens if A disappears before B is encountered?</p>
+
+<h2 id="work">Work it</h2>
+<p>Consider only the period after priming stops. Let <math><mi>C</mi></math> denote CAR expression above a negligible baseline and <math><mi>δ</mi></math> its effective removal rate. Assume no further production and first-order loss. Then:</p>
+<div class="math-line"><math display="block"><mrow><mfrac><mrow><mi>d</mi><mi>C</mi></mrow><mrow><mi>d</mi><mi>t</mi></mrow></mfrac><mo>=</mo><mo>−</mo><mi>δ</mi><mi>C</mi><mo>,</mo><mspace width="1em"/><mi>c</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>≡</mo><mfrac><mrow><mi>C</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><mrow><mi>C</mi><mo stretchy="false">(</mo><mn>0</mn><mo stretchy="false">)</mo></mrow></mfrac><mo>=</mo><msup><mi>e</mi><mrow><mo>−</mo><mi>δ</mi><mi>t</mi></mrow></msup><mo>=</mo><msup><mn>2</mn><mrow><mo>−</mo><mi>t</mi><mo>/</mo><msub><mi>t</mi><mrow><mn>1</mn><mo>/</mo><mn>2</mn></mrow></msub></mrow></msup><mo>.</mo></mrow></math></div>
+<p>Here <math><msub><mi>t</mi><mrow><mn>1</mn><mo>/</mo><mn>2</mn></mrow></msub></math> is the expression half-life and time is in hours. The paper reports an approximately 8-hour half-life after removing a plate-bound surrogate priming stimulus in Jurkat cells (Figure 2F).<sup><a href="#r-roybal">2</a></sup> I use that timescale in an illustrative decay model, without fitting the experimental curve. Normalizing both scenarios to the same initial level gives <strong>70.7% remaining at 4 hours</strong> and <strong>12.5% at 24 hours</strong>. If B is encountered at either time, the current inputs can be identical (A absent, B present), while receptor availability differs.</p>
+<figure>
+<div class="figure-frame"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 318" role="img" aria-labelledby="plot-title plot-desc">
+<title id="plot-title">Receptor availability depends on the time since priming ended</title>
+<desc id="plot-desc">First-order decay model. An eight-hour half-life gives 70.7 percent remaining after four hours and 12.5 percent after twenty-four hours. Four- and sixteen-hour half-lives are sensitivity assumptions. No killing outcome is predicted.</desc>
+<rect width="640" height="318" fill="#fff"/>
+<g font-family="Arial, sans-serif" fill="#20201e" font-size="12">
+<text x="72" y="22" font-size="15" font-weight="bold">Same current inputs; different receptor histories</text>
+<text x="72" y="42" fill="#566">Model illustration. Priming stops at hour 0; initial receptor level = 1.</text>
+<line x1="72" y1="254.00" x2="602" y2="254.00" stroke="#e5e7eb"/>
+<text x="60" y="258.00" text-anchor="end">0</text>
+<line x1="72" y1="206.50" x2="602" y2="206.50" stroke="#e5e7eb"/>
+<text x="60" y="210.50" text-anchor="end">0.25</text>
+<line x1="72" y1="159.00" x2="602" y2="159.00" stroke="#e5e7eb"/>
+<text x="60" y="163.00" text-anchor="end">0.5</text>
+<line x1="72" y1="111.50" x2="602" y2="111.50" stroke="#e5e7eb"/>
+<text x="60" y="115.50" text-anchor="end">0.75</text>
+<line x1="72" y1="64.00" x2="602" y2="64.00" stroke="#e5e7eb"/>
+<text x="60" y="68.00" text-anchor="end">1</text>
+<text x="72.00" y="275" text-anchor="middle">0</text>
+<text x="138.25" y="275" text-anchor="middle">4</text>
+<text x="204.50" y="275" text-anchor="middle">8</text>
+<text x="337.00" y="275" text-anchor="middle">16</text>
+<text x="469.50" y="275" text-anchor="middle">24</text>
+<text x="602.00" y="275" text-anchor="middle">32</text>
+<path d="M72,64 V254 H602" fill="none" stroke="#20201e"/>
+<text x="337" y="305" text-anchor="middle">Time after priming stimulus removal (hours)</text>
+<text x="18" y="159" transform="rotate(-90 18 159)" text-anchor="middle">Relative CAR expression</text>
+<polyline points="72.00,64.00 73.66,67.26 75.31,70.47 76.97,73.62 78.62,76.72 80.28,79.77 81.94,82.76 83.59,85.70 85.25,88.60 86.91,91.44 88.56,94.23 90.22,96.97 91.88,99.67 93.53,102.32 95.19,104.93 96.84,107.49 98.50,110.01 100.16,112.48 101.81,114.91 103.47,117.30 105.12,119.65 106.78,121.96 108.44,124.23 110.09,126.46 111.75,128.65 113.41,130.80 115.06,132.92 116.72,135.00 118.38,137.04 120.03,139.05 121.69,141.03 123.34,142.97 125.00,144.87 126.66,146.75 128.31,148.59 129.97,150.40 131.62,152.18 133.28,153.93 134.94,155.65 136.59,157.34 138.25,159.00 139.91,160.63 141.56,162.24 143.22,163.81 144.88,165.36 146.53,166.88 148.19,168.38 149.84,169.85 151.50,171.30 153.16,172.72 154.81,174.11 156.47,175.49 158.12,176.84 159.78,178.16 161.44,179.46 163.09,180.74 164.75,182.00 166.41,183.24 168.06,184.46 169.72,185.65 171.38,186.82 173.03,187.98 174.69,189.11 176.34,190.23 178.00,191.32 179.66,192.40 181.31,193.46 182.97,194.50 184.62,195.52 186.28,196.53 187.94,197.51 189.59,198.48 191.25,199.44 192.91,200.37 194.56,201.30 196.22,202.20 197.88,203.09 199.53,203.97 201.19,204.82 202.84,205.67 204.50,206.50 206.16,207.32 207.81,208.12 209.47,208.91 211.12,209.68 212.78,210.44 214.44,211.19 216.09,211.93 217.75,212.65 219.41,213.36 221.06,214.06 222.72,214.74 224.38,215.42 226.03,216.08 227.69,216.73 229.34,217.37 231.00,218.00 232.66,218.62 234.31,219.23 235.97,219.83 237.62,220.41 239.28,220.99 240.94,221.56 242.59,222.11 244.25,222.66 245.91,223.20 247.56,223.73 249.22,224.25 250.88,224.76 252.53,225.26 254.19,225.76 255.84,226.24 257.50,226.72 259.16,227.19 260.81,227.65 262.47,228.10 264.12,228.55 265.78,228.98 267.44,229.41 269.09,229.83 270.75,230.25 272.41,230.66 274.06,231.06 275.72,231.45 277.38,231.84 279.03,232.22 280.69,232.60 282.34,232.96 284.00,233.32 285.66,233.68 287.31,234.03 288.97,234.37 290.62,234.71 292.28,235.04 293.94,235.37 295.59,235.69 297.25,236.00 298.91,236.31 300.56,236.61 302.22,236.91 303.88,237.21 305.53,237.49 307.19,237.78 308.84,238.06 310.50,238.33 312.16,238.60 313.81,238.86 315.47,239.12 317.12,239.38 318.78,239.63 320.44,239.88 322.09,240.12 323.75,240.36 325.41,240.59 327.06,240.82 328.72,241.05 330.38,241.27 332.03,241.49 333.69,241.71 335.34,241.92 337.00,242.12 338.66,242.33 340.31,242.53 341.97,242.73 343.62,242.92 345.28,243.11 346.94,243.30 348.59,243.48 350.25,243.66 351.91,243.84 353.56,244.01 355.22,244.19 356.88,244.35 358.53,244.52 360.19,244.68 361.84,244.84 363.50,245.00 365.16,245.16 366.81,245.31 368.47,245.46 370.12,245.60 371.78,245.75 373.44,245.89 375.09,246.03 376.75,246.17 378.41,246.30 380.06,246.43 381.72,246.56 383.38,246.69 385.03,246.82 386.69,246.94 388.34,247.06 390.00,247.18 391.66,247.30 393.31,247.41 394.97,247.53 396.62,247.64 398.28,247.75 399.94,247.85 401.59,247.96 403.25,248.06 404.91,248.16 406.56,248.26 408.22,248.36 409.88,248.46 411.53,248.56 413.19,248.65 414.84,248.74 416.50,248.83 418.16,248.92 419.81,249.01 421.47,249.09 423.12,249.18 424.78,249.26 426.44,249.34 428.09,249.42 429.75,249.50 431.41,249.58 433.06,249.65 434.72,249.73 436.38,249.80 438.03,249.87 439.69,249.94 441.34,250.01 443.00,250.08 444.66,250.15 446.31,250.22 447.97,250.28 449.62,250.35 451.28,250.41 452.94,250.47 454.59,250.53 456.25,250.59 457.91,250.65 459.56,250.71 461.22,250.76 462.88,250.82 464.53,250.87 466.19,250.93 467.84,250.98 469.50,251.03 471.16,251.08 472.81,251.13 474.47,251.18 476.12,251.23 477.78,251.28 479.44,251.32 481.09,251.37 482.75,251.42 484.41,251.46 486.06,251.50 487.72,251.55 489.38,251.59 491.03,251.63 492.69,251.67 494.34,251.71 496.00,251.75 497.66,251.79 499.31,251.83 500.97,251.86 502.62,251.90 504.28,251.94 505.94,251.97 507.59,252.01 509.25,252.04 510.91,252.08 512.56,252.11 514.22,252.14 515.88,252.17 517.53,252.20 519.19,252.23 520.84,252.27 522.50,252.29 524.16,252.32 525.81,252.35 527.47,252.38 529.12,252.41 530.78,252.44 532.44,252.46 534.09,252.49 535.75,252.52 537.41,252.54 539.06,252.57 540.72,252.59 542.38,252.62 544.03,252.64 545.69,252.66 547.34,252.69 549.00,252.71 550.66,252.73 552.31,252.75 553.97,252.77 555.62,252.79 557.28,252.82 558.94,252.84 560.59,252.86 562.25,252.88 563.91,252.89 565.56,252.91 567.22,252.93 568.88,252.95 570.53,252.97 572.19,252.99 573.84,253.00 575.50,253.02 577.16,253.04 578.81,253.05 580.47,253.07 582.12,253.09 583.78,253.10 585.44,253.12 587.09,253.13 588.75,253.15 590.41,253.16 592.06,253.18 593.72,253.19 595.38,253.20 597.03,253.22 598.69,253.23 600.34,253.24 602.00,253.26" fill="none" stroke="#877f77" stroke-width="2.5" stroke-dasharray="5 4"/>
+<polyline points="72.00,64.00 73.66,64.82 75.31,65.64 76.97,66.45 78.62,67.26 80.28,68.07 81.94,68.88 83.59,69.68 85.25,70.47 86.91,71.27 88.56,72.06 90.22,72.84 91.88,73.62 93.53,74.40 95.19,75.18 96.84,75.95 98.50,76.72 100.16,77.49 101.81,78.25 103.47,79.01 105.12,79.77 106.78,80.52 108.44,81.27 110.09,82.02 111.75,82.76 113.41,83.50 115.06,84.24 116.72,84.97 118.38,85.70 120.03,86.43 121.69,87.16 123.34,87.88 125.00,88.60 126.66,89.31 128.31,90.02 129.97,90.73 131.62,91.44 133.28,92.14 134.94,92.84 136.59,93.54 138.25,94.23 139.91,94.92 141.56,95.61 143.22,96.29 144.88,96.97 146.53,97.65 148.19,98.33 149.84,99.00 151.50,99.67 153.16,100.34 154.81,101.00 156.47,101.66 158.12,102.32 159.78,102.98 161.44,103.63 163.09,104.28 164.75,104.93 166.41,105.57 168.06,106.22 169.72,106.85 171.38,107.49 173.03,108.12 174.69,108.75 176.34,109.38 178.00,110.01 179.66,110.63 181.31,111.25 182.97,111.87 184.62,112.48 186.28,113.09 187.94,113.70 189.59,114.31 191.25,114.91 192.91,115.51 194.56,116.11 196.22,116.71 197.88,117.30 199.53,117.89 201.19,118.48 202.84,119.07 204.50,119.65 206.16,120.23 207.81,120.81 209.47,121.38 211.12,121.96 212.78,122.53 214.44,123.10 216.09,123.66 217.75,124.23 219.41,124.79 221.06,125.35 222.72,125.90 224.38,126.46 226.03,127.01 227.69,127.56 229.34,128.10 231.00,128.65 232.66,129.19 234.31,129.73 235.97,130.27 237.62,130.80 239.28,131.33 240.94,131.86 242.59,132.39 244.25,132.92 245.91,133.44 247.56,133.96 249.22,134.48 250.88,135.00 252.53,135.51 254.19,136.02 255.84,136.53 257.50,137.04 259.16,137.55 260.81,138.05 262.47,138.55 264.12,139.05 265.78,139.55 267.44,140.04 269.09,140.53 270.75,141.03 272.41,141.51 274.06,142.00 275.72,142.48 277.38,142.97 279.03,143.45 280.69,143.92 282.34,144.40 284.00,144.87 285.66,145.35 287.31,145.82 288.97,146.28 290.62,146.75 292.28,147.21 293.94,147.67 295.59,148.13 297.25,148.59 298.91,149.05 300.56,149.50 302.22,149.95 303.88,150.40 305.53,150.85 307.19,151.30 308.84,151.74 310.50,152.18 312.16,152.62 313.81,153.06 315.47,153.50 317.12,153.93 318.78,154.36 320.44,154.79 322.09,155.22 323.75,155.65 325.41,156.07 327.06,156.50 328.72,156.92 330.38,157.34 332.03,157.76 333.69,158.17 335.34,158.59 337.00,159.00 338.66,159.41 340.31,159.82 341.97,160.23 343.62,160.63 345.28,161.04 346.94,161.44 348.59,161.84 350.25,162.24 351.91,162.63 353.56,163.03 355.22,163.42 356.88,163.81 358.53,164.20 360.19,164.59 361.84,164.98 363.50,165.36 365.16,165.75 366.81,166.13 368.47,166.51 370.12,166.88 371.78,167.26 373.44,167.64 375.09,168.01 376.75,168.38 378.41,168.75 380.06,169.12 381.72,169.49 383.38,169.85 385.03,170.22 386.69,170.58 388.34,170.94 390.00,171.30 391.66,171.66 393.31,172.01 394.97,172.37 396.62,172.72 398.28,173.07 399.94,173.42 401.59,173.77 403.25,174.11 404.91,174.46 406.56,174.80 408.22,175.15 409.88,175.49 411.53,175.83 413.19,176.16 414.84,176.50 416.50,176.84 418.16,177.17 419.81,177.50 421.47,177.83 423.12,178.16 424.78,178.49 426.44,178.82 428.09,179.14 429.75,179.46 431.41,179.79 433.06,180.11 434.72,180.43 436.38,180.74 438.03,181.06 439.69,181.38 441.34,181.69 443.00,182.00 444.66,182.31 446.31,182.62 447.97,182.93 449.62,183.24 451.28,183.55 452.94,183.85 454.59,184.15 456.25,184.46 457.91,184.76 459.56,185.06 461.22,185.35 462.88,185.65 464.53,185.95 466.19,186.24 467.84,186.53 469.50,186.82 471.16,187.12 472.81,187.40 474.47,187.69 476.12,187.98 477.78,188.26 479.44,188.55 481.09,188.83 482.75,189.11 484.41,189.39 486.06,189.67 487.72,189.95 489.38,190.23 491.03,190.50 492.69,190.78 494.34,191.05 496.00,191.32 497.66,191.59 499.31,191.86 500.97,192.13 502.62,192.40 504.28,192.67 505.94,192.93 507.59,193.20 509.25,193.46 510.91,193.72 512.56,193.98 514.22,194.24 515.88,194.50 517.53,194.76 519.19,195.01 520.84,195.27 522.50,195.52 524.16,195.77 525.81,196.03 527.47,196.28 529.12,196.53 530.78,196.77 532.44,197.02 534.09,197.27 535.75,197.51 537.41,197.76 539.06,198.00 540.72,198.24 542.38,198.48 544.03,198.72 545.69,198.96 547.34,199.20 549.00,199.44 550.66,199.67 552.31,199.91 553.97,200.14 555.62,200.37 557.28,200.61 558.94,200.84 560.59,201.07 562.25,201.30 563.91,201.52 565.56,201.75 567.22,201.98 568.88,202.20 570.53,202.42 572.19,202.65 573.84,202.87 575.50,203.09 577.16,203.31 578.81,203.53 580.47,203.75 582.12,203.97 583.78,204.18 585.44,204.40 587.09,204.61 588.75,204.82 590.41,205.04 592.06,205.25 593.72,205.46 595.38,205.67 597.03,205.88 598.69,206.09 600.34,206.29 602.00,206.50" fill="none" stroke="#1f9a8e" stroke-width="2.5" stroke-dasharray="7 4"/>
+<polyline points="72.00,64.00 73.66,65.64 75.31,67.26 76.97,68.88 78.62,70.47 80.28,72.06 81.94,73.62 83.59,75.18 85.25,76.72 86.91,78.25 88.56,79.77 90.22,81.27 91.88,82.76 93.53,84.24 95.19,85.70 96.84,87.16 98.50,88.60 100.16,90.02 101.81,91.44 103.47,92.84 105.12,94.23 106.78,95.61 108.44,96.97 110.09,98.33 111.75,99.67 113.41,101.00 115.06,102.32 116.72,103.63 118.38,104.93 120.03,106.22 121.69,107.49 123.34,108.75 125.00,110.01 126.66,111.25 128.31,112.48 129.97,113.70 131.62,114.91 133.28,116.11 134.94,117.30 136.59,118.48 138.25,119.65 139.91,120.81 141.56,121.96 143.22,123.10 144.88,124.23 146.53,125.35 148.19,126.46 149.84,127.56 151.50,128.65 153.16,129.73 154.81,130.80 156.47,131.86 158.12,132.92 159.78,133.96 161.44,135.00 163.09,136.02 164.75,137.04 166.41,138.05 168.06,139.05 169.72,140.04 171.38,141.03 173.03,142.00 174.69,142.97 176.34,143.92 178.00,144.87 179.66,145.82 181.31,146.75 182.97,147.67 184.62,148.59 186.28,149.50 187.94,150.40 189.59,151.30 191.25,152.18 192.91,153.06 194.56,153.93 196.22,154.79 197.88,155.65 199.53,156.50 201.19,157.34 202.84,158.17 204.50,159.00 206.16,159.82 207.81,160.63 209.47,161.44 211.12,162.24 212.78,163.03 214.44,163.81 216.09,164.59 217.75,165.36 219.41,166.13 221.06,166.88 222.72,167.64 224.38,168.38 226.03,169.12 227.69,169.85 229.34,170.58 231.00,171.30 232.66,172.01 234.31,172.72 235.97,173.42 237.62,174.11 239.28,174.80 240.94,175.49 242.59,176.16 244.25,176.84 245.91,177.50 247.56,178.16 249.22,178.82 250.88,179.46 252.53,180.11 254.19,180.74 255.84,181.38 257.50,182.00 259.16,182.62 260.81,183.24 262.47,183.85 264.12,184.46 265.78,185.06 267.44,185.65 269.09,186.24 270.75,186.82 272.41,187.40 274.06,187.98 275.72,188.55 277.38,189.11 279.03,189.67 280.69,190.23 282.34,190.78 284.00,191.32 285.66,191.86 287.31,192.40 288.97,192.93 290.62,193.46 292.28,193.98 293.94,194.50 295.59,195.01 297.25,195.52 298.91,196.03 300.56,196.53 302.22,197.02 303.88,197.51 305.53,198.00 307.19,198.48 308.84,198.96 310.50,199.44 312.16,199.91 313.81,200.37 315.47,200.84 317.12,201.30 318.78,201.75 320.44,202.20 322.09,202.65 323.75,203.09 325.41,203.53 327.06,203.97 328.72,204.40 330.38,204.82 332.03,205.25 333.69,205.67 335.34,206.09 337.00,206.50 338.66,206.91 340.31,207.32 341.97,207.72 343.62,208.12 345.28,208.51 346.94,208.91 348.59,209.30 350.25,209.68 351.91,210.06 353.56,210.44 355.22,210.82 356.88,211.19 358.53,211.56 360.19,211.93 361.84,212.29 363.50,212.65 365.16,213.01 366.81,213.36 368.47,213.71 370.12,214.06 371.78,214.40 373.44,214.74 375.09,215.08 376.75,215.42 378.41,215.75 380.06,216.08 381.72,216.41 383.38,216.73 385.03,217.05 386.69,217.37 388.34,217.69 390.00,218.00 391.66,218.31 393.31,218.62 394.97,218.93 396.62,219.23 398.28,219.53 399.94,219.83 401.59,220.12 403.25,220.41 404.91,220.70 406.56,220.99 408.22,221.27 409.88,221.56 411.53,221.84 413.19,222.11 414.84,222.39 416.50,222.66 418.16,222.93 419.81,223.20 421.47,223.47 423.12,223.73 424.78,223.99 426.44,224.25 428.09,224.51 429.75,224.76 431.41,225.01 433.06,225.26 434.72,225.51 436.38,225.76 438.03,226.00 439.69,226.24 441.34,226.48 443.00,226.72 444.66,226.95 446.31,227.19 447.97,227.42 449.62,227.65 451.28,227.88 452.94,228.10 454.59,228.32 456.25,228.55 457.91,228.76 459.56,228.98 461.22,229.20 462.88,229.41 464.53,229.62 466.19,229.83 467.84,230.04 469.50,230.25 471.16,230.45 472.81,230.66 474.47,230.86 476.12,231.06 477.78,231.26 479.44,231.45 481.09,231.65 482.75,231.84 484.41,232.03 486.06,232.22 487.72,232.41 489.38,232.60 491.03,232.78 492.69,232.96 494.34,233.14 496.00,233.32 497.66,233.50 499.31,233.68 500.97,233.85 502.62,234.03 504.28,234.20 505.94,234.37 507.59,234.54 509.25,234.71 510.91,234.88 512.56,235.04 514.22,235.20 515.88,235.37 517.53,235.53 519.19,235.69 520.84,235.84 522.50,236.00 524.16,236.16 525.81,236.31 527.47,236.46 529.12,236.61 530.78,236.76 532.44,236.91 534.09,237.06 535.75,237.21 537.41,237.35 539.06,237.49 540.72,237.64 542.38,237.78 544.03,237.92 545.69,238.06 547.34,238.19 549.00,238.33 550.66,238.47 552.31,238.60 553.97,238.73 555.62,238.86 557.28,239.00 558.94,239.12 560.59,239.25 562.25,239.38 563.91,239.51 565.56,239.63 567.22,239.76 568.88,239.88 570.53,240.00 572.19,240.12 573.84,240.24 575.50,240.36 577.16,240.48 578.81,240.59 580.47,240.71 582.12,240.82 583.78,240.94 585.44,241.05 587.09,241.16 588.75,241.27 590.41,241.38 592.06,241.49 593.72,241.60 595.38,241.71 597.03,241.81 598.69,241.92 600.34,242.02 602.00,242.12" fill="none" stroke="#5a73ce" stroke-width="2.5" stroke-dasharray=""/>
+<line x1="138.25" y1="119.65" x2="138.25" y2="254" stroke="#b8aea5" stroke-dasharray="3 3"/>
+<circle cx="138.25" cy="119.65" r="5" fill="#5a73ce" stroke="white"/>
+<text x="147.25" y="109.65" fill="#344c9c">70.7%</text>
+<line x1="469.50" y1="230.25" x2="469.50" y2="254" stroke="#b8aea5" stroke-dasharray="3 3"/>
+<circle cx="469.50" cy="230.25" r="5" fill="#5a73ce" stroke="white"/>
+<text x="478.50" y="220.25" fill="#344c9c">12.5%</text>
+<line x1="397" y1="81" x2="426" y2="81" stroke="#5a73ce" stroke-width="2.5" stroke-dasharray=""/>
+<text x="434" y="85">8 h: reported scale</text>
+<line x1="397" y1="101" x2="426" y2="101" stroke="#877f77" stroke-width="2.5" stroke-dasharray="5 4"/>
+<text x="434" y="105">4 h: assumed</text>
+<line x1="397" y1="121" x2="426" y2="121" stroke="#1f9a8e" stroke-width="2.5" stroke-dasharray="7 4"/>
+<text x="434" y="125">16 h: assumed</text>
+</g></svg></div>
+<figcaption><strong>Figure 1.</strong> Calculated first-order decay, not experimental data or a prediction of killing. The 8-hour curve uses the reported Jurkat timescale; 4- and 16-hour half-lives are assumed sensitivity cases. All start at the same normalized expression level. Dots mark hypothetical B-encounter times on the 8-hour curve. The Python code below generates the SVG and a numerical CSV using only the standard library.</figcaption>
+</figure>
+
+<h2 id="limits">What I would argue against / where this breaks</h2>
+<p>I would argue against interpreting this circuit as an instantaneous coincidence detector. I would also argue against treating residual CAR as proof of off-target killing. The model omits antigen density, expression delays, signaling thresholds and cell movement. The 8-hour estimate is not a universal value for primary therapeutic T cells. Importantly, the authors found no evidence of killing a separate single-antigen tumor after priming in their tested mouse model.<sup><a href="#r-roybal">2</a></sup> They also discussed temporal coupling, so this is a worked extension of an existing idea, not a new discovery. My narrower conclusion is that an AND label should be accompanied by the timing conditions under which it describes the biological response.</p>
+
+<h2 id="sources">Sources</h2>
+<ol class="src">
+<li id="r-core">Fangzhou Xiao. <em>The computation biomachine.</em> CCBS 2026, Lecture 12 core, 2026. <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture12-core.html">Course page</a>. Read for the distinction between Boolean gates and history-dependent decisions, especially sections 2 and 7.</li>
+<li id="r-roybal">Kole T. Roybal, Levi J. Rupp, Leonardo Morsut, Whitney J. Walker, Krista A. McNally, Jason S. Park and Wendell A. Lim. <em>Precision Tumor Recognition by T Cells With Combinatorial Antigen-Sensing Circuits.</em> Cell 164(4), 770–779 (2016). <a href="https://doi.org/10.1016/j.cell.2016.01.011">doi:10.1016/j.cell.2016.01.011</a> · <a href="https://limlab.ucsf.edu/pdfs/ktr_2016.pdf">Author-hosted full text</a>. Inspected the circuit description, CAR decay experiment and Figure 2 caption, and the discussion of bystander tumors and temporal coupling. The accessible PDF is an article-in-press version. No raw data were reanalyzed.</li>
+</ol>
+<details id="reproduce"><summary>Reproduce the calculation and figure (Python 3)</summary>
+<p>Save this code as <code>analysis.py</code> and run <code>python analysis.py</code>. It writes <code>decay.svg</code> and <code>decay.csv</code>. No additional packages or network access are required.</p>
+<button type="button" id="download-code">Download Python code</button>
+<pre><code id="python-code">&quot;&quot;&quot;Python 3, standard library only. Run: python analysis.py
+Writes decay.svg and decay.csv in the current directory.
+8 h: approximate Jurkat CAR-expression half-life reported in Roybal et al.
+4 h and 16 h: illustrative sensitivity assumptions, not measurements.
+The first-order decay law is a model assumption, not a fit to raw data.
+&quot;&quot;&quot;
+import csv
+import math
+from pathlib import Path
+
+def remaining(hours, half_life=8):
+    return 2 ** (-hours / half_life)
+
+def make_svg():
+    left, top, width, height = 72, 64, 530, 190
+    x = lambda t: left + width * t / 32
+    y = lambda c: top + height * (1 - c)
+    parts = [&#x27;&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 640 318&quot; role=&quot;img&quot; aria-labelledby=&quot;plot-title plot-desc&quot;&gt;&#x27;,
+             &#x27;&lt;title id=&quot;plot-title&quot;&gt;Receptor availability depends on the time since priming ended&lt;/title&gt;&#x27;,
+             &#x27;&lt;desc id=&quot;plot-desc&quot;&gt;First-order decay model. An eight-hour half-life gives 70.7 percent remaining after four hours and 12.5 percent after twenty-four hours. Four- and sixteen-hour half-lives are sensitivity assumptions. No killing outcome is predicted.&lt;/desc&gt;&#x27;,
+             &#x27;&lt;rect width=&quot;640&quot; height=&quot;318&quot; fill=&quot;#fff&quot;/&gt;&#x27;,
+             &#x27;&lt;g font-family=&quot;Arial, sans-serif&quot; fill=&quot;#20201e&quot; font-size=&quot;12&quot;&gt;&#x27;,
+             &#x27;&lt;text x=&quot;72&quot; y=&quot;22&quot; font-size=&quot;15&quot; font-weight=&quot;bold&quot;&gt;Same current inputs; different receptor histories&lt;/text&gt;&#x27;,
+             &#x27;&lt;text x=&quot;72&quot; y=&quot;42&quot; fill=&quot;#566&quot;&gt;Model illustration. Priming stops at hour 0; initial receptor level = 1.&lt;/text&gt;&#x27;]
+    for v in [0, .25, .5, .75, 1]:
+        parts += [f&#x27;&lt;line x1=&quot;{left}&quot; y1=&quot;{y(v):.2f}&quot; x2=&quot;{left+width}&quot; y2=&quot;{y(v):.2f}&quot; stroke=&quot;#e5e7eb&quot;/&gt;&#x27;,
+                  f&#x27;&lt;text x=&quot;60&quot; y=&quot;{y(v)+4:.2f}&quot; text-anchor=&quot;end&quot;&gt;{v:g}&lt;/text&gt;&#x27;]
+    for t in [0, 4, 8, 16, 24, 32]:
+        parts += [f&#x27;&lt;text x=&quot;{x(t):.2f}&quot; y=&quot;275&quot; text-anchor=&quot;middle&quot;&gt;{t}&lt;/text&gt;&#x27;]
+    parts += [f&#x27;&lt;path d=&quot;M{left},{top} V{top+height} H{left+width}&quot; fill=&quot;none&quot; stroke=&quot;#20201e&quot;/&gt;&#x27;,
+              &#x27;&lt;text x=&quot;337&quot; y=&quot;305&quot; text-anchor=&quot;middle&quot;&gt;Time after priming stimulus removal (hours)&lt;/text&gt;&#x27;,
+              &#x27;&lt;text x=&quot;18&quot; y=&quot;159&quot; transform=&quot;rotate(-90 18 159)&quot; text-anchor=&quot;middle&quot;&gt;Relative CAR expression&lt;/text&gt;&#x27;]
+    for half, color, dash in [(4,&#x27;#877f77&#x27;,&#x27;5 4&#x27;),(16,&#x27;#1f9a8e&#x27;,&#x27;7 4&#x27;),(8,&#x27;#5a73ce&#x27;,&#x27;&#x27;)]:
+        points = &#x27; &#x27;.join(f&#x27;{x(i/10):.2f},{y(remaining(i/10, half)):.2f}&#x27; for i in range(321))
+        parts += [f&#x27;&lt;polyline points=&quot;{points}&quot; fill=&quot;none&quot; stroke=&quot;{color}&quot; stroke-width=&quot;2.5&quot; stroke-dasharray=&quot;{dash}&quot;/&gt;&#x27;]
+    for t in [4,24]:
+        c=remaining(t)
+        parts += [f&#x27;&lt;line x1=&quot;{x(t):.2f}&quot; y1=&quot;{y(c):.2f}&quot; x2=&quot;{x(t):.2f}&quot; y2=&quot;254&quot; stroke=&quot;#b8aea5&quot; stroke-dasharray=&quot;3 3&quot;/&gt;&#x27;,
+                  f&#x27;&lt;circle cx=&quot;{x(t):.2f}&quot; cy=&quot;{y(c):.2f}&quot; r=&quot;5&quot; fill=&quot;#5a73ce&quot; stroke=&quot;white&quot;/&gt;&#x27;,
+                  f&#x27;&lt;text x=&quot;{x(t)+9:.2f}&quot; y=&quot;{y(c)-10:.2f}&quot; fill=&quot;#344c9c&quot;&gt;{100*c:.1f}%&lt;/text&gt;&#x27;]
+    for yy,label,col,dash in [(85,&#x27;8 h: reported scale&#x27;,&#x27;#5a73ce&#x27;,&#x27;&#x27;),(105,&#x27;4 h: assumed&#x27;,&#x27;#877f77&#x27;,&#x27;5 4&#x27;),(125,&#x27;16 h: assumed&#x27;,&#x27;#1f9a8e&#x27;,&#x27;7 4&#x27;)]:
+        parts += [f&#x27;&lt;line x1=&quot;397&quot; y1=&quot;{yy-4}&quot; x2=&quot;426&quot; y2=&quot;{yy-4}&quot; stroke=&quot;{col}&quot; stroke-width=&quot;2.5&quot; stroke-dasharray=&quot;{dash}&quot;/&gt;&#x27;,f&#x27;&lt;text x=&quot;434&quot; y=&quot;{yy}&quot;&gt;{label}&lt;/text&gt;&#x27;]
+    return &#x27;\n&#x27;.join(parts + [&#x27;&lt;/g&gt;&lt;/svg&gt;&#x27;])
+
+if __name__ == &#x27;__main__&#x27;:
+    Path(&#x27;decay.svg&#x27;).write_text(make_svg(), encoding=&#x27;utf-8&#x27;)
+    with open(&#x27;decay.csv&#x27;, &#x27;w&#x27;, newline=&#x27;&#x27;) as f:
+        writer=csv.writer(f)
+        writer.writerow([&#x27;hours_after_removal&#x27;,&#x27;half_life_hours&#x27;,&#x27;relative_expression&#x27;])
+        for half in [4,8,16]:
+            for t in range(33):
+                writer.writerow([t, half, remaining(t,half)])
+    for t in [4,8,16,24]:
+        print(f&#x27;{t} h: {100*remaining(t):.3f}% remaining&#x27;)
+</code></pre>
+</details>
+<script>
+document.getElementById('tt').addEventListener('click',function(){
+const dark = document.documentElement.dataset.theme ? document.documentElement.dataset.theme === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+document.documentElement.dataset.theme = dark ? 'light' : 'dark';
+});
+document.getElementById('download-code').addEventListener('click', function () {
+const blob = new Blob([document.getElementById('python-code').textContent], {type:'text/plain;charset=utf-8'});
+const url = URL.createObjectURL(blob); const link = document.createElement('a');
+link.href = url; link.download = 'week6-zhuxiaomeng-analysis.py'; link.click();
+setTimeout(function(){URL.revokeObjectURL(url);},1000);
+});
+</script>
+</main></body></html>
