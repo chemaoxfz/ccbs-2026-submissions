@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WEEK 7 — Extension: Growth, investment and delayed reward</title>
+<meta name="author" content="Weihan Luo">
+<meta name="week" content="week7">
+<style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px;
+    border-bottom:1px solid var(--line); padding-bottom:5px; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:14px 18px; margin:14px 0; }
+  .equation { overflow-x:auto; padding:16px 12px; }
+  math { font-size:1.05em; }
+  figure { margin:22px 0; }
+  .fig { width:100%; height:auto; display:block; background:#fff;
+    border:1px solid var(--line); border-radius:6px; }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:8px; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; padding-left:24px; }
+  .src li { margin-bottom:10px; }
+  code { font-family:ui-monospace,SFMono-Regular,Consolas,monospace; font-size:.88em; }
+  pre { overflow-x:auto; background:var(--soft); border:1px solid var(--line);
+    border-radius:6px; padding:14px; line-height:1.5; }
+  summary { color:var(--accent); cursor:pointer; font-size:.92rem; }
+  table { border-collapse:collapse; width:100%; margin:18px 0; font-size:.9rem; }
+  th, td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--line); }
+  th { background:var(--soft); }
+  .table-wrap { overflow-x:auto; }
+</style>
+</head>
+<body>
+<main class="wrap">
+
+<h1>WEEK 7 — Extension: Growth, investment and delayed reward</h1>
+<p class="meta">Author: Weihan Luo · Week 7 (2026-11-03) · CCBS 2026</p>
+
+<p class="card"><strong>One sentence:</strong> When building productive machinery sacrifices present growth, uncertainty about how long nutrients will last can reverse the best investment decision—a tradeoff expressible through the same future-value calculation used in reinforcement learning.</p>
+
+<h2>The point I am adding</h2>
+<p>A cell needs machinery to grow: enzymes process nutrients, and ribosomes make proteins, including more machinery. Lecture 14, Section 11, treats resource allocation as productive investment. Lecture 13, Sections 23–24, shows how a growth objective can select different allocations when the future horizon changes <a href="#source-1">[1]</a><a href="#source-2">[2]</a>. My question is slightly different: <strong>what if the nutrient episode has no known end?</strong> An investment can increase future growth yet be a poor choice if its payoff rarely arrives.</p>
+
+<p>Consider my deliberately simplified two-state model. The initial state has low productive capacity. During each equal-length interval, the cell can <em>grow</em>, multiplying biomass by 1.2 and keeping that capacity, or <em>invest</em>, forgoing net biomass growth for one interval to reorganize its machinery. Investment permanently changes the growth multiplier to 1.3 for subsequent intervals of the episode. These are illustrative choices, not measured cellular rates or a biochemical mass-balance model.</p>
+
+<p>After every completed interval, nutrients remain available with probability <var>p</var>, independently of the action and previous history. Otherwise growth stops, with existing biomass retained and no later reward. Let reward be the log biomass increase: <var>r</var> = ln(<var>B</var><sub>next</sub>/<var>B</var>). Summing rewards gives total log growth. A reward <var>t</var> intervals ahead is received with probability <var>p</var><sup><var>t</var></sup>; continuation therefore has the same mathematical role as the RL discount factor, <var>γ</var> = <var>p</var>. Here that factor comes from an explicit environmental assumption.</p>
+
+<h2>Work it</h2>
+<p>Write <var>r</var><sub>0</sub> = ln(1.2) and <var>r</var><sub>1</sub> = ln(1.3). The optimal values <var>V</var><sub>L</sub> and <var>V</var><sub>H</sub> are the expected remaining log growth from low and high capacity, respectively. They obey the Bellman equations:</p>
+
+<div class="card equation">
+  <math xmlns="http://www.w3.org/1998/Math/MathML" display="block" aria-label="V H equals r one plus p V H">
+    <msub><mi>V</mi><mi>H</mi></msub><mo>=</mo><msub><mi>r</mi><mn>1</mn></msub><mo>+</mo><mi>p</mi><msub><mi>V</mi><mi>H</mi></msub>
+  </math>
+  <math xmlns="http://www.w3.org/1998/Math/MathML" display="block" aria-label="V L equals maximum of r zero plus p V L, and p V H">
+    <msub><mi>V</mi><mi>L</mi></msub><mo>=</mo><mi>max</mi><mo>{</mo>
+    <msub><mi>r</mi><mn>0</mn></msub><mo>+</mo><mi>p</mi><msub><mi>V</mi><mi>L</mi></msub><mo>,</mo>
+    <mi>p</mi><msub><mi>V</mi><mi>H</mi></msub><mo>}</mo>
+  </math>
+</div>
+
+<p>The first low-state choice collects growth immediately; the second collects zero now and gains high capacity for later. Growing leaves both the state and continuation probability unchanged, so waiting supplies no new information. Solving the equations selects between growing forever and investing immediately. Their expected log returns are</p>
+
+<div class="card equation">
+  <math xmlns="http://www.w3.org/1998/Math/MathML" display="block" aria-label="J grow equals r zero over one minus p; J invest equals p r one over one minus p">
+    <msub><mi>J</mi><mtext>grow</mtext></msub><mo>=</mo>
+    <mfrac><msub><mi>r</mi><mn>0</mn></msub><mrow><mn>1</mn><mo>−</mo><mi>p</mi></mrow></mfrac>
+    <mo>,</mo><mspace width="1em"/>
+    <msub><mi>J</mi><mtext>invest</mtext></msub><mo>=</mo>
+    <mfrac><mrow><mi>p</mi><msub><mi>r</mi><mn>1</mn></msub></mrow><mrow><mn>1</mn><mo>−</mo><mi>p</mi></mrow></mfrac>
+  </math>
+</div>
+
+<p>Investment wins precisely when <var>p</var> &gt; ln(1.2)/ln(1.3) ≈ <strong>0.695</strong>. Nothing about the machinery changed: only the probability of reaching its payoff changed. For two example environments, my calculation gives:</p>
+
+<div class="table-wrap">
+<table>
+  <caption>Expected total log growth, with 0 ≤ p &lt; 1.</caption>
+  <thead><tr><th scope="col">Continuation probability</th><th scope="col">Always grow</th><th scope="col">Invest first</th><th scope="col">Best first action</th></tr></thead>
+  <tbody>
+    <tr><td>0.5</td><td>0.365</td><td>0.262</td><td>Grow</td></tr>
+    <tr><td>0.9</td><td>1.823</td><td>2.361</td><td>Invest</td></tr>
+  </tbody>
+</table>
+</div>
+
+<figure>
+<svg class="fig" role="img" aria-labelledby="investment-figure-title investment-figure-description" xmlns:xlink="http://www.w3.org/1999/xlink" width="518.4pt" height="496.8pt" viewBox="0 0 518.4 496.8" xmlns="http://www.w3.org/2000/svg" version="1.1">
+<title id="investment-figure-title">Growth now versus investment under uncertain nutrient duration</title>
+<desc id="investment-figure-description">Biomass trajectories show investment overtaking immediate growth in the fourth interval if nutrients persist. Expected log growth favors investment when the probability of one more interval exceeds 0.694918.</desc>
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.10.7, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 496.8
+L 518.4 496.8
+L 518.4 0
+L 0 0
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 44.57 202.24
+L 496.53 202.24
+L 496.53 44.6976
+L 44.57 44.6976
+z
+" style="fill: #ffffff"/>
+   </g>
+   <g id="matplotlib.axis_1">
+    <g id="xtick_1">
+     <g id="line2d_1">
+      <path d="M 44.57 202.24
+L 44.57 44.6976
+" clip-path="url(#pc1117ef023)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_2">
+      <defs>
+       <path id="m72896508eb" d="M 0 0
+L 0 3.5
+" style="stroke: #000000; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#m72896508eb" x="44.57" y="202.24" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_1">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="44.57" y="216.838438" transform="rotate(-0 44.57 216.838438)">0</text>
+     </g>
+    </g>
+    <g id="xtick_2">
+     <g id="line2d_3">
+      <path d="M 134.962 202.24
+L 134.962 44.6976
+" clip-path="url(#pc1117ef023)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_4">
+      <g>
+       <use xlink:href="#m72896508eb" x="134.962" y="202.24" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_2">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="134.962" y="216.838438" transform="rotate(-0 134.962 216.838438)">2</text>
+     </g>
+    </g>
+    <g id="xtick_3">
+     <g id="line2d_5">
+      <path d="M 225.354 202.24
+L 225.354 44.6976
+" clip-path="url(#pc1117ef023)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_6">
+      <g>
+       <use xlink:href="#m72896508eb" x="225.354" y="202.24" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_3">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="225.354" y="216.838438" transform="rotate(-0 225.354 216.838438)">4</text>
+     </g>
+    </g>
+    <g id="xtick_4">
+     <g id="line2d_7">
+      <path d="M 315.746 202.24
+L 315.746 44.6976
+" clip-path="url(#pc1117ef023)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_8">
+      <g>
+       <use xlink:href="#m72896508eb" x="315.746" y="202.24" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_4">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="315.746" y="216.838438" transform="rotate(-0 315.746 216.838438)">6</text>
+     </g>
+    </g>
+    <g id="xtick_5">
+     <g id="line2d_9">
+      <path d="M 406.138 202.24
+L 406.138 44.6976
+" clip-path="url(#pc1117ef023)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_10">
+      <g>
+       <use xlink:href="#m72896508eb" x="406.138" y="202.24" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_5">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="406.138" y="216.838438" transform="rotate(-0 406.138 216.838438)">8</text>
+     </g>
+    </g>
+    <g id="xtick_6">
+     <g id="line2d_11">
+      <path d="M 496.53 202.24
+L 496.53 44.6976
+" clip-path="url(#pc1117ef023)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_12">
+      <g>
+       <use xlink:href="#m72896508eb" x="496.53" y="202.24" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_6">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="496.53" y="216.838438" transform="rotate(-0 496.53 216.838438)">10</text>
+     </g>
+    </g>
+    <g id="text_7">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="270.55" y="230.516563" transform="rotate(-0 270.55 230.516563)">Completed intervals, if nutrients persist</text>
+    </g>
+   </g>
+   <g id="matplotlib.axis_2">
+    <g id="ytick_1">
+     <g id="line2d_13">
+      <path d="M 44.57 179.733943
+L 496.53 179.733943
+" clip-path="url(#pc1117ef023)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_14">
+      <defs>
+       <path id="m9644b34409" d="M 0 0
+L -3.5 0
+" style="stroke: #000000; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#m9644b34409" x="44.57" y="179.733943" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_8">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="37.57" y="183.533162" transform="rotate(-0 37.57 183.533162)">2</text>
+     </g>
+    </g>
+    <g id="ytick_2">
+     <g id="line2d_15">
+      <path d="M 44.57 149.725867
+L 496.53 149.725867
+" clip-path="url(#pc1117ef023)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_16">
+      <g>
+       <use xlink:href="#m9644b34409" x="44.57" y="149.725867" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_9">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="37.57" y="153.525085" transform="rotate(-0 37.57 153.525085)">4</text>
+     </g>
+    </g>
+    <g id="ytick_3">
+     <g id="line2d_17">
+      <path d="M 44.57 119.71779
+L 496.53 119.71779
+" clip-path="url(#pc1117ef023)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_18">
+      <g>
+       <use xlink:href="#m9644b34409" x="44.57" y="119.71779" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_10">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="37.57" y="123.517009" transform="rotate(-0 37.57 123.517009)">6</text>
+     </g>
+    </g>
+    <g id="ytick_4">
+     <g id="line2d_19">
+      <path d="M 44.57 89.709714
+L 496.53 89.709714
+" clip-path="url(#pc1117ef023)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_20">
+      <g>
+       <use xlink:href="#m9644b34409" x="44.57" y="89.709714" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_11">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="37.57" y="93.508933" transform="rotate(-0 37.57 93.508933)">8</text>
+     </g>
+    </g>
+    <g id="ytick_5">
+     <g id="line2d_21">
+      <path d="M 44.57 59.701638
+L 496.53 59.701638
+" clip-path="url(#pc1117ef023)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_22">
+      <g>
+       <use xlink:href="#m9644b34409" x="44.57" y="59.701638" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_12">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="37.57" y="63.500857" transform="rotate(-0 37.57 63.500857)">10</text>
+     </g>
+    </g>
+    <g id="text_13">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="18.765313" y="123.4688" transform="rotate(-90 18.765313 123.4688)">Biomass / initial biomass</text>
+    </g>
+   </g>
+   <g id="line2d_23">
+    <path d="M 44.57 194.737981
+L 89.766 191.737173
+L 134.962 188.136204
+L 180.158 183.815041
+L 225.354 178.629646
+L 270.55 172.407171
+L 315.746 164.940201
+L 360.942 155.979838
+L 406.138 145.227402
+L 451.334 132.324478
+L 496.53 116.84097
+" clip-path="url(#pc1117ef023)" style="fill: none; stroke: #b44660; stroke-width: 2; stroke-linecap: square"/>
+    <defs>
+     <path id="m8ef7343faf" d="M 0 2
+C 0.530406 2 1.03916 1.789267 1.414214 1.414214
+C 1.789267 1.03916 2 0.530406 2 0
+C 2 -0.530406 1.789267 -1.03916 1.414214 -1.414214
+C 1.03916 -1.789267 0.530406 -2 0 -2
+C -0.530406 -2 -1.03916 -1.789267 -1.414214 -1.414214
+C -1.789267 -1.03916 -2 -0.530406 -2 0
+C -2 0.530406 -1.789267 1.03916 -1.414214 1.414214
+C -1.03916 1.789267 -0.530406 2 0 2
+z
+" style="stroke: #b44660"/>
+    </defs>
+    <g clip-path="url(#pc1117ef023)">
+     <use xlink:href="#m8ef7343faf" x="44.57" y="194.737981" style="fill: #b44660; stroke: #b44660"/>
+     <use xlink:href="#m8ef7343faf" x="89.766" y="191.737173" style="fill: #b44660; stroke: #b44660"/>
+     <use xlink:href="#m8ef7343faf" x="134.962" y="188.136204" style="fill: #b44660; stroke: #b44660"/>
+     <use xlink:href="#m8ef7343faf" x="180.158" y="183.815041" style="fill: #b44660; stroke: #b44660"/>
+     <use xlink:href="#m8ef7343faf" x="225.354" y="178.629646" style="fill: #b44660; stroke: #b44660"/>
+     <use xlink:href="#m8ef7343faf" x="270.55" y="172.407171" style="fill: #b44660; stroke: #b44660"/>
+     <use xlink:href="#m8ef7343faf" x="315.746" y="164.940201" style="fill: #b44660; stroke: #b44660"/>
+     <use xlink:href="#m8ef7343faf" x="360.942" y="155.979838" style="fill: #b44660; stroke: #b44660"/>
+     <use xlink:href="#m8ef7343faf" x="406.138" y="145.227402" style="fill: #b44660; stroke: #b44660"/>
+     <use xlink:href="#m8ef7343faf" x="451.334" y="132.324478" style="fill: #b44660; stroke: #b44660"/>
+     <use xlink:href="#m8ef7343faf" x="496.53" y="116.84097" style="fill: #b44660; stroke: #b44660"/>
+    </g>
+   </g>
+   <g id="line2d_24">
+    <path d="M 44.57 194.737981
+L 89.766 194.737981
+L 134.962 190.23677
+L 180.158 184.385195
+L 225.354 176.778147
+L 270.55 166.888986
+L 315.746 154.033076
+L 360.942 137.320393
+L 406.138 115.593905
+L 451.334 87.349471
+L 496.53 50.631706
+" clip-path="url(#pc1117ef023)" style="fill: none; stroke: #167d8d; stroke-width: 2; stroke-linecap: square"/>
+    <defs>
+     <path id="m9448d4d433" d="M 0 2
+C 0.530406 2 1.03916 1.789267 1.414214 1.414214
+C 1.789267 1.03916 2 0.530406 2 0
+C 2 -0.530406 1.789267 -1.03916 1.414214 -1.414214
+C 1.03916 -1.789267 0.530406 -2 0 -2
+C -0.530406 -2 -1.03916 -1.789267 -1.414214 -1.414214
+C -1.789267 -1.03916 -2 -0.530406 -2 0
+C -2 0.530406 -1.789267 1.03916 -1.414214 1.414214
+C -1.03916 1.789267 -0.530406 2 0 2
+z
+" style="stroke: #167d8d"/>
+    </defs>
+    <g clip-path="url(#pc1117ef023)">
+     <use xlink:href="#m9448d4d433" x="44.57" y="194.737981" style="fill: #167d8d; stroke: #167d8d"/>
+     <use xlink:href="#m9448d4d433" x="89.766" y="194.737981" style="fill: #167d8d; stroke: #167d8d"/>
+     <use xlink:href="#m9448d4d433" x="134.962" y="190.23677" style="fill: #167d8d; stroke: #167d8d"/>
+     <use xlink:href="#m9448d4d433" x="180.158" y="184.385195" style="fill: #167d8d; stroke: #167d8d"/>
+     <use xlink:href="#m9448d4d433" x="225.354" y="176.778147" style="fill: #167d8d; stroke: #167d8d"/>
+     <use xlink:href="#m9448d4d433" x="270.55" y="166.888986" style="fill: #167d8d; stroke: #167d8d"/>
+     <use xlink:href="#m9448d4d433" x="315.746" y="154.033076" style="fill: #167d8d; stroke: #167d8d"/>
+     <use xlink:href="#m9448d4d433" x="360.942" y="137.320393" style="fill: #167d8d; stroke: #167d8d"/>
+     <use xlink:href="#m9448d4d433" x="406.138" y="115.593905" style="fill: #167d8d; stroke: #167d8d"/>
+     <use xlink:href="#m9448d4d433" x="451.334" y="87.349471" style="fill: #167d8d; stroke: #167d8d"/>
+     <use xlink:href="#m9448d4d433" x="496.53" y="50.631706" style="fill: #167d8d; stroke: #167d8d"/>
+    </g>
+   </g>
+   <g id="patch_3">
+    <path d="M 44.57 202.24
+L 44.57 44.6976
+" style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 44.57 202.24
+L 496.53 202.24
+" style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="legend_1">
+    <g id="line2d_25">
+     <path d="M 48.17 19.714721
+L 57.17 19.714721
+L 66.17 19.714721
+" style="fill: none; stroke: #b44660; stroke-width: 2; stroke-linecap: square"/>
+     <g>
+      <use xlink:href="#m8ef7343faf" x="57.17" y="19.714721" style="fill: #b44660; stroke: #b44660"/>
+     </g>
+    </g>
+    <g id="text_14">
+     <text style="font-size: 9px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: start" x="73.37" y="22.864721" transform="rotate(-0 73.37 22.864721)">Grow every interval</text>
+    </g>
+    <g id="line2d_26">
+     <path d="M 48.17 32.925033
+L 57.17 32.925033
+L 66.17 32.925033
+" style="fill: none; stroke: #167d8d; stroke-width: 2; stroke-linecap: square"/>
+     <g>
+      <use xlink:href="#m9448d4d433" x="57.17" y="32.925033" style="fill: #167d8d; stroke: #167d8d"/>
+     </g>
+    </g>
+    <g id="text_15">
+     <text style="font-size: 9px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: start" x="73.37" y="36.075033" transform="rotate(-0 73.37 36.075033)">Invest first, then grow</text>
+    </g>
+   </g>
+  </g>
+  <g id="axes_2">
+   <g id="patch_5">
+    <path d="M 44.57 454.84
+L 496.53 454.84
+L 496.53 297.2976
+L 44.57 297.2976
+z
+" style="fill: #ffffff"/>
+   </g>
+   <g id="matplotlib.axis_3">
+    <g id="xtick_7">
+     <g id="line2d_27">
+      <path d="M 44.57 454.84
+L 44.57 297.2976
+" clip-path="url(#pb119e6cd7e)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_28">
+      <g>
+       <use xlink:href="#m72896508eb" x="44.57" y="454.84" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_16">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="44.57" y="469.438438" transform="rotate(-0 44.57 469.438438)">0.00</text>
+     </g>
+    </g>
+    <g id="xtick_8">
+     <g id="line2d_29">
+      <path d="M 139.719474 454.84
+L 139.719474 297.2976
+" clip-path="url(#pb119e6cd7e)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_30">
+      <g>
+       <use xlink:href="#m72896508eb" x="139.719474" y="454.84" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_17">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="139.719474" y="469.438438" transform="rotate(-0 139.719474 469.438438)">0.20</text>
+     </g>
+    </g>
+    <g id="xtick_9">
+     <g id="line2d_31">
+      <path d="M 234.868947 454.84
+L 234.868947 297.2976
+" clip-path="url(#pb119e6cd7e)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_32">
+      <g>
+       <use xlink:href="#m72896508eb" x="234.868947" y="454.84" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_18">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="234.868947" y="469.438438" transform="rotate(-0 234.868947 469.438438)">0.40</text>
+     </g>
+    </g>
+    <g id="xtick_10">
+     <g id="line2d_33">
+      <path d="M 330.018421 454.84
+L 330.018421 297.2976
+" clip-path="url(#pb119e6cd7e)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_34">
+      <g>
+       <use xlink:href="#m72896508eb" x="330.018421" y="454.84" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_19">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="330.018421" y="469.438438" transform="rotate(-0 330.018421 469.438438)">0.60</text>
+     </g>
+    </g>
+    <g id="xtick_11">
+     <g id="line2d_35">
+      <path d="M 425.167895 454.84
+L 425.167895 297.2976
+" clip-path="url(#pb119e6cd7e)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_36">
+      <g>
+       <use xlink:href="#m72896508eb" x="425.167895" y="454.84" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_20">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="425.167895" y="469.438438" transform="rotate(-0 425.167895 469.438438)">0.80</text>
+     </g>
+    </g>
+    <g id="xtick_12">
+     <g id="line2d_37">
+      <path d="M 496.53 454.84
+L 496.53 297.2976
+" clip-path="url(#pb119e6cd7e)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_38">
+      <g>
+       <use xlink:href="#m72896508eb" x="496.53" y="454.84" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_21">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="496.53" y="469.438438" transform="rotate(-0 496.53 469.438438)">0.95</text>
+     </g>
+    </g>
+    <g id="text_22">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="270.55" y="483.116563" transform="rotate(-0 270.55 483.116563)">Probability p that nutrients last one more interval</text>
+    </g>
+   </g>
+   <g id="matplotlib.axis_4">
+    <g id="ytick_6">
+     <g id="line2d_39">
+      <path d="M 44.57 454.84
+L 496.53 454.84
+" clip-path="url(#pb119e6cd7e)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_40">
+      <g>
+       <use xlink:href="#m9644b34409" x="44.57" y="454.84" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_23">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="37.57" y="458.639219" transform="rotate(-0 37.57 458.639219)">0</text>
+     </g>
+    </g>
+    <g id="ytick_7">
+     <g id="line2d_41">
+      <path d="M 44.57 424.543385
+L 496.53 424.543385
+" clip-path="url(#pb119e6cd7e)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_42">
+      <g>
+       <use xlink:href="#m9644b34409" x="44.57" y="424.543385" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_24">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="37.57" y="428.342603" transform="rotate(-0 37.57 428.342603)">1</text>
+     </g>
+    </g>
+    <g id="ytick_8">
+     <g id="line2d_43">
+      <path d="M 44.57 394.246769
+L 496.53 394.246769
+" clip-path="url(#pb119e6cd7e)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_44">
+      <g>
+       <use xlink:href="#m9644b34409" x="44.57" y="394.246769" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_25">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="37.57" y="398.045988" transform="rotate(-0 37.57 398.045988)">2</text>
+     </g>
+    </g>
+    <g id="ytick_9">
+     <g id="line2d_45">
+      <path d="M 44.57 363.950154
+L 496.53 363.950154
+" clip-path="url(#pb119e6cd7e)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_46">
+      <g>
+       <use xlink:href="#m9644b34409" x="44.57" y="363.950154" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_26">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="37.57" y="367.749373" transform="rotate(-0 37.57 367.749373)">3</text>
+     </g>
+    </g>
+    <g id="ytick_10">
+     <g id="line2d_47">
+      <path d="M 44.57 333.653538
+L 496.53 333.653538
+" clip-path="url(#pb119e6cd7e)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_48">
+      <g>
+       <use xlink:href="#m9644b34409" x="44.57" y="333.653538" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_27">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="37.57" y="337.452757" transform="rotate(-0 37.57 337.452757)">4</text>
+     </g>
+    </g>
+    <g id="ytick_11">
+     <g id="line2d_49">
+      <path d="M 44.57 303.356923
+L 496.53 303.356923
+" clip-path="url(#pb119e6cd7e)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_50">
+      <g>
+       <use xlink:href="#m9644b34409" x="44.57" y="303.356923" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_28">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end" x="37.57" y="307.156142" transform="rotate(-0 37.57 307.156142)">5</text>
+     </g>
+    </g>
+    <g id="text_29">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle" x="25.127813" y="376.0688" transform="rotate(-90 25.127813 376.0688)">Expected total log growth</text>
+    </g>
+   </g>
+   <g id="line2d_51">
+    <path d="M 44.57 449.316274
+L 106.417158 448.49089
+L 156.370632 447.619443
+L 199.187895 446.656702
+L 234.868947 445.63379
+L 263.413789 444.610878
+L 289.579895 443.450874
+L 310.988526 442.286077
+L 330.018421 441.030685
+L 346.669579 439.706504
+L 360.942 438.351265
+L 372.835684 437.021529
+L 384.729368 435.458505
+L 394.244316 433.995751
+L 403.759263 432.294179
+L 410.895474 430.8238
+L 418.031684 429.148251
+L 425.167895 427.22137
+L 432.304105 424.982021
+L 437.061579 423.275851
+L 441.819053 421.362872
+L 446.576526 419.203058
+L 451.334 416.745337
+L 456.091474 413.92351
+L 460.848947 410.650191
+L 463.227684 408.808949
+L 465.606421 406.807599
+L 467.985158 404.624308
+L 470.363895 402.233085
+L 472.742632 399.602739
+L 475.121368 396.695515
+L 477.500105 393.465266
+L 479.878842 389.854987
+L 482.257579 385.793424
+L 484.636316 381.190319
+L 487.015053 375.929627
+L 489.393789 369.859599
+L 491.772526 362.777899
+L 494.151263 354.408617
+L 496.53 344.365478
+L 496.53 344.365478
+" clip-path="url(#pb119e6cd7e)" style="fill: none; stroke: #b44660; stroke-width: 2.4; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_52">
+    <path d="M 44.57 454.84
+L 96.902211 453.85757
+L 142.098211 452.790323
+L 180.158 451.671617
+L 213.460316 450.465107
+L 242.005158 449.201144
+L 265.792526 447.931274
+L 287.201158 446.566812
+L 306.231053 445.124862
+L 322.882211 443.635137
+L 337.154632 442.142647
+L 349.048316 440.70889
+L 360.942 439.06114
+L 370.456947 437.554625
+L 379.971895 435.843837
+L 389.486842 433.884207
+L 396.623053 432.216637
+L 403.759263 430.344875
+L 410.895474 428.22897
+L 418.031684 425.817823
+L 422.789158 424.014363
+L 427.546632 422.025933
+L 432.304105 419.822537
+L 437.061579 417.367325
+L 441.819053 414.614512
+L 446.576526 411.506496
+L 451.334 407.969789
+L 453.712737 406.011969
+L 456.091474 403.909125
+L 458.470211 401.644525
+L 460.848947 399.198756
+L 463.227684 396.549172
+L 465.606421 393.669191
+L 467.985158 390.527393
+L 470.363895 387.086376
+L 472.742632 383.301257
+L 475.121368 379.117705
+L 477.500105 374.469314
+L 479.878842 369.274053
+L 482.257579 363.429384
+L 484.636316 356.805426
+L 487.015053 349.235189
+L 489.393789 340.5003
+L 491.772526 330.309596
+L 494.151263 318.266036
+L 496.53 303.813765
+L 496.53 303.813765
+" clip-path="url(#pb119e6cd7e)" style="fill: none; stroke: #167d8d; stroke-width: 2.4; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_53">
+    <path d="M 375.175241 454.84
+L 375.175241 297.2976
+" clip-path="url(#pb119e6cd7e)" style="fill: none; stroke-dasharray: 4.44,1.92; stroke-dashoffset: 0; stroke: #737373; stroke-width: 1.2"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 44.57 454.84
+L 44.57 297.2976
+" style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 44.57 454.84
+L 496.53 454.84
+" style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="text_30">
+    <text style="font-size: 9px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end; fill: #4c4c4c" x="363.281557" y="323.828994" transform="rotate(-0 363.281557 323.828994)">Switch at p = 0.695</text>
+   </g>
+   <g id="legend_2">
+    <g id="line2d_54">
+     <path d="M 48.17 272.314721
+L 57.17 272.314721
+L 66.17 272.314721
+" style="fill: none; stroke: #b44660; stroke-width: 2.4; stroke-linecap: square"/>
+    </g>
+    <g id="text_31">
+     <text style="font-size: 9px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: start" x="73.37" y="275.464721" transform="rotate(-0 73.37 275.464721)">Grow every interval</text>
+    </g>
+    <g id="line2d_55">
+     <path d="M 48.17 285.525033
+L 57.17 285.525033
+L 66.17 285.525033
+" style="fill: none; stroke: #167d8d; stroke-width: 2.4; stroke-linecap: square"/>
+    </g>
+    <g id="text_32">
+     <text style="font-size: 9px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: start" x="73.37" y="288.675033" transform="rotate(-0 73.37 288.675033)">Invest first, then grow</text>
+    </g>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pc1117ef023">
+   <rect x="44.57" y="44.6976" width="451.96" height="157.5424"/>
+  </clipPath>
+  <clipPath id="pb119e6cd7e">
+   <rect x="44.57" y="297.2976" width="451.96" height="157.5424"/>
+  </clipPath>
+ </defs>
+</svg>
+  <figcaption>Figure 1: My two-state calculation. Top: simulated biomass trajectories conditional on nutrients persisting; the investment policy falls behind initially and overtakes during the fourth interval. Bottom: exact expected log returns under random episode termination. The switch occurs at p ≈ 0.695. The code also checks the optimal value by Bellman iteration; the upper trajectories do not include termination events.</figcaption>
+</figure>
+
+<details>
+  <summary>Reproduce the figure and Bellman check (Python, NumPy and Matplotlib)</summary>
+<pre><code>import numpy as np
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+
+low_multiplier = 1.2
+high_multiplier = 1.3
+low_reward = np.log(low_multiplier)
+high_reward = np.log(high_multiplier)
+threshold = low_reward / high_reward
+
+def rollout(invest, intervals=10):
+    biomass = [1.0]
+    upgraded = False
+    for interval in range(intervals):
+        if invest and interval == 0:
+            multiplier = 1.0
+            upgraded = True
+        else:
+            multiplier = high_multiplier if upgraded else low_multiplier
+        biomass.append(biomass[-1] * multiplier)
+    return np.array(biomass)
+
+def bellman(continuation):
+    value = np.zeros(2)
+    for iteration in range(10000):
+        grow_value = low_reward + continuation * value[0]
+        invest_value = continuation * value[1]
+        updated = np.array([
+            max(grow_value, invest_value),
+            high_reward + continuation * value[1],
+        ])
+        if np.max(np.abs(updated - value)) &lt; 1e-13:
+            return updated
+        value = updated
+    raise RuntimeError("Value iteration did not converge")
+
+probabilities = np.linspace(0, 0.95, 191)
+grow_values = low_reward / (1 - probabilities)
+invest_values = probabilities * high_reward / (1 - probabilities)
+optimal_values = np.array([bellman(chance)[0] for chance in probabilities])
+np.testing.assert_allclose(
+    optimal_values, np.maximum(grow_values, invest_values), atol=3e-12, rtol=0
+)
+print(f"Continuation threshold: {threshold:.6f}")
+for chance in (0.5, 0.9):
+    grow_value = low_reward / (1 - chance)
+    invest_value = chance * high_reward / (1 - chance)
+    print(f"p={chance:.1f}: grow={grow_value:.6f}, invest={invest_value:.6f}")
+
+plt.rcParams.update({"font.size": 10, "svg.fonttype": "none"})
+figure, axes = plt.subplots(2, 1, figsize=(7.2, 6.9))
+colors = ("#b44660", "#167d8d")
+intervals = np.arange(11)
+axes[0].plot(intervals, rollout(False), "o-", color=colors[0], lw=2,
+             markersize=4, label="Grow every interval")
+axes[0].plot(intervals, rollout(True), "o-", color=colors[1], lw=2,
+             markersize=4, label="Invest first, then grow")
+axes[0].set(xlabel="Completed intervals, if nutrients persist",
+            ylabel="Biomass / initial biomass", xlim=(0, 10), ylim=(0.5, 11))
+axes[0].set_xticks(np.arange(0, 11, 2))
+
+axes[1].plot(probabilities, grow_values, color=colors[0], lw=2.4,
+             label="Grow every interval")
+axes[1].plot(probabilities, invest_values, color=colors[1], lw=2.4,
+             label="Invest first, then grow")
+axes[1].axvline(threshold, color="0.45", ls="--", lw=1.2)
+axes[1].text(threshold - 0.025, 4.55, "Switch at p = 0.695",
+             ha="right", va="top", fontsize=9, color="0.3")
+axes[1].set(xlabel="Probability p that nutrients last one more interval",
+            ylabel="Expected total log growth", xlim=(0, 0.95), ylim=(0, 5.2))
+axes[1].set_xticks([0, 0.2, 0.4, 0.6, 0.8, 0.95])
+
+for axis in axes:
+    axis.legend(loc="lower left", bbox_to_anchor=(0, 1.02), ncol=1,
+                borderaxespad=0, frameon=False, fontsize=9)
+    axis.grid(alpha=0.18)
+    axis.spines[["top", "right"]].set_visible(False)
+
+figure.tight_layout(h_pad=3)
+figure.savefig("week7-investment.svg", metadata={"Date": None})</code></pre>
+</details>
+
+<p>This is the connection to deep learning: a Q-network estimates an action’s cumulative future reward from experience, allowing a low-immediate-reward action to be valuable. Mnih and colleagues’ <em>Playing Atari with Deep Reinforcement Learning</em> uses a neural network for that action-value function <a href="#source-3">[3]</a>. Our two-state problem is small enough to solve exactly. It makes the underlying decision visible before introducing a learned neural approximation.</p>
+
+<h2>What I would argue against / where this breaks</h2>
+<p>A useful investment rule does not establish that cells learn a Q-network. My model specifies the payoffs, assumes a permanent upgrade with a one-interval opportunity cost, and omits precursor, protein and energy balances. Real investments take time, face dilution and may alter survival. Also, maximizing <em>expected log biomass</em> differs from maximizing <em>expected biomass</em>; changing that objective can change the preferred action. If nutrient persistence depends on history, the state and Bellman equations need that history. The result is a testable modeling lesson: a growth pause can be rational under delayed reward, but whether it pays depends on the environmental statistics and the stated objective.</p>
+
+<h2>Sources</h2>
+<ol class="src">
+  <li id="source-1">Fangzhou Xiao (2026), <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture13-core.html">CCBS Lecture 13: “The metabolic biomachine,” Sections 23–24</a> — machinery dynamics, finite-horizon growth objectives and the effect of weighting future growth. The random termination model and threshold above are my extension.</li>
+  <li id="source-2">Fangzhou Xiao (2026), <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture14-core.html">CCBS Lecture 14: “The growth biomachine,” Section 11</a> — allocation as investment in productive machinery, and the distinction between a steady optimum and the dynamics needed to reach it.</li>
+  <li id="source-3">Volodymyr Mnih, Koray Kavukcuoglu, David Silver, Alex Graves, Ioannis Antonoglou, Daan Wierstra and Martin Riedmiller (2013), <a href="https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf">“Playing Atari with Deep Reinforcement Learning,”</a> especially Section 2 — discounted return, Bellman action values and their neural-network approximation. Its experiments concern Atari, rather than cellular investment.</li>
+</ol>
+
+</main>
+</body>
+</html>
