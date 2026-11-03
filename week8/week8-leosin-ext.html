@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 8 Extension — The computational loop optimizes the predictor, the experimental loop optimizes the protein</title>
+<style>:root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px;
+    border-bottom:1px solid var(--line); padding-bottom:5px; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:14px 18px; margin:14px 0; }
+  .fig { width:100%; max-width:640px; height:auto; border:1px solid var(--line); border-radius:6px;
+    margin:14px 0; background:#fff; }
+  figure { margin:22px 0; }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; }
+  .src li { margin-bottom:8px; }
+  pre { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:12px 14px; overflow-x:auto; font-size:.78rem; line-height:1.45; }
+  code { font-family:"SF Mono",Consolas,Menlo,monospace; }
+  .eq { display:block; text-align:center; margin:14px 0; }
+  details { margin:12px 0; }
+  summary { cursor:pointer; color:var(--accent); }</style>
+</head>
+<body>
+<div class="wrap">
+<h1>The computational loop optimizes the predictor; the experimental loop optimizes the protein</h1>
+<p class="meta">Leo Sin (&#26045;&#24310;&#24198;) &middot; Week 8, lectures 15&ndash;16 &middot; CCBS 2026 &middot; 2026-11-02</p>
+
+<div class="card"><strong>In one sentence:</strong> lecture 15&rsquo;s warning that a design &ldquo;success rate&rdquo; is meaningless without its denominator becomes quantitative once you write the two feedback loops down &mdash; a compute-only loop hill-climbs the <em>score</em>, so its final designs sit exactly where the predictor is most wrong (high score, mediocre truth), while an experimental loop that lets the assay pick the winner converges to higher true fitness with far fewer proposals.</div>
+
+<h2>The point I am adding</h2>
+<p>Lecture 15 framed protein design as six questions, two of which do most of the work in practice: <em>what counts as success</em> (success rate needs a denominator &mdash; success per designed sequence? per tested variant? per round?) and <em>where the feedback loop closes</em>. A computational design cycle (ProteinMPNN-style: propose &rarr; score in silico &rarr; retrain) closes the loop on the <em>predictor&rsquo;s</em> score; a directed-evolution cycle (mutagenesis &rarr; assay &rarr; pick winner) closes it on <em>measured fitness</em><sup><a href="#s1">1,2</a></sup>. Everyone intuits these drift apart; I wanted a minimal quantitative toy where the drift is visible and measurable, because that is what decides which loop a project should buy.</p>
+<p>The toy: a 10-site walk from wild type, mutation <em>i</em> adding an independent Gaussian fitness contribution but each extra mutation also paying a destabilisation cost (folding epistasis) &mdash; so true fitness peaks at a modest mutational distance. The predictor reports score s = f + noise + &#946;(d/L): near WT it is roughly right, but it drifts systematically upward as designs move away from the training region (extrapolation bias &#946; &gt; 0). Then:</p>
+<p><strong>Loop A (compute-only):</strong> 40 greedy steps accepting any neighbouring variant with a higher score. <strong>Loop B (ML-assisted directed evolution, in the spirit of low-N pick-and-validate<sup><a href="#s1">1,3</a></sup>):</strong> 6 rounds, each proposing 4 variants ranked by the predictor but advancing only the variant the <em>assay</em> says is best. Averaged over 60 seeded landscapes:</p>
+<span class="eq">loop A: final score 0.74, but true fitness only 0.60, at distance d &asymp; 3.6 from WT&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;loop B: true fitness 0.75 at d &asymp; 2.7</span>
+<p>Loop A reads as the better &ldquo;designer&rdquo; by its own metric &mdash; and is the worse one by the only metric the cell cares about. Its final score overstates truth by &asymp; 0.15, which is precisely the size of the noise-plus-bias term it has been selecting for. That is the denominator point in disguise: reported &ldquo;success rates&rdquo; from compute-only loops measure the predictor&rsquo;s optimism, not protein quality<sup><a href="#s2">2</a></sup>; loops that close through the assay convert the same predictor into a search heuristic rather than an oracle &mdash; exactly the division of labour between model and experiment that made low-N directed evolution work<sup><a href="#s1">1</a></sup> and that classical evolution loops never needed a predictor for<sup><a href="#s4">4</a></sup>.</p>
+
+<h2>Work it</h2>
+<figure>
+<svg class="fig" viewBox="0 0 560 340" role="img" aria-label="True fitness trajectories of the two design loops">
+  <path d="M56 310H548" stroke="#d8dee4" stroke-width="1"/><path d="M56 211H548" stroke="#d8dee4" stroke-width="1"/><path d="M56 113H548" stroke="#d8dee4" stroke-width="1"/><path d="M56 14H548" stroke="#d8dee4" stroke-width="1"/>
+  <path d="M56 14V314H548" fill="none" stroke="#5d6872" stroke-width="1.5"/>
+  <text x="48" y="314" font-size="11" fill="#8a94a0" text-anchor="end">-4</text><text x="48" y="215" font-size="11" fill="#8a94a0" text-anchor="end">0</text><text x="48" y="117" font-size="11" fill="#8a94a0" text-anchor="end">4</text><text x="48" y="18" font-size="11" fill="#8a94a0" text-anchor="end">8</text><text x="56" y="332" font-size="11" fill="#8a94a0" text-anchor="middle">0</text><text x="179" y="332" font-size="11" fill="#8a94a0" text-anchor="middle">10</text><text x="302" y="332" font-size="11" fill="#8a94a0" text-anchor="middle">20</text><text x="425" y="332" font-size="11" fill="#8a94a0" text-anchor="middle">30</text><text x="548" y="332" font-size="11" fill="#8a94a0" text-anchor="middle">40</text>
+  <text x="308" y="348" font-size="12" fill="#566" text-anchor="middle">loop iterations (A: design steps; B: evolution rounds)</text>
+  <text x="20" y="177" font-size="12" fill="#566" text-anchor="middle" transform="rotate(-90 20 177)">true fitness f (measured)</text>
+  <path d="M 56.0,211.3 L 68.3,198.8 L 80.6,197.8 L 92.9,196.3 L 105.2,192.4 L 117.5,185.8 L 129.8,185.8 L 142.1,179.3 L 154.4,185.8 L 166.7,180.9 L 179.0,179.3 L 191.3,179.3 L 203.6,179.3 L 215.9,179.3 L 228.2,176.4 L 240.5,177.2 L 252.8,176.0 L 265.1,175.8 L 277.4,175.8 L 289.7,175.8 L 302.0,176.4 L 314.3,175.8 L 326.6,175.8 L 338.9,175.2 L 351.2,175.2 L 363.5,175.2 L 375.8,175.2 L 388.1,175.8 L 400.4,175.8 L 412.7,175.8 L 425.0,176.4 L 437.3,175.8 L 449.6,175.8 L 461.9,175.8 L 474.2,175.8 L 486.5,175.8 L 498.8,175.8 L 511.1,175.8 L 523.4,175.8 L 535.7,175.8 L 548.0,175.8 L 548.0,211.3 L 535.7,211.3 L 523.4,211.3 L 511.1,211.3 L 498.8,211.3 L 486.5,211.3 L 474.2,211.3 L 461.9,211.3 L 449.6,211.3 L 437.3,211.3 L 425.0,211.3 L 412.7,211.3 L 400.4,211.3 L 388.1,211.3 L 375.8,211.3 L 363.5,211.3 L 351.2,211.3 L 338.9,211.3 L 326.6,211.3 L 314.3,211.3 L 302.0,211.3 L 289.7,211.3 L 277.4,211.3 L 265.1,211.3 L 252.8,211.3 L 240.5,211.3 L 228.2,211.3 L 215.9,211.3 L 203.6,211.3 L 191.3,211.3 L 179.0,211.3 L 166.7,211.3 L 154.4,211.3 L 142.1,211.3 L 129.8,211.3 L 117.5,211.3 L 105.2,211.3 L 92.9,211.3 L 80.6,211.3 L 68.3,211.3 L 56.0,211.3 Z" fill="#f2c48d" fill-opacity="0.45" stroke="none"/>
+  <path d="M 56.0,211.3 L 138.0,189.9 L 220.0,182.2 L 302.0,179.2 L 384.0,180.5 L 466.0,177.2 L 548.0,180.5 L 548.0,211.3 L 466.0,211.3 L 384.0,211.3 L 302.0,211.3 L 220.0,211.3 L 138.0,211.3 L 56.0,211.3 Z" fill="#bcd4ee" fill-opacity="0.5" stroke="none"/>
+  <path d="M 56.0,211.3 L 68.3,205.5 L 80.6,204.3 L 92.9,202.6 L 105.2,200.7 L 117.5,199.9 L 129.8,200.1 L 142.1,198.8 L 154.4,198.1 L 166.7,197.3 L 179.0,197.1 L 191.3,197.3 L 203.6,197.2 L 215.9,196.8 L 228.2,196.0 L 240.5,195.3 L 252.8,194.9 L 265.1,194.3 L 277.4,194.4 L 289.7,194.4 L 302.0,194.9 L 314.3,195.2 L 326.6,194.6 L 338.9,193.9 L 351.2,194.3 L 363.5,194.4 L 375.8,194.4 L 388.1,194.8 L 400.4,194.3 L 412.7,194.5 L 425.0,194.9 L 437.3,194.6 L 449.6,194.7 L 461.9,194.9 L 474.2,195.2 L 486.5,195.4 L 498.8,195.5 L 511.1,196.1 L 523.4,196.4 L 535.7,196.6 L 548.0,196.6" fill="none" stroke="#c07818" stroke-width="2.2"/>
+  <path d="M 56.0,211.3 L 138.0,197.9 L 220.0,198.2 L 302.0,193.7 L 384.0,193.9 L 466.0,190.0 L 548.0,192.8" fill="none" stroke="#1f4e79" stroke-width="2.2" stroke-dasharray="7 4"/>
+  <circle cx="548.0,196.6" r="4.5" fill="#c07818"/>
+  <circle cx="548.0,192.8" r="4.5" fill="#1f4e79"/>
+  <rect x="342" y="18" width="12" height="4" fill="#c07818"/><text x="358" y="24" font-size="11" fill="#566">loop A: compute-only (climb predictor score)</text>
+  <rect x="342" y="36" width="12" height="4" fill="#1f4e79"/><text x="358" y="42" font-size="11" fill="#566">loop B: ML-assisted directed evolution</text>
+</svg>
+<figcaption><strong>Figure 1.</strong> Mean true fitness (lines) with interquartile band (shaded), 60 landscapes. Loop A (orange, per design step) keeps proposing and its <em>score</em> rises monotonically &mdash; but true fitness plateaus lower (0.60); loop B (blue, per evolution round, dashed) climbs more slowly yet ends higher (0.75) despite only 24 assays against A&rsquo;s unlimited in-silico evaluations.</figcaption>
+</figure>
+<figure>
+<svg class="fig" viewBox="0 0 560 340" role="img" aria-label="Loop-A final designs: predicted score versus measured fitness">
+  <path d="M56 310H548" stroke="#d8dee4" stroke-width="1"/><path d="M56 211H548" stroke="#d8dee4" stroke-width="1"/><path d="M56 113H548" stroke="#d8dee4" stroke-width="1"/><path d="M56 14H548" stroke="#d8dee4" stroke-width="1"/>
+  <path d="M56 14V314H548" fill="none" stroke="#5d6872" stroke-width="1.5"/>
+  <text x="48" y="314" font-size="11" fill="#8a94a0" text-anchor="end">-4</text><text x="48" y="215" font-size="11" fill="#8a94a0" text-anchor="end">0</text><text x="48" y="117" font-size="11" fill="#8a94a0" text-anchor="end">4</text><text x="48" y="18" font-size="11" fill="#8a94a0" text-anchor="end">8</text>
+<text x="56" y="332" font-size="11" fill="#8a94a0" text-anchor="middle">-4</text><text x="179" y="332" font-size="11" fill="#8a94a0" text-anchor="middle">0</text><text x="302" y="332" font-size="11" fill="#8a94a0" text-anchor="middle">4</text><text x="425" y="332" font-size="11" fill="#8a94a0" text-anchor="middle">8</text>
+  <text x="308" y="348" font-size="12" fill="#566" text-anchor="middle">predictor score s (what loop A actually optimises)</text>
+  <text x="20" y="177" font-size="12" fill="#566" text-anchor="middle" transform="rotate(-90 20 177)">true fitness f (what the assay sees)</text>
+  <path d="M 56.0,310.0 L 425.0,14.0" fill="none" stroke="#999" stroke-width="1.2" stroke-dasharray="4 4"/>
+  <text x="345" y="103" font-size="11" fill="#999">s = f</text>
+  <circle cx="170.1" cy="222.6" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="168.3" cy="223.7" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="297.5" cy="136.1" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="181.9" cy="211.3" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="187.5" cy="211.3" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="208.1" cy="197.8" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="170.7" cy="211.3" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="188.1" cy="211.3" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="180.3" cy="211.3" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="183.0" cy="210.8" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="167.0" cy="223.4" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="239.1" cy="171.2" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="151.6" cy="238.3" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="184.8" cy="211.3" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="212.5" cy="187.4" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="177.2" cy="211.3" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="177.7" cy="211.3" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="197.3" cy="194.2" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="181.6" cy="211.3" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="229.2" cy="175.2" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="279.3" cy="160.0" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="147.7" cy="226.9" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="258.0" cy="160.9" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="236.9" cy="171.1" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="225.1" cy="176.4" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="183.1" cy="211.3" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="214.8" cy="185.8" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="206.2" cy="202.2" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="334.2" cy="102.0" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="185.2" cy="211.7" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="196.8" cy="206.9" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="182.2" cy="209.2" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="195.1" cy="197.8" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="257.7" cy="144.6" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="205.0" cy="188.6" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="199.3" cy="191.5" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="173.6" cy="211.3" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="160.6" cy="215.4" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="295.5" cy="133.7" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="172.6" cy="211.3" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="222.3" cy="171.3" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="225.4" cy="175.8" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="162.0" cy="231.3" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="265.1" cy="154.6" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="160.3" cy="219.4" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="184.1" cy="217.4" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="137.6" cy="240.3" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="216.1" cy="184.9" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="162.9" cy="218.4" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="188.6" cy="205.7" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="141.9" cy="232.9" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="210.4" cy="215.1" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="225.7" cy="171.6" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="235.0" cy="164.2" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="175.8" cy="211.3" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="186.7" cy="212.4" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="185.8" cy="211.3" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="173.9" cy="211.3" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="274.5" cy="154.6" r="3.4" fill="#1f4e79" fill-opacity="0.55"/> <circle cx="217.3" cy="190.8" r="3.4" fill="#1f4e79" fill-opacity="0.55"/>
+  <path d="M 195.9,196.6 H 207.9 M 201.9,190.6 V 202.6" stroke="#b0442c" stroke-width="2"/>
+  <text x="211.9" y="200.6" font-size="11.5" fill="#b0442c">loop-A mean: score 0.74, truth 0.60</text>
+</svg>
+<figcaption><strong>Figure 2.</strong> Where loop A ends: each dot is one landscape&rsquo;s final design in (predictor score, measured fitness). Nearly all dots sit <em>above</em> the s = f line &mdash; the loop reliably finds the region where the predictor over-promises &mdash; and the mean (red cross) shows the systematic gap of &asymp; 0.15 between what was optimised and what was delivered.</figcaption>
+</figure>
+<details><summary>Simulation code (Python, standard library only)</summary>
+<pre><code>#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+&quot;&quot;&quot;
+week8 ext simulation: the computational loop optimizes the predictor,
+the experimental loop optimizes the protein.
+
+Toy fitness landscape: L=10 sites, each mutated away from WT adds an
+independent Gaussian contribution (random per landscape, seed-fixed).
+A proposal is a sequence of single mutations from WT; d = Hamming distance
+from WT, f = true fitness.
+
+Predictor score s = f + noise*xi + beta*(d/L): an imperfect model that is
+biased upward for sequences far from the training region (extrapolation
+bias) -- the failure mode of &quot;success rate needs a denominator&quot;.
+
+Loop A (compute-only feedback): greedy hill-climb on s for 40 steps.
+Loop B (ML-assisted directed evolution): 6 rounds x 4 proposals/round;
+proposals ranked by s among untested neighbors; the round winner is chosen
+by MEASURED f (loop closes through the lab).
+
+Outputs mean +/- band over 60 landscapes, and the cloud of loop-A
+final designs in (s, f) space, as SVG path fragments.
+&quot;&quot;&quot;
+import json, random, math
+
+L = 10
+STEPS_A = 40
+ROUNDS_B, PROPS = 6, 4
+NOISE, BETA = 0.20, 0.50
+DESTAB = 0.15      # per-mutation destabilization cost (folding epistasis)
+N_LAND = 60
+
+def make_land(rng):
+    return [rng.gauss(0, 1) for _ in range(L)]  # per-site mutation effect
+
+def true_f(effs, d):
+    return sum(effs[:d]) - DESTAB * d  # f falls off for d far past optimum
+
+def score(effs, d, rng):
+    return true_f(effs, d) + rng.gauss(0, NOISE) + BETA * (d / L)
+
+def run_A(effs, rng):
+    d, traj = 0, [0.0]
+    for _ in range(STEPS_A):
+        cand = [score(effs, d + 1, rng) for _ in range(3)]
+        if max(cand) &gt; score(effs, d, rng):
+            d += 1
+        traj.append(true_f(effs, d))
+    return d, traj
+
+def run_B(effs, rng):
+    d, traj = 0, [0.0]
+    for _ in range(ROUNDS_B):
+        # propose 4 variants around current d, ranked by predictor;
+        # the round winner is chosen by MEASURED f (loop closes through the lab)
+        props = sorted({min(L, d + k) for k in (1, 2, 3)} | {max(0, d - 1)},
+                       key=lambda x: -score(effs, x, rng))[:PROPS]
+        d = max(props, key=lambda x: true_f(effs, x))
+        traj.append(true_f(effs, d))
+    return d, traj
+
+rng = random.Random(20261102)
+landscapes = [make_land(random.Random(rng.randrange(2**31))) for _ in range(N_LAND)]
+
+trajs_A, trajs_B, finals = [], [], []
+for effs in landscapes:
+    r2 = random.Random(rng.randrange(2**31))
+    dA, tA = run_A(effs, r2)
+    dB, tB = run_B(effs, r2)
+    trajs_A.append(tA); trajs_B.append(tB)
+    finals.append((dA, true_f(effs, dA), score(effs, dA, r2), dB, true_f(effs, dB)))
+
+lenA = STEPS_A + 1
+lenB = ROUNDS_B + 1
+def band(trajs, ln):
+    m = []
+    lo, hi = [], []
+    for t in range(ln):
+        vals = sorted(tr[t] for tr in trajs)
+        m.append(sum(vals) / len(vals))
+        lo.append(vals[max(0, int(0.25 * len(vals)))])
+        hi.append(vals[min(len(vals) - 1, int(0.75 * len(vals)))])
+    return m, lo, hi
+
+mA, loA, hiA = band(trajs_A, lenA)
+mB, loB, hiB = band(trajs_B, lenB)
+
+# SVG geometry, panel 1: x = step (0..40), y = fitness
+W, H, ML, MT = 560, 340, 56, 14
+def xA(t): return ML + t / STEPS_A * (W - ML - 12)
+def yA(v): return MT + (1 - (v + 4) / 12) * (H - MT - 30)
+def xB(r): return ML + r / ROUNDS_B * (W - ML - 12)
+
+def path(xs, ys):
+    return &quot;M &quot; + &quot; L &quot;.join(f&quot;{x:.1f},{y:.1f}&quot; for x, y in zip(xs, ys))
+
+bandA = path([xA(t) for t in range(lenA)], [yA(v) for v in hiA]) + &quot; L &quot; + \
+        &quot; L &quot;.join(f&quot;{xA(t):.1f},{yA(loA[t]):.1f}&quot; for t in reversed(range(lenA))) + &quot; Z&quot;
+bandB = path([xB(r) for r in range(lenB)], [yA(v) for v in hiB]) + &quot; L &quot; + \
+        &quot; L &quot;.join(f&quot;{xB(r):.1f},{yA(loB[r]):.1f}&quot; for r in reversed(range(lenB))) + &quot; Z&quot;
+lineA = path([xA(t) for t in range(lenA)], [yA(v) for v in mA])
+lineB = path([xB(r) for r in range(lenB)], [yA(v) for v in mB])
+
+# panel 2: loop-A final designs in (s, f); WT/reference line f = s - beta*(d/L) omitted,
+# just plot dots + identity-ish reference
+W2 = 560
+def xS(s): return ML + (s + 4) / 16 * (W2 - ML - 12)
+def yF(v): return MT + (1 - (v + 4) / 12) * (H - MT - 30)
+dots = &quot; &quot;.join(f&quot;{xS(s):.1f},{yF(f):.1f}&quot; for _, f, s, _, _ in finals)
+meanA_f = sum(f for _, f, _, _, _ in finals) / N_LAND
+meanA_d = sum(dA for dA, _, _, _, _ in finals) / N_LAND
+meanB_f = sum(f for _, _, _, _, f in finals) / N_LAND
+meanB_d = sum(dB for _, _, _, dB, _ in finals) / N_LAND
+meanA_s = sum(s for _, _, s, _, _ in finals) / N_LAND
+# final means on panel 1
+finA = f&quot;{xA(STEPS_A):.1f},{yA(meanA_f):.1f}&quot;
+finB = f&quot;{xB(ROUNDS_B):.1f},{yA(meanB_f):.1f}&quot;
+
+out = {
+    &quot;meanA_f&quot;: round(meanA_f, 3), &quot;meanA_d&quot;: round(meanA_d, 2),
+    &quot;meanB_f&quot;: round(meanB_f, 3), &quot;meanB_d&quot;: round(meanB_d, 2),
+    &quot;meanA_s&quot;: round(meanA_s, 3),
+    &quot;mA_last3&quot;: [round(v, 2) for v in mA[-3:]],
+    &quot;mB_last3&quot;: [round(v, 2) for v in mB[-3:]],
+    &quot;svg&quot;: {&quot;bandA&quot;: bandA, &quot;bandB&quot;: bandB, &quot;lineA&quot;: lineA, &quot;lineB&quot;: lineB,
+            &quot;dots&quot;: dots, &quot;finA&quot;: finA, &quot;finB&quot;: finB},
+}
+print(json.dumps(out, indent=1))
+</code></pre>
+</details>
+
+<h2>What I would argue against</h2>
+<p><strong>&ldquo;In-silico screening can replace the assay once the predictor is good enough.&rdquo;</strong> The toy says the failure is not accuracy in-sample but <em>selection-induced drift</em>: any greedy loop actively mines the predictor&rsquo;s errors, so the better the loop performs on score, the more the delivered protein lags the prediction &mdash; closing the loop in the computer amplifies exactly the bias it cannot see. <strong>&ldquo;So compute loops are useless.&rdquo;</strong> Also wrong, and Figure 1 is the counterexample in miniature: loop B uses the <em>same</em> biased predictor and still wins, because the assay breaks the feedback at the right place &mdash; the predictor proposes, the experiment disposes<sup><a href="#s1">1,3</a></sup>. The right reading of &ldquo;success rate needs a denominator&rdquo; is therefore not &ldquo;distrust models&rdquo; but &ldquo;match the loop to the quantity you actually need to maximise&rdquo;.</p>
+
+<h2>Sources</h2>
+<ol class="src">
+<li id="s1">Biswas S, Khimulya G, Alley EC, Esvelt KM, Church GM. &ldquo;Low-N protein engineering with data-efficient deep learning.&rdquo; <em>Nat Methods</em> 18, 389&ndash;396 (2021). <a href="https://doi.org/10.1038/s41592-021-01100-y">doi:10.1038/s41592-021-01100-y</a></li>
+<li id="s2">Wu Z, Kan SBJ, Lewis RD, Wittmann BJ, Arnold FH. &ldquo;Machine learning-assisted directed protein evolution with combinatorial libraries.&rdquo; <em>PNAS</em> 116, 8852&ndash;8858 (2019). <a href="https://doi.org/10.1073/pnas.1901979116">doi:10.1073/pnas.1901979116</a></li>
+<li id="s3">Yang KK, Wu Z, Arnold FH. &ldquo;Machine-learning-guided directed evolution for protein engineering.&rdquo; <em>Nat Methods</em> 16, 687&ndash;694 (2019). <a href="https://doi.org/10.1038/s41592-019-0496-6">doi:10.1038/s41592-019-0496-6</a></li>
+<li id="s4">Chen K, Arnold FH. &ldquo;Tuning the activity of an enzyme for unusual environments: sequential random mutagenesis of subtilisin E for catalysis in dimethylformamide.&rdquo; <em>PNAS</em> 90, 5618&ndash;5622 (1993). <a href="https://doi.org/10.1073/pnas.90.12.5618">doi:10.1073/pnas.90.12.5618</a></li>
+</ol>
+</div>
+</body>
+</html>
