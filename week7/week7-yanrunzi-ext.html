@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="Runzi Yan">
+<meta name="week" content="week7">
+<meta name="description" content="A short extension essay on how protein binder design moved from physics-guided scaffold search to AI-guided backbone generation, sequence design and complex prediction.">
+<title>From scoring poses to generating backbones · CCBS 2026</title>
+<style>
+:root{
+  --coral:#EE8168;--peri:#5A73CE;--lime:#8FB043;--plum:#77488C;--teal:#1F9A8E;--rose:#D75567;
+  --blush:#F5E6EB;--lavender:#E6E4F1;--powder:#D0DAE4;--lilac:#D8CDDD;--pinkf:#F8CFCD;--cream:#FAF0D5;
+  --ink:#20201E;--gray:#877F77;--leader:#B8AEA5;--gridc:#EDE7E0;
+  --bg:#FCFAF7;--bg2:#FFFFFF;--fg:var(--ink);--muted:#6E675F;--rule:#E3DCD3;
+  --shadow:0 1px 2px rgba(32,32,30,.05),0 8px 28px rgba(32,32,30,.05);
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Charter,Georgia,"Times New Roman",serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif;
+  --mono:"SF Mono",ui-monospace,Menlo,Consolas,"Liberation Mono",monospace;
+  --maxw:46rem;
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#141513;--bg2:#1C1D1A;--fg:#EDE9E2;--muted:#A9A197;--rule:#33352F;--gridc:#2C2E28;
+  --leader:#5C574F;--ink:#EDE9E2;--gray:#9A9289;--blush:#33262B;--lavender:#262538;--powder:#1F2A33;
+  --lilac:#2E2634;--pinkf:#3A2626;--cream:#332F20;--coral:#F2937D;--peri:#8497E0;--lime:#A6C55C;
+  --plum:#B183C6;--teal:#4FC0B3;--rose:#E8768A;--shadow:0 1px 2px rgba(0,0,0,.35),0 10px 30px rgba(0,0,0,.4)
+}}
+:root[data-theme="dark"]{--bg:#141513;--bg2:#1C1D1A;--fg:#EDE9E2;--muted:#A9A197;--rule:#33352F;--gridc:#2C2E28;--leader:#5C574F;--ink:#EDE9E2;--gray:#9A9289;--blush:#33262B;--lavender:#262538;--powder:#1F2A33;--lilac:#2E2634;--pinkf:#3A2626;--cream:#332F20;--coral:#F2937D;--peri:#8497E0;--lime:#A6C55C;--plum:#B183C6;--teal:#4FC0B3;--rose:#E8768A;--shadow:0 1px 2px rgba(0,0,0,.35),0 10px 30px rgba(0,0,0,.4)}
+:root[data-theme="light"]{--bg:#FCFAF7;--bg2:#FFFFFF;--fg:#20201E;--muted:#6E675F;--rule:#E3DCD3;--gridc:#EDE7E0;--leader:#B8AEA5;--ink:#20201E;--gray:#877F77;--blush:#F5E6EB;--lavender:#E6E4F1;--powder:#D0DAE4;--lilac:#D8CDDD;--pinkf:#F8CFCD;--cream:#FAF0D5;--coral:#EE8168;--peri:#5A73CE;--lime:#8FB043;--plum:#77488C;--teal:#1F9A8E;--rose:#D75567}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--serif);font-size:18px;line-height:1.62;font-kerning:normal;text-rendering:optimizeLegibility}
+.wrap{max-width:78rem;margin:0 auto;padding:0 1.25rem;display:grid;grid-template-columns:14rem minmax(0,1fr);gap:3rem}
+@media(max-width:1000px){.wrap{grid-template-columns:1fr;gap:0}}
+nav.toc{position:sticky;top:0;align-self:start;max-height:100vh;overflow-y:auto;padding:2.5rem 0 3rem;font-family:var(--sans);font-size:.8rem;line-height:1.45}
+nav.toc .brand{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--rose);font-weight:700;margin:0 0 1.1rem}
+nav.toc h2{font-size:.7rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin:0 0 .9rem;font-weight:600}
+nav.toc ol{list-style:none;margin:0;padding:0}nav.toc li{margin:0 0 .1rem}
+nav.toc a{display:block;padding:.28rem .55rem;color:var(--muted);text-decoration:none;border-left:2px solid transparent;border-radius:0 4px 4px 0}
+nav.toc a:hover{color:var(--fg);background:var(--bg2)}nav.toc a.on{color:var(--fg);border-left-color:var(--rose);background:var(--bg2);font-weight:600}
+nav.toc .part{margin:1.1rem 0 .35rem;font-size:.66rem;letter-spacing:.13em;text-transform:uppercase;color:var(--leader);font-weight:700}
+@media(max-width:1000px){nav.toc{position:static;max-height:none;border-bottom:1px solid var(--rule);margin-bottom:1rem;padding:1.5rem 0}}
+main{padding:2.5rem 0 5rem;min-width:0}main>*{max-width:var(--maxw)}main>figure,main>.wide{max-width:62rem}
+h1{font-size:2.48rem;line-height:1.1;letter-spacing:-.025em;margin:.4rem 0 .8rem;font-weight:700;max-width:27ch}
+.sub{font-size:1.13rem;color:var(--muted);margin:0 0 1.35rem;line-height:1.5;max-width:39rem}
+.meta{font-family:var(--sans);font-size:.8rem;color:var(--muted);letter-spacing:.02em;margin:0 0 2.1rem;padding-bottom:1.25rem;border-bottom:1px solid var(--rule)}
+h2{font-size:1.05rem;font-family:var(--sans);font-weight:700;letter-spacing:.02em;margin:2.7rem 0 .25rem;scroll-margin-top:1.5rem}
+h2 .n{color:var(--rose);font-variant-numeric:tabular-nums;margin-right:.5rem}
+h2+.lede{color:var(--muted);font-size:1rem;margin:.1rem 0 1rem}
+p{margin:0 0 1.02rem}a{color:var(--fg);text-underline-offset:2px;text-decoration-color:var(--leader)}a:hover{text-decoration-color:var(--rose)}
+.small{font-size:.86rem;color:var(--muted)}
+.box{border:1px solid var(--rule);background:var(--bg2);border-radius:10px;padding:1rem 1.15rem;margin:1.35rem 0;box-shadow:var(--shadow)}
+.box .lbl{font-family:var(--sans);font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;font-weight:700;margin-bottom:.4rem;display:block}
+.box p:last-child{margin-bottom:0}.box.key{border-left:3px solid var(--rose);background:linear-gradient(94deg,var(--blush),var(--bg2) 65%)}.box.key .lbl{color:var(--rose)}
+.box.note{border-left:3px solid var(--teal);background:linear-gradient(94deg,var(--powder),var(--bg2) 65%)}.box.note .lbl{color:var(--teal)}
+figure{margin:1.7rem 0;padding:1rem 1.05rem;background:var(--bg2);border:1px solid var(--rule);border-radius:10px;box-shadow:var(--shadow)}
+.svgwrap{overflow-x:auto}.svgwrap svg{display:block;width:100%;height:auto;min-width:760px}
+figcaption{font-family:var(--sans);font-size:.78rem;line-height:1.5;color:var(--muted);margin-top:.8rem;max-width:58rem}figcaption b{color:var(--rose)}
+.refs{font-size:.85rem;line-height:1.48}.refs ol{padding-left:1.65rem}.refs li{margin:.55rem 0}.refs .venue{color:var(--muted)}
+sup.c{font-size:.68em;color:var(--rose);font-weight:700}sup.c a{color:inherit;text-decoration:none}
+#tt{position:fixed;right:1rem;bottom:1rem;z-index:50;width:2.4rem;height:2.4rem;border-radius:50%;display:grid;place-items:center;font-size:1rem;background:var(--bg2);color:var(--fg);box-shadow:var(--shadow);border:1px solid var(--rule);cursor:pointer}
+#tt:hover{border-color:var(--rose);color:var(--rose)}
+@media(max-width:700px){h1{font-size:2.05rem}}
+@media print{#tt,nav.toc{display:none}.wrap{display:block}main>*{max-width:none}body{font-size:11pt;background:#fff;color:#20201E}.box,figure{box-shadow:none;break-inside:avoid}a{color:inherit}}
+</style>
+</head>
+<body>
+<button id="tt" title="Toggle light / dark theme" aria-label="Toggle light or dark theme">◐</button>
+<div class="wrap">
+<nav class="toc" id="toc" aria-label="Contents">
+  <div class="brand">CCBS · EST 5053 · Fall 2026</div>
+  <h2>Contents</h2>
+  <ol>
+    <li class="part">The comparison</li>
+    <li><a href="#question">Where does guidance enter?</a></li>
+    <li><a href="#rosetta">Rosetta: search and score</a></li>
+    <li><a href="#ai">AI: generate and evaluate</a></li>
+    <li><a href="#limits">What still needs testing?</a></li>
+    <li><a href="#refs">Sources read</a></li>
+  </ol>
+</nav>
+<main>
+<header>
+  <div style="font-family:var(--sans);font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--rose);font-weight:700">Assignment 2 · Extension mini-essay</div>
+  <h1>From scoring poses to generating backbones</h1>
+  <p class="sub">What machine learning changed in the design pipeline for protein binders</p>
+  <p class="meta">Author: Runzi Yan · Week 7 · CCBS 2026</p>
+</header>
+
+<p id="question">A binder is successful only if it folds, recognizes the intended target surface and produces the required effect. Lecture 15 distinguishes sequence, structure and behavior; I want to push that distinction one step further. <strong>Machine learning's major contribution is a change in where the design pipeline gets its structural proposals.</strong> Rosetta-guided design searches candidates using explicit physical scores, whereas generative models can propose new backbones directly from structural constraints.</p>
+
+<figure class="wide">
+  <div class="svgwrap">
+  <svg viewBox="0 0 1120 470" role="img" aria-labelledby="pipeTitle pipeDesc" xmlns="http://www.w3.org/2000/svg">
+    <title id="pipeTitle">Comparison of Rosetta-guided and AI-guided binder design pipelines</title>
+    <desc id="pipeDesc">Both workflows begin with a target structure and an intended binding site. The Rosetta route searches scaffold libraries and docking poses before sequence optimization. The AI route generates a backbone with RFdiffusion, designs a sequence with ProteinMPNN, and predicts the target complex with AlphaFold 3. Both routes require experimental validation.</desc>
+    <defs>
+      <marker id="arrowRose" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#D75567"/></marker>
+      <marker id="arrowTeal" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#1F9A8E"/></marker>
+    </defs>
+    <rect x="1" y="1" width="1118" height="468" rx="12" fill="none" stroke="var(--rule)"/>
+    <text x="26" y="35" font-family="Arial,sans-serif" font-size="12" font-weight="700" letter-spacing="1.5" fill="var(--muted)">A SHARED DESIGN SPECIFICATION</text>
+    <rect x="26" y="51" width="1068" height="56" rx="9" fill="var(--cream)" stroke="#D8CDAE"/>
+    <text x="46" y="74" font-family="Arial,sans-serif" font-size="15" font-weight="700" fill="#403A2D">Target structure + intended epitope</text>
+    <text x="46" y="93" font-family="Arial,sans-serif" font-size="12" fill="#665F51">Example: block the ACE2-binding surface on the SARS-CoV-2 Spike RBD</text>
+    <text x="26" y="145" font-family="Arial,sans-serif" font-size="12" font-weight="700" letter-spacing="1.2" fill="#5A73CE">PHYSICS-GUIDED DESIGN · ROSSETTA</text>
+    <rect x="26" y="160" width="245" height="105" rx="9" fill="var(--lavender)" stroke="#9A9AC2"/>
+    <text x="43" y="187" font-family="Arial,sans-serif" font-size="15" font-weight="700" fill="#38364F">Scaffold / pose search</text>
+    <text x="43" y="210" font-family="Arial,sans-serif" font-size="12" fill="#55536A">Helical scaffold library</text>
+    <text x="43" y="228" font-family="Arial,sans-serif" font-size="12" fill="#55536A">+ RIF docking against RBD</text>
+    <text x="43" y="247" font-family="Arial,sans-serif" font-size="11" fill="#6C6980">LCB1 route</text>
+    <path d="M272 212 H298" stroke="#D75567" stroke-width="2" marker-end="url(#arrowRose)"/>
+    <rect x="305" y="160" width="235" height="105" rx="9" fill="var(--lavender)" stroke="#9A9AC2"/>
+    <text x="322" y="187" font-family="Arial,sans-serif" font-size="15" font-weight="700" fill="#38364F">Sequence optimization</text>
+    <text x="322" y="210" font-family="Arial,sans-serif" font-size="12" fill="#55536A">Rosetta design and scoring</text>
+    <text x="322" y="228" font-family="Arial,sans-serif" font-size="12" fill="#55536A">Packing · H-bonds · solvation</text>
+    <text x="322" y="247" font-family="Arial,sans-serif" font-size="11" fill="#6C6980">Rank compatible candidates</text>
+    <path d="M541 212 H567" stroke="#D75567" stroke-width="2" marker-end="url(#arrowRose)"/>
+    <rect x="574" y="160" width="235" height="105" rx="9" fill="var(--lavender)" stroke="#9A9AC2"/>
+    <text x="591" y="187" font-family="Arial,sans-serif" font-size="15" font-weight="700" fill="#38364F">Structural checks</text>
+    <text x="591" y="210" font-family="Arial,sans-serif" font-size="12" fill="#55536A">Inspect fold and interface</text>
+    <text x="591" y="228" font-family="Arial,sans-serif" font-size="12" fill="#55536A">Prioritize candidates for tests</text>
+    <text x="591" y="247" font-family="Arial,sans-serif" font-size="11" fill="#6C6980">Prediction is a filter</text>
+    <path d="M810 212 H836" stroke="#D75567" stroke-width="2" marker-end="url(#arrowRose)"/>
+    <rect x="843" y="160" width="251" height="105" rx="9" fill="var(--pinkf)" stroke="#D99A91"/>
+    <text x="860" y="187" font-family="Arial,sans-serif" font-size="15" font-weight="700" fill="#633B3B">Experimental validation</text>
+    <text x="860" y="210" font-family="Arial,sans-serif" font-size="12" fill="#704B49">Expression · binding · specificity</text>
+    <text x="860" y="228" font-family="Arial,sans-serif" font-size="12" fill="#704B49">Test the intended inhibition</text>
+    <text x="860" y="247" font-family="Arial,sans-serif" font-size="11" fill="#805E5A">Then redesign if needed</text>
+
+    <text x="26" y="307" font-family="Arial,sans-serif" font-size="12" font-weight="700" letter-spacing="1.2" fill="#1F9A8E">AI-GUIDED DESIGN · GENERATE, THEN EVALUATE</text>
+    <rect x="26" y="322" width="245" height="105" rx="9" fill="var(--powder)" stroke="#8FB3BD"/>
+    <text x="43" y="349" font-family="Arial,sans-serif" font-size="15" font-weight="700" fill="#244951">RFdiffusion</text>
+    <text x="43" y="372" font-family="Arial,sans-serif" font-size="12" fill="#365B62">Generate a backbone under</text>
+    <text x="43" y="390" font-family="Arial,sans-serif" font-size="12" fill="#365B62">target / motif constraints</text>
+    <text x="43" y="409" font-family="Arial,sans-serif" font-size="11" fill="#4B7076">Denoising-based generation</text>
+    <path d="M272 374 H298" stroke="#1F9A8E" stroke-width="2" marker-end="url(#arrowTeal)"/>
+    <rect x="305" y="322" width="235" height="105" rx="9" fill="var(--powder)" stroke="#8FB3BD"/>
+    <text x="322" y="349" font-family="Arial,sans-serif" font-size="15" font-weight="700" fill="#244951">ProteinMPNN</text>
+    <text x="322" y="372" font-family="Arial,sans-serif" font-size="12" fill="#365B62">Design sequences compatible</text>
+    <text x="322" y="390" font-family="Arial,sans-serif" font-size="12" fill="#365B62">with each proposed backbone</text>
+    <text x="322" y="409" font-family="Arial,sans-serif" font-size="11" fill="#4B7076">Structure-conditioned sequence design</text>
+    <path d="M541 374 H567" stroke="#1F9A8E" stroke-width="2" marker-end="url(#arrowTeal)"/>
+    <rect x="574" y="322" width="235" height="105" rx="9" fill="var(--powder)" stroke="#8FB3BD"/>
+    <text x="591" y="349" font-family="Arial,sans-serif" font-size="15" font-weight="700" fill="#244951">AlphaFold 3</text>
+    <text x="591" y="372" font-family="Arial,sans-serif" font-size="12" fill="#365B62">Predict the binder–target</text>
+    <text x="591" y="390" font-family="Arial,sans-serif" font-size="12" fill="#365B62">complex as a structural check</text>
+    <text x="591" y="409" font-family="Arial,sans-serif" font-size="11" fill="#4B7076">Not sequence generation or proof</text>
+    <path d="M810 374 H836" stroke="#1F9A8E" stroke-width="2" marker-end="url(#arrowTeal)"/>
+    <rect x="843" y="322" width="251" height="105" rx="9" fill="var(--pinkf)" stroke="#D99A91"/>
+    <text x="860" y="349" font-family="Arial,sans-serif" font-size="15" font-weight="700" fill="#633B3B">Experimental validation</text>
+    <text x="860" y="372" font-family="Arial,sans-serif" font-size="12" fill="#704B49">Expression · binding · specificity</text>
+    <text x="860" y="390" font-family="Arial,sans-serif" font-size="12" fill="#704B49">Test the intended inhibition</text>
+    <text x="860" y="409" font-family="Arial,sans-serif" font-size="11" fill="#805E5A">Then redesign if needed</text>
+    <text x="26" y="452" font-family="Arial,sans-serif" font-size="11" fill="var(--muted)">The key shift: the source of backbone proposals changes; both routes still end with experiments.</text>
+  </svg>
+  </div>
+  <figcaption><b>Figure 1. One binder-design task, two sources of guidance.</b> Original schematic drawn for this essay. The Rosetta lane focuses on the de novo RIF route that produced LCB1; the AI lane separates backbone generation, sequence design and complex prediction. These are conceptual stages, not a claim that every project must use exactly this software order.</figcaption>
+</figure>
+
+<h2 id="rosetta"><span class="n">1</span>Rosetta: search a designed structural space</h2>
+<p>Cao and colleagues' 2020 study aimed to design miniproteins that bind the SARS-CoV-2 Spike receptor-binding domain (RBD) and compete with ACE2. It used two Rosetta-guided routes: Blueprint Builder incorporated the ACE2 α-helix into a supporting scaffold (the AHB route), while a de novo route docked a library of small helical scaffolds against the RBD using rotamer interaction fields (RIF). <strong>LCB1 came from this second route</strong>, not from the ACE2-helix design. RIF organizes favorable side-chain rotamer contacts so candidate poses can be searched for shape and chemical complementarity; sequences were then optimized and experimentally screened.<sup class="c"><a href="#r-cao">1</a></sup></p>
+<p>Here the search is guided by approximate physical terms for packing, hydrogen bonds, solvation and geometry. But its result depends on which scaffolds were generated, which poses were sampled and how the score represents the interface. The central question is: <em>which candidate in this chosen structural space scores best?</em></p>
+
+<h2 id="ai"><span class="n">2</span>AI: generate a backbone, then design its sequence</h2>
+<p>RFdiffusion changes the source of that structural space. Fine-tuned from RoseTTAFold for structure denoising, it generates backbones under constraints such as a target surface, a preserved motif or symmetry. Instead of searching only a pre-built library, it proposes new geometries compatible with the task. In binder design, these backbones describe candidate frameworks at the target interface.<sup class="c"><a href="#r-rfd">2</a></sup></p>
+<p>ProteinMPNN takes a proposed backbone and solves a complementary problem: it uses local structural context to design compatible amino-acid sequences. RFdiffusion asks <em>what backbone could satisfy these constraints?</em>; ProteinMPNN asks <em>what sequence could fit this backbone?</em><sup class="c"><a href="#r-mpnn">3</a></sup> Separating these stages allows many sequences to be sampled for a generated backbone, and multiple backbones to be explored for one target.</p>
+<p>Structure prediction then checks consistency. Lecture 15's RFdiffusion workflow uses AlphaFold2 to test whether a designed sequence returns a compatible fold. For a binder, AlphaFold3 can additionally predict the joint binder–target complex, including protein–protein interactions. AF3 is a complex predictor, not a sequence generator, and a plausible predicted interface is not a binding measurement.<sup class="c"><a href="#r-af3">4</a></sup></p>
+
+<h2 id="limits"><span class="n">3</span>The progress is real; function still has to be measured</h2>
+<p>The advance is not that machine learning made Rosetta obsolete: LCB1 shows that physics-guided design can produce a potent, experimentally characterized binder. The change is methodological. A designer can condition a generative model on a target geometry, explore new backbone architectures, design sequences with a separate inverse-folding model, and use complex prediction to prioritize candidates. This widens the proposal stage beyond manually enumerated scaffold topologies.</p>
+<p>But the output is still a <em>candidate</em>. A predicted complex cannot establish expression, solubility, specificity or inhibition. Those require experiments: purification, a direct binding assay with negative controls, and a functional assay of the intended effect. AI has expanded the search; experiments still decide whether a binder works.</p>
+
+<div class="box note">
+  <span class="lbl">The point pushed beyond Lecture 15</span>
+  The most important shift is from <strong>score-guided search within a chosen structural space</strong> to <strong>constraint-guided generation of new structural proposals</strong>. Sequence design and structure prediction then make those proposals testable—but only experiments can turn a predicted binder into a validated one.
+</div>
+
+<h2 id="refs">Sources read</h2>
+<div class="refs">
+<ol>
+  <li id="r-cao">Cao, L. et al. “De novo design of picomolar SARS-CoV-2 miniprotein inhibitors.” <span class="venue"><i>Science</i> 370, 426–431 (2020).</span> <a href="https://doi.org/10.1126/science.abd9909">doi:10.1126/science.abd9909</a> · <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7857403/">Full text</a>. Read for the ACE2-helix and RIF-docking design routes, including LCB1.</li>
+  <li id="r-rfd">Watson, J. L. et al. “De novo design of protein structure and function with RFdiffusion.” <span class="venue"><i>Nature</i> 620, 1089–1100 (2023).</span> <a href="https://doi.org/10.1038/s41586-023-06415-8">doi:10.1038/s41586-023-06415-8</a>. Read for diffusion-based backbone generation under structural constraints.</li>
+  <li id="r-mpnn">Dauparas, J. et al. “Robust deep learning-based protein sequence design using ProteinMPNN.” <span class="venue"><i>Science</i> 378, 49–56 (2022).</span> <a href="https://doi.org/10.1126/science.add2187">doi:10.1126/science.add2187</a>. Read for inverse-folding / sequence design conditioned on backbone structure.</li>
+  <li id="r-af3">Abramson, J. et al. “Accurate structure prediction of biomolecular interactions with AlphaFold 3.” <span class="venue"><i>Nature</i> 630, 493–500 (2024).</span> <a href="https://doi.org/10.1038/s41586-024-07487-w">doi:10.1038/s41586-024-07487-w</a>. Read for joint prediction of biomolecular complexes.</li>
+  <li>CCBS 2026, <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture15-core.html">Lecture 15 · Protein design: from evolutionary clues to testable molecules</a>, especially the sections on design guidance, RFdiffusion, ProteinMPNN and the limits of prediction.</li>
+</ol>
+</div>
+<p class="small">This is an extension rather than a summary of the lecture: it uses LCB1 as an external case to compare where physical and learned methods obtain their design guidance. Figure 1 is an original schematic prepared for this essay; the HTML contains its styling and artwork locally.</p>
+</main>
+</div>
+<script>
+(function(){
+  var root=document.documentElement,button=document.getElementById('tt');
+  button.addEventListener('click',function(){
+    var current=root.getAttribute('data-theme');
+    if(!current){current=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}
+    root.setAttribute('data-theme',current==='dark'?'light':'dark');
+  });
+  var links=Array.prototype.slice.call(document.querySelectorAll('#toc a'));
+  var sections=links.map(function(a){return document.querySelector(a.getAttribute('href'));}).filter(Boolean);
+  function update(){
+    var y=window.scrollY+150,best=0;
+    sections.forEach(function(section,index){if(section.offsetTop<=y)best=index;});
+    links.forEach(function(link,index){link.classList.toggle('on',index===best);});
+  }
+  window.addEventListener('scroll',update,{passive:true});update();
+})();
+</script>
+</body>
+</html>
