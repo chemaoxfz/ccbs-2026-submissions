@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 8 | Why binding alone does not make a protein switch</title>
+<meta name="author" content="Chengwei Jin">
+<meta name="week" content="week8">
+<meta name="description" content="Why preferential ligand binding can redistribute protein conformations, illustrated by experimental distance measurements on a designed hinge.">
+<style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px;
+    border-bottom:1px solid var(--line); padding-bottom:5px; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:14px 18px; margin:14px 0; }
+  .fig { width:100%; border:1px solid var(--line); border-radius:6px; margin:14px 0; }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; }
+
+  :root { --coral:#EE8168; --peri:#5A73CE; --lime:#8FB043; }
+  :root[data-theme="light"] { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; }
+  :root[data-theme="dark"] { --ink:#e8e8e8; --muted:#abbaba; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; }
+  .wrap { max-width:800px; padding-top:40px; }
+  h1 { font-size:1.9rem; line-height:1.2; max-width:25ch; }
+  p { font-size:1rem; }
+  .meta { margin:12px 0 22px; }
+  .card { border-left:3px solid var(--accent); }
+  .math { font-family:"Cambria Math","STIX Two Math","Times New Roman",serif; white-space:nowrap; }
+  .equation { text-align:center; padding:14px 10px; margin:16px 0; background:var(--soft); border-radius:6px; }
+  .equation math { font-family:"Cambria Math","STIX Two Math",serif; font-size:1.3rem; }
+  figure { margin:22px 0 10px; }
+  figure svg { display:block; width:100%; max-width:640px; height:auto; margin:0 auto; }
+  figcaption { line-height:1.5; }
+  sup.c { margin-left:2px; font-size:.72em; }
+  sup.c a { text-decoration:none; }
+  details { margin:14px 0 24px; padding:10px 14px; border:1px solid var(--line); border-radius:6px; }
+  summary { cursor:pointer; font-size:.88rem; color:var(--accent); }
+  details p { font-size:.88rem; }
+  pre { overflow:auto; max-height:440px; padding:14px; background:var(--soft); font-size:.76rem; line-height:1.5; }
+  code { font-family:Consolas,"Courier New",monospace; }
+  .refs { font-size:.88rem; overflow-wrap:anywhere; }
+  .refs li { margin-bottom:12px; }
+  .pdf { font-size:.8rem; margin-left:5px; }
+  #tt { position:fixed; right:16px; bottom:16px; padding:9px 12px; border-radius:6px; border:1px solid var(--line); background:var(--soft); color:var(--ink); cursor:pointer; }
+  @media(max-width:500px) { .wrap { padding:28px 18px 72px; } h1 { font-size:1.6rem; } .card { padding:12px; } }
+  @media print { #tt,details { display:none; } .wrap { padding:0; } }
+
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<main>
+<h1>Why binding alone does not make a protein switch</h1>
+<p class="meta">Chengwei Jin · Week 8 · CCBS 2026 · 3 November 2026</p>
+<p class="card"><strong>One sentence:</strong> In a two-state equilibrium model, binding changes the balance of shapes only if the ligand has different affinities for the two states.</p>
+
+<h2 id="point">The point I am adding</h2>
+<p class="prose">The guest lecture presents sequence design for a target structure and a binder-design workflow.<sup class="c"><a href="#r-guest">1</a></sup> I ask a further question: <strong>what makes ligand binding drive a protein into a different shape?</strong> The design challenge is to connect recognition of an input to redistribution between conformations.</p>
+
+<h2 id="work">Work it</h2>
+<p class="prose">Praetorius and colleagues designed hinge proteins with two structured conformations, X and Y, making Y capable of binding a peptide.<sup class="c"><a href="#r-hinge">2</a></sup> For hinge cs207, they used DEER spectroscopy to estimate the distance distribution between two attached spin labels. I digitized the experimental peak positions in Figure 2C. The dominant distance shifts from approximately <strong>40 Å without peptide to 29 Å with excess peptide</strong>, a shortening of about 11 Å. This supplies experimental evidence of a conformational response.</p>
+
+<figure>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 280" role="img" aria-labelledby="shift-title shift-desc">
+<title id="shift-title">The same hinge changes conformation when peptide is added</title>
+<desc id="shift-desc">cs207, spin-label pair 1. Digitized modal distance is about 40 angstroms without peptide and 29 with peptide, about 11 angstroms shorter.</desc>
+<rect width="560" height="280" rx="8" fill="var(--soft,#f6f8fa)"/>
+<g font-family="Arial,Helvetica,sans-serif" fill="var(--ink,#20201E)">
+<text x="20" y="30" text-anchor="start" font-size="17">cs207 · same protein, same label sites</text>
+<line x1="150" y1="95" x2="510" y2="95" stroke="var(--line,#d8dee4)"/>
+<text x="20" y="101" text-anchor="start" font-size="18">No peptide</text>
+<line x1="328.068670" y1="103" x2="328.068670" y2="221" stroke="var(--muted,#566)" stroke-dasharray="3 5"/>
+<circle cx="328.068670" cy="95" r="7" fill="var(--peri,#5A73CE)"/>
+<text x="341.068670" y="81" text-anchor="start" font-size="18">≈ 40 Å</text>
+<line x1="150" y1="171" x2="510" y2="171" stroke="var(--line,#d8dee4)"/>
+<text x="20" y="177" text-anchor="start" font-size="18">+ peptide</text>
+<line x1="231.502146" y1="179" x2="231.502146" y2="221" stroke="var(--muted,#566)" stroke-dasharray="3 5"/>
+<circle cx="231.502146" cy="171" r="7" fill="var(--coral,#EE8168)"/>
+<text x="244.502146" y="157" text-anchor="start" font-size="18">≈ 29 Å</text>
+<line x1="150" y1="221" x2="510" y2="221" stroke="var(--ink,#20201E)"/>
+<line x1="150" y1="221" x2="150" y2="226" stroke="var(--ink,#20201E)"/>
+<text x="150" y="244" text-anchor="middle" font-size="14">20</text>
+<line x1="240" y1="221" x2="240" y2="226" stroke="var(--ink,#20201E)"/>
+<text x="240" y="244" text-anchor="middle" font-size="14">30</text>
+<line x1="330" y1="221" x2="330" y2="226" stroke="var(--ink,#20201E)"/>
+<text x="330" y="244" text-anchor="middle" font-size="14">40</text>
+<line x1="420" y1="221" x2="420" y2="226" stroke="var(--ink,#20201E)"/>
+<text x="420" y="244" text-anchor="middle" font-size="14">50</text>
+<line x1="510" y1="221" x2="510" y2="226" stroke="var(--ink,#20201E)"/>
+<text x="510" y="244" text-anchor="middle" font-size="14">60</text>
+<text x="330" y="270" text-anchor="middle" font-size="15">Most likely spin-label distance (Å)</text>
+</g></svg>
+<figcaption><strong>Figure 1.</strong> Most likely spin-label separation for cs207, site pair 1. Points are modes digitized from the solid experimental curves in Figure 2C, calibrated against the 20, 40 and 60 Å ticks.<sup class="c"><a href="#r-hinge">2</a></sup> Values are rounded to whole Å. These are peak locations, not mean distances or state fractions.</figcaption>
+</figure>
+
+<p class="prose">A minimal equilibrium model isolates why preference matters. Let <span class="math"><i>R</i>(<i>c</i>)</span> be the total Y-to-X population ratio at free ligand concentration <span class="math"><i>c</i></span>, counting both bound and unbound proteins. Let <span class="math"><i>K</i><sub>X</sub></span> and <span class="math"><i>K</i><sub>Y</sub></span> be the dissociation constants for ligand binding to X and Y. A smaller constant means stronger binding. Assume one binding site per conformation. For either state, its bound population is <span class="math"><i>c</i>/<i>K</i></span> times its unbound population. Adding both populations gives the factor <span class="math">1 + <i>c</i>/<i>K</i></span>. The unbound Y-to-X ratio remains <span class="math"><i>R</i>(0)</span>, its ligand-free value, so</p>
+<div class="equation" aria-label="The Y-to-X population ratio relative to its ligand-free value equals one plus c over K Y, divided by one plus c over K X.">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mfrac><mrow><mi>R</mi><mo>(</mo><mi>c</mi><mo>)</mo></mrow><mrow><mi>R</mi><mo>(</mo><mn>0</mn><mo>)</mo></mrow></mfrac><mo>=</mo><mfrac><mrow><mn>1</mn><mo>+</mo><mi>c</mi><mo>/</mo><msub><mi>K</mi><mi>Y</mi></msub></mrow><mrow><mn>1</mn><mo>+</mo><mi>c</mi><mo>/</mo><msub><mi>K</mi><mi>X</mi></msub></mrow></mfrac><mo>.</mo></mrow></math>
+</div>
+<p class="prose">If <span class="math"><i>K</i><sub>X</sub></span> = <span class="math"><i>K</i><sub>Y</sub></span>, the factors cancel: binding leaves the state ratio unchanged, even when many proteins bind ligand. If <span class="math"><i>K</i><sub>Y</sub></span> &lt; <span class="math"><i>K</i><sub>X</sub></span>, ligand increases the relative population of Y. Thus, in this model, a ligand must <strong>prefer one conformation</strong> to drive redistribution. The equal-affinity comparison is a model prediction, not a control experiment in the paper.</p>
+
+<h2 id="limits">What I would argue against / where this breaks</h2>
+<p class="prose">The distance shift does not determine the two state-specific affinities or how quickly switching occurs. Unequal affinities alone also do not guarantee a large response: the initial state balance and ligand concentration matter. Designing a switch therefore requires coupling ligand recognition to a change in conformational preference, beyond designing two structures that can exist.</p>
+
+<details id="reproduce"><summary>Reproduce the figure and numbers · Python, no extra packages</summary>
+<p>Save the code as <code>reproduce.py</code> and run <code>python reproduce.py</code>. It converts documented pixel coordinates to distances and writes the SVG, CSV and JSON. The coordinates come from the original embedded PDF images. Solid-curve apices were selected by a color mask within isolated peak regions; dashed design predictions were excluded. This reproduces the digitized peak summary, not a reanalysis of raw DEER traces.</p>
+<pre><code>&quot;&quot;&quot;Reproduce the experimental-distance figure with standard-library Python 3.
+
+Source: Praetorius et al. (2023), Science, doi:10.1126/science.adg7731,
+Figure 2C, hinge cs207, label-site pair 1. Solid curves without/with peptide.
+Original PDF raster calibrated against three shared axis ticks. A color mask
+located each solid-curve apex in an isolated region. These are digitized modes
+of experimental-derived distributions, not raw DEER traces or state fractions.
+Round to whole angstroms. No error bars inferred. The project also includes
+analysis/digitize.py to repeat extraction from the source PDF.
+
+Run: python reproduce.py
+Outputs: figures/conformational-shift.svg, modal-distances.csv, results.json.
+&quot;&quot;&quot;
+import csv
+import json
+from pathlib import Path
+
+AXIS_TICKS=[(115.0,20.0),(348.0,40.0),(581.0,60.0)]  # pixel x, angstroms
+PEAK_PIXELS=[(&#x27;No peptide&#x27;,345.5),(&#x27;+ peptide&#x27;,220.5)]
+
+def results():
+    mx=sum(p[0] for p in AXIS_TICKS)/3
+    my=sum(p[1] for p in AXIS_TICKS)/3
+    slope=sum((x-mx)*(y-my) for x,y in AXIS_TICKS)/sum((x-mx)**2 for x,y in AXIS_TICKS)
+    intercept=my-slope*mx
+    rows=[dict(condition=name,peak_pixel=x,mode_A=slope*x+intercept,
+               rounded_mode_A=round(slope*x+intercept)) for name,x in PEAK_PIXELS]
+    return dict(modes=rows,shift_A=rows[0][&#x27;mode_A&#x27;]-rows[1][&#x27;mode_A&#x27;],
+                slope_A_per_pixel=slope,intercept_A=intercept)
+
+def make_svg(data):
+    out=[&#x27;&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 560 280&quot; role=&quot;img&quot; aria-labelledby=&quot;shift-title shift-desc&quot;&gt;&#x27;,
+         &#x27;&lt;title id=&quot;shift-title&quot;&gt;The same hinge changes conformation when peptide is added&lt;/title&gt;&#x27;,
+         &#x27;&lt;desc id=&quot;shift-desc&quot;&gt;cs207, spin-label pair 1. Digitized modal distance is about 40 angstroms without peptide and 29 with peptide, about 11 angstroms shorter.&lt;/desc&gt;&#x27;,
+         &#x27;&lt;rect width=&quot;560&quot; height=&quot;280&quot; rx=&quot;8&quot; fill=&quot;var(--soft,#f6f8fa)&quot;/&gt;&#x27;,
+         &#x27;&lt;g font-family=&quot;Arial,Helvetica,sans-serif&quot; fill=&quot;var(--ink,#20201E)&quot;&gt;&#x27;,
+         &#x27;&lt;text x=&quot;20&quot; y=&quot;30&quot; text-anchor=&quot;start&quot; font-size=&quot;17&quot;&gt;cs207 · same protein, same label sites&lt;/text&gt;&#x27;]
+    for i,row in enumerate(data[&#x27;modes&#x27;]):
+        y=95+i*76
+        x=150+(row[&#x27;mode_A&#x27;]-20)*9
+        color=[&#x27;var(--peri,#5A73CE)&#x27;,&#x27;var(--coral,#EE8168)&#x27;][i]
+        out += [f&#x27;&lt;line x1=&quot;150&quot; y1=&quot;{y}&quot; x2=&quot;510&quot; y2=&quot;{y}&quot; stroke=&quot;var(--line,#d8dee4)&quot;/&gt;&#x27;,
+                f&#x27;&lt;text x=&quot;20&quot; y=&quot;{y+6}&quot; text-anchor=&quot;start&quot; font-size=&quot;18&quot;&gt;{row[&quot;condition&quot;]}&lt;/text&gt;&#x27;,
+                f&#x27;&lt;line x1=&quot;{x:.6f}&quot; y1=&quot;{y+8}&quot; x2=&quot;{x:.6f}&quot; y2=&quot;221&quot; stroke=&quot;var(--muted,#566)&quot; stroke-dasharray=&quot;3 5&quot;/&gt;&#x27;,
+                f&#x27;&lt;circle cx=&quot;{x:.6f}&quot; cy=&quot;{y}&quot; r=&quot;7&quot; fill=&quot;{color}&quot;/&gt;&#x27;,
+                f&#x27;&lt;text x=&quot;{x+13:.6f}&quot; y=&quot;{y-14}&quot; text-anchor=&quot;start&quot; font-size=&quot;18&quot;&gt;≈ {row[&quot;rounded_mode_A&quot;]} Å&lt;/text&gt;&#x27;]
+    out += [&#x27;&lt;line x1=&quot;150&quot; y1=&quot;221&quot; x2=&quot;510&quot; y2=&quot;221&quot; stroke=&quot;var(--ink,#20201E)&quot;/&gt;&#x27;]
+    for tick in range(20,61,10):
+        x=150+(tick-20)*9
+        out += [f&#x27;&lt;line x1=&quot;{x}&quot; y1=&quot;221&quot; x2=&quot;{x}&quot; y2=&quot;226&quot; stroke=&quot;var(--ink,#20201E)&quot;/&gt;&#x27;,
+                f&#x27;&lt;text x=&quot;{x}&quot; y=&quot;244&quot; text-anchor=&quot;middle&quot; font-size=&quot;14&quot;&gt;{tick}&lt;/text&gt;&#x27;]
+    out += [&#x27;&lt;text x=&quot;330&quot; y=&quot;270&quot; text-anchor=&quot;middle&quot; font-size=&quot;15&quot;&gt;Most likely spin-label distance (Å)&lt;/text&gt;&#x27;,&#x27;&lt;/g&gt;&lt;/svg&gt;&#x27;]
+    return &#x27;\n&#x27;.join(out)
+
+def main():
+    here=Path(__file__).resolve().parent
+    root=here.parent if here.name in (&#x27;analysis&#x27;,&#x27;qa&#x27;) else here
+    out=root/&#x27;figures&#x27;;out.mkdir(exist_ok=True)
+    data=results()
+    (out/&#x27;conformational-shift.svg&#x27;).write_text(make_svg(data),encoding=&#x27;utf-8&#x27;)
+    (out/&#x27;results.json&#x27;).write_text(json.dumps(data,indent=2),encoding=&#x27;utf-8&#x27;)
+    with (out/&#x27;modal-distances.csv&#x27;).open(&#x27;w&#x27;,newline=&#x27;&#x27;,encoding=&#x27;utf-8&#x27;) as f:
+        w=csv.DictWriter(f,fieldnames=list(data[&#x27;modes&#x27;][0]));w.writeheader();w.writerows(data[&#x27;modes&#x27;])
+    for row in data[&#x27;modes&#x27;]:print(f&#x27;{row[&quot;condition&quot;]}: {row[&quot;mode_A&quot;]:.3f} A, reported ~{row[&quot;rounded_mode_A&quot;]} A&#x27;)
+    print(f&#x27;Shortening: {data[&quot;shift_A&quot;]:.3f} A, reported ~{round(data[&quot;shift_A&quot;])} A&#x27;)
+
+if __name__==&#x27;__main__&#x27;:main()
+</code></pre>
+</details>
+
+<h2 id="refs">Sources</h2>
+<div class="refs"><ol>
+<li id="r-guest"><i>Introduction to Protein Design</i>. Guest lecture, 29 October 2026, slides 37 and 73. Course file: <code>20261029 protein design.pdf</code>. The conformational-switching question is this essay’s extension.</li>
+<li id="r-hinge">Florian Praetorius et al. <a href="https://doi.org/10.1126/science.adg7731">Design of stimulus-responsive two-state hinge proteins</a>. <i>Science</i> 381, 754–760 (2023). Figure 1A: binding coupled to conformation. Figure 2C: cs207 spin-label distance distributions without and with peptide. The general two-affinity equilibrium equation is derived here; the paper does not measure its equal-affinity counterfactual.</li>
+</ol></div>
+</main>
+</div>
+<button id="tt" type="button" aria-label="Toggle light and dark theme">Theme ◐</button>
+<script>
+(function(){
+ const root=document.documentElement;
+ document.getElementById('tt').addEventListener('click',function(){
+  const dark=root.dataset.theme ? root.dataset.theme==='dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  root.dataset.theme=dark?'light':'dark';
+ });
+})();
+</script>
+</body>
+</html>

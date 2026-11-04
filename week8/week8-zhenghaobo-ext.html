@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 8 — Extension: 42.5% recovery is 3.9× a burial-composition rule</title>
+<meta name="author" content="Zheng Haobo">
+<meta name="week" content="week8">
+<meta name="color-scheme" content="light dark">
+<style>:root { --ink:#20282c; --muted:#53636c; --accent:#355c91; --line:#cbd5dc; --gridc:#e6ebf0;
+  --bg:#fcfcfa; --soft:#f0f4f7; --sans:"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+  --math:"Cambria Math","STIX Two Math","Latin Modern Math","TeX Gyre Pagella Math",serif;
+  --teal:#0b7d70; }
+@media (prefers-color-scheme: dark) {
+:root { --ink:#e5e9ed; --muted:#b0bec9; --accent:#9abcf1; --line:#3c4b58; --gridc:#2b3842;
+  --bg:#151d24; --soft:#1d2933; --sans:"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+  --teal:#63d3c6; }
+}
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans); font-size:16px; line-height:1.45; }
+.wrap { max-width:1160px; margin:0 auto; padding:18px 32px 24px; }
+h1 { font-size:25px; line-height:1.2; margin:0 0 3px; color:var(--accent); }
+.meta { color:var(--muted); font-size:15px; margin:0 0 8px; }
+h2 { font-size:19px; color:var(--accent); margin:9px 0 3px; border-bottom:1px solid var(--line); padding-bottom:4px; }
+p { margin:4px 0; }
+a { color:var(--accent); text-underline-offset:3px; }
+.card { background:var(--soft); border-left:4px solid var(--accent); padding:9px 16px; margin:10px 0 4px; }
+.eq { display:block; background:var(--soft); border-left:3px solid var(--accent);
+  border-radius:0 5px 5px 0; padding:7px 15px 7px 16px; margin:6px 0;
+  font-family:var(--math); font-size:18px; line-height:1.45; overflow-x:auto; }
+.eq .eqrow { display:grid; grid-template-columns:max-content max-content minmax(0,1fr);
+  align-items:baseline; column-gap:.05em; }
+.eq .lhs, .eq .rhs { white-space:nowrap; }
+.eq .rel { padding:0 .24em; font-style:normal; }
+.eq .fn { font-style:normal; letter-spacing:.01em; }
+.eq .frac { display:inline-flex; flex-direction:column; align-items:center;
+  vertical-align:middle; margin:0 .16em 0 .1em; font-size:.78em; line-height:1.02; }
+.eq .frac .num { padding:0 .2em .05em; border-bottom:1px solid currentColor; }
+.eq .frac .den { padding:.06em .2em 0; }
+.eq .sum { display:inline-flex; flex-direction:column; align-items:center;
+  vertical-align:middle; margin:0 .16em 0 .1em; line-height:1; font-size:.94em; }
+.eq .sum .sig { font-size:1.26em; line-height:.92; font-style:normal; }
+.eq .sum .lim { font-size:.6em; line-height:1.06; white-space:nowrap; }
+.eq .sum-limits { justify-content:center; }
+.eq .pred { margin-left:.16em; }
+.eq .rhs .fn { margin-left:.2em; }
+.eq .fn + sub { margin-right:.16em; }
+.eq sub, .eq sup { font-size:.66em; line-height:0; position:relative; vertical-align:baseline; }
+.eq sup { top:-.45em; }
+.eq sub { bottom:-.22em; }
+.eq sub sub { font-size:.78em; bottom:-.06em; }
+.eq-multi { display:grid; grid-template-columns:max-content max-content max-content
+  max-content max-content max-content; align-items:baseline; column-gap:0; row-gap:2px; }
+.eq-multi .eqrow { display:contents; }
+.eq-multi .rhs { padding-right:2.1em; }
+.eq-multi .rhs-aux { padding-right:0; }
+p i:not(.word), p .isig { font-family:var(--math); }
+p .isig { font-style:normal; }
+p sub, p sup { font-size:.67em; line-height:0; position:relative; vertical-align:baseline; }
+p sup { top:-.45em; }
+p sub { bottom:-.22em; }
+p sub sub { font-size:.78em; bottom:-.05em; }
+figure { margin:6px 0 3px; }
+figure svg { display:block; width:100%; height:auto; background:var(--bg); border:1px solid var(--line); border-radius:6px; }
+figcaption { font-size:14px; color:var(--muted); margin:4px 0 0; line-height:1.42; }
+.src { padding-left:20px; font-size:14px; margin:5px 0; line-height:1.45; }
+.src li { margin:4px 0; }
+details { margin:5px 0 3px; border:1px solid var(--line); border-radius:6px; padding:6px 12px; font-size:14.5px; }
+summary { cursor:pointer; color:var(--accent); font-weight:600; }
+details p { margin:6px 0; }
+.tbl { overflow-x:auto; max-width:100%; }
+table.sens { border-collapse:collapse; font-size:14px; margin:9px 0 5px; min-width:520px; }
+table.sens th, table.sens td { padding:3px 13px; border-bottom:1px solid var(--line); text-align:right; }
+table.sens th:first-child, table.sens td:first-child { text-align:left; }
+table.sens th { color:var(--muted); font-weight:600; }
+pre { overflow-x:auto; padding:12px; background:var(--soft); font-size:12.5px; line-height:1.4;
+  margin:8px 0 2px; border-radius:4px; }
+code { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+@media (max-width:720px) {
+  .wrap { padding:18px 16px 40px; }
+  h1 { font-size:23px; }
+  figure { overflow-x:auto; }
+  figure svg { min-width:900px; }
+}</style>
+</head>
+<body><main class="wrap">
+
+<h1>Week 8 — Extension: 42.5% recovery is 3.9&times; a burial-composition rule</h1>
+<p class="meta">Author: Zheng Haobo · Week 8 (2026-11-09) · CCBS 2026</p>
+
+<p class="card"><strong>One sentence:</strong> The eight designs average 42.53% recovery, 3.93&times;
+a rule given only burial class and class composition &mdash; an increment over the rule, not a
+recapitulation of nature, and not separable here from training-set memory.</p>
+
+<h2>The point I am adding</h2>
+<p>The Lecture 15 page reports one number: its first saved ProteinMPNN sequence, T0.1-S1, matches
+39 of the 92 positions, 42.4%. The eight designs average 42.53%, and that batch is what this essay
+measures. Missing is what a rule recovers when told only each position's burial class and that
+class's composition &mdash; not the residue at any position.</p>
+
+<p>Let <i>L</i> = 92 and index the positions <i>i</i> = 1&hellip;<i>L</i>. For a design <i>d</i> and
+the input <i>s</i>, recovery is</p>
+<div class="eq eq-def"><span class="eqrow"><span class="lhs"><span class="fn">rec</span>(<i>d</i>)</span><span class="rel">=</span><span class="rhs"><span class="frac"><span class="num">1</span><span class="den"><i>L</i></span></span><span class="sum sum-limits"><span class="lim"><i>L</i></span><span class="sig">&Sigma;</span><span class="lim"><i>i</i>=1</span></span><span class="pred">1[<i>d</i><sub><i>i</i></sub><span class="rel">=</span><i>s</i><sub><i>i</i></sub>]</span><span class="punct">.</span></span></span></div>
+<p>The only structural quantity used is burial: <i>b</i><sub><i>i</i></sub> counts C&alpha; atoms
+within 8.0 &Aring; of C&alpha; <i>i</i>, skipping |<i>i</i> &minus; <i>j</i>| &le; 2. The classes are
+core <i>b</i><sub><i>i</i></sub> &ge; 8 (22 positions), boundary
+5&ndash;7 (31), surface &le; 4
+(39); these cut-offs are my proxies &mdash; C&alpha; only, no side
+chains or solvent accessibility, and not ProteinMPNN's burial measure &mdash; fixed before any
+recovery is computed.</p>
+
+<p>Three baselines use two information sets. Let <i>f</i><sub><i>a</i></sub> be the input frequency
+of amino acid <i>a</i>. The global rule draws independently from these frequencies. The class rule
+also knows each position's burial class <i>c</i> and draws from its input frequencies
+<i>f</i><sub><i>a</i>|<i>c</i></sub>. Class MAP uses the same information but always chooses the most
+frequent residue. Their expectations are</p>
+<div class="eq eq-multi">
+<span class="eqrow"><span class="lhs"><i>E</i><sub>global</sub></span><span class="rel">=</span><span class="rhs"><span class="sum"><span class="sig">&Sigma;</span><span class="lim"><i>a</i></span></span><i>f</i><sub><i>a</i></sub><sup>2</sup><span class="rel">=</span>7.37%</span><span class="lhs"><i>E</i><sub>class</sub></span><span class="rel">=</span><span class="rhs"><span class="sum"><span class="sig">&Sigma;</span><span class="lim"><i>c</i></span></span><i>w</i><sub><i>c</i></sub><span class="sum"><span class="sig">&Sigma;</span><span class="lim"><i>a</i></span></span><i>f</i><sub><i>a</i>|<i>c</i></sub><sup>2</sup><span class="rel">=</span>10.81%,</span></span>
+<span class="eqrow"><span class="lhs"><i>E</i><sub>MAP</sub></span><span class="rel">=</span><span class="rhs"><span class="sum"><span class="sig">&Sigma;</span><span class="lim"><i>c</i></span></span><i>w</i><sub><i>c</i></sub><span class="fn">max</span><sub><i>a</i></sub><i>f</i><sub><i>a</i>|<i>c</i></sub><span class="rel">=</span>18.48%<span class="punct">.</span></span><span class="lhs lhs-aux"><i>w</i><sub><i>c</i></sub></span><span class="rel">=</span><span class="rhs rhs-aux"><span class="frac frac-sm"><span class="num"><i>n</i><sub><i>c</i></sub></span><span class="den">92</span></span></span></span>
+</div>
+<p>Each position contributes the input frequency of its own residue,
+<i>f</i><sub><i>s</i><sub><i>i</i></sub></sub>; averaged over the 92 positions that is
+<span class="isig">&Sigma;</span><sub><i>a</i></sub> <i>f</i><sub><i>a</i></sub><sup>2</sup>, the global expectation, and
+conditioning on the class repeats the same sum inside each class.</p>
+<p>The eight designs (checkpoint v_48_020, seed 37, two temperatures, four sequences each) span
+40.22&ndash;46.74%, the first recovering 42.39% (the
+page's 42.4%). Against the burial-class expectation the batch is 3.93&times;;
+against global composition, 5.77&times;; against class MAP,
+2.30&times;.</p>
+
+<p>By class, core recovers 63.07% against
+13.22% (4.77&times;), boundary
+36.69% against 9.05%
+(4.05&times;), surface 35.58% against
+10.85% (3.28&times;). The surface also exceeds its
+class expectation, so the excess is present in all three burial classes, not confined to the
+core.</p>
+
+<p>The class rule alone accounts for 10.81/42.53 =
+25.4% of the observed number &mdash; a ratio of two numbers, not a
+decomposition of the other three quarters. The reference makes training data concrete: the input is
+Top7, a 2003 computational design whose sequence RosettaDesign chose on a Rosetta-searched backbone,
+and the data field's <i class="word">native</i> is not a provenance claim. The page adds that the input is not
+held out and may overlap a model's training data.</p>
+
+<p>Read the ratio the other way first: 10.81% is what this crude rule already
+gets, so 42.53% exceeds that baseline &mdash; an increment over composition and burial
+class, not evidence of a large absolute skill. What that increment is made of &mdash; structure,
+training-set memory, or both &mdash; this comparison cannot say.</p>
+
+<h2>Work it</h2>
+<p>The embedded standard-library script recomputes recovery from the eight complete sequences and
+burial from the 92 C&alpha; coordinates. It prints the numbers and this SVG as JSON; it reads no
+files.</p>
+
+<figure>
+<svg viewBox="0 0 1080 360" role="img" aria-labelledby="l15-fig-title l15-fig-desc" xmlns="http://www.w3.org/2000/svg" font-family="var(--sans)"><title id="l15-fig-title">Eight designed sequences against three zero models, and the same comparison inside core, boundary and surface positions</title><desc id="l15-fig-desc">Left panel: expected recovery under the global composition (7.37%), under the burial-class composition (10.81%) and for the class MAP (18.48%); the fourth bar is the mean of the eight designs (42.53%) with each design as a point. Right panel: observed recovery for core (n=22), boundary (n=31) and surface (n=39) positions, each with its own burial-class expectation as a dashed line.</desc><line x1="74.0" y1="257.3" x2="520.0" y2="257.3" stroke="var(--gridc)" stroke-width="1"/><line x1="604.0" y1="257.3" x2="1056.0" y2="257.3" stroke="var(--gridc)" stroke-width="1"/><line x1="74.0" y1="222.7" x2="520.0" y2="222.7" stroke="var(--gridc)" stroke-width="1"/><line x1="604.0" y1="222.7" x2="1056.0" y2="222.7" stroke="var(--gridc)" stroke-width="1"/><line x1="74.0" y1="188.0" x2="520.0" y2="188.0" stroke="var(--gridc)" stroke-width="1"/><line x1="604.0" y1="188.0" x2="1056.0" y2="188.0" stroke="var(--gridc)" stroke-width="1"/><line x1="74.0" y1="153.3" x2="520.0" y2="153.3" stroke="var(--gridc)" stroke-width="1"/><line x1="604.0" y1="153.3" x2="1056.0" y2="153.3" stroke="var(--gridc)" stroke-width="1"/><line x1="74.0" y1="118.7" x2="520.0" y2="118.7" stroke="var(--gridc)" stroke-width="1"/><line x1="604.0" y1="118.7" x2="1056.0" y2="118.7" stroke="var(--gridc)" stroke-width="1"/><line x1="74.0" y1="84.0" x2="520.0" y2="84.0" stroke="var(--gridc)" stroke-width="1"/><line x1="604.0" y1="84.0" x2="1056.0" y2="84.0" stroke="var(--gridc)" stroke-width="1"/><line x1="74.0" y1="49.3" x2="520.0" y2="49.3" stroke="var(--gridc)" stroke-width="1"/><line x1="604.0" y1="49.3" x2="1056.0" y2="49.3" stroke="var(--gridc)" stroke-width="1"/><line x1="210.0" y1="254.5" x2="452.0" y2="254.5" stroke="var(--teal)" stroke-width="1.4" stroke-dasharray="6 5"/><line x1="608.0" y1="246.2" x2="700.0" y2="246.2" stroke="var(--teal)" stroke-width="2" stroke-dasharray="6 5"/><text x="654.0" y="239.2" text-anchor="middle" font-size="14" fill="var(--teal)">13.22</text><line x1="768.0" y1="260.6" x2="860.0" y2="260.6" stroke="var(--teal)" stroke-width="2" stroke-dasharray="6 5"/><text x="814.0" y="253.6" text-anchor="middle" font-size="14" fill="var(--teal)">9.05</text><line x1="928.0" y1="254.4" x2="1020.0" y2="254.4" stroke="var(--teal)" stroke-width="2" stroke-dasharray="6 5"/><text x="974.0" y="247.4" text-anchor="middle" font-size="14" fill="var(--teal)">10.85</text><line x1="74.0" y1="32.0" x2="74.0" y2="292.0" stroke="var(--line)" stroke-width="1"/><line x1="74.0" y1="292.0" x2="520.0" y2="292.0" stroke="var(--line)" stroke-width="1"/><line x1="604.0" y1="32.0" x2="604.0" y2="292.0" stroke="var(--line)" stroke-width="1"/><line x1="604.0" y1="292.0" x2="1056.0" y2="292.0" stroke="var(--line)" stroke-width="1"/><line x1="69.0" y1="292.0" x2="74.0" y2="292.0" stroke="var(--muted)" stroke-width="1"/><text x="65.0" y="297.0" text-anchor="end" font-size="14" fill="var(--muted)">0</text><line x1="599.0" y1="292.0" x2="604.0" y2="292.0" stroke="var(--muted)" stroke-width="1"/><text x="595.0" y="297.0" text-anchor="end" font-size="14" fill="var(--muted)">0</text><line x1="69.0" y1="257.3" x2="74.0" y2="257.3" stroke="var(--muted)" stroke-width="1"/><text x="65.0" y="262.3" text-anchor="end" font-size="14" fill="var(--muted)">10</text><line x1="599.0" y1="257.3" x2="604.0" y2="257.3" stroke="var(--muted)" stroke-width="1"/><text x="595.0" y="262.3" text-anchor="end" font-size="14" fill="var(--muted)">10</text><line x1="69.0" y1="222.7" x2="74.0" y2="222.7" stroke="var(--muted)" stroke-width="1"/><text x="65.0" y="227.7" text-anchor="end" font-size="14" fill="var(--muted)">20</text><line x1="599.0" y1="222.7" x2="604.0" y2="222.7" stroke="var(--muted)" stroke-width="1"/><text x="595.0" y="227.7" text-anchor="end" font-size="14" fill="var(--muted)">20</text><line x1="69.0" y1="188.0" x2="74.0" y2="188.0" stroke="var(--muted)" stroke-width="1"/><text x="65.0" y="193.0" text-anchor="end" font-size="14" fill="var(--muted)">30</text><line x1="599.0" y1="188.0" x2="604.0" y2="188.0" stroke="var(--muted)" stroke-width="1"/><text x="595.0" y="193.0" text-anchor="end" font-size="14" fill="var(--muted)">30</text><line x1="69.0" y1="153.3" x2="74.0" y2="153.3" stroke="var(--muted)" stroke-width="1"/><text x="65.0" y="158.3" text-anchor="end" font-size="14" fill="var(--muted)">40</text><line x1="599.0" y1="153.3" x2="604.0" y2="153.3" stroke="var(--muted)" stroke-width="1"/><text x="595.0" y="158.3" text-anchor="end" font-size="14" fill="var(--muted)">40</text><line x1="69.0" y1="118.7" x2="74.0" y2="118.7" stroke="var(--muted)" stroke-width="1"/><text x="65.0" y="123.7" text-anchor="end" font-size="14" fill="var(--muted)">50</text><line x1="599.0" y1="118.7" x2="604.0" y2="118.7" stroke="var(--muted)" stroke-width="1"/><text x="595.0" y="123.7" text-anchor="end" font-size="14" fill="var(--muted)">50</text><line x1="69.0" y1="84.0" x2="74.0" y2="84.0" stroke="var(--muted)" stroke-width="1"/><text x="65.0" y="89.0" text-anchor="end" font-size="14" fill="var(--muted)">60</text><line x1="599.0" y1="84.0" x2="604.0" y2="84.0" stroke="var(--muted)" stroke-width="1"/><text x="595.0" y="89.0" text-anchor="end" font-size="14" fill="var(--muted)">60</text><line x1="69.0" y1="49.3" x2="74.0" y2="49.3" stroke="var(--muted)" stroke-width="1"/><text x="65.0" y="54.3" text-anchor="end" font-size="14" fill="var(--muted)">70</text><line x1="599.0" y1="49.3" x2="604.0" y2="49.3" stroke="var(--muted)" stroke-width="1"/><text x="595.0" y="54.3" text-anchor="end" font-size="14" fill="var(--muted)">70</text><text transform="translate(24,162.0) rotate(-90)" text-anchor="middle" font-size="15" fill="var(--muted)">% of positions identical to input</text><rect x="78.0" y="266.4" width="64.0" height="25.6" fill="var(--teal)" fill-opacity="0.30" stroke="var(--teal)" stroke-width="1.4"/><text x="110.0" y="256.4" text-anchor="middle" font-size="18" fill="var(--ink)" font-weight="600" stroke="var(--bg)" stroke-width="4" stroke-linejoin="round" paint-order="stroke">7.37</text><text x="110.0" y="314.0" text-anchor="middle" font-size="14" fill="var(--muted)">global</text><text x="110.0" y="332.0" text-anchor="middle" font-size="14" fill="var(--muted)">composition</text><rect x="178.0" y="254.5" width="64.0" height="37.5" fill="var(--teal)" fill-opacity="0.30" stroke="var(--teal)" stroke-width="1.4"/><text x="210.0" y="244.5" text-anchor="middle" font-size="18" fill="var(--ink)" font-weight="600" stroke="var(--bg)" stroke-width="4" stroke-linejoin="round" paint-order="stroke">10.81</text><text x="210.0" y="314.0" text-anchor="middle" font-size="14" fill="var(--muted)">burial</text><text x="210.0" y="332.0" text-anchor="middle" font-size="14" fill="var(--muted)">class</text><rect x="278.0" y="227.9" width="64.0" height="64.1" fill="var(--teal)" fill-opacity="0.30" stroke="var(--teal)" stroke-width="1.4"/><text x="310.0" y="217.9" text-anchor="middle" font-size="18" fill="var(--ink)" font-weight="600" stroke="var(--bg)" stroke-width="4" stroke-linejoin="round" paint-order="stroke">18.48</text><text x="310.0" y="314.0" text-anchor="middle" font-size="14" fill="var(--muted)">class</text><text x="310.0" y="332.0" text-anchor="middle" font-size="14" fill="var(--muted)">MAP</text><rect x="378.0" y="144.6" width="64.0" height="147.4" fill="var(--accent)" fill-opacity="0.30" stroke="var(--accent)" stroke-width="1.4"/><text x="410.0" y="118.0" text-anchor="middle" font-size="18" fill="var(--ink)" font-weight="600" stroke="var(--bg)" stroke-width="4" stroke-linejoin="round" paint-order="stroke">42.53</text><text x="410.0" y="314.0" text-anchor="middle" font-size="14" fill="var(--muted)">ProteinMPNN</text><text x="410.0" y="332.0" text-anchor="middle" font-size="14" fill="var(--muted)">mean of 8</text><circle cx="382.0" cy="152.6" r="3.4" fill="var(--accent)"/><circle cx="390.0" cy="152.6" r="3.4" fill="var(--accent)"/><circle cx="398.0" cy="152.6" r="3.4" fill="var(--accent)"/><circle cx="406.0" cy="148.8" r="3.4" fill="var(--accent)"/><circle cx="414.0" cy="145.0" r="3.4" fill="var(--accent)"/><circle cx="422.0" cy="137.5" r="3.4" fill="var(--accent)"/><circle cx="430.0" cy="137.5" r="3.4" fill="var(--accent)"/><circle cx="438.0" cy="130.0" r="3.4" fill="var(--accent)"/><line x1="372.0" y1="144.6" x2="448.0" y2="144.6" stroke="var(--accent)" stroke-width="2.2"/><rect x="616.0" y="73.4" width="76.0" height="218.6" fill="var(--accent)" fill-opacity="0.30" stroke="var(--accent)" stroke-width="1.4"/><text x="654.0" y="64.4" text-anchor="middle" font-size="18" fill="var(--ink)" font-weight="600" stroke="var(--bg)" stroke-width="4" stroke-linejoin="round" paint-order="stroke">63.07</text><text x="654.0" y="314.0" text-anchor="middle" font-size="15" fill="var(--muted)">core</text><text x="654.0" y="332.0" text-anchor="middle" font-size="14" fill="var(--muted)">n=22 · 4.77×</text><text x="654.0" y="350.0" text-anchor="middle" font-size="14" fill="var(--muted)">b ≥ 8</text><rect x="776.0" y="164.8" width="76.0" height="127.2" fill="var(--accent)" fill-opacity="0.30" stroke="var(--accent)" stroke-width="1.4"/><text x="814.0" y="155.8" text-anchor="middle" font-size="18" fill="var(--ink)" font-weight="600" stroke="var(--bg)" stroke-width="4" stroke-linejoin="round" paint-order="stroke">36.69</text><text x="814.0" y="314.0" text-anchor="middle" font-size="15" fill="var(--muted)">boundary</text><text x="814.0" y="332.0" text-anchor="middle" font-size="14" fill="var(--muted)">n=31 · 4.05×</text><text x="814.0" y="350.0" text-anchor="middle" font-size="14" fill="var(--muted)">5–7</text><rect x="936.0" y="168.7" width="76.0" height="123.3" fill="var(--accent)" fill-opacity="0.30" stroke="var(--accent)" stroke-width="1.4"/><text x="974.0" y="159.7" text-anchor="middle" font-size="18" fill="var(--ink)" font-weight="600" stroke="var(--bg)" stroke-width="4" stroke-linejoin="round" paint-order="stroke">35.58</text><text x="974.0" y="314.0" text-anchor="middle" font-size="15" fill="var(--muted)">surface</text><text x="974.0" y="332.0" text-anchor="middle" font-size="14" fill="var(--muted)">n=39 · 3.28×</text><text x="974.0" y="350.0" text-anchor="middle" font-size="14" fill="var(--muted)">≤ 4</text><line x1="452.0" y1="144.6" x2="452.0" y2="254.5" stroke="var(--muted)" stroke-width="1.2"/><line x1="446.0" y1="144.6" x2="458.0" y2="144.6" stroke="var(--muted)" stroke-width="1.2"/><line x1="446.0" y1="254.5" x2="458.0" y2="254.5" stroke="var(--muted)" stroke-width="1.2"/><text x="462.0" y="205.5" text-anchor="start" font-size="16" fill="var(--accent)" stroke="var(--bg)" stroke-width="4" stroke-linejoin="round" paint-order="stroke">3.93×</text><line x1="442.0" y1="144.6" x2="452.0" y2="144.6" stroke="var(--accent)" stroke-width="1.2" stroke-dasharray="5 4"/></svg>
+<figcaption><strong>Figure 1.</strong> Left: recovery expected from three composition-based rules
+&mdash; global 7.37%, class composition 10.81%, class MAP
+18.48% &mdash; and the mean of the eight designs, 42.53%,
+each design a point. Right: split by class; each bar is observed recovery, each dashed line
+that class's expectation (13.22%,
+9.05%, 10.85%), and class size and
+observed &divide; expected under each bar. Teal: expectations; blue: observed; the bracket is 42.53 &divide;
+10.81 = 3.93&times;. Values come from the embedded
+script; burial is defined in the text.</figcaption>
+</figure>
+
+<details id="reproduce">
+<summary>Reproduce it &mdash; the full script that produced every number and the figure</summary>
+<p><strong>Reproduce it.</strong> Python 3.12; standard library only (<code>json</code>,
+<code>math</code>); no arguments, no file access, no network; prints one JSON object.</p>
+<pre><code class="language-python">"""Zero models for the sequence recovery of eight designed sequences.
+
+Input: one 92-residue experimental backbone (PDB 1QYS, chain A, residues 3-94,
+C-alpha atoms only) and the eight sequences ProteinMPNN proposed for it.
+Recovery of a design is the fraction of the 92 positions where it equals the
+input sequence.  Three expectations are computed for rules that use the input
+composition, optionally conditioned on burial class:
+
+    global composition    sum_a f_a^2
+    burial class          sum_c w_c * sum_a f_{a|c}^2
+    burial class + MAP    sum_c w_c * max_a f_{a|c}
+
+where f_a is the input's amino-acid composition, f_{a|c} the composition inside
+burial class c, and w_c = n_c / 92.
+
+Burial of position i is the number of C-alpha atoms within 8.0 A of i whose
+sequence separation |i - j| exceeds 2.  Classes: core b &gt;= 8, boundary
+5 &lt;= b &lt;= 7, surface b &lt;= 4.
+
+Standard library only.  No arguments, no file access, no network.  The script
+prints exactly one JSON object: the numbers, and a two-panel SVG drawn from
+those same numbers.
+
+Coordinates are stored as integers in units of 0.001 A, so every published
+value is reproduced bit for bit after division by 1000.
+"""
+
+import json
+import math
+
+AMINO_ACIDS = "ACDEFGHIKLMNPQRSTVWY"
+CLASSES = ("core", "boundary", "surface")
+
+# Input sequence, 92 positions (PDB 1QYS, chain A, residues 3-94).
+NATIVE = (
+    "DIQVQVNIDDNGKNFDYTYTVTTESELQKVLNELMDYIKKQGAKRVRISITARTKKEAEKFAAILIKVFAELGYNDINVTFDGDTVTVEGQL"
+)
+
+# C-alpha positions in the order of NATIVE, as integers in 0.001 A.
+COORDS_MILLI = [
+    (-3061,18228,17122), (-823,15562,15568), (-1632,12078,16814),
+    (937,9342,16107), (-196,5735,16561), (2499,3068,16186),
+    (1357,-569,16361), (3976,-3337,16187), (2802,-6960,16220),
+    (5107,-9950,16527), (3876,-13307,17848), (2371,-13029,21330),
+    (3790,-9520,21640), (1872,-6404,20600), (3318,-2920,21197),
+    (1124,181,20939), (2936,3578,20999), (857,6756,21147),
+    (2468,10196,20916), (1136,13706,20489), (3462,16223,18921),
+    (3369,19839,17793), (6552,20818,15953), (7267,18538,12994),
+    (10637,19110,14647), (9900,17055,17762), (8286,14820,15147),
+    (11724,14081,13747), (12465,13094,17348), (9562,10658,17497),
+    (10340,9470,13992), (14011,8779,14631), (12972,7212,17938),
+    (10469,4828,16342), (13021,3824,13725), (15156,2372,16497),
+    (12420,561,18424), (11467,-1188,15177), (15015,-1937,13960),
+    (15498,-3693,17278), (12211,-5606,17359), (12412,-6472,13661),
+    (8706,-7334,13446), (7002,-8787,10405), (4160,-6279,10484),
+    (4320,-2600,11511), (1516,-9,11362), (1776,3725,11785),
+    (-1128,6139,11519), (-899,9893,11887), (-3922,12081,12351),
+    (-3079,15335,10624), (-4983,18636,10528), (-5615,18505,6762),
+    (-5522,15766,4148), (-2758,17624,2269), (-786,17378,5496),
+    (-1528,13653,5853), (58,13318,2423), (3292,15029,3420),
+    (3366,12610,6358), (2651,9602,4194), (5642,10619,2076),
+    (7722,10737,5275), (6501,7412,6591), (7119,5776,3255),
+    (10819,6592,3311), (10959,5442,6942), (9472,1995,6184),
+    (11491,1668,2986), (14818,2483,4606), (14025,22,7431),
+    (13465,-2739,4875), (9685,-2857,4949), (8890,-3090,1246),
+    (5219,-4028,700), (3425,-943,2015), (-255,-26,2299),
+    (-1090,3651,2511), (-4666,4392,3515), (-6197,7793,4034),
+    (-9270,8081,6224), (-10250,11713,6358), (-7275,13427,7979),
+    (-5799,10202,9280), (-3125,8459,7218), (-2314,4826,7917),
+    (909,3414,6508), (1283,-296,7233), (4345,-2181,6106),
+    (5609,-5756,6069), (9264,-6783,6273),
+]
+
+# (id, model score, sequence) of the eight saved designs; the id carries the
+# dimensionless sampling temperature (T0.1 or T0.3).
+CANDIDATES = [
+    ("T0.1-S1", 0.932,
+     "MIKIKVTIKKGDEVLELEKEVESEEEFEKVLEEIKEIIKKLDPKEVTISVTAETPEKAEEYAKILRKLLEELGYKDIKVELEGNTVTVTGKK"),
+    ("T0.1-S2", 0.8626,
+     "MIEITVTIKDGDKTIELKYEVESDEEFKKVLKEIEEIIKKENPEEVTISVKAETPEEAKKYAEILKKLLKKLGYNDIEVKFEGNTVTVTGKK"),
+    ("T0.1-S3", 0.9166,
+     "MIKIKVKIEKEDEVIELEYEVESKEELKKVLEELREIIREKNPPVVEISVTAETPEEAKEYAEILEELLRELGYEEIEVKFEGNTVTVKGRR"),
+    ("T0.1-S4", 0.8415,
+     "MIKITVIIKKGDKEIKLEYEVESEEELEKVLEEIKKIIKEENPPEVTISIEAETPEEAKKYAEKLKKLLKELGYNDIEVKLEGNTVTVTGKK"),
+    ("T0.3-S1", 0.9012,
+     "KILIKVNIEKGNEKIEIEEEVSSDEELEEVLKKIEEIIKKKNPEKVTISVTAETPEEARKYAEKLKKLLEKLGYKDIKVEFNGNTVTVTGKR"),
+    ("T0.3-S2", 0.961,
+     "MKKIKVVIEKDNKKIELDYTVDSDEEFEKVLEELKQVIKKENPPEVSISVTASTPEEAEKYAKILKEFLEELGYKDIEVKFDGNTVTVTGKK"),
+    ("T0.3-S3", 0.9904,
+     "MIKVTVTIKKGDETIEIKREIESKEEFEKVLEELKEIIKEKNPEEVTISVEAETPEEAKEYAEILRNFLEELGYSDITVEFDGNTVTVTGKK"),
+    ("T0.3-S4", 0.9898,
+     "MIKIKVTIKKGDEVLEIEKEVDDEEEFKEVLEELEEIIKERNPEEVTISVTAETPEEAKKYATILEELLRKLGYEDITVTLDGNTVTVTGRR"),
+]
+
+CLASS_LABELS = {"core": "b \u2265 8", "boundary": "5\u20137", "surface": "\u2264 4"}
+
+CA_CUTOFF = 8.0                 # A, C-alpha - C-alpha
+MIN_SEQUENCE_SEPARATION = 3     # keep only |i - j| &gt;= 3
+CORE_MIN = 8                    # core: b &gt;= 8
+BOUNDARY_MIN, BOUNDARY_MAX = 5, 7   # boundary: 5 &lt;= b &lt;= 7; surface: b &lt;= 4
+
+FIG_WIDTH, FIG_HEIGHT = 1080, 360
+PLOT_TOP, PLOT_BASE = 32.0, 292.0
+# Percent.  The tallest bar is the core class at 63.07, so the frame is set to 75
+# to leave room for that bar's value label; grid lines still stop at 70.
+Y_MAX = 75.0
+
+
+# --------------------------------------------------------------------------- model
+
+def burial_counts(coords, cutoff=CA_CUTOFF, min_separation=MIN_SEQUENCE_SEPARATION):
+    """Per position: C-alpha neighbours within `cutoff` A, skipping |i - j| &lt; min_separation."""
+    cut2 = cutoff * cutoff
+    counts = []
+    for i, (xi, yi, zi) in enumerate(coords):
+        n = 0
+        for j, (xj, yj, zj) in enumerate(coords):
+            if abs(i - j) &lt; min_separation:
+                continue
+            dx, dy, dz = xi - xj, yi - yj, zi - zj
+            if dx * dx + dy * dy + dz * dz &lt;= cut2:
+                n += 1
+        counts.append(n)
+    return counts
+
+
+def classify(burial, core_min=CORE_MIN, boundary_min=BOUNDARY_MIN, boundary_max=BOUNDARY_MAX):
+    """core / boundary / surface label for every position."""
+    labels = []
+    for b in burial:
+        if b &gt;= core_min:
+            labels.append("core")
+        elif boundary_min &lt;= b &lt;= boundary_max:
+            labels.append("boundary")
+        else:
+            labels.append("surface")
+    return labels
+
+
+def positions_of(labels, name):
+    return [i for i, lab in enumerate(labels) if lab == name]
+
+
+def composition(sequence, positions):
+    """Amino-acid frequencies over the given positions."""
+    counts = {}
+    for i in positions:
+        counts[sequence[i]] = counts.get(sequence[i], 0) + 1
+    n = len(positions)
+    return {a: c / n for a, c in counts.items()}
+
+
+def expected_global(native):
+    """Designer knows only the input's total composition: sum_a f_a^2."""
+    f = composition(native, range(len(native)))
+    return sum(v * v for v in f.values())
+
+
+def expected_by_class(native, labels):
+    """Designer also knows each position's burial class: sum_c w_c * sum_a f_{a|c}^2."""
+    total, per_class = 0.0, {}
+    for c in CLASSES:
+        pos = positions_of(labels, c)
+        f = composition(native, pos)
+        per_class[c] = sum(v * v for v in f.values())
+        total += (len(pos) / len(native)) * per_class[c]
+    return total, per_class
+
+
+def expected_map(native, labels):
+    """Designer uses the same class frequencies but always chooses their mode: sum_c w_c * max_a f_{a|c}."""
+    total, per_class = 0.0, {}
+    for c in CLASSES:
+        pos = positions_of(labels, c)
+        f = composition(native, pos)
+        per_class[c] = max(f.values())
+        total += (len(pos) / len(native)) * per_class[c]
+    return total, per_class
+
+
+def same_positions(design, native):
+    return sum(1 for a, b in zip(design, native) if a == b)
+
+
+def observed_by_class(designs, native, labels):
+    """Fraction of (design, position) pairs inside each class that match the input."""
+    per_class = {}
+    for c in CLASSES:
+        pos = positions_of(labels, c)
+        hits = sum(1 for d in designs for i in pos if d[i] == native[i])
+        per_class[c] = hits / (len(pos) * len(designs))
+    return per_class
+
+
+def pearson(xs, ys):
+    """Product-moment correlation."""
+    n = len(xs)
+    mx, my = sum(xs) / n, sum(ys) / n
+    sxy = sum((x - mx) * (y - my) for x, y in zip(xs, ys))
+    sxx = sum((x - mx) ** 2 for x in xs)
+    syy = sum((y - my) ** 2 for y in ys)
+    return sxy / math.sqrt(sxx * syy)
+
+
+def sensitivity(burial, native, mean_recovery):
+    """Expectation and ratio when the class cutoffs move.
+
+    slide_all_cutoffs shifts core, boundary and surface together (core &gt;= t,
+    boundary t-3..t-1, surface &lt;= t-4); slide_core_only keeps the surface cut at
+    b &lt;= 4 and moves only the top of the boundary band (core &gt;= t, boundary
+    5..t-1).
+    """
+    rows = []
+    for t in (7, 8, 9):
+        for rule, lo, hi in (("slide_all_cutoffs", t - 3, t - 1),
+                             ("slide_core_only", BOUNDARY_MIN, t - 1)):
+            labels = classify(burial, t, lo, hi)
+            counts = {c: labels.count(c) for c in CLASSES}
+            zero, _ = expected_by_class(native, labels)
+            rows.append({"rule": rule, "core_min": t, "counts": counts,
+                         "zero_model_pct": round(100 * zero, 4),
+                         "ratio": round(mean_recovery / (100 * zero), 4)})
+    return rows
+
+
+# --------------------------------------------------------------------------- figure
+
+def figure_svg(num):
+    """Two panels on one percentage axis: expectations against the designs (left),
+    the same split by burial class (right)."""
+    left_x0, left_x1 = 74.0, 520.0
+    right_x0, right_x1 = 604.0, 1056.0
+    left_centres = [110.0, 210.0, 310.0, 410.0]
+    left_width = 64.0
+    right_centres = [654.0, 814.0, 974.0]
+    right_width = 76.0
+
+    def y(value):
+        return PLOT_BASE - value / Y_MAX * (PLOT_BASE - PLOT_TOP)
+
+    grid = 'stroke="var(--gridc)" stroke-width="1"'
+    axis = 'stroke="var(--line)" stroke-width="1"'
+    tick = 'stroke="var(--muted)" stroke-width="1"'
+
+    def text(x, yv, s, size, colour, anchor="middle", weight=None, halo=False):
+        """One label.  halo=True paints a background-coloured outline first, so a
+        label may sit across a grid line without the line running through it."""
+        w = f' font-weight="{weight}"' if weight else ""
+        h = (f' stroke="var(--bg)" stroke-width="4" stroke-linejoin="round" paint-order="stroke"'
+             if halo else "")
+        return (f'&lt;text x="{x:.1f}" y="{yv:.1f}" text-anchor="{anchor}" font-size="{size}" '
+                f'fill="var({colour})"{w}{h}&gt;{s}&lt;/text&gt;')
+
+    parts = []
+
+    for v in range(10, int(Y_MAX) + 1, 10):
+        yy = y(v)
+        parts.append(f'&lt;line x1="{left_x0}" y1="{yy:.1f}" x2="{left_x1}" y2="{yy:.1f}" {grid}/&gt;')
+        parts.append(f'&lt;line x1="{right_x0}" y1="{yy:.1f}" x2="{right_x1}" y2="{yy:.1f}" {grid}/&gt;')
+
+    baseline = num["zero_models"]["burial_class_pct"]
+    mean_pct = num["recovery"]["mean_pct"]
+
+    # The class expectation drawn across the left panel: its left end is the top of
+    # the second bar, its right end the bottom of the ratio bracket.
+    parts.append(f'&lt;line x1="{left_centres[1]:.1f}" y1="{y(baseline):.1f}" x2="452.0" '
+                 f'y2="{y(baseline):.1f}" stroke="var(--teal)" stroke-width="1.4" stroke-dasharray="6 5"/&gt;')
+
+    for c in CLASSES:
+        cx = right_centres[CLASSES.index(c)]
+        zero = num["by_class"][c]["zero_pct"]
+        parts.append(f'&lt;line x1="{cx - 46:.1f}" y1="{y(zero):.1f}" x2="{cx + 46:.1f}" '
+                     f'y2="{y(zero):.1f}" stroke="var(--teal)" stroke-width="2" stroke-dasharray="6 5"/&gt;')
+        parts.append(text(cx, y(zero) - 7, f"{zero:.2f}", 14, "--teal"))
+
+    for x0, x1 in ((left_x0, left_x1), (right_x0, right_x1)):
+        parts.append(f'&lt;line x1="{x0}" y1="{PLOT_TOP}" x2="{x0}" y2="{PLOT_BASE}" {axis}/&gt;')
+        parts.append(f'&lt;line x1="{x0}" y1="{PLOT_BASE}" x2="{x1}" y2="{PLOT_BASE}" {axis}/&gt;')
+
+    for v in range(0, int(Y_MAX) + 1, 10):
+        yy = y(v)
+        for x0 in (left_x0, right_x0):
+            parts.append(f'&lt;line x1="{x0 - 5}" y1="{yy:.1f}" x2="{x0}" y2="{yy:.1f}" {tick}/&gt;')
+            parts.append(text(x0 - 9, yy + 5, f"{v}", 14, "--muted", "end"))
+
+    parts.append(f'&lt;text transform="translate(24,{(PLOT_TOP + PLOT_BASE) / 2:.1f}) rotate(-90)" '
+                 f'text-anchor="middle" font-size="15" fill="var(--muted)"&gt;'
+                 f'% of positions identical to input&lt;/text&gt;')
+
+    bars = [
+        ("global", "composition", num["zero_models"]["global_pct"], "--teal"),
+        ("burial", "class", baseline, "--teal"),
+        ("class", "MAP", num["zero_models"]["burial_class_map_pct"], "--teal"),
+        ("ProteinMPNN", "mean of 8", mean_pct, "--accent"),
+    ]
+    recoveries = sorted(d["pct"] for d in num["recovery"]["per_design"])
+    for i, (line1, line2, value, colour) in enumerate(bars):
+        cx = left_centres[i]
+        parts.append(f'&lt;rect x="{cx - left_width / 2:.1f}" y="{y(value):.1f}" width="{left_width:.1f}" '
+                     f'height="{PLOT_BASE - y(value):.1f}" fill="var({colour})" fill-opacity="0.30" '
+                     f'stroke="var({colour})" stroke-width="1.4"/&gt;')
+        label_y = y(recoveries[-1]) - 12 if i == 3 else y(value) - 10
+        parts.append(text(cx, label_y, f"{value:.2f}", 18, "--ink", weight="600", halo=True))
+        parts.append(text(cx, PLOT_BASE + 22, line1, 14, "--muted"))
+        parts.append(text(cx, PLOT_BASE + 40, line2, 14, "--muted"))
+
+    # The eight designs as individual points on the last bar, one lane each.
+    for k, value in enumerate(recoveries):
+        parts.append(f'&lt;circle cx="{left_centres[3] - 28 + 8 * k:.1f}" cy="{y(value):.1f}" '
+                     f'r="3.4" fill="var(--accent)"/&gt;')
+    parts.append(f'&lt;line x1="{left_centres[3] - 38:.1f}" y1="{y(mean_pct):.1f}" '
+                 f'x2="{left_centres[3] + 38:.1f}" y2="{y(mean_pct):.1f}" '
+                 f'stroke="var(--accent)" stroke-width="2.2"/&gt;')
+
+    for c in CLASSES:
+        cx = right_centres[CLASSES.index(c)]
+        row = num["by_class"][c]
+        parts.append(f'&lt;rect x="{cx - right_width / 2:.1f}" y="{y(row["observed_pct"]):.1f}" '
+                     f'width="{right_width:.1f}" height="{PLOT_BASE - y(row["observed_pct"]):.1f}" '
+                     f'fill="var(--accent)" fill-opacity="0.30" stroke="var(--accent)" stroke-width="1.4"/&gt;')
+        # Value label above the bar, clamped inside the frame.  The sample size and
+        # ratio are tick text under the bar, where they cannot overflow a 76-wide
+        # bar, and one label line above each bar leaves the 70 grid line clear.
+        top = y(row["observed_pct"])
+        parts.append(text(cx, max(top - 9.0, PLOT_TOP + 15.0), f'{row["observed_pct"]:.2f}', 18,
+                          "--ink", weight="600", halo=True))
+        parts.append(text(cx, PLOT_BASE + 22, c, 15, "--muted"))
+        parts.append(text(cx, PLOT_BASE + 40, f'n={row["n"]} · {row["ratio"]:.2f}×', 14, "--muted"))
+        parts.append(text(cx, PLOT_BASE + 58, CLASS_LABELS[c], 14, "--muted"))
+
+    bracket_x = 452.0
+    y_hi, y_lo = y(mean_pct), y(baseline)
+    parts.append(f'&lt;line x1="{bracket_x}" y1="{y_hi:.1f}" x2="{bracket_x}" y2="{y_lo:.1f}" '
+                 f'stroke="var(--muted)" stroke-width="1.2"/&gt;')
+    for yy in (y_hi, y_lo):
+        parts.append(f'&lt;line x1="{bracket_x - 6:.1f}" y1="{yy:.1f}" x2="{bracket_x + 6:.1f}" '
+                     f'y2="{yy:.1f}" stroke="var(--muted)" stroke-width="1.2"/&gt;')
+    parts.append(text(bracket_x + 10, (y_hi + y_lo) / 2 + 6, f'{num["ratios"]["mean_over_burial"]:.2f}×',
+                      16, "--accent", "start", halo=True))
+    parts.append(f'&lt;line x1="{left_centres[3] + 32:.1f}" y1="{y_hi:.1f}" x2="{bracket_x:.1f}" '
+                 f'y2="{y_hi:.1f}" stroke="var(--accent)" stroke-width="1.2" stroke-dasharray="5 4"/&gt;')
+
+    title = ("Eight designed sequences against three zero models, and the same "
+             "comparison inside core, boundary and surface positions")
+    desc = (f"Left panel: expected recovery under the global composition ({bars[0][2]:.2f}%), "
+            f"under the burial-class composition ({bars[1][2]:.2f}%) and for the class MAP "
+            f"({bars[2][2]:.2f}%); the fourth bar is the mean of the eight designs "
+            f"({mean_pct:.2f}%) with each design as a point. Right panel: observed recovery for "
+            f"core (n={num['by_class']['core']['n']}), boundary (n={num['by_class']['boundary']['n']}) "
+            f"and surface (n={num['by_class']['surface']['n']}) positions, each with its own "
+            f"burial-class expectation as a dashed line.")
+    return (f'&lt;svg viewBox="0 0 {FIG_WIDTH} {FIG_HEIGHT}" role="img" '
+            f'aria-labelledby="l15-fig-title l15-fig-desc" xmlns="http://www.w3.org/2000/svg" '
+            f'font-family="var(--sans)"&gt;'
+            f'&lt;title id="l15-fig-title"&gt;{title}&lt;/title&gt;'
+            f'&lt;desc id="l15-fig-desc"&gt;{desc}&lt;/desc&gt;'
+            + "".join(parts) + '&lt;/svg&gt;')
+
+
+# --------------------------------------------------------------------------- run
+
+def main():
+    native = NATIVE
+    length = len(native)
+    designs = [seq for _, _, seq in CANDIDATES]
+    for seq in designs:
+        if len(seq) != length:
+            raise ValueError("design length differs from the input")
+
+    coords = [(x / 1000.0, y / 1000.0, z / 1000.0) for x, y, z in COORDS_MILLI]
+    burial = burial_counts(coords)
+    labels = classify(burial)
+    counts = {c: labels.count(c) for c in CLASSES}
+
+    global_zero = expected_global(native)
+    class_zero, class_zero_by_class = expected_by_class(native, labels)
+    map_zero, map_zero_by_class = expected_map(native, labels)
+    observed_class = observed_by_class(designs, native, labels)
+
+    per_design = [{"id": cid, "score": score, "same": same_positions(seq, native),
+                   "pct": round(100 * same_positions(seq, native) / length, 4)}
+                  for cid, score, seq in CANDIDATES]
+    recoveries = [d["pct"] for d in per_design]
+    # The mean is taken over the eight full sequences, not over the rounded values.
+    mean_recovery = 100 * sum(d["same"] for d in per_design) / (len(per_design) * length)
+
+    same_across_all = [i for i in range(length) if len({seq[i] for seq in designs}) == 1]
+    same_as_input_always = [i for i in range(length) if all(seq[i] == native[i] for seq in designs)]
+    same_as_input_by_class = {c: sum(1 for i in same_as_input_always if labels[i] == c) for c in CLASSES}
+
+    correlation = pearson([d["score"] for d in per_design], recoveries)
+
+    numbers = {
+        "input": {
+            "positions": length,
+            "designs": len(designs),
+            "backbone": "PDB 1QYS chain A, residues 3-94, C-alpha only",
+            "coordinate_unit_angstrom": 0.001,
+        },
+        "burial": {
+            "rule": "C-alpha neighbours within 8.0 A, excluding |i-j| &lt;= 2",
+            "min": min(burial),
+            "max": max(burial),
+            "mean": round(sum(burial) / length, 4),
+            "counts": counts,
+            "fraction": {c: round(counts[c] / length, 6) for c in CLASSES},
+        },
+        "recovery": {
+            "definition": "fraction of the 92 positions where a design equals the input",
+            "per_design": per_design,
+            "mean_pct": round(mean_recovery, 4),
+            "min_pct": round(min(recoveries), 4),
+            "max_pct": round(max(recoveries), 4),
+            "first": per_design[0],
+        },
+        "zero_models": {
+            "global_pct": round(100 * global_zero, 4),
+            "burial_class_pct": round(100 * class_zero, 4),
+            "burial_class_map_pct": round(100 * map_zero, 4),
+            "per_class_pct": {c: round(100 * class_zero_by_class[c], 4) for c in CLASSES},
+            "per_class_map_pct": {c: round(100 * map_zero_by_class[c], 4) for c in CLASSES},
+        },
+        "by_class": {
+            c: {
+                "n": counts[c],
+                "observed_pct": round(100 * observed_class[c], 4),
+                "zero_pct": round(100 * class_zero_by_class[c], 4),
+                "ratio": round(observed_class[c] / class_zero_by_class[c], 4),
+                "excess_pp": round(100 * (observed_class[c] - class_zero_by_class[c]), 2),
+            } for c in CLASSES
+        },
+        "ratios": {
+            "mean_over_burial": round(mean_recovery / (100 * class_zero), 4),
+            "mean_over_global": round(mean_recovery / (100 * global_zero), 4),
+            "mean_over_map": round(mean_recovery / (100 * map_zero), 4),
+            "burial_share_of_mean_pct": round(100 * (100 * class_zero) / mean_recovery, 2),
+        },
+        "sites": {
+            "same_across_all_designs": len(same_across_all),
+            "same_as_input_in_all_designs": len(same_as_input_always),
+            "same_across_all_but_different_from_input": len(same_across_all) - len(same_as_input_always),
+            "same_as_input_by_class": same_as_input_by_class,
+        },
+        "correlation": {"pearson_score_vs_recovery": round(correlation, 4)},
+        "sensitivity": sensitivity(burial, native, mean_recovery),
+    }
+
+    print(json.dumps({"numbers": numbers, "svg": figure_svg(numbers)}, ensure_ascii=False))
+
+
+if __name__ == "__main__":
+    main()
+</code></pre>
+</details>
+
+<h2>What I would argue against / where this breaks</h2>
+<p>I would argue against two claims this number is often asked to support. First, that 42.53% shows
+the network learned to recapitulate natural sequences: the reference is designed and the input is not
+held out, so that is untested here. Second, that 3.93&times; identifies what the
+network knows about local structure: the baselines use only composition and burial class, so the
+ratio is a distance from a crude rule, not an attribution.</p>
+
+<p>Where it breaks. Burial is a C&alpha; proxy: side chains or solvent accessibility could change the
+classification, and the overall ratio changes little when the cut-off moves (the embedded script
+prints that check); a different burial measure has not been tested here. The compositions are supplied from this same input, so these
+are descriptive baselines, not held-out predictions. The reference may also overlap the training
+data, so this comparison cannot separate generalization from training-set memory. Recovery is not
+folding or function either: the eight sequences have no structure or function test. Recovery numbers
+are also benchmark-dependent: the published 52.4% against 32.9% on 402 monomer backbones is a
+different design protocol, not this batch. None of this says the designs fail; it says what the
+number can be evidence for.</p>
+
+<p>What would change the reading: a null conditioning on more than burial &mdash; local secondary
+structure, a sequence profile &mdash; or a held-out backbone unrelated to any training entry. Without
+one, the increment is only a distance from the rule it is measured against.</p>
+
+<h2>Sources</h2>
+<ul class="src">
+<li><strong>CCBS EST 5053.</strong> &ldquo;Protein design: from evolutionary clues to testable
+molecules,&rdquo; Lecture 15 core page. Westlake University, Fall 2026 (29 October 2026).
+<a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture15-core.html">Public course page</a>;
+<a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture15-core.html#s2">&sect;2</a>,
+<a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture15-core.html#s5">&sect;5</a>,
+<a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture15-core.html#s7">&sect;7</a>,
+<a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture15-core.html#l15-methods">&sect;9</a>.
+Read: &sect;&sect;2, 5, 7, the method cards and the embedded data; supports Top7 provenance, the
+saved-run settings, the recovery definition and the non-held-out caveat; the nulls are computed
+here.</li>
+<li><strong>B. Kuhlman, G. Dantas, G. C. Ireton, G. Varani, B. L. Stoddard, D. Baker.</strong>
+&ldquo;Crystal structure of Top7: a computationally designed protein with a novel fold.&rdquo; RCSB
+PDB entry 1QYS (2003). DOI 10.2210/pdb1QYS/pdb.
+<a href="https://www.rcsb.org/structure/1QYS">Entry 1QYS</a>. Read: summary and reprinted abstract
+(X-ray, 2.50 &Aring;, chain A, 92 modeled and 106 deposited); supports the designed-protein identity; protocol not used.</li>
+<li><strong>J. Dauparas, I. Anishchenko, N. Bennett, et al.</strong> &ldquo;Robust deep
+learning&ndash;based protein sequence design using ProteinMPNN.&rdquo; <em>Science</em>
+378(6615):49&ndash;56 (2022). DOI 10.1126/science.add2187.
+<a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9997061/">PMC9997061</a>. Read: main-text benchmark
+and training paragraphs, Fig. 2A caption, conclusion; supports the different published benchmark, not training membership.</li>
+</ul>
+
+</main></body>
+</html>
