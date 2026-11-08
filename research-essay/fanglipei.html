@@ -1,0 +1,2496 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Resource allocation: constraints, objectives, and algorithms</title>
+<meta name="description" content="Resource allocation as budget, linear program, optimal control and periodic average, with a reproducible example.">
+<style>
+:root{
+  /* Sunset-Sky marks */
+  --coral:#EE8168; --peri:#5A73CE; --lime:#8FB043; --plum:#77488C; --teal:#1F9A8E; --rose:#D75567;
+  /* Sunset-Sky fills */
+  --blush:#F5E6EB; --lavender:#E6E4F1; --powder:#D0DAE4; --lilac:#D8CDDD; --pinkf:#F8CFCD; --cream:#FAF0D5;
+  /* neutrals */
+  --ink:#20201E; --gray:#877F77; --leader:#B8AEA5; --gridc:#EDE7E0;
+
+  --bg:#FCFAF7; --bg2:#FFFFFF; --fg:var(--ink); --muted:#6E675F; --rule:#E3DCD3;
+  /* text-safe variants: same hues, contrast >= 4.5 on --bg and --bg2 */
+  --rose-ink:#B02F42; --coral-ink:#8F3D20; --lime-ink:#5F7A22;
+  --teal-ink:#0B5E57; --peri-ink:#334DA8; --plum-ink:#5F3373; --leader-ink:#6E675F;
+  --shadow:0 1px 2px rgba(32,32,30,.05), 0 8px 28px rgba(32,32,30,.05);
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Charter,Georgia,"Source Han Serif SC","Noto Serif CJK SC","Songti SC",SimSun,serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,"Source Han Sans SC","Noto Sans CJK SC","PingFang SC","Microsoft YaHei",sans-serif;
+  --mono:"SF Mono",ui-monospace,Menlo,Consolas,"Liberation Mono",monospace;
+  --maxw:44rem;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141513; --bg2:#1C1D1A; --fg:#EDE9E2; --muted:#A9A197; --rule:#33352F;
+    --gridc:#2C2E28; --leader:#5C574F; --ink:#EDE9E2; --gray:#9A9289;
+    --blush:#33262B; --lavender:#262538; --powder:#1F2A33; --lilac:#2E2634; --pinkf:#3A2626; --cream:#332F20;
+    --coral:#F2937D; --peri:#8497E0; --lime:#A6C55C; --plum:#B183C6; --teal:#4FC0B3; --rose:#E8768A;
+    --rose-ink:#E8768A; --coral-ink:#F2937D; --lime-ink:#A6C55C;
+    --teal-ink:#4FC0B3; --peri-ink:#8497E0; --plum-ink:#B183C6; --leader-ink:#A9A197;
+    --shadow:0 1px 2px rgba(0,0,0,.35), 0 10px 30px rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141513; --bg2:#1C1D1A; --fg:#EDE9E2; --muted:#A9A197; --rule:#33352F;
+  --gridc:#2C2E28; --leader:#5C574F; --ink:#EDE9E2; --gray:#9A9289;
+  --blush:#33262B; --lavender:#262538; --powder:#1F2A33; --lilac:#2E2634; --pinkf:#3A2626; --cream:#332F20;
+  --coral:#F2937D; --peri:#8497E0; --lime:#A6C55C; --plum:#B183C6; --teal:#4FC0B3; --rose:#E8768A;
+  --rose-ink:#E8768A; --coral-ink:#F2937D; --lime-ink:#A6C55C;
+  --teal-ink:#4FC0B3; --peri-ink:#8497E0; --plum-ink:#B183C6; --leader-ink:#A9A197;
+  --shadow:0 1px 2px rgba(0,0,0,.35), 0 10px 30px rgba(0,0,0,.4);
+}
+:root[data-theme="light"]{
+  --bg:#FCFAF7; --bg2:#FFFFFF; --fg:#20201E; --muted:#6E675F; --rule:#E3DCD3;
+  --gridc:#EDE7E0; --leader:#B8AEA5; --ink:#20201E; --gray:#877F77;
+  --blush:#F5E6EB; --lavender:#E6E4F1; --powder:#D0DAE4; --lilac:#D8CDDD; --pinkf:#F8CFCD; --cream:#FAF0D5;
+  --coral:#EE8168; --peri:#5A73CE; --lime:#8FB043; --plum:#77488C; --teal:#1F9A8E; --rose:#D75567;
+  --rose-ink:#B02F42; --coral-ink:#8F3D20; --lime-ink:#5F7A22;
+  --teal-ink:#0B5E57; --peri-ink:#334DA8; --plum-ink:#5F3373; --leader-ink:#6E675F;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%; scroll-behavior:smooth}
+body{margin:0; background:var(--bg); color:var(--fg);
+  font-family:var(--serif); font-size:18px; line-height:1.62;
+  font-kerning:normal; text-rendering:optimizeLegibility}
+.wrap{max-width:78rem;margin:0 auto;padding:0 1.25rem;display:grid;grid-template-columns:15rem minmax(0,1fr);gap:3rem}
+@media (max-width:1000px){.wrap{grid-template-columns:1fr;gap:0}}
+
+/* ---------- nav ---------- */
+nav.toc{position:sticky;top:0;align-self:start;max-height:100vh;overflow-y:auto;padding:2.5rem 0 3rem;
+  font-family:var(--sans);font-size:.8rem;line-height:1.45}
+nav.toc .brand{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--rose-ink);
+  font-weight:700;margin:0 0 1.1rem}
+nav.toc h2{font-size:.7rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin:0 0 .9rem;font-weight:600}
+nav.toc ol{list-style:none;margin:0;padding:0}
+nav.toc li{margin:0 0 .1rem}
+nav.toc a{display:block;padding:.26rem .55rem;color:var(--muted);text-decoration:none;
+  border-left:2px solid transparent;border-radius:0 4px 4px 0}
+nav.toc a:hover{color:var(--fg);background:var(--bg2)}
+nav.toc a.on{color:var(--fg);border-left-color:var(--rose);background:var(--bg2);font-weight:600}
+nav.toc .part{margin:1.1rem 0 .35rem;font-size:.66rem;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--leader-ink);font-weight:700}
+@media (max-width:1000px){nav.toc{position:static;max-height:none;border-bottom:1px solid var(--rule);margin-bottom:1rem}}
+
+main{padding:2.5rem 0 6rem;min-width:0}
+main > *{max-width:var(--maxw)}
+main > figure, main > .wide, main > .demo, main > .tablewrap{max-width:56rem}
+
+/* ---------- type ---------- */
+h1{font-size:2.5rem;line-height:1.1;letter-spacing:-.02em;margin:.4rem 0 .8rem;font-weight:700;max-width:26ch}
+.sub{font-size:1.18rem;color:var(--muted);margin:0 0 1.6rem;line-height:1.5;max-width:38rem}
+.byline{font-family:var(--sans);font-size:.8rem;color:var(--muted);letter-spacing:.02em;
+  margin-bottom:2.6rem;padding-bottom:1.6rem;border-bottom:1px solid var(--rule)}
+h2{font-size:1.05rem;font-family:var(--sans);font-weight:700;letter-spacing:.02em;margin:3.6rem 0 .2rem;scroll-margin-top:1.5rem}
+h2 .n{color:var(--rose-ink);font-variant-numeric:tabular-nums;margin-right:.5rem}
+h2 + .lede{color:var(--muted);font-size:1.02rem;margin:.1rem 0 1.1rem}
+h3{font-size:.95rem;font-family:var(--sans);font-weight:700;margin:2.1rem 0 .5rem;color:var(--fg)}
+.parthead{margin:4.5rem 0 1.2rem;padding-top:1.6rem;border-top:2px solid var(--fg)}
+.parthead .k{font-family:var(--sans);font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--rose-ink);font-weight:700}
+.parthead h2{font-size:1.8rem;margin:.35rem 0 .3rem;letter-spacing:-.01em;font-family:var(--serif)}
+.parthead p{color:var(--muted);margin:0;font-size:1.02rem}
+p{margin:0 0 1.05rem}
+a{color:var(--fg);text-underline-offset:2px;text-decoration-color:var(--leader)}
+a:hover{text-decoration-color:var(--rose)}
+ul,ol{margin:0 0 1.05rem;padding-left:1.35rem}
+li{margin:.28rem 0}
+hr{border:0;border-top:1px solid var(--rule);margin:2.6rem 0}
+.small{font-size:.88rem;color:var(--muted)}
+
+/* ---------- math ---------- */
+math{font-family:"Latin Modern Math","STIX Two Math","Cambria Math",serif;font-size:1em}
+.m{white-space:nowrap}
+.eq{display:flex;align-items:center;gap:1rem;margin:1.3rem auto;padding:.85rem 1rem;text-align:center;
+    font-size:1.05rem;background:var(--bg2);border:1px solid var(--rule);border-radius:8px;overflow-x:auto}
+.eq > math{flex:1;min-width:max-content;margin:0}
+.eq .tag{flex:none;color:var(--leader-ink);font-family:var(--sans);font-size:.85em}
+.eq b{color:var(--rose-ink);font-weight:700}
+code{font-family:var(--mono);font-size:.9em}
+sub,sup{font-size:.7em;line-height:0}
+
+/* ---------- callouts ---------- */
+.box{border:1px solid var(--rule);background:var(--bg2);border-radius:10px;padding:1rem 1.15rem;
+  margin:1.5rem 0;box-shadow:var(--shadow)}
+.box .lbl{font-family:var(--sans);font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;
+  font-weight:700;margin-bottom:.45rem;display:block}
+.box p:last-child,.box ul:last-child,.box ol:last-child{margin-bottom:0}
+.box.key{border-left:3px solid var(--rose);background:linear-gradient(94deg,var(--blush),var(--bg2) 62%)}
+.box.key .lbl{color:var(--rose-ink)}
+.box.def{border-left:3px solid var(--peri);background:linear-gradient(94deg,var(--lavender),var(--bg2) 62%)}
+.box.def .lbl{color:var(--peri-ink)}
+.box.thm{border-left:3px solid var(--peri);background:linear-gradient(94deg,var(--lavender),var(--bg2) 62%)}
+.box.thm .lbl{color:var(--peri-ink)}
+.box.note{border-left:3px solid var(--lime)}
+.box.note .lbl{color:var(--lime-ink)}
+.box.caution{border-left:3px solid var(--coral);background:linear-gradient(94deg,var(--pinkf),var(--bg2) 62%)}
+.box.caution .lbl{color:var(--coral-ink)}
+.box.hist{border-left:3px solid var(--leader)}
+.box.hist .lbl{color:var(--leader-ink)}
+.box.sim{border-left:3px solid var(--teal);background:linear-gradient(94deg,var(--powder),var(--bg2) 62%)}
+.box.sim .lbl{color:var(--teal-ink)}
+.box.open{border-left:3px solid var(--plum);background:linear-gradient(94deg,var(--lilac),var(--bg2) 62%)}
+.box.open .lbl{color:var(--plum-ink)}
+
+/* ---------- pulled quotations ---------- */
+blockquote.quote{margin:1.4rem 0;padding:.15rem 0 .15rem 1.15rem;border-left:3px solid var(--leader);
+  color:var(--muted);font-style:italic;font-size:.96em;line-height:1.62}
+blockquote.quote cite{display:block;margin-top:.5rem;font-style:normal;font-family:var(--sans);
+  font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--leader-ink)}
+blockquote.quote cite::before{content:"— "}
+
+/* ---------- figures ---------- */
+figure{margin:2rem 0;padding:0}
+figure svg{display:block;width:100%;height:auto;max-width:100%}
+.svgwrap{overflow-x:auto}
+.svgwrap svg{min-width:620px}
+figcaption{font-family:var(--sans);font-size:.8rem;line-height:1.5;color:var(--muted);margin-top:.7rem;max-width:44rem}
+figcaption b{color:var(--fg);font-weight:700}
+svg text.halo{paint-order:stroke;stroke:var(--bg2);stroke-width:3px;stroke-linejoin:round}
+.figbox svg text:not([fill]):not([style*="fill"]){fill:var(--fg)}
+.figbox{background:var(--bg2);border:1px solid var(--rule);border-radius:10px;padding:1.1rem;box-shadow:var(--shadow)}
+
+/* ---------- tables ---------- */
+.tablewrap{overflow-x:auto;margin:1.6rem 0;border:1px solid var(--rule);border-radius:10px;
+  background:var(--bg2);box-shadow:var(--shadow)}
+table{border-collapse:collapse;width:100%;font-family:var(--sans);font-size:.83rem;line-height:1.45}
+th,td{text-align:left;padding:.6rem .8rem;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:700;font-size:.68rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);background:var(--bg)}
+tbody tr:last-child td{border-bottom:0}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+td.hl{color:var(--rose-ink);font-weight:600}
+caption{caption-side:bottom;text-align:left;padding:.7rem .8rem;font-family:var(--sans);font-size:.78rem;color:var(--muted)}
+
+/* ---------- demos ---------- */
+.demo{background:var(--bg2);border:1px solid var(--rule);border-radius:12px;padding:1.15rem;margin:2rem 0;box-shadow:var(--shadow)}
+.demo h4{font-family:var(--sans);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--rose-ink);margin:0 0 .1rem;font-weight:700}
+.demo .dsub{font-family:var(--sans);font-size:.83rem;color:var(--muted);margin:0 0 .9rem}
+.ctl{display:flex;flex-wrap:wrap;gap:.9rem 1.4rem;align-items:center;font-family:var(--sans);font-size:.78rem;margin:.9rem 0 .2rem}
+.ctl label{display:flex;flex-direction:column;gap:.15rem;min-width:9.5rem;flex:1 1 9.5rem}
+.ctl .lv{display:flex;justify-content:space-between;gap:.6rem;color:var(--muted)}
+.ctl .lv b{color:var(--fg);font-family:var(--mono);font-weight:600}
+input[type=range]{width:100%;accent-color:var(--rose);height:1.1rem}
+button{font-family:var(--sans);font-size:.78rem;font-weight:600;padding:.42rem .85rem;border-radius:7px;
+  border:1px solid var(--rule);background:var(--bg);color:var(--fg);cursor:pointer}
+button:hover{border-color:var(--rose);color:var(--rose-ink)}
+button.pri{background:var(--rose-ink);border-color:var(--rose-ink);color:#fff}
+.readout{font-family:var(--mono);font-size:.78rem;color:var(--muted);margin-top:.6rem;line-height:1.7}
+.readout b{color:var(--fg)}
+canvas{display:block;width:100%;height:auto;border-radius:8px}
+
+/* ---------- refs ---------- */
+.refs{font-size:.88rem;line-height:1.5}
+.refs ol{padding-left:1.8rem}
+.refs li{margin:.5rem 0}
+.refs .venue{color:var(--muted)}
+.pdf{font-family:var(--sans);font-size:.68rem;font-weight:700;letter-spacing:.04em;color:var(--teal-ink);
+  border:1px solid var(--teal);border-radius:4px;padding:.02rem .3rem;text-decoration:none;margin-left:.3rem;white-space:nowrap}
+.pdf:hover{background:var(--teal-ink);color:#fff}
+.pdf.no{color:var(--leader-ink);border-color:var(--leader)}
+sup.c{font-size:.68em;color:var(--rose-ink);font-weight:700}
+sup.c a{color:inherit;text-decoration:none}
+
+/* ---------- theme toggle ---------- */
+#tt{position:fixed;right:1rem;bottom:1rem;z-index:50;width:2.4rem;height:2.4rem;border-radius:50%;
+  display:grid;place-items:center;font-size:1rem;background:var(--bg2);box-shadow:var(--shadow);border:1px solid var(--rule)}
+@media print{#tt,nav.toc{display:none}.wrap{display:block}main>*{max-width:none}}
+</style>
+</head>
+<body>
+<button id="tt" title="Toggle light / dark">◐</button>
+<div class="wrap">
+<nav class="toc" id="toc">
+  <div class="brand">C_EST 5053 · COURSE ESSAY</div>
+  <h2>Contents</h2>
+  <ol>
+    <li class="part">I · Theory</li>
+    <li><a href="#s1">1 · Budget: allocation as a constraint</a></li>
+    <li><a href="#s2">2 · Steady state: capacity constraints and a linear slice</a></li>
+    <li><a href="#s3">3 · Dynamics: optimal control and costates</a></li>
+    <li class="part">II · Algorithms</li>
+    <li><a href="#s4">4 · Choosing among algorithms</a></li>
+    <li><a href="#s5">5 · A reproducible example</a></li>
+    <li class="part">III · Practice</li>
+    <li><a href="#s6">6 · Error list and checklist</a></li>
+    <li><a href="#refs">References</a></li>
+  </ol>
+</nav>
+<main>
+
+<h1>Resource allocation: constraints, objectives, and algorithms</h1>
+<p class="sub">From proteome budgets to optimal control. Theory gives the feasible set and the objective; algorithms give the solution and its verification.</p>
+<p class="byline">Fang Lipei · 20261203497 · course essay</p>
+
+<p>Resource allocation is a narrow mathematical problem: under a total budget, divide limited resources among competing uses. In a cell the resources are proteome, energy and time; in a factory they are budget, equipment and labour. The form is the same, a choice under constraints.</p>
+
+<p>The same problem has three levels. The steady-state level asks what the shares are in a given environment. The dynamic level asks how the shares change from an old environment to a new one, which is an optimal control problem. The fluctuation level asks which policy maximises long-run growth when the environment switches repeatedly, which is a periodic-average or stochastic control problem. All three share the same budget constraint. They differ in time axis and objective.</p>
+
+<p>This essay runs a two-sector model through all three levels. Section 1 writes allocation as a budget. Section 2 states the steady-state problem and explains why its linear programming version is a slice rather than an equivalent. Section 3 gives the costate and the switching function, and states what is and is not proved. Section 4 compares algorithm families and their conditions. Section 5 works a reproducible example. Section 6 lists common errors and a checklist. Every number is produced by <code>analysis/run_analysis.py</code>.</p>
+
+<div class="box note">
+<span class="lbl">How to read this</span>
+<p>A reader who wants only the methods can stop at the algorithm table at the end of Section 4. A reader who wants only the example can go to Section 5. Sections 2 and 3 each contain a few core formulas, and the rest is explanation. The literature index and checksums are in <code>literature/INDEX.md</code>. Parameters, code, and run instructions are in <code>analysis/README.md</code>.</p>
+</div>
+
+<div class="parthead">
+  <div class="k">Part I</div>
+  <h2>Theory</h2>
+  <p>Write the constraint, then the objective, then talk about optimality. Reverse the order and the conclusion drifts.</p>
+</div>
+
+<h2 id="s1"><span class="n">1</span>Budget: allocation as a constraint</h2>
+<p class="lede">Shares summing to one is an accounting identity, not a mechanism.</p>
+
+<p>Coarse-grain the proteome into three sectors: ribosomes <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>φ</mi><mi>R</mi></msub></math>, biosynthetic enzymes <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>φ</mi><mi>A</mi></msub></math>, and fixed functions <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>φ</mi><mi>Q</mi></msub></math>. The budget is</p>
+
+<div class="eq">
+  <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+    <msub><mi>φ</mi><mi>R</mi></msub><mo>+</mo><msub><mi>φ</mi><mi>A</mi></msub><mo>+</mo>
+    <msub><mi>φ</mi><mi>Q</mi></msub><mo>=</mo><mn>1</mn>
+  </math>
+  <span class="tag">(1)</span>
+</div>
+
+<p>This equation says only that the three parts add to one. It does not say which part should be large, and it does not say which one limits the others. Treating an accounting identity as a mechanism is a common error in this literature. The constraint tells us what can be chosen. The mechanism tells us why this point is chosen.</p>
+
+<p>Growth is set by the tightest sector. Ribosomes provide translational capacity, enzymes provide biosynthetic capacity, and growth takes the smaller of the two:</p>
+
+<div class="eq">
+  <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+    <mi>μ</mi><mo>=</mo><mi>k</mi><msub><mi>φ</mi><mi>R</mi></msub>
+    <mo>⋅</mo><mi mathvariant="normal">min</mi><mo>(</mo><mn>1</mn><mo>,</mo>
+    <mfrac><msub><mi>φ</mi><mi>A</mi></msub><msubsup><mi>φ</mi><mi>A</mi><mo>*</mo></msubsup></mfrac>
+    <mo>)</mo>
+  </math>
+  <span class="tag">(2)</span>
+</div>
+
+<p>Here <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>k</mi></math> is the translational capacity per unit ribosome share, and <math xmlns="http://www.w3.org/1998/Math/MathML"><msubsup><mi>φ</mi><mi>A</mi><mo>*</mo></msubsup></math> is the enzyme share required in the current environment. Taking the smaller is not a mathematical trick. Each pathway has a capacity ceiling, and the realised flux cannot exceed the smaller of the two. This form turns the question where the limitation sits into a computable object.</p>
+
+<p>The two sides differ. When the enzyme share is above requirement, extra enzyme does not raise growth, because the enzyme term is capped at one, and it only occupies budget that ribosomes could use. When the enzyme share is below requirement, growth is bilinear in the two shares, so the trade-off is not symmetric: the marginal return per unit share depends on the current shares. A model that treats both sides as linear misses this.</p>
+
+<p>Observationally, shares come from quantitative proteomics and growth rates from culture or dilution rate<sup class="c"><a href="#r-wu">1</a></sup>. Both are measurable, but units must agree. Proteome mass fraction, dry-mass fraction and volume fraction cannot be interchanged. Mix the units and the optimal solution means nothing.</p>
+
+<div class="box def">
+<span class="lbl">Definition</span>
+<p>A resource-allocation problem has three parts: a resource vector with a budget constraint, allocatable variables, and an objective. Without all three it is not an optimisation problem, only a description. The reserve <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>q</mi></math> used later is a ratio, <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>q</mi></math> = <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>A</mi><mo>(</mo><mn>0</mn><mo>)</mo></math>/<math xmlns="http://www.w3.org/1998/Math/MathML"><msup><mi>A</mi><mo>*</mo></msup></math>, not a proteome fraction.</p>
+</div>
+
+<h2 id="s2"><span class="n">2</span>Steady state: capacity constraints and a linear slice</h2>
+<p class="lede">The general problem is nonlinear. The linear program is a slice of it, useful for intuition but not equivalent.</p>
+
+<p>Fix the environment and maximise growth. The constraints are the two capacities, the budget, and non-negativity:</p>
+
+<div class="eq">
+  <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+    <mi mathvariant="normal">max</mi><mspace width="0.3em"/><mi>μ</mi>
+    <mspace width="1em"/><mi mathvariant="normal">s.t.</mi>
+    <mspace width="0.6em"/><mi>μ</mi><mo>≤</mo><mi>k</mi><msub><mi>φ</mi><mi>R</mi></msub><mo>,</mo>
+    <mspace width="0.6em"/><mi>μ</mi><mo>≤</mo><mi>k</mi><msub><mi>φ</mi><mi>R</mi></msub>
+    <mfrac><msub><mi>φ</mi><mi>A</mi></msub><msubsup><mi>φ</mi><mi>A</mi><mo>*</mo></msubsup></mfrac><mo>,</mo>
+    <mspace width="0.6em"/><msub><mi>φ</mi><mi>R</mi></msub><mo>+</mo><msub><mi>φ</mi><mi>A</mi></msub><mo>+</mo><msub><mi>φ</mi><mi>Q</mi></msub><mo>=</mo><mn>1</mn><mo>,</mo>
+    <mspace width="0.6em"/><msub><mi>φ</mi><mi>R</mi></msub><mo>,</mo><msub><mi>φ</mi><mi>A</mi></msub><mo>≥</mo><mn>0</mn>
+  </math>
+  <span class="tag">(3)</span>
+</div>
+
+<p>The second constraint is bilinear in <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>φ</mi><mi>R</mi></msub></math> and <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>φ</mi><mi>A</mi></msub></math>, so this is not a linear program. No single constant coefficient on <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>φ</mi><mi>A</mi></msub></math> reproduces it across the feasible set.</p>
+
+<p>With <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>φ</mi><mi>Q</mi></msub></math> and <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>φ</mi><mi>R</mi></msub></math> fixed, the budget fixes <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>φ</mi><mi>A</mi></msub></math> = S − <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>φ</mi><mi>R</mi></msub></math>, where S = 1 − <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>φ</mi><mi>Q</mi></msub></math>. No allocation decision is left on this slice. What remains is to evaluate the two growth bounds at that point, the translation bound and the enzyme bound. Evaluating a point is not optimising over it.</p>
+
+<p>Substituting the budget reduces the steady problem to one variable. Write a = <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>φ</mi><mi>A</mi></msub></math> and S = 1 − <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>φ</mi><mi>Q</mi></msub></math>. Then</p>
+
+<div class="eq">
+  <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+    <mi>μ</mi><mo>(</mo><mi>a</mi><mo>)</mo><mo>=</mo>
+    <mi>k</mi><mo>(</mo><mi>S</mi><mo>−</mo><mi>a</mi><mo>)</mo>
+    <mi mathvariant="normal">min</mi><mo>(</mo><mn>1</mn><mo>,</mo>
+    <mfrac><mi>a</mi><msubsup><mi>φ</mi><mi>A</mi><mo>*</mo></msubsup></mfrac>
+    <mo>)</mo>
+  </math>
+  <span class="tag">(4)</span>
+</div>
+
+<p>On the branch a &lt; <math xmlns="http://www.w3.org/1998/Math/MathML"><msubsup><mi>φ</mi><mi>A</mi><mo>*</mo></msubsup></math>, the derivative is k(S − 2a)/<math xmlns="http://www.w3.org/1998/Math/MathML"><msubsup><mi>φ</mi><mi>A</mi><mo>*</mo></msubsup></math>, so an interior optimum sits at a = S/2. The requirement branch caps it at <math xmlns="http://www.w3.org/1998/Math/MathML"><msubsup><mi>φ</mi><mi>A</mi><mo>*</mo></msubsup></math>:</p>
+
+<div class="eq">
+  <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+    <msub><mi>a</mi><mi mathvariant="normal">opt</mi></msub><mo>=</mo>
+    <mi mathvariant="normal">min</mi><mo>(</mo>
+    <msubsup><mi>φ</mi><mi>A</mi><mo>*</mo></msubsup><mo>,</mo>
+    <mfrac><mi>S</mi><mn>2</mn></mfrac><mo>)</mo>
+  </math>
+  <span class="tag">(5)</span>
+</div>
+
+<p>For the parameters used here, S = 0.45 and <math xmlns="http://www.w3.org/1998/Math/MathML"><msubsup><mi>φ</mi><mi>A</mi><mo>*</mo></msubsup></math> = 0.15, so <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>a</mi><mi mathvariant="normal">opt</mi></msub></math> = 0.15, <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>φ</mi><mi>R</mi></msub></math> = 0.30 and <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>μ</mi><mi mathvariant="normal">opt</mi></msub></math> = 1.44 h⁻¹. During feast the enzyme does not limit growth. If its share could go to zero, the maximum would be kS = 2.16 h⁻¹. The quoted value near 2.0 retains an enzyme share of about 0.03, and without that retained share the rich maximum is 2.16.</p>
+
+<p>An illustrative linear program is a different object. Give the two capacities independent coefficients, <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>μ</mi><mo>≤</mo><msub><mi>k</mi><mi>R</mi></msub><msub><mi>φ</mi><mi>R</mi></msub></math> and <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>μ</mi><mo>≤</mo><msub><mi>k</mi><mi>A</mi></msub><msub><mi>φ</mi><mi>A</mi></msub></math>, with constants k_R and k_A. Both constraints can bind, and a finite optimum is attained at a vertex when it is unique. Alternative optima occur when the objective is constant along an optimal face, not because the constraint matrix is degenerate. Two tight constraints alone do not imply that shares are unidentifiable.</p>
+
+<p>RBA writes capacity constraints that are linear in protein fractions; the two-capacity form above is a minimal illustration, not the full RBA model. The two-sector dynamics below is not RBA.</p>
+
+<p>Steady-state models often use an empirical relation: ribosome share rises linearly with growth rate. Written with a slope and an intercept, the intercept is often read as excess ribosomes and the slope as translational capacity<sup class="c"><a href="#r-basan15">2</a></sup>. This is an empirical constraint, not a mechanism. Put it into a model and it fits steady-state data. Treat it as a causal explanation and fitted parameters become regulatory goals.</p>
+
+<div class="box caution">
+<span class="lbl">An easy confusion</span>
+<p>A linear relation can arise from two very different mechanisms: capacity ceilings, or regulatory feedback. Steady-state linearity alone cannot separate them. Separation needs a perturbation experiment, not another fit<sup class="c"><a href="#r-basan18">4</a></sup>.</p>
+</div>
+
+<h2 id="s3"><span class="n">3</span>Dynamics: optimal control and costates</h2>
+<p class="lede">Add a time axis and the objective enters the answer. The costate is the dynamic version of a shadow price.</p>
+
+<p>The dynamic model treats shares as states and the split of synthesis flux as the control. Let <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>u</mi></math> be the share sent to ribosomes and <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>v</mi></math> the share sent to the enzyme sector, with <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>u</mi><mo>+</mo><mi>v</mi><mo>=</mo><mn>1</mn><mo>−</mo><msub><mi>φ</mi><mi>Q</mi></msub></math>. Shares dilute with growth:</p>
+
+<div class="eq">
+  <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+    <mover><msub><mi>φ</mi><mi>R</mi></msub><mo>˙</mo></mover><mo>=</mo>
+    <mi>μ</mi><mo>(</mo><mi>u</mi><mo>−</mo><msub><mi>φ</mi><mi>R</mi></msub><mo>)</mo>
+    <mo>,</mo><mspace width="1em"/>
+    <mover><msub><mi>φ</mi><mi>A</mi></msub><mo>˙</mo></mover><mo>=</mo>
+    <mi>μ</mi><mo>(</mo><mi>v</mi><mo>−</mo><msub><mi>φ</mi><mi>A</mi></msub><mo>)</mo>
+  </math>
+  <span class="tag">(6)</span>
+</div>
+
+<p>Here S = 1 − <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>φ</mi><mi>Q</mi></msub></math>, u = S − v, and admissible controls satisfy 0 ≤ v ≤ min(<math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>v</mi><mi mathvariant="normal">max</mi></msub></math>, S). The horizon T and the initial state are fixed, and the objective is J = <math xmlns="http://www.w3.org/1998/Math/MathML"><msubsup><mo>∫</mo><mn>0</mn><mi>T</mi></msubsup><mi>μ</mi><mspace width="0.167em"/><mi>d</mi><mi>t</mi></math>. Because the budget is conserved, <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>φ</mi><mi>R</mi></msub></math> = S − <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>φ</mi><mi>A</mi></msub></math>, so a one-state formulation is enough. On the smooth branch <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>φ</mi><mi>A</mi></msub></math> &lt; <math xmlns="http://www.w3.org/1998/Math/MathML"><msubsup><mi>φ</mi><mi>A</mi><mo>*</mo></msubsup></math>, μ = k(S − <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>φ</mi><mi>A</mi></msub></math>)<math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>φ</mi><mi>A</mi></msub></math>/<math xmlns="http://www.w3.org/1998/Math/MathML"><msubsup><mi>φ</mi><mi>A</mi><mo>*</mo></msubsup></math>. At <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>φ</mi><mi>A</mi></msub></math> = <math xmlns="http://www.w3.org/1998/Math/MathML"><msubsup><mi>φ</mi><mi>A</mi><mo>*</mo></msubsup></math> the growth law is not differentiable, so the costate derivative is read branch by branch, and the threshold is handled by matching branches and checking the costate jump. These are necessary conditions, not a proof of global optimality.</p>
+
+<p>The objective can be accumulated growth over a finite horizon, terminal biomass, or the time to recover a given share. When biomass follows <math xmlns="http://www.w3.org/1998/Math/MathML"><mover><mi>B</mi><mo>˙</mo></mover><mo>=</mo><mi>μ</mi><mi>B</mi></math>, with fixed initial biomass, maximising terminal biomass and maximising accumulated growth are the same problem, so these two are not different objectives. The time-to-recovery objective is genuinely different.</p>
+
+<p>Once the objective is written as a functional, Pontryagin conditions give costate equations and a switching function. The Hamiltonian is</p>
+
+<div class="eq">
+  <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+    <mi>H</mi><mo>=</mo><mi>μ</mi><mo>+</mo>
+    <msub><mi>λ</mi><mi>R</mi></msub><mi>μ</mi><mo>(</mo><mi>u</mi><mo>−</mo><msub><mi>φ</mi><mi>R</mi></msub><mo>)</mo>
+    <mo>+</mo><msub><mi>λ</mi><mi>A</mi></msub><mi>μ</mi><mo>(</mo><mi>v</mi><mo>−</mo><msub><mi>φ</mi><mi>A</mi></msub><mo>)</mo>
+  </math>
+  <span class="tag">(7)</span>
+</div>
+
+<p>After substituting u = S − v, the control enters linearly, so the switching function is</p>
+
+<div class="eq">
+  <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+    <mi>σ</mi><mo>=</mo><mfrac><mrow><mo>∂</mo><mi>H</mi></mrow><mrow><mo>∂</mo><mi>v</mi></mrow></mfrac>
+    <mo>=</mo><mi>μ</mi><mo>(</mo><msub><mi>λ</mi><mi>A</mi></msub><mo>−</mo><msub><mi>λ</mi><mi>R</mi></msub><mo>)</mo>
+  </math>
+  <span class="tag">(8)</span>
+</div>
+
+<p>The costates satisfy <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mover><mi>λ</mi><mo>˙</mo></mover><mi>R</mi></msub><mo>=</mo><mo>−</mo><mfrac><mrow><mo>∂</mo><mi>H</mi></mrow><mrow><mo>∂</mo><msub><mi>φ</mi><mi>R</mi></msub></mrow></mfrac><mo>,</mo><mspace width="0.6em"/><msub><mover><mi>λ</mi><mo>˙</mo></mover><mi>A</mi></msub><mo>=</mo><mo>−</mo><mfrac><mrow><mo>∂</mo><mi>H</mi></mrow><mrow><mo>∂</mo><msub><mi>φ</mi><mi>A</mi></msub></mrow></mfrac></math> with terminal condition <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>λ</mi><mo>(</mo><mi>T</mi><mo>)</mo><mo>=</mo><mn>0</mn></math> for free terminal states. If <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>σ</mi></math> keeps one sign, the optimal control sits on a boundary. A zero of the switching function at an isolated time is an ordinary switching point, not a singular arc. A singular arc requires the switching function to vanish on an interval, together with its time derivatives, and the state constraints must be checked separately. This essay does not claim a singular arc for the two-sector model.</p>
+
+<p>The numerical example does not solve the full optimal control problem. It evaluates a restricted policy family: a constant enzyme allocation during feast, and the cap during famine until the requirement is met, holding only if it is met within the famine. Within that family the scan returns the best member. The word best below always means best in this family, not a proof of global optimality. State constraints still matter: shares cannot be negative and synthesis flux has an upper bound, so numerical solutions show saturation at those bounds. A report should say which bounds are physical and which are algorithmic.</p>
+
+<p>When the objective becomes the long-run average growth rate, the problem becomes periodic optimal control. The average weakens the terminal condition, and the policy depends on environmental statistics: how long the feast is, how long the famine is<sup class="c"><a href="#r-mori17">5</a></sup>. If the feast duration tends to infinity while the famine duration stays fixed, the cycle approaches a rich phase followed by a fixed-length famine, which is not a static environment. The static model describes a single fixed environment. A periodic problem does not approach it by lengthening the period alone: long phases approach separate steady states within each environment, and the cycle still switches. The zero-reserve end of the scan is therefore a conjecture about one limit, not a derived consequence. Sadeghi Arjmand writes RBA as a finite-horizon optimal control problem and shows that the static solution is a limiting case<sup class="c"><a href="#r-sadeghi">3</a></sup>.</p>
+
+<div class="box key">
+<span class="lbl">Three sentences of theory</span>
+<p>The constraint sets the feasible set. The objective sets the optimal solution. The costate sets the relative price of resources across time. Each holds on its own, and together they form the allocation theory. Data can rule out mechanisms, parameters and objectives; they do not choose the control formalism.</p>
+</div>
+
+<div class="parthead">
+  <div class="k">Part II</div>
+  <h2>Algorithms</h2>
+  <p>The mathematical form chooses the algorithm. Do not solve a linear program with dynamic optimisation, and do not replace verification with fitting.</p>
+</div>
+
+<h2 id="s4"><span class="n">4</span>Choosing among algorithms</h2>
+<p class="lede">First decide which level the problem belongs to, then choose the algorithm. Structure, constraints and available solvers decide the details.</p>
+
+<p>The steady-state layer is a constrained optimisation. When the constraints are linear, the simplex method and interior-point methods are the standard choices. They differ in scaling and warm-start behaviour, so the choice depends on problem structure and solver availability, not on size alone. The solution alone is not enough: dual variables and sensitivity say which constraint is genuinely tight and which parameter deserves another measurement. Constraint generation suits many variables with few active constraints: solve a relaxation, then add violated constraints one at a time.</p>
+
+<p>The dynamic level has three families. Direct methods parameterise the control, or discretise both states and controls in a collocation scheme, and turn the problem into a nonlinear program. They are robust and accept state constraints and bounds easily. The cost is many variables and a need for good initial guesses. Indirect methods use Pontryagin conditions to turn the problem into a two-point boundary value problem, solved by shooting or collocation. They return costates and are accurate near a known solution, but are sensitive to initial guesses and awkward with state constraints. Dynamic programming solves the Hamilton-Jacobi-Bellman equation, which suits low-dimensional and stochastic problems and becomes infeasible as dimension grows.</p>
+
+<p>The practical order is this. Use a direct method to get a feasible solution and the shape of the policy. Then use an indirect method to check the costates and the switching function. Agreement between the two is evidence, not proof of a global optimum. Check grid independence, and tighten tolerances until the conclusion stops moving. If the optimum sits on a boundary, confirm that the boundary is physical and not a numerical cap.</p>
+
+<p>Three implementation details matter. First, scaling: shares lie between 0 and 1, growth rates between 0 and 2, and flux parameters span orders of magnitude, so unscaled finite differences lose accuracy. Second, initial guesses: direct methods are forgiving, indirect methods are extremely sensitive to costate guesses, so estimate the policy shape with a direct method first. Third, verification: substitute the solution back into the state equations for residuals, substitute the costates into the transversality conditions, and resolve on a different grid.</p>
+
+<p>The fluctuation layer needs evaluation before optimisation. Periodic problems use a cycle map, iterated to a fixed point, with a one- or low-dimensional scan outside. Stochastic problems estimate the average growth rate by Monte Carlo, but Monte Carlo evaluates a policy; finding the policy also needs a search or a learning step. Sample size is set by variance, and the report should give an interval rather than a single mean.</p>
+
+<p>Parameter estimation and model validation form a separate layer. Least squares gives point estimates, profile likelihood gives intervals, and identifiability analysis says which parameters cannot be pinned down together. Cross-validation checks prediction rather than fit. A model that fits existing data has not thereby shown that it predicts a new perturbation.</p>
+
+<div class="tablewrap">
+<table>
+<caption>Table 1. Mathematical form, algorithms and validation for the four layers.</caption>
+<thead><tr><th>Layer</th><th>Form</th><th>Typical algorithms</th><th>Validation</th></tr></thead>
+<tbody>
+<tr><td>Steady state</td><td>constrained optimisation, linear or nonlinear</td><td>simplex, interior point, constraint generation</td><td>duality gap for LP; KKT residual for nonlinear problems</td></tr>
+<tr><td>Dynamics</td><td>optimal control</td><td>direct, indirect, HJB</td><td>costates and switching function, grid independence</td></tr>
+<tr><td>Fluctuation</td><td>periodic average or stochastic control</td><td>cycle-map fixed point, scanning, Monte Carlo</td><td>fixed-point residual, confidence interval, sample size</td></tr>
+<tr><td>Estimation</td><td>least squares, likelihood</td><td>optimisation, profile likelihood, cross-validation</td><td>identifiability, independent prediction</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="s5"><span class="n">5</span>A reproducible example</h2>
+<p class="lede">Run a two-sector model through the three levels, with numbers from a script rather than memory.</p>
+
+<p>Parameters are orders of magnitude: <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>k</mi></math> is 4.8 h⁻¹, the fixed share is 0.55, the enzyme share required in minimal medium is 0.15, and the cap on the enzyme synthesis share is 0.18. During feast the enzyme is not limiting; during famine it is. At steady state the model gives a rich-medium growth rate near 2.0 h⁻¹ with the retained 0.03 enzyme share, and a minimal-medium rate near 1.44 h⁻¹. These match the parameter table and serve as a unit check.</p>
+
+<div class="tablewrap">
+<table>
+<caption>Table 2. Symbols used in the example. Shares are proteome mass fractions; q is a ratio.</caption>
+<thead><tr><th>Symbol</th><th>Meaning</th><th>Definition or unit</th></tr></thead>
+<tbody>
+<tr><td><math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>φ</mi><mi>A</mi></msub></math></td><td>enzyme share</td><td>proteome mass fraction</td></tr>
+<tr><td><math xmlns="http://www.w3.org/1998/Math/MathML"><msubsup><mi>φ</mi><mi>A</mi><mo>*</mo></msubsup></math></td><td>required enzyme share</td><td>proteome mass fraction</td></tr>
+<tr><td><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>q</mi></math></td><td>reserve at a downshift</td><td><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>A</mi><mo>(</mo><mn>0</mn><mo>)</mo></math>/<math xmlns="http://www.w3.org/1998/Math/MathML"><msup><mi>A</mi><mo>*</mo></msup></math>, dimensionless</td></tr>
+<tr><td><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>v</mi></math></td><td>synthesis share to enzymes</td><td>fraction of total synthesis</td></tr>
+<tr><td><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>μ</mi><mi>v</mi></math></td><td>enzyme synthesis flux</td><td>fraction of biomass per hour</td></tr>
+<tr><td>onset</td><td>threshold crossing time</td><td>when <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>φ</mi><mi>A</mi></msub></math> reaches 1.25 times its initial value</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>The reserve quoted below is <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>q</mi></math>, the ratio of enzyme share at the downshift to the share required at the new steady state. The observed 0.21 is 3.14% divided by 15%, a ratio, not a proteome fraction; the two fractions are reported by Wu et al.<sup class="c"><a href="#r-wu">1</a></sup>.</p>
+
+<div class="tablewrap">
+<table>
+<caption>Table 3. Parameters used in the example. Orders of magnitude, not fitted.</caption>
+<thead><tr><th>Symbol</th><th>Value</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>k</mi></math></td><td class="num">4.8 h⁻¹</td><td>translational capacity</td></tr>
+<tr><td>fixed share</td><td class="num">0.55</td><td>sectors outside the split</td></tr>
+<tr><td>enzyme requirement</td><td class="num">0.15</td><td>share needed in minimal medium</td></tr>
+<tr><td>synthesis share cap</td><td class="num">0.18</td><td>cap on v, early enzyme synthesis</td></tr>
+<tr><td>observed reserve</td><td class="num">0.21</td><td>3.14% over 15%</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Start with a single downshift. Take four initial reserves, 0.2, 0.4, 0.6 and 0.8. The policy runs enzyme synthesis at the cap, then holds once demand is met. Onset times are 0.12, 0.16, 0.26 and 0.51 h (Figure 1). A larger reserve has a higher absolute target, so the relative 25% threshold is crossed later. This does not mean recovery is slower: with a larger reserve the cell starts closer to its final growth rate. Within the shift, a larger initial reserve shifts budget from ribosomes to enzyme. Over the interval 0.2 to 0.8 the net effect on growth is positive, so the best reserve sits at the upper boundary of that interval. This does not show that a single shift cannot select a finite reserve outside the interval. The cost of carrying the reserve is paid before the shift, so a single shift does not price it; whether a finite reserve can be selected depends on the prior environment.</p>
+
+<figure class="figbox" id="fig-shift">
+<svg role="img" aria-label="Four trajectories for a single downshift, labelled by initial reserve q. Top: enzyme share, with circles at the 25% onset definition, which is relative to each initial value, so the curves are not compared at one absolute abundance. Bottom: growth rate. A larger reserve crosses the relative threshold later but starts closer to the plateau. Data from analysis/run_analysis.py ." xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 460.8 316.8" xmlns="http://www.w3.org/2000/svg" version="1.1"><title>Four trajectories for a single downshift, labelled by initial reserve q. Top: enzyme share, with circles at the 25% onset definition, which is relative to each initial value, so the curves are not compared at one absolute abundance. Bottom: growth rate. A larger reserve crosses the relative threshold later but starts closer to the plateau. Data from analysis/run_analysis.py .</title><desc>Four trajectories for a single downshift, labelled by initial reserve q. Top: enzyme share, with circles at the 25% onset definition, which is relative to each initial value, so the curves are not compared at one absolute abundance. Bottom: growth rate. A larger reserve crosses the relative threshold later but starts closer to the plateau. Data from analysis/run_analysis.py .</desc>
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-11-08T20:54:01.711819</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="f1-figure_1">
+  <g id="f1-patch_1">
+   <path d="M 0 316.8 
+L 460.8 316.8 
+L 460.8 0 
+L 0 0 
+L 0 316.8 
+z
+" style="fill: none"/>
+  </g>
+  <g id="f1-axes_1">
+   <g id="f1-patch_2">
+    <path d="M 51.682109 161.591554 
+L 451.08 161.591554 
+L 451.08 23.64 
+L 51.682109 23.64 
+L 51.682109 161.591554 
+z
+" style="fill: none"/>
+   </g>
+   <g id="f1-matplotlib.axis_1">
+    <g id="f1-xtick_1">
+     <g id="f1-line2d_1">
+      <defs>
+       <path id="f1-m88f5e9ac98" d="M 0 0 
+L 0 3.5 
+" style="stroke: var(--gray); stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#f1-m88f5e9ac98" x="51.682109" y="161.591554" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="f1-xtick_2">
+     <g id="f1-line2d_2">
+      <g>
+       <use xlink:href="#f1-m88f5e9ac98" x="97.068233" y="161.591554" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="f1-xtick_3">
+     <g id="f1-line2d_3">
+      <g>
+       <use xlink:href="#f1-m88f5e9ac98" x="142.454357" y="161.591554" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="f1-xtick_4">
+     <g id="f1-line2d_4">
+      <g>
+       <use xlink:href="#f1-m88f5e9ac98" x="187.840481" y="161.591554" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="f1-xtick_5">
+     <g id="f1-line2d_5">
+      <g>
+       <use xlink:href="#f1-m88f5e9ac98" x="233.226605" y="161.591554" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="f1-xtick_6">
+     <g id="f1-line2d_6">
+      <g>
+       <use xlink:href="#f1-m88f5e9ac98" x="278.612729" y="161.591554" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="f1-xtick_7">
+     <g id="f1-line2d_7">
+      <g>
+       <use xlink:href="#f1-m88f5e9ac98" x="323.998853" y="161.591554" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="f1-xtick_8">
+     <g id="f1-line2d_8">
+      <g>
+       <use xlink:href="#f1-m88f5e9ac98" x="369.384977" y="161.591554" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="f1-xtick_9">
+     <g id="f1-line2d_9">
+      <g>
+       <use xlink:href="#f1-m88f5e9ac98" x="414.771101" y="161.591554" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+   </g>
+   <g id="f1-matplotlib.axis_2">
+    <g id="f1-ytick_1">
+     <g id="f1-line2d_10">
+      <defs>
+       <path id="f1-mb72cda8a9a" d="M 0 0 
+L -3.5 0 
+" style="stroke: var(--gray); stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#f1-mb72cda8a9a" x="51.682109" y="144.882979" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f1-text_1">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: end; fill: var(--gray)" x="44.682109" y="148.301925" transform="rotate(-0 44.682109 148.301925)">0.04</text>
+     </g>
+    </g>
+    <g id="f1-ytick_2">
+     <g id="f1-line2d_11">
+      <g>
+       <use xlink:href="#f1-mb72cda8a9a" x="51.682109" y="124.00688" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f1-text_2">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: end; fill: var(--gray)" x="44.682109" y="127.425825" transform="rotate(-0 44.682109 127.425825)">0.06</text>
+     </g>
+    </g>
+    <g id="f1-ytick_3">
+     <g id="f1-line2d_12">
+      <g>
+       <use xlink:href="#f1-mb72cda8a9a" x="51.682109" y="103.130781" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f1-text_3">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: end; fill: var(--gray)" x="44.682109" y="106.549726" transform="rotate(-0 44.682109 106.549726)">0.08</text>
+     </g>
+    </g>
+    <g id="f1-ytick_4">
+     <g id="f1-line2d_13">
+      <g>
+       <use xlink:href="#f1-mb72cda8a9a" x="51.682109" y="82.254681" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f1-text_4">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: end; fill: var(--gray)" x="44.682109" y="85.673627" transform="rotate(-0 44.682109 85.673627)">0.10</text>
+     </g>
+    </g>
+    <g id="f1-ytick_5">
+     <g id="f1-line2d_14">
+      <g>
+       <use xlink:href="#f1-mb72cda8a9a" x="51.682109" y="61.378582" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f1-text_5">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: end; fill: var(--gray)" x="44.682109" y="64.797527" transform="rotate(-0 44.682109 64.797527)">0.12</text>
+     </g>
+    </g>
+    <g id="f1-ytick_6">
+     <g id="f1-line2d_15">
+      <g>
+       <use xlink:href="#f1-mb72cda8a9a" x="51.682109" y="40.502483" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f1-text_6">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: end; fill: var(--gray)" x="44.682109" y="43.921428" transform="rotate(-0 44.682109 43.921428)">0.14</text>
+     </g>
+    </g>
+    <g id="f1-text_7">
+     <!-- enzyme fraction  $\varphi_A$ -->
+     <g style="fill: currentColor" transform="translate(18.480937 137.255777) rotate(-90)">
+      <text>
+       <tspan x="0" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">e</tspan>
+       <tspan x="5.537109" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">n</tspan>
+       <tspan x="11.241211" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">z</tspan>
+       <tspan x="15.965332" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">y</tspan>
+       <tspan x="21.291504" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">m</tspan>
+       <tspan x="30.058594" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">e</tspan>
+       <tspan x="35.595703" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor"> </tspan>
+       <tspan x="38.456543" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">f</tspan>
+       <tspan x="41.625" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">r</tspan>
+       <tspan x="45.325195" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">a</tspan>
+       <tspan x="50.840332" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">c</tspan>
+       <tspan x="55.788574" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">t</tspan>
+       <tspan x="59.317383" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">i</tspan>
+       <tspan x="61.817871" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">o</tspan>
+       <tspan x="67.324219" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">n</tspan>
+       <tspan x="73.02832" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor"> </tspan>
+       <tspan x="75.88916" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor"> </tspan>
+       <tspan x="78.75" y="-0.15625" style="font-style: oblique; font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">φ</tspan>
+       <tspan x="84.687012" y="1.193746" style="font-style: oblique; font-size: 6.3px; font-family: 'DejaVu Sans'; fill: currentColor">A</tspan>
+      </text>
+     </g>
+    </g>
+   </g>
+   <g id="f1-line2d_16">
+    <path d="M 51.682109 155.321029 
+L 60.782084 152.040219 
+L 69.882059 148.527948 
+L 78.982034 144.789144 
+L 89.219505 140.323396 
+L 99.456977 135.600967 
+L 110.831945 130.08338 
+L 123.34441 123.734921 
+L 136.994372 116.552588 
+L 156.331819 106.104582 
+L 187.044233 89.498164 
+L 201.831692 81.762671 
+L 214.344158 75.449611 
+L 225.719126 69.93585 
+L 237.094094 64.663562 
+L 248.469063 59.651402 
+L 258.706534 55.372984 
+L 268.944006 51.319887 
+L 279.181477 47.493518 
+L 289.418949 43.892446 
+L 299.656421 40.512894 
+L 309.893892 37.3492 
+L 321.268861 34.07844 
+L 332.643829 31.054008 
+L 337.193816 29.910525 
+L 337.193816 29.910525 
+L 461.8 30.007133 
+L 461.8 30.007133 
+" clip-path="url(#f1-pbe23e5118a)" style="fill: none; stroke: #5a73ce; stroke-width: 1.6; stroke-linecap: square"/>
+   </g>
+   <g id="f1-line2d_17">
+    <defs>
+     <path id="f1-mfd7036598d" d="M 0 2.25 
+C 0.596707 2.25 1.169055 2.012926 1.59099 1.59099 
+C 2.012926 1.169055 2.25 0.596707 2.25 0 
+C 2.25 -0.596707 2.012926 -1.169055 1.59099 -1.59099 
+C 1.169055 -2.012926 0.596707 -2.25 0 -2.25 
+C -0.596707 -2.25 -1.169055 -2.012926 -1.59099 -1.59099 
+C -2.012926 -1.169055 -2.25 -0.596707 -2.25 0 
+C -2.25 0.596707 -2.012926 1.169055 -1.59099 1.59099 
+C -1.169055 2.012926 -0.596707 2.25 0 2.25 
+z
+" style="stroke: #ffffff"/>
+    </defs>
+    <g clip-path="url(#f1-pbe23e5118a)">
+     <use xlink:href="#f1-mfd7036598d" x="73.294549" y="147.152055" style="fill: #5a73ce; stroke: #ffffff"/>
+    </g>
+   </g>
+   <g id="f1-line2d_18">
+    <path d="M 51.682109 124.00688 
+L 65.332071 116.833225 
+L 84.669518 106.390881 
+L 116.519429 89.173445 
+L 131.306888 81.44872 
+L 143.819353 75.147459 
+L 155.194322 69.646088 
+L 166.56929 64.387371 
+L 177.944259 59.389592 
+L 188.18173 55.124536 
+L 198.419202 51.084972 
+L 208.656673 47.272126 
+L 218.894145 43.684412 
+L 229.131616 40.317929 
+L 239.369088 37.166915 
+L 250.744056 33.909697 
+L 262.119025 30.898162 
+L 265.531515 30.04076 
+L 265.531515 30.04076 
+L 461.8 30.059442 
+L 461.8 30.059442 
+" clip-path="url(#f1-pbe23e5118a)" style="fill: none; stroke: #1f9a8e; stroke-width: 1.6; stroke-linecap: square"/>
+   </g>
+   <g id="f1-line2d_19">
+    <defs>
+     <path id="f1-m9c0c440d6e" d="M 0 2.25 
+C 0.596707 2.25 1.169055 2.012926 1.59099 1.59099 
+C 2.012926 1.169055 2.25 0.596707 2.25 0 
+C 2.25 -0.596707 2.012926 -1.169055 1.59099 -1.59099 
+C 1.169055 -2.012926 0.596707 -2.25 0 -2.25 
+C -0.596707 -2.25 -1.169055 -2.012926 -1.59099 -1.59099 
+C -2.012926 -1.169055 -2.25 -0.596707 -2.25 0 
+C -2.25 0.596707 -2.012926 1.169055 -1.59099 1.59099 
+C -1.169055 2.012926 -0.596707 2.25 0 2.25 
+z
+" style="stroke: #ffffff"/>
+    </defs>
+    <g clip-path="url(#f1-pbe23e5118a)">
+     <use xlink:href="#f1-m9c0c440d6e" x="81.257027" y="108.246787" style="fill: #1f9a8e; stroke: #ffffff"/>
+    </g>
+   </g>
+   <g id="f1-line2d_20">
+    <path d="M 51.682109 92.692731 
+L 67.607065 84.267877 
+L 81.257027 77.294645 
+L 93.769492 71.161136 
+L 105.144461 65.832419 
+L 116.519429 60.760213 
+L 126.756901 56.425842 
+L 136.994372 52.315933 
+L 147.231844 48.432686 
+L 157.469316 44.775334 
+L 167.706787 41.340645 
+L 177.944259 38.123388 
+L 189.319227 34.795361 
+L 200.694195 31.716339 
+L 207.519177 29.983416 
+L 207.519177 29.983416 
+L 461.8 30.05365 
+L 461.8 30.05365 
+" clip-path="url(#f1-pbe23e5118a)" style="fill: none; stroke: #77488c; stroke-width: 1.6; stroke-linecap: square"/>
+   </g>
+   <g id="f1-line2d_21">
+    <defs>
+     <path id="f1-md549139947" d="M 0 2.25 
+C 0.596707 2.25 1.169055 2.012926 1.59099 1.59099 
+C 2.012926 1.169055 2.25 0.596707 2.25 0 
+C 2.25 -0.596707 2.012926 -1.169055 1.59099 -1.59099 
+C 1.169055 -2.012926 0.596707 -2.25 0 -2.25 
+C -0.596707 -2.25 -1.169055 -2.012926 -1.59099 -1.59099 
+C -2.012926 -1.169055 -2.25 -0.596707 -2.25 0 
+C -2.25 0.596707 -2.012926 1.169055 -1.59099 1.59099 
+C -1.169055 2.012926 -0.596707 2.25 0 2.25 
+z
+" style="stroke: #ffffff"/>
+    </defs>
+    <g clip-path="url(#f1-pbe23e5118a)">
+     <use xlink:href="#f1-md549139947" x="98.31948" y="69.000005" style="fill: #77488c; stroke: #ffffff"/>
+    </g>
+   </g>
+   <g id="f1-line2d_22">
+    <path d="M 51.682109 61.378582 
+L 61.919581 57.013454 
+L 72.157053 52.872221 
+L 82.394524 48.957532 
+L 92.631996 45.269004 
+L 102.869467 41.803716 
+L 113.106939 38.556689 
+L 124.481907 35.196788 
+L 135.856876 32.087344 
+L 143.819353 30.053302 
+L 143.819353 30.053302 
+L 461.8 30.063539 
+L 461.8 30.063539 
+" clip-path="url(#f1-pbe23e5118a)" style="fill: none; stroke: #d75567; stroke-width: 1.6; stroke-linecap: square"/>
+   </g>
+   <g id="f1-line2d_23">
+    <defs>
+     <path id="f1-mcfeeed9d9a" d="M 0 2.25 
+C 0.596707 2.25 1.169055 2.012926 1.59099 1.59099 
+C 2.012926 1.169055 2.25 0.596707 2.25 0 
+C 2.25 -0.596707 2.012926 -1.169055 1.59099 -1.59099 
+C 1.169055 -2.012926 0.596707 -2.25 0 -2.25 
+C -0.596707 -2.25 -1.169055 -2.012926 -1.59099 -1.59099 
+C -2.012926 -1.169055 -2.25 -0.596707 -2.25 0 
+C -2.25 0.596707 -2.012926 1.169055 -1.59099 1.59099 
+C -1.169055 2.012926 -0.596707 2.25 0 2.25 
+z
+" style="stroke: #ffffff"/>
+    </defs>
+    <g clip-path="url(#f1-pbe23e5118a)">
+     <use xlink:href="#f1-mcfeeed9d9a" x="143.819353" y="30.053302" style="fill: #d75567; stroke: #ffffff"/>
+    </g>
+   </g>
+   <g id="f1-line2d_24">
+    <path d="M 51.682109 30.064433 
+L 451.08 30.064433 
+" clip-path="url(#f1-pbe23e5118a)" style="fill: none; stroke-dasharray: 2.96,1.28; stroke-dashoffset: 0; stroke: var(--gray); stroke-width: 0.8"/>
+   </g>
+   <g id="f1-patch_3">
+    <path d="M 51.682109 161.591554 
+L 51.682109 23.64 
+" style="fill: none; stroke: var(--gray); stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="f1-patch_4">
+    <path d="M 51.682109 161.591554 
+L 451.08 161.591554 
+" style="fill: none; stroke: var(--gray); stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="f1-text_8">
+    <text style="font-size: 7.5px; font-family: 'DejaVu Sans', sans-serif; text-anchor: start; fill: var(--gray)" x="363.938642" y="25.889213" transform="rotate(-0 363.938642 25.889213)">requirement</text>
+   </g>
+   <g id="f1-text_9">
+    <text style="font-size: 9.5px; font-family: 'DejaVu Sans', sans-serif; text-anchor: start" x="51.682109" y="17.64" transform="rotate(-0 51.682109 17.64)">Four reserves under one saturation policy</text>
+   </g>
+   <g id="f1-legend_1">
+    <g id="f1-text_10">
+     <text style="font-size: 7.5px; font-family: 'DejaVu Sans', sans-serif; text-anchor: start" x="364.280391" y="130.538625" transform="rotate(-0 364.280391 130.538625)">initial reserve</text>
+    </g>
+    <g id="f1-line2d_25">
+     <path d="M 335.43 139.16421 
+L 342.93 139.16421 
+L 350.43 139.16421 
+" style="fill: none; stroke: #5a73ce; stroke-width: 1.6; stroke-linecap: square"/>
+    </g>
+    <g id="f1-text_11">
+     <!-- $q=0.2$ -->
+     <g transform="translate(356.43 141.78921)">
+      <text>
+       <tspan x="0" y="-0.4375" style="font-style: oblique; font-size: 7.5px; font-family: 'DejaVu Sans'">q</tspan>
+       <tspan x="6.221924" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">=</tspan>
+       <tspan x="13.967285" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">0</tspan>
+       <tspan x="18.739014" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">.</tspan>
+       <tspan x="21.123047" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">2</tspan>
+      </text>
+     </g>
+    </g>
+    <g id="f1-line2d_26">
+     <path d="M 335.43 150.414796 
+L 342.93 150.414796 
+L 350.43 150.414796 
+" style="fill: none; stroke: #1f9a8e; stroke-width: 1.6; stroke-linecap: square"/>
+    </g>
+    <g id="f1-text_12">
+     <!-- $q=0.4$ -->
+     <g transform="translate(356.43 153.039796)">
+      <text>
+       <tspan x="0" y="-0.4375" style="font-style: oblique; font-size: 7.5px; font-family: 'DejaVu Sans'">q</tspan>
+       <tspan x="6.221924" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">=</tspan>
+       <tspan x="13.967285" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">0</tspan>
+       <tspan x="18.739014" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">.</tspan>
+       <tspan x="21.123047" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">4</tspan>
+      </text>
+     </g>
+    </g>
+    <g id="f1-line2d_27">
+     <path d="M 397.38 139.16421 
+L 404.88 139.16421 
+L 412.38 139.16421 
+" style="fill: none; stroke: #77488c; stroke-width: 1.6; stroke-linecap: square"/>
+    </g>
+    <g id="f1-text_13">
+     <!-- $q=0.6$ -->
+     <g transform="translate(418.38 141.78921)">
+      <text>
+       <tspan x="0" y="-0.4375" style="font-style: oblique; font-size: 7.5px; font-family: 'DejaVu Sans'">q</tspan>
+       <tspan x="6.221924" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">=</tspan>
+       <tspan x="13.967285" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">0</tspan>
+       <tspan x="18.739014" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">.</tspan>
+       <tspan x="21.123047" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">6</tspan>
+      </text>
+     </g>
+    </g>
+    <g id="f1-line2d_28">
+     <path d="M 397.38 150.414796 
+L 404.88 150.414796 
+L 412.38 150.414796 
+" style="fill: none; stroke: #d75567; stroke-width: 1.6; stroke-linecap: square"/>
+    </g>
+    <g id="f1-text_14">
+     <!-- $q=0.8$ -->
+     <g transform="translate(418.38 153.039796)">
+      <text>
+       <tspan x="0" y="-0.4375" style="font-style: oblique; font-size: 7.5px; font-family: 'DejaVu Sans'">q</tspan>
+       <tspan x="6.221924" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">=</tspan>
+       <tspan x="13.967285" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">0</tspan>
+       <tspan x="18.739014" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">.</tspan>
+       <tspan x="21.123047" y="-0.4375" style="font-size: 7.5px; font-family: 'DejaVu Sans'">8</tspan>
+      </text>
+     </g>
+    </g>
+   </g>
+  </g>
+  <g id="f1-axes_2">
+   <g id="f1-patch_5">
+    <path d="M 51.682109 276.997891 
+L 451.08 276.997891 
+L 451.08 174.811554 
+L 51.682109 174.811554 
+L 51.682109 276.997891 
+z
+" style="fill: none"/>
+   </g>
+   <g id="f1-matplotlib.axis_3">
+    <g id="f1-xtick_10">
+     <g id="f1-line2d_29">
+      <g>
+       <use xlink:href="#f1-m88f5e9ac98" x="51.682109" y="276.997891" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f1-text_15">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: middle; fill: var(--gray)" x="51.682109" y="290.835781" transform="rotate(-0 51.682109 290.835781)">0.00</text>
+     </g>
+    </g>
+    <g id="f1-xtick_11">
+     <g id="f1-line2d_30">
+      <g>
+       <use xlink:href="#f1-m88f5e9ac98" x="97.068233" y="276.997891" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f1-text_16">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: middle; fill: var(--gray)" x="97.068233" y="290.835781" transform="rotate(-0 97.068233 290.835781)">0.25</text>
+     </g>
+    </g>
+    <g id="f1-xtick_12">
+     <g id="f1-line2d_31">
+      <g>
+       <use xlink:href="#f1-m88f5e9ac98" x="142.454357" y="276.997891" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f1-text_17">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: middle; fill: var(--gray)" x="142.454357" y="290.835781" transform="rotate(-0 142.454357 290.835781)">0.50</text>
+     </g>
+    </g>
+    <g id="f1-xtick_13">
+     <g id="f1-line2d_32">
+      <g>
+       <use xlink:href="#f1-m88f5e9ac98" x="187.840481" y="276.997891" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f1-text_18">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: middle; fill: var(--gray)" x="187.840481" y="290.835781" transform="rotate(-0 187.840481 290.835781)">0.75</text>
+     </g>
+    </g>
+    <g id="f1-xtick_14">
+     <g id="f1-line2d_33">
+      <g>
+       <use xlink:href="#f1-m88f5e9ac98" x="233.226605" y="276.997891" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f1-text_19">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: middle; fill: var(--gray)" x="233.226605" y="290.835781" transform="rotate(-0 233.226605 290.835781)">1.00</text>
+     </g>
+    </g>
+    <g id="f1-xtick_15">
+     <g id="f1-line2d_34">
+      <g>
+       <use xlink:href="#f1-m88f5e9ac98" x="278.612729" y="276.997891" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f1-text_20">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: middle; fill: var(--gray)" x="278.612729" y="290.835781" transform="rotate(-0 278.612729 290.835781)">1.25</text>
+     </g>
+    </g>
+    <g id="f1-xtick_16">
+     <g id="f1-line2d_35">
+      <g>
+       <use xlink:href="#f1-m88f5e9ac98" x="323.998853" y="276.997891" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f1-text_21">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: middle; fill: var(--gray)" x="323.998853" y="290.835781" transform="rotate(-0 323.998853 290.835781)">1.50</text>
+     </g>
+    </g>
+    <g id="f1-xtick_17">
+     <g id="f1-line2d_36">
+      <g>
+       <use xlink:href="#f1-m88f5e9ac98" x="369.384977" y="276.997891" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f1-text_22">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: middle; fill: var(--gray)" x="369.384977" y="290.835781" transform="rotate(-0 369.384977 290.835781)">1.75</text>
+     </g>
+    </g>
+    <g id="f1-xtick_18">
+     <g id="f1-line2d_37">
+      <g>
+       <use xlink:href="#f1-m88f5e9ac98" x="414.771101" y="276.997891" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f1-text_23">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: middle; fill: var(--gray)" x="414.771101" y="290.835781" transform="rotate(-0 414.771101 290.835781)">2.00</text>
+     </g>
+    </g>
+    <g id="f1-text_24">
+     <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: middle; fill: currentColor" x="251.381055" y="303.836484" transform="rotate(-0 251.381055 303.836484)">time after downshift (h)</text>
+    </g>
+   </g>
+   <g id="f1-matplotlib.axis_4">
+    <g id="f1-ytick_7">
+     <g id="f1-line2d_38">
+      <g>
+       <use xlink:href="#f1-mb72cda8a9a" x="51.682109" y="263.67981" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f1-text_25">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: end; fill: var(--gray)" x="44.682109" y="267.098755" transform="rotate(-0 44.682109 267.098755)">0.50</text>
+     </g>
+    </g>
+    <g id="f1-ytick_8">
+     <g id="f1-line2d_39">
+      <g>
+       <use xlink:href="#f1-mb72cda8a9a" x="51.682109" y="241.279894" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f1-text_26">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: end; fill: var(--gray)" x="44.682109" y="244.69884" transform="rotate(-0 44.682109 244.69884)">0.75</text>
+     </g>
+    </g>
+    <g id="f1-ytick_9">
+     <g id="f1-line2d_40">
+      <g>
+       <use xlink:href="#f1-mb72cda8a9a" x="51.682109" y="218.879979" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f1-text_27">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: end; fill: var(--gray)" x="44.682109" y="222.298924" transform="rotate(-0 44.682109 222.298924)">1.00</text>
+     </g>
+    </g>
+    <g id="f1-ytick_10">
+     <g id="f1-line2d_41">
+      <g>
+       <use xlink:href="#f1-mb72cda8a9a" x="51.682109" y="196.480063" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f1-text_28">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: end; fill: var(--gray)" x="44.682109" y="199.899009" transform="rotate(-0 44.682109 199.899009)">1.25</text>
+     </g>
+    </g>
+    <g id="f1-text_29">
+     <!-- growth rate  $\mu$ (h$^{-1}$) -->
+     <g style="fill: currentColor" transform="translate(18.480937 270.499722) rotate(-90)">
+      <text>
+       <tspan x="0" y="-0.68925" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">g</tspan>
+       <tspan x="5.712891" y="-0.68925" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">r</tspan>
+       <tspan x="9.413086" y="-0.68925" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">o</tspan>
+       <tspan x="14.919434" y="-0.68925" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">w</tspan>
+       <tspan x="22.280273" y="-0.68925" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">t</tspan>
+       <tspan x="25.809082" y="-0.68925" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">h</tspan>
+       <tspan x="31.513184" y="-0.68925" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor"> </tspan>
+       <tspan x="34.374023" y="-0.68925" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">r</tspan>
+       <tspan x="38.074219" y="-0.68925" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">a</tspan>
+       <tspan x="43.589355" y="-0.68925" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">t</tspan>
+       <tspan x="47.118164" y="-0.68925" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">e</tspan>
+       <tspan x="52.655273" y="-0.68925" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor"> </tspan>
+       <tspan x="55.516113" y="-0.68925" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor"> </tspan>
+       <tspan x="64.103027" y="-0.68925" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor"> </tspan>
+       <tspan x="66.963867" y="-0.68925" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">(</tspan>
+       <tspan x="70.475098" y="-0.68925" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">h</tspan>
+       <tspan x="85.798389" y="-0.68925" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">)</tspan>
+       <tspan x="58.376953" y="-0.68925" style="font-style: oblique; font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">μ</tspan>
+       <tspan x="76.265332" y="-4.40625" style="font-size: 6.3px; font-family: 'DejaVu Sans'; fill: currentColor">−</tspan>
+       <tspan x="81.544043" y="-4.40625" style="font-size: 6.3px; font-family: 'DejaVu Sans'; fill: currentColor">1</tspan>
+      </text>
+     </g>
+    </g>
+   </g>
+   <g id="f1-line2d_42">
+    <path d="M 51.682109 272.353057 
+L 61.919581 268.417734 
+L 72.157053 264.253223 
+L 83.532021 259.38975 
+L 97.181983 253.289429 
+L 115.381932 244.868771 
+L 147.231844 230.081222 
+L 160.881806 224.006679 
+L 172.256774 219.164812 
+L 183.631743 214.567163 
+L 193.869214 210.663401 
+L 204.106686 206.997104 
+L 214.344158 203.576737 
+L 224.581629 200.404968 
+L 234.819101 197.479491 
+L 245.056572 194.793934 
+L 255.294044 192.338769 
+L 265.531515 190.102174 
+L 276.906484 187.857142 
+L 288.281452 185.845906 
+L 299.656421 184.048492 
+L 312.168886 182.294775 
+L 325.818848 180.619924 
+L 336.056319 179.509091 
+L 348.58589 179.514065 
+L 461.8 179.479737 
+L 461.8 179.479737 
+" clip-path="url(#f1-p27a181c129)" style="fill: none; stroke: #5a73ce; stroke-width: 1.4; stroke-linecap: square"/>
+   </g>
+   <g id="f1-line2d_43">
+    <path d="M 51.682109 241.387414 
+L 75.569543 230.320018 
+L 89.219505 224.235856 
+L 101.73197 218.911126 
+L 113.106939 214.327561 
+L 123.34441 210.43763 
+L 133.581882 206.785845 
+L 143.819353 203.380306 
+L 154.056825 200.223358 
+L 164.294297 197.312426 
+L 174.531768 194.640924 
+L 184.76924 192.199166 
+L 195.006711 189.975215 
+L 206.38168 187.743255 
+L 217.756648 185.744022 
+L 229.131616 183.957539 
+L 241.644082 182.214643 
+L 255.294044 180.550238 
+L 265.531515 179.465881 
+L 265.531515 179.465881 
+L 461.8 179.458184 
+L 461.8 179.458184 
+" clip-path="url(#f1-p27a181c129)" style="fill: none; stroke: #1f9a8e; stroke-width: 1.4; stroke-linecap: square"/>
+   </g>
+   <g id="f1-line2d_44">
+    <path d="M 51.682109 215.582711 
+L 61.919581 211.621422 
+L 72.157053 207.894479 
+L 82.394524 204.411917 
+L 92.631996 201.177785 
+L 102.869467 198.190943 
+L 113.106939 195.445951 
+L 123.34441 192.933992 
+L 133.581882 190.643742 
+L 144.95685 188.343156 
+L 156.331819 186.280847 
+L 167.706787 184.436873 
+L 180.219252 182.637022 
+L 193.869214 180.9176 
+L 206.38168 179.539456 
+L 209.75996 179.488921 
+L 461.8 179.46057 
+L 461.8 179.46057 
+" clip-path="url(#f1-p27a181c129)" style="fill: none; stroke: #77488c; stroke-width: 1.4; stroke-linecap: square"/>
+   </g>
+   <g id="f1-line2d_45">
+    <path d="M 51.682109 194.938949 
+L 61.919581 192.471106 
+L 72.157053 190.222546 
+L 83.532021 187.965136 
+L 94.906989 185.942531 
+L 106.281958 184.134759 
+L 118.794423 182.370785 
+L 132.444385 180.686029 
+L 143.819353 179.460714 
+L 143.819353 179.460714 
+L 461.8 179.456496 
+L 461.8 179.456496 
+" clip-path="url(#f1-p27a181c129)" style="fill: none; stroke: #d75567; stroke-width: 1.4; stroke-linecap: square"/>
+   </g>
+   <g id="f1-patch_6">
+    <path d="M 51.682109 276.997891 
+L 51.682109 174.811554 
+" style="fill: none; stroke: var(--gray); stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="f1-patch_7">
+    <path d="M 51.682109 276.997891 
+L 451.08 276.997891 
+" style="fill: none; stroke: var(--gray); stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="f1-text_30">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans', sans-serif; text-anchor: start; fill: var(--gray)" x="331.260633" y="254.516897" transform="rotate(-0 331.260633 254.516897)">circles: 25% onset</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="f1-pbe23e5118a">
+   <rect x="51.682109" y="23.64" width="399.397891" height="137.951554"/>
+  </clipPath>
+  <clipPath id="f1-p27a181c129">
+   <rect x="51.682109" y="174.811554" width="399.397891" height="102.186336"/>
+  </clipPath>
+ </defs>
+</svg>
+
+<figcaption><b>Figure 1.</b> Four trajectories for a single downshift, labelled by initial reserve q. Top: enzyme share, with circles at the 25% onset definition, which is relative to each initial value, so the curves are not compared at one absolute abundance. Bottom: growth rate. A larger reserve crosses the relative threshold later but starts closer to the plateau. Data from <code>analysis/run_analysis.py</code>.</figcaption>
+</figure>
+
+<p>The cycle layer prices the reserve. Holding the enzyme share during feast takes synthesis flux that could go to ribosomes, while the benefit arrives at the start of the next famine. Define r as the constant enzyme synthesis share during feast, with r in [0, min(<math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>v</mi><mi mathvariant="normal">max</mi></msub></math>, S)]. Famine uses the cap until <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>φ</mi><mi>A</mi></msub></math> reaches <math xmlns="http://www.w3.org/1998/Math/MathML"><msubsup><mi>φ</mi><mi>A</mi><mo>*</mo></msubsup></math>, then holds; if the requirement is not reached within the famine, the cap stays on. The state at the start of a cycle is the fixed point of the cycle map. The quantity maximised is</p>
+
+<div class="eq">
+  <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+    <mover><mi>μ</mi><mo>¯</mo></mover><mo>(</mo><mi>r</mi><mo>)</mo><mo>=</mo>
+    <mfrac><mn>1</mn><mi>T</mi></mfrac>
+    <msubsup><mo>∫</mo><mn>0</mn><mi>T</mi></msubsup>
+    <mi>μ</mi><mo>(</mo><mi>t</mi><mo>)</mo><mi>d</mi><mi>t</mi>
+  </math>
+  <span class="tag">(9)</span>
+</div>
+
+<p>The scan uses 31 grid points on [0.005, 0.15] (spacing 0.00483), then bounded refinement with xatol 1e-6. Integration uses rtol 1e-9 and atol 1e-11, and the fixed-point tolerance is 1e-9. At the best point the average is 1.6680 h⁻¹; changing r by ±0.005 changes it by 0.06 to 0.08%, and by ±0.01 by 0.23 to 0.35%. The residual 8e-11 shows periodic closure, not optimisation accuracy.</p>
+
+<figure class="figbox" id="fig-policy">
+<svg role="img" aria-label="Best member of the constant-allocation family, 3 h feast and 1 h famine. Top: synthesis share to the enzyme sector. Middle: enzyme share. Bottom: growth rate. The trajectory starts and ends at the same state, the fixed point of the cycle map; the feast-end reserve is 0.15. The 1 h famine is too short for the enzyme share to reach 0.15, so the synthesis cap stays on throughout." xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 460.8 374.4" xmlns="http://www.w3.org/2000/svg" version="1.1"><title>Best member of the constant-allocation family, 3 h feast and 1 h famine. Top: synthesis share to the enzyme sector. Middle: enzyme share. Bottom: growth rate. The trajectory starts and ends at the same state, the fixed point of the cycle map; the feast-end reserve is 0.15. The 1 h famine is too short for the enzyme share to reach 0.15, so the synthesis cap stays on throughout.</title><desc>Best member of the constant-allocation family, 3 h feast and 1 h famine. Top: synthesis share to the enzyme sector. Middle: enzyme share. Bottom: growth rate. The trajectory starts and ends at the same state, the fixed point of the cycle map; the feast-end reserve is 0.15. The 1 h famine is too short for the enzyme share to reach 0.15, so the synthesis cap stays on throughout.</desc>
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-11-08T20:54:03.563192</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="f2-figure_1">
+  <g id="f2-patch_1">
+   <path d="M 0 374.4 
+L 460.8 374.4 
+L 460.8 0 
+L 0 0 
+L 0 374.4 
+z
+" style="fill: none"/>
+  </g>
+  <g id="f2-axes_1">
+   <g id="f2-patch_2">
+    <path d="M 50.242109 114.735297 
+L 451.08 114.735297 
+L 451.08 23.64 
+L 50.242109 23.64 
+L 50.242109 114.735297 
+z
+" style="fill: none"/>
+   </g>
+   <g id="f2-patch_3">
+    <path d="M 68.462013 114.735297 
+L 341.760575 114.735297 
+L 341.760575 23.64 
+L 68.462013 23.64 
+z
+" clip-path="url(#f2-pd60855f843)" style="fill: var(--gridc); opacity: 0.35"/>
+   </g>
+   <g id="f2-matplotlib.axis_1">
+    <g id="f2-xtick_1">
+     <g id="f2-line2d_1">
+      <defs>
+       <path id="f2-md66b3296ec" d="M 0 0 
+L 0 3.5 
+" style="stroke: var(--gray); stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#f2-md66b3296ec" x="68.462013" y="114.735297" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="f2-xtick_2">
+     <g id="f2-line2d_2">
+      <g>
+       <use xlink:href="#f2-md66b3296ec" x="114.011774" y="114.735297" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="f2-xtick_3">
+     <g id="f2-line2d_3">
+      <g>
+       <use xlink:href="#f2-md66b3296ec" x="159.561534" y="114.735297" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="f2-xtick_4">
+     <g id="f2-line2d_4">
+      <g>
+       <use xlink:href="#f2-md66b3296ec" x="205.111294" y="114.735297" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="f2-xtick_5">
+     <g id="f2-line2d_5">
+      <g>
+       <use xlink:href="#f2-md66b3296ec" x="250.661055" y="114.735297" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="f2-xtick_6">
+     <g id="f2-line2d_6">
+      <g>
+       <use xlink:href="#f2-md66b3296ec" x="296.210815" y="114.735297" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="f2-xtick_7">
+     <g id="f2-line2d_7">
+      <g>
+       <use xlink:href="#f2-md66b3296ec" x="341.760575" y="114.735297" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="f2-xtick_8">
+     <g id="f2-line2d_8">
+      <g>
+       <use xlink:href="#f2-md66b3296ec" x="387.310336" y="114.735297" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="f2-xtick_9">
+     <g id="f2-line2d_9">
+      <g>
+       <use xlink:href="#f2-md66b3296ec" x="432.860096" y="114.735297" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+   </g>
+   <g id="f2-matplotlib.axis_2">
+    <g id="f2-ytick_1">
+     <g id="f2-line2d_10">
+      <path d="M 50.242109 96.19895 
+L 451.08 96.19895 
+" clip-path="url(#f2-pd60855f843)" style="fill: none; stroke: var(--gridc); stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="f2-line2d_11">
+      <defs>
+       <path id="f2-m50ecf898cd" d="M 0 0 
+L -3.5 0 
+" style="stroke: var(--gray); stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#f2-m50ecf898cd" x="50.242109" y="96.19895" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f2-text_1">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: end; fill: var(--gray)" x="43.242109" y="99.617896" transform="rotate(-0 43.242109 99.617896)">0.05</text>
+     </g>
+    </g>
+    <g id="f2-ytick_2">
+     <g id="f2-line2d_12">
+      <path d="M 50.242109 69.884237 
+L 451.08 69.884237 
+" clip-path="url(#f2-pd60855f843)" style="fill: none; stroke: var(--gridc); stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="f2-line2d_13">
+      <g>
+       <use xlink:href="#f2-m50ecf898cd" x="50.242109" y="69.884237" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f2-text_2">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: end; fill: var(--gray)" x="43.242109" y="73.303182" transform="rotate(-0 43.242109 73.303182)">0.10</text>
+     </g>
+    </g>
+    <g id="f2-ytick_3">
+     <g id="f2-line2d_14">
+      <path d="M 50.242109 43.569523 
+L 451.08 43.569523 
+" clip-path="url(#f2-pd60855f843)" style="fill: none; stroke: var(--gridc); stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="f2-line2d_15">
+      <g>
+       <use xlink:href="#f2-m50ecf898cd" x="50.242109" y="43.569523" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f2-text_3">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: end; fill: var(--gray)" x="43.242109" y="46.988469" transform="rotate(-0 43.242109 46.988469)">0.15</text>
+     </g>
+    </g>
+    <g id="f2-text_4">
+     <!-- control  $v$ -->
+     <g style="fill: currentColor" transform="translate(17.040938 90.337648) rotate(-90)">
+      <text>
+       <tspan x="0" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">c</tspan>
+       <tspan x="4.948242" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">o</tspan>
+       <tspan x="10.45459" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">n</tspan>
+       <tspan x="16.158691" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">t</tspan>
+       <tspan x="19.6875" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">r</tspan>
+       <tspan x="23.387695" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">o</tspan>
+       <tspan x="28.894043" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">l</tspan>
+       <tspan x="31.394531" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor"> </tspan>
+       <tspan x="34.255371" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor"> </tspan>
+       <tspan x="37.116211" y="-0.15625" style="font-style: oblique; font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">v</tspan>
+      </text>
+     </g>
+    </g>
+   </g>
+   <g id="f2-line2d_16">
+    <path d="M 68.462013 110.594602 
+L 341.760575 110.594602 
+L 341.760575 27.780695 
+L 432.860096 27.780695 
+L 432.860096 27.780695 
+" clip-path="url(#f2-pd60855f843)" style="fill: none; stroke: #ee8168; stroke-width: 1.8; stroke-linecap: square"/>
+   </g>
+   <g id="f2-line2d_17">
+    <path d="M 341.760575 114.735297 
+L 341.760575 23.64 
+" clip-path="url(#f2-pd60855f843)" style="fill: none; stroke: var(--gray); stroke-width: 0.8; stroke-linecap: square"/>
+   </g>
+   <g id="f2-patch_4">
+    <path d="M 50.242109 114.735297 
+L 50.242109 23.64 
+" style="fill: none; stroke: var(--gray); stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="f2-patch_5">
+    <path d="M 50.242109 114.735297 
+L 451.08 114.735297 
+" style="fill: none; stroke: var(--gray); stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="f2-text_5">
+    <text style="font-size: 9.5px; font-family: 'DejaVu Sans', sans-serif; text-anchor: start" x="50.242109" y="17.64" transform="rotate(-0 50.242109 17.64)">Periodic cycle at the best constant allocation</text>
+   </g>
+  </g>
+  <g id="f2-axes_2">
+   <g id="f2-patch_6">
+    <path d="M 50.242109 219.050594 
+L 451.08 219.050594 
+L 451.08 127.955297 
+L 50.242109 127.955297 
+L 50.242109 219.050594 
+z
+" style="fill: none"/>
+   </g>
+   <g id="f2-patch_7">
+    <path d="M 68.462013 219.050594 
+L 341.760575 219.050594 
+L 341.760575 127.955297 
+L 68.462013 127.955297 
+z
+" clip-path="url(#f2-pdd65959433)" style="fill: var(--gridc); opacity: 0.35"/>
+   </g>
+   <g id="f2-matplotlib.axis_3">
+    <g id="f2-xtick_10">
+     <g id="f2-line2d_18">
+      <g>
+       <use xlink:href="#f2-md66b3296ec" x="68.462013" y="219.050594" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="f2-xtick_11">
+     <g id="f2-line2d_19">
+      <g>
+       <use xlink:href="#f2-md66b3296ec" x="114.011774" y="219.050594" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="f2-xtick_12">
+     <g id="f2-line2d_20">
+      <g>
+       <use xlink:href="#f2-md66b3296ec" x="159.561534" y="219.050594" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="f2-xtick_13">
+     <g id="f2-line2d_21">
+      <g>
+       <use xlink:href="#f2-md66b3296ec" x="205.111294" y="219.050594" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="f2-xtick_14">
+     <g id="f2-line2d_22">
+      <g>
+       <use xlink:href="#f2-md66b3296ec" x="250.661055" y="219.050594" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="f2-xtick_15">
+     <g id="f2-line2d_23">
+      <g>
+       <use xlink:href="#f2-md66b3296ec" x="296.210815" y="219.050594" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="f2-xtick_16">
+     <g id="f2-line2d_24">
+      <g>
+       <use xlink:href="#f2-md66b3296ec" x="341.760575" y="219.050594" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="f2-xtick_17">
+     <g id="f2-line2d_25">
+      <g>
+       <use xlink:href="#f2-md66b3296ec" x="387.310336" y="219.050594" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="f2-xtick_18">
+     <g id="f2-line2d_26">
+      <g>
+       <use xlink:href="#f2-md66b3296ec" x="432.860096" y="219.050594" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+    </g>
+   </g>
+   <g id="f2-matplotlib.axis_4">
+    <g id="f2-ytick_4">
+     <g id="f2-line2d_27">
+      <path d="M 50.242109 197.23267 
+L 451.08 197.23267 
+" clip-path="url(#f2-pdd65959433)" style="fill: none; stroke: var(--gridc); stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="f2-line2d_28">
+      <g>
+       <use xlink:href="#f2-m50ecf898cd" x="50.242109" y="197.23267" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f2-text_6">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: end; fill: var(--gray)" x="43.242109" y="200.651615" transform="rotate(-0 43.242109 200.651615)">0.05</text>
+     </g>
+    </g>
+    <g id="f2-ytick_5">
+     <g id="f2-line2d_29">
+      <path d="M 50.242109 164.664331 
+L 451.08 164.664331 
+" clip-path="url(#f2-pdd65959433)" style="fill: none; stroke: var(--gridc); stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="f2-line2d_30">
+      <g>
+       <use xlink:href="#f2-m50ecf898cd" x="50.242109" y="164.664331" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f2-text_7">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: end; fill: var(--gray)" x="43.242109" y="168.083276" transform="rotate(-0 43.242109 168.083276)">0.10</text>
+     </g>
+    </g>
+    <g id="f2-ytick_6">
+     <g id="f2-line2d_31">
+      <path d="M 50.242109 132.095992 
+L 451.08 132.095992 
+" clip-path="url(#f2-pdd65959433)" style="fill: none; stroke: var(--gridc); stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="f2-line2d_32">
+      <g>
+       <use xlink:href="#f2-m50ecf898cd" x="50.242109" y="132.095992" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f2-text_8">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: end; fill: var(--gray)" x="43.242109" y="135.514937" transform="rotate(-0 43.242109 135.514937)">0.15</text>
+     </g>
+    </g>
+    <g id="f2-text_9">
+     <!-- enzyme fraction  $\varphi_A$ -->
+     <g style="fill: currentColor" transform="translate(17.040938 218.142945) rotate(-90)">
+      <text>
+       <tspan x="0" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">e</tspan>
+       <tspan x="5.537109" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">n</tspan>
+       <tspan x="11.241211" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">z</tspan>
+       <tspan x="15.965332" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">y</tspan>
+       <tspan x="21.291504" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">m</tspan>
+       <tspan x="30.058594" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">e</tspan>
+       <tspan x="35.595703" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor"> </tspan>
+       <tspan x="38.456543" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">f</tspan>
+       <tspan x="41.625" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">r</tspan>
+       <tspan x="45.325195" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">a</tspan>
+       <tspan x="50.840332" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">c</tspan>
+       <tspan x="55.788574" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">t</tspan>
+       <tspan x="59.317383" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">i</tspan>
+       <tspan x="61.817871" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">o</tspan>
+       <tspan x="67.324219" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">n</tspan>
+       <tspan x="73.02832" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor"> </tspan>
+       <tspan x="75.88916" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor"> </tspan>
+       <tspan x="78.75" y="-0.15625" style="font-style: oblique; font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">φ</tspan>
+       <tspan x="84.687012" y="1.193746" style="font-style: oblique; font-size: 6.3px; font-family: 'DejaVu Sans'; fill: currentColor">A</tspan>
+      </text>
+     </g>
+    </g>
+   </g>
+   <g id="f2-line2d_33">
+    <path d="M 68.462013 161.90847 
+L 73.256725 166.396327 
+L 78.051437 170.580009 
+L 82.846148 174.467492 
+L 87.64086 178.068866 
+L 92.435572 181.395875 
+L 97.230283 184.461494 
+L 102.024995 187.279546 
+L 106.819706 189.864361 
+L 112.299377 192.551507 
+L 117.779047 194.974677 
+L 123.258718 197.155109 
+L 128.738388 199.113324 
+L 134.903017 201.07505 
+L 141.067646 202.806554 
+L 147.917234 204.490015 
+L 154.766822 205.949906 
+L 162.301369 207.330463 
+L 170.520875 208.604471 
+L 179.425339 209.753113 
+L 189.014763 210.765851 
+L 199.974103 211.691285 
+L 212.303362 212.497882 
+L 226.002538 213.170554 
+L 242.441549 213.74911 
+L 262.305354 214.216637 
+L 287.64883 214.578155 
+L 322.581729 214.834605 
+L 341.988895 214.829566 
+L 347.925204 212.617824 
+L 353.861514 210.164126 
+L 359.797824 207.465207 
+L 365.734133 204.52377 
+L 371.898763 201.222697 
+L 378.520031 197.418679 
+L 385.597939 193.093896 
+L 393.817444 187.806189 
+L 405.233424 180.170166 
+L 424.86891 167.015549 
+L 432.860096 161.90847 
+L 432.860096 161.90847 
+" clip-path="url(#f2-pdd65959433)" style="fill: none; stroke: #1f9a8e; stroke-width: 1.8; stroke-linecap: square"/>
+   </g>
+   <g id="f2-line2d_34">
+    <path d="M 50.242109 132.095992 
+L 451.08 132.095992 
+" clip-path="url(#f2-pdd65959433)" style="fill: none; stroke-dasharray: 2.96,1.28; stroke-dashoffset: 0; stroke: var(--gray); stroke-width: 0.8"/>
+   </g>
+   <g id="f2-line2d_35">
+    <path d="M 341.760575 219.050594 
+L 341.760575 127.955297 
+" clip-path="url(#f2-pdd65959433)" style="fill: none; stroke: var(--gray); stroke-width: 0.8; stroke-linecap: square"/>
+   </g>
+   <g id="f2-patch_8">
+    <path d="M 50.242109 219.050594 
+L 50.242109 127.955297 
+" style="fill: none; stroke: var(--gray); stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="f2-patch_9">
+    <path d="M 50.242109 219.050594 
+L 451.08 219.050594 
+" style="fill: none; stroke: var(--gray); stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+  </g>
+  <g id="f2-axes_3">
+   <g id="f2-patch_10">
+    <path d="M 50.242109 323.365891 
+L 451.08 323.365891 
+L 451.08 232.270594 
+L 50.242109 232.270594 
+L 50.242109 323.365891 
+z
+" style="fill: none"/>
+   </g>
+   <g id="f2-patch_11">
+    <path d="M 68.462013 323.365891 
+L 341.760575 323.365891 
+L 341.760575 232.270594 
+L 68.462013 232.270594 
+z
+" clip-path="url(#f2-pbed346bc0f)" style="fill: var(--gridc); opacity: 0.35"/>
+   </g>
+   <g id="f2-matplotlib.axis_5">
+    <g id="f2-xtick_19">
+     <g id="f2-line2d_36">
+      <g>
+       <use xlink:href="#f2-md66b3296ec" x="68.462013" y="323.365891" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f2-text_10">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: middle; fill: var(--gray)" x="68.462013" y="337.203781" transform="rotate(-0 68.462013 337.203781)">0.0</text>
+     </g>
+    </g>
+    <g id="f2-xtick_20">
+     <g id="f2-line2d_37">
+      <g>
+       <use xlink:href="#f2-md66b3296ec" x="114.011774" y="323.365891" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f2-text_11">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: middle; fill: var(--gray)" x="114.011774" y="337.203781" transform="rotate(-0 114.011774 337.203781)">0.5</text>
+     </g>
+    </g>
+    <g id="f2-xtick_21">
+     <g id="f2-line2d_38">
+      <g>
+       <use xlink:href="#f2-md66b3296ec" x="159.561534" y="323.365891" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f2-text_12">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: middle; fill: var(--gray)" x="159.561534" y="337.203781" transform="rotate(-0 159.561534 337.203781)">1.0</text>
+     </g>
+    </g>
+    <g id="f2-xtick_22">
+     <g id="f2-line2d_39">
+      <g>
+       <use xlink:href="#f2-md66b3296ec" x="205.111294" y="323.365891" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f2-text_13">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: middle; fill: var(--gray)" x="205.111294" y="337.203781" transform="rotate(-0 205.111294 337.203781)">1.5</text>
+     </g>
+    </g>
+    <g id="f2-xtick_23">
+     <g id="f2-line2d_40">
+      <g>
+       <use xlink:href="#f2-md66b3296ec" x="250.661055" y="323.365891" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f2-text_14">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: middle; fill: var(--gray)" x="250.661055" y="337.203781" transform="rotate(-0 250.661055 337.203781)">2.0</text>
+     </g>
+    </g>
+    <g id="f2-xtick_24">
+     <g id="f2-line2d_41">
+      <g>
+       <use xlink:href="#f2-md66b3296ec" x="296.210815" y="323.365891" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f2-text_15">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: middle; fill: var(--gray)" x="296.210815" y="337.203781" transform="rotate(-0 296.210815 337.203781)">2.5</text>
+     </g>
+    </g>
+    <g id="f2-xtick_25">
+     <g id="f2-line2d_42">
+      <g>
+       <use xlink:href="#f2-md66b3296ec" x="341.760575" y="323.365891" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f2-text_16">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: middle; fill: var(--gray)" x="341.760575" y="337.203781" transform="rotate(-0 341.760575 337.203781)">3.0</text>
+     </g>
+    </g>
+    <g id="f2-xtick_26">
+     <g id="f2-line2d_43">
+      <g>
+       <use xlink:href="#f2-md66b3296ec" x="387.310336" y="323.365891" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f2-text_17">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: middle; fill: var(--gray)" x="387.310336" y="337.203781" transform="rotate(-0 387.310336 337.203781)">3.5</text>
+     </g>
+    </g>
+    <g id="f2-xtick_27">
+     <g id="f2-line2d_44">
+      <g>
+       <use xlink:href="#f2-md66b3296ec" x="432.860096" y="323.365891" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f2-text_18">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: middle; fill: var(--gray)" x="432.860096" y="337.203781" transform="rotate(-0 432.860096 337.203781)">4.0</text>
+     </g>
+    </g>
+    <g id="f2-text_19">
+     <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: middle; fill: currentColor" x="250.661055" y="350.204484" transform="rotate(-0 250.661055 350.204484)">time within the cycle (h)</text>
+    </g>
+   </g>
+   <g id="f2-matplotlib.axis_6">
+    <g id="f2-ytick_7">
+     <g id="f2-line2d_45">
+      <path d="M 50.242109 310.288901 
+L 451.08 310.288901 
+" clip-path="url(#f2-pbed346bc0f)" style="fill: none; stroke: var(--gridc); stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="f2-line2d_46">
+      <g>
+       <use xlink:href="#f2-m50ecf898cd" x="50.242109" y="310.288901" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f2-text_20">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: end; fill: var(--gray)" x="43.242109" y="313.707847" transform="rotate(-0 43.242109 313.707847)">0.5</text>
+     </g>
+    </g>
+    <g id="f2-ytick_8">
+     <g id="f2-line2d_47">
+      <path d="M 50.242109 286.461497 
+L 451.08 286.461497 
+" clip-path="url(#f2-pbed346bc0f)" style="fill: none; stroke: var(--gridc); stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="f2-line2d_48">
+      <g>
+       <use xlink:href="#f2-m50ecf898cd" x="50.242109" y="286.461497" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f2-text_21">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: end; fill: var(--gray)" x="43.242109" y="289.880442" transform="rotate(-0 43.242109 289.880442)">1.0</text>
+     </g>
+    </g>
+    <g id="f2-ytick_9">
+     <g id="f2-line2d_49">
+      <path d="M 50.242109 262.634092 
+L 451.08 262.634092 
+" clip-path="url(#f2-pbed346bc0f)" style="fill: none; stroke: var(--gridc); stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="f2-line2d_50">
+      <g>
+       <use xlink:href="#f2-m50ecf898cd" x="50.242109" y="262.634092" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f2-text_22">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: end; fill: var(--gray)" x="43.242109" y="266.053037" transform="rotate(-0 43.242109 266.053037)">1.5</text>
+     </g>
+    </g>
+    <g id="f2-ytick_10">
+     <g id="f2-line2d_51">
+      <path d="M 50.242109 238.806687 
+L 451.08 238.806687 
+" clip-path="url(#f2-pbed346bc0f)" style="fill: none; stroke: var(--gridc); stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="f2-line2d_52">
+      <g>
+       <use xlink:href="#f2-m50ecf898cd" x="50.242109" y="238.806687" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f2-text_23">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: end; fill: var(--gray)" x="43.242109" y="242.225633" transform="rotate(-0 43.242109 242.225633)">2.0</text>
+     </g>
+    </g>
+    <g id="f2-text_24">
+     <!-- growth rate  $\mu$ (h$^{-1}$) -->
+     <g style="fill: currentColor" transform="translate(22.767188 322.413242) rotate(-90)">
+      <text>
+       <tspan x="0" y="-0.68925" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">g</tspan>
+       <tspan x="5.712891" y="-0.68925" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">r</tspan>
+       <tspan x="9.413086" y="-0.68925" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">o</tspan>
+       <tspan x="14.919434" y="-0.68925" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">w</tspan>
+       <tspan x="22.280273" y="-0.68925" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">t</tspan>
+       <tspan x="25.809082" y="-0.68925" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">h</tspan>
+       <tspan x="31.513184" y="-0.68925" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor"> </tspan>
+       <tspan x="34.374023" y="-0.68925" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">r</tspan>
+       <tspan x="38.074219" y="-0.68925" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">a</tspan>
+       <tspan x="43.589355" y="-0.68925" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">t</tspan>
+       <tspan x="47.118164" y="-0.68925" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">e</tspan>
+       <tspan x="52.655273" y="-0.68925" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor"> </tspan>
+       <tspan x="55.516113" y="-0.68925" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor"> </tspan>
+       <tspan x="64.103027" y="-0.68925" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor"> </tspan>
+       <tspan x="66.963867" y="-0.68925" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">(</tspan>
+       <tspan x="70.475098" y="-0.68925" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">h</tspan>
+       <tspan x="85.798389" y="-0.68925" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">)</tspan>
+       <tspan x="58.376953" y="-0.68925" style="font-style: oblique; font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">μ</tspan>
+       <tspan x="76.265332" y="-4.40625" style="font-size: 6.3px; font-family: 'DejaVu Sans'; fill: currentColor">−</tspan>
+       <tspan x="81.544043" y="-4.40625" style="font-size: 6.3px; font-family: 'DejaVu Sans'; fill: currentColor">1</tspan>
+      </text>
+     </g>
+    </g>
+   </g>
+   <g id="f2-line2d_53">
+    <path d="M 68.462013 255.024013 
+L 75.311602 252.805402 
+L 82.16119 250.802396 
+L 89.695736 248.836636 
+L 97.230283 247.103977 
+L 105.449789 245.457919 
+L 113.669294 244.041841 
+L 122.573759 242.737611 
+L 132.163182 241.565395 
+L 142.437564 240.53665 
+L 154.081864 239.605825 
+L 167.096081 238.802505 
+L 181.480216 238.13965 
+L 198.604186 237.578067 
+L 219.15295 237.131267 
+L 245.866343 236.785184 
+L 282.854118 236.546621 
+L 341.760575 236.411289 
+L 341.760575 319.225195 
+L 348.381844 316.907321 
+L 355.231432 314.267292 
+L 362.309339 311.298305 
+L 370.072206 307.798448 
+L 379.433309 303.324358 
+L 410.941414 288.043536 
+L 418.704281 284.648429 
+L 426.010508 281.693815 
+L 432.860096 279.157239 
+L 432.860096 279.157239 
+" clip-path="url(#f2-pbed346bc0f)" style="fill: none; stroke: #d75567; stroke-width: 1.8; stroke-linecap: square"/>
+   </g>
+   <g id="f2-line2d_54">
+    <path d="M 341.760575 323.365891 
+L 341.760575 232.270594 
+" clip-path="url(#f2-pbed346bc0f)" style="fill: none; stroke: var(--gray); stroke-width: 0.8; stroke-linecap: square"/>
+   </g>
+   <g id="f2-patch_12">
+    <path d="M 50.242109 323.365891 
+L 50.242109 232.270594 
+" style="fill: none; stroke: var(--gray); stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="f2-patch_13">
+    <path d="M 50.242109 323.365891 
+L 451.08 323.365891 
+" style="fill: none; stroke: var(--gray); stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+  </g>
+  <g id="f2-text_25">
+   <text style="font-size: 7.5px; font-family: 'DejaVu Sans', sans-serif; text-anchor: start; fill: var(--gray)" x="4.608" y="372.528" transform="rotate(-0 4.608 372.528)">cycle map fixed point: ||x(T)-x(0)|| = 8.2e-11 after 5 iterations</text>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="f2-pd60855f843">
+   <rect x="50.242109" y="23.64" width="400.837891" height="91.095297"/>
+  </clipPath>
+  <clipPath id="f2-pdd65959433">
+   <rect x="50.242109" y="127.955297" width="400.837891" height="91.095297"/>
+  </clipPath>
+  <clipPath id="f2-pbed346bc0f">
+   <rect x="50.242109" y="232.270594" width="400.837891" height="91.095297"/>
+  </clipPath>
+ </defs>
+</svg>
+
+<figcaption><b>Figure 2.</b> Best member of the constant-allocation family, 3 h feast and 1 h famine. Top: synthesis share to the enzyme sector. Middle: enzyme share. Bottom: growth rate. The trajectory starts and ends at the same state, the fixed point of the cycle map; the feast-end reserve is 0.15. The 1 h famine is too short for the enzyme share to reach 0.15, so the synthesis cap stays on throughout.</figcaption>
+</figure>
+
+<p>Scanning the feast gives Figure 3: over 0.5 to 8 h, the best reserve falls as the feast lengthens. The longer the feast, the longer a given reserve must be maintained, so the cost grows while the benefit stays fixed at the start of each downshift. A reserve of zero is a conjecture about an infinite feast, not a result of the scan.</p>
+
+<figure class="figbox" id="fig-cycle">
+<svg role="img" aria-label="Reserve at feast end against feast duration for famines of 1, 2 and 4 h, at the fixed point of the cycle map. The 2 h and 4 h curves nearly coincide. The dashed line is the observed ratio 0.21." xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 460.8 259.2" xmlns="http://www.w3.org/2000/svg" version="1.1"><title>Reserve at feast end against feast duration for famines of 1, 2 and 4 h, at the fixed point of the cycle map. The 2 h and 4 h curves nearly coincide. The dashed line is the observed ratio 0.21.</title><desc>Reserve at feast end against feast duration for famines of 1, 2 and 4 h, at the fixed point of the cycle map. The 2 h and 4 h curves nearly coincide. The dashed line is the observed ratio 0.21.</desc>
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-11-08T20:54:40.524322</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="f3-figure_1">
+  <g id="f3-patch_1">
+   <path d="M 0 259.2 
+L 460.8 259.2 
+L 460.8 0 
+L 0 0 
+L 0 259.2 
+z
+" style="fill: none"/>
+  </g>
+  <g id="f3-axes_1">
+   <g id="f3-patch_2">
+    <path d="M 44.482109 219.397891 
+L 451.08 219.397891 
+L 451.08 23.64 
+L 44.482109 23.64 
+L 44.482109 219.397891 
+z
+" style="fill: none"/>
+   </g>
+   <g id="f3-matplotlib.axis_1">
+    <g id="f3-xtick_1">
+     <g id="f3-line2d_1">
+      <defs>
+       <path id="f3-m9f1b7a047a" d="M 0 0 
+L 0 3.5 
+" style="stroke: var(--gray); stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#f3-m9f1b7a047a" x="44.482109" y="219.397891" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f3-text_1">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: middle; fill: var(--gray)" x="44.482109" y="233.235781" transform="rotate(-0 44.482109 233.235781)">0</text>
+     </g>
+    </g>
+    <g id="f3-xtick_2">
+     <g id="f3-line2d_2">
+      <g>
+       <use xlink:href="#f3-m9f1b7a047a" x="92.88662" y="219.397891" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f3-text_2">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: middle; fill: var(--gray)" x="92.88662" y="233.235781" transform="rotate(-0 92.88662 233.235781)">1</text>
+     </g>
+    </g>
+    <g id="f3-xtick_3">
+     <g id="f3-line2d_3">
+      <g>
+       <use xlink:href="#f3-m9f1b7a047a" x="141.291131" y="219.397891" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f3-text_3">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: middle; fill: var(--gray)" x="141.291131" y="233.235781" transform="rotate(-0 141.291131 233.235781)">2</text>
+     </g>
+    </g>
+    <g id="f3-xtick_4">
+     <g id="f3-line2d_4">
+      <g>
+       <use xlink:href="#f3-m9f1b7a047a" x="189.695642" y="219.397891" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f3-text_4">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: middle; fill: var(--gray)" x="189.695642" y="233.235781" transform="rotate(-0 189.695642 233.235781)">3</text>
+     </g>
+    </g>
+    <g id="f3-xtick_5">
+     <g id="f3-line2d_5">
+      <g>
+       <use xlink:href="#f3-m9f1b7a047a" x="238.100153" y="219.397891" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f3-text_5">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: middle; fill: var(--gray)" x="238.100153" y="233.235781" transform="rotate(-0 238.100153 233.235781)">4</text>
+     </g>
+    </g>
+    <g id="f3-xtick_6">
+     <g id="f3-line2d_6">
+      <g>
+       <use xlink:href="#f3-m9f1b7a047a" x="286.504663" y="219.397891" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f3-text_6">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: middle; fill: var(--gray)" x="286.504663" y="233.235781" transform="rotate(-0 286.504663 233.235781)">5</text>
+     </g>
+    </g>
+    <g id="f3-xtick_7">
+     <g id="f3-line2d_7">
+      <g>
+       <use xlink:href="#f3-m9f1b7a047a" x="334.909174" y="219.397891" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f3-text_7">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: middle; fill: var(--gray)" x="334.909174" y="233.235781" transform="rotate(-0 334.909174 233.235781)">6</text>
+     </g>
+    </g>
+    <g id="f3-xtick_8">
+     <g id="f3-line2d_8">
+      <g>
+       <use xlink:href="#f3-m9f1b7a047a" x="383.313685" y="219.397891" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f3-text_8">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: middle; fill: var(--gray)" x="383.313685" y="233.235781" transform="rotate(-0 383.313685 233.235781)">7</text>
+     </g>
+    </g>
+    <g id="f3-xtick_9">
+     <g id="f3-line2d_9">
+      <g>
+       <use xlink:href="#f3-m9f1b7a047a" x="431.718196" y="219.397891" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f3-text_9">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: middle; fill: var(--gray)" x="431.718196" y="233.235781" transform="rotate(-0 431.718196 233.235781)">8</text>
+     </g>
+    </g>
+    <g id="f3-text_10">
+     <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: middle; fill: currentColor" x="247.781055" y="246.236484" transform="rotate(-0 247.781055 246.236484)">feast duration (h)</text>
+    </g>
+   </g>
+   <g id="f3-matplotlib.axis_2">
+    <g id="f3-ytick_1">
+     <g id="f3-line2d_10">
+      <path d="M 44.482109 219.397891 
+L 451.08 219.397891 
+" clip-path="url(#f3-pf6550f9b0c)" style="fill: none; stroke: var(--gridc); stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="f3-line2d_11">
+      <defs>
+       <path id="f3-m323aff1a2f" d="M 0 0 
+L -3.5 0 
+" style="stroke: var(--gray); stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#f3-m323aff1a2f" x="44.482109" y="219.397891" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f3-text_11">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: end; fill: var(--gray)" x="37.482109" y="222.816836" transform="rotate(-0 37.482109 222.816836)">0.0</text>
+     </g>
+    </g>
+    <g id="f3-ytick_2">
+     <g id="f3-line2d_12">
+      <path d="M 44.482109 196.367551 
+L 451.08 196.367551 
+" clip-path="url(#f3-pf6550f9b0c)" style="fill: none; stroke: var(--gridc); stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="f3-line2d_13">
+      <g>
+       <use xlink:href="#f3-m323aff1a2f" x="44.482109" y="196.367551" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f3-text_12">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: end; fill: var(--gray)" x="37.482109" y="199.786496" transform="rotate(-0 37.482109 199.786496)">0.1</text>
+     </g>
+    </g>
+    <g id="f3-ytick_3">
+     <g id="f3-line2d_14">
+      <path d="M 44.482109 173.33721 
+L 451.08 173.33721 
+" clip-path="url(#f3-pf6550f9b0c)" style="fill: none; stroke: var(--gridc); stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="f3-line2d_15">
+      <g>
+       <use xlink:href="#f3-m323aff1a2f" x="44.482109" y="173.33721" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f3-text_13">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: end; fill: var(--gray)" x="37.482109" y="176.756156" transform="rotate(-0 37.482109 176.756156)">0.2</text>
+     </g>
+    </g>
+    <g id="f3-ytick_4">
+     <g id="f3-line2d_16">
+      <path d="M 44.482109 150.30687 
+L 451.08 150.30687 
+" clip-path="url(#f3-pf6550f9b0c)" style="fill: none; stroke: var(--gridc); stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="f3-line2d_17">
+      <g>
+       <use xlink:href="#f3-m323aff1a2f" x="44.482109" y="150.30687" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f3-text_14">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: end; fill: var(--gray)" x="37.482109" y="153.725816" transform="rotate(-0 37.482109 153.725816)">0.3</text>
+     </g>
+    </g>
+    <g id="f3-ytick_5">
+     <g id="f3-line2d_18">
+      <path d="M 44.482109 127.27653 
+L 451.08 127.27653 
+" clip-path="url(#f3-pf6550f9b0c)" style="fill: none; stroke: var(--gridc); stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="f3-line2d_19">
+      <g>
+       <use xlink:href="#f3-m323aff1a2f" x="44.482109" y="127.27653" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f3-text_15">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: end; fill: var(--gray)" x="37.482109" y="130.695476" transform="rotate(-0 37.482109 130.695476)">0.4</text>
+     </g>
+    </g>
+    <g id="f3-ytick_6">
+     <g id="f3-line2d_20">
+      <path d="M 44.482109 104.24619 
+L 451.08 104.24619 
+" clip-path="url(#f3-pf6550f9b0c)" style="fill: none; stroke: var(--gridc); stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="f3-line2d_21">
+      <g>
+       <use xlink:href="#f3-m323aff1a2f" x="44.482109" y="104.24619" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f3-text_16">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: end; fill: var(--gray)" x="37.482109" y="107.665136" transform="rotate(-0 37.482109 107.665136)">0.5</text>
+     </g>
+    </g>
+    <g id="f3-ytick_7">
+     <g id="f3-line2d_22">
+      <path d="M 44.482109 81.21585 
+L 451.08 81.21585 
+" clip-path="url(#f3-pf6550f9b0c)" style="fill: none; stroke: var(--gridc); stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="f3-line2d_23">
+      <g>
+       <use xlink:href="#f3-m323aff1a2f" x="44.482109" y="81.21585" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f3-text_17">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: end; fill: var(--gray)" x="37.482109" y="84.634795" transform="rotate(-0 37.482109 84.634795)">0.6</text>
+     </g>
+    </g>
+    <g id="f3-ytick_8">
+     <g id="f3-line2d_24">
+      <path d="M 44.482109 58.18551 
+L 451.08 58.18551 
+" clip-path="url(#f3-pf6550f9b0c)" style="fill: none; stroke: var(--gridc); stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="f3-line2d_25">
+      <g>
+       <use xlink:href="#f3-m323aff1a2f" x="44.482109" y="58.18551" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f3-text_18">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: end; fill: var(--gray)" x="37.482109" y="61.604455" transform="rotate(-0 37.482109 61.604455)">0.7</text>
+     </g>
+    </g>
+    <g id="f3-ytick_9">
+     <g id="f3-line2d_26">
+      <path d="M 44.482109 35.15517 
+L 451.08 35.15517 
+" clip-path="url(#f3-pf6550f9b0c)" style="fill: none; stroke: var(--gridc); stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="f3-line2d_27">
+      <g>
+       <use xlink:href="#f3-m323aff1a2f" x="44.482109" y="35.15517" style="fill: var(--gray); stroke: var(--gray); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f3-text_19">
+      <text style="font-size: 9px; font-family: 'DejaVu Sans', sans-serif; text-anchor: end; fill: var(--gray)" x="37.482109" y="38.574115" transform="rotate(-0 37.482109 38.574115)">0.8</text>
+     </g>
+    </g>
+    <g id="f3-text_20">
+     <!-- reserve at feast end  $q$ -->
+     <g style="fill: currentColor" transform="translate(17.007188 172.683945) rotate(-90)">
+      <text>
+       <tspan x="0" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">r</tspan>
+       <tspan x="3.700195" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">e</tspan>
+       <tspan x="9.237305" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">s</tspan>
+       <tspan x="13.92627" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">e</tspan>
+       <tspan x="19.463379" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">r</tspan>
+       <tspan x="23.163574" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">v</tspan>
+       <tspan x="28.489746" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">e</tspan>
+       <tspan x="34.026855" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor"> </tspan>
+       <tspan x="36.887695" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">a</tspan>
+       <tspan x="42.402832" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">t</tspan>
+       <tspan x="45.931641" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor"> </tspan>
+       <tspan x="48.79248" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">f</tspan>
+       <tspan x="51.960938" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">e</tspan>
+       <tspan x="57.498047" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">a</tspan>
+       <tspan x="63.013184" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">s</tspan>
+       <tspan x="67.702148" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">t</tspan>
+       <tspan x="71.230957" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor"> </tspan>
+       <tspan x="74.091797" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">e</tspan>
+       <tspan x="79.628906" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">n</tspan>
+       <tspan x="85.333008" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">d</tspan>
+       <tspan x="91.045898" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor"> </tspan>
+       <tspan x="93.906738" y="-0.15625" style="font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor"> </tspan>
+       <tspan x="96.767578" y="-0.15625" style="font-style: oblique; font-size: 9px; font-family: 'DejaVu Sans'; fill: currentColor">q</tspan>
+      </text>
+     </g>
+    </g>
+   </g>
+   <g id="f3-line2d_28">
+    <path d="M 68.684365 39.961093 
+L 92.88662 74.883383 
+L 141.291131 150.422963 
+L 189.695642 184.297611 
+L 238.100153 198.988181 
+L 334.909174 211.720151 
+L 431.718196 211.720336 
+" clip-path="url(#f3-pf6550f9b0c)" style="fill: none; stroke: #d75567; stroke-width: 1.5; stroke-linecap: square"/>
+    <defs>
+     <path id="f3-maad1e15331" d="M 0 2 
+C 0.530406 2 1.03916 1.789267 1.414214 1.414214 
+C 1.789267 1.03916 2 0.530406 2 0 
+C 2 -0.530406 1.789267 -1.03916 1.414214 -1.414214 
+C 1.03916 -1.789267 0.530406 -2 0 -2 
+C -0.530406 -2 -1.03916 -1.789267 -1.414214 -1.414214 
+C -1.789267 -1.03916 -2 -0.530406 -2 0 
+C -2 0.530406 -1.789267 1.03916 -1.414214 1.414214 
+C -1.03916 1.789267 -0.530406 2 0 2 
+z
+" style="stroke: #ffffff; stroke-width: 0.9"/>
+    </defs>
+    <g clip-path="url(#f3-pf6550f9b0c)">
+     <use xlink:href="#f3-maad1e15331" x="68.684365" y="39.961093" style="fill: #d75567; stroke: #ffffff; stroke-width: 0.9"/>
+     <use xlink:href="#f3-maad1e15331" x="92.88662" y="74.883383" style="fill: #d75567; stroke: #ffffff; stroke-width: 0.9"/>
+     <use xlink:href="#f3-maad1e15331" x="141.291131" y="150.422963" style="fill: #d75567; stroke: #ffffff; stroke-width: 0.9"/>
+     <use xlink:href="#f3-maad1e15331" x="189.695642" y="184.297611" style="fill: #d75567; stroke: #ffffff; stroke-width: 0.9"/>
+     <use xlink:href="#f3-maad1e15331" x="238.100153" y="198.988181" style="fill: #d75567; stroke: #ffffff; stroke-width: 0.9"/>
+     <use xlink:href="#f3-maad1e15331" x="334.909174" y="211.720151" style="fill: #d75567; stroke: #ffffff; stroke-width: 0.9"/>
+     <use xlink:href="#f3-maad1e15331" x="431.718196" y="211.720336" style="fill: #d75567; stroke: #ffffff; stroke-width: 0.9"/>
+    </g>
+   </g>
+   <g id="f3-line2d_29">
+    <path d="M 68.684365 49.32891 
+L 92.88662 80.883073 
+L 141.291131 136.228844 
+L 189.695642 164.232208 
+L 238.100153 178.379805 
+L 334.909174 192.285111 
+L 431.718196 199.121642 
+" clip-path="url(#f3-pf6550f9b0c)" style="fill: none; stroke-dasharray: 5.55,2.4; stroke-dashoffset: 0; stroke: #5a73ce; stroke-width: 1.5"/>
+    <defs>
+     <path id="f3-m303ea6006d" d="M -2 2 
+L 2 2 
+L 2 -2 
+L -2 -2 
+z
+" style="stroke: #ffffff; stroke-width: 0.9; stroke-linejoin: miter"/>
+    </defs>
+    <g clip-path="url(#f3-pf6550f9b0c)">
+     <use xlink:href="#f3-m303ea6006d" x="68.684365" y="49.32891" style="fill: #5a73ce; stroke: #ffffff; stroke-width: 0.9; stroke-linejoin: miter"/>
+     <use xlink:href="#f3-m303ea6006d" x="92.88662" y="80.883073" style="fill: #5a73ce; stroke: #ffffff; stroke-width: 0.9; stroke-linejoin: miter"/>
+     <use xlink:href="#f3-m303ea6006d" x="141.291131" y="136.228844" style="fill: #5a73ce; stroke: #ffffff; stroke-width: 0.9; stroke-linejoin: miter"/>
+     <use xlink:href="#f3-m303ea6006d" x="189.695642" y="164.232208" style="fill: #5a73ce; stroke: #ffffff; stroke-width: 0.9; stroke-linejoin: miter"/>
+     <use xlink:href="#f3-m303ea6006d" x="238.100153" y="178.379805" style="fill: #5a73ce; stroke: #ffffff; stroke-width: 0.9; stroke-linejoin: miter"/>
+     <use xlink:href="#f3-m303ea6006d" x="334.909174" y="192.285111" style="fill: #5a73ce; stroke: #ffffff; stroke-width: 0.9; stroke-linejoin: miter"/>
+     <use xlink:href="#f3-m303ea6006d" x="431.718196" y="199.121642" style="fill: #5a73ce; stroke: #ffffff; stroke-width: 0.9; stroke-linejoin: miter"/>
+    </g>
+   </g>
+   <g id="f3-line2d_30">
+    <path d="M 68.684365 51.920252 
+L 92.88662 82.323996 
+L 141.291131 136.583837 
+L 189.695642 164.175624 
+L 238.100153 178.49117 
+L 334.909174 192.237338 
+L 431.718196 199.16757 
+" clip-path="url(#f3-pf6550f9b0c)" style="fill: none; stroke-dasharray: 1.5,2.475; stroke-dashoffset: 0; stroke: #1f9a8e; stroke-width: 1.5"/>
+    <defs>
+     <path id="f3-md7a6caec3d" d="M 0 -2 
+L -2 2 
+L 2 2 
+z
+" style="stroke: #ffffff; stroke-width: 0.9; stroke-linejoin: miter"/>
+    </defs>
+    <g clip-path="url(#f3-pf6550f9b0c)">
+     <use xlink:href="#f3-md7a6caec3d" x="68.684365" y="51.920252" style="fill: #1f9a8e; stroke: #ffffff; stroke-width: 0.9; stroke-linejoin: miter"/>
+     <use xlink:href="#f3-md7a6caec3d" x="92.88662" y="82.323996" style="fill: #1f9a8e; stroke: #ffffff; stroke-width: 0.9; stroke-linejoin: miter"/>
+     <use xlink:href="#f3-md7a6caec3d" x="141.291131" y="136.583837" style="fill: #1f9a8e; stroke: #ffffff; stroke-width: 0.9; stroke-linejoin: miter"/>
+     <use xlink:href="#f3-md7a6caec3d" x="189.695642" y="164.175624" style="fill: #1f9a8e; stroke: #ffffff; stroke-width: 0.9; stroke-linejoin: miter"/>
+     <use xlink:href="#f3-md7a6caec3d" x="238.100153" y="178.49117" style="fill: #1f9a8e; stroke: #ffffff; stroke-width: 0.9; stroke-linejoin: miter"/>
+     <use xlink:href="#f3-md7a6caec3d" x="334.909174" y="192.237338" style="fill: #1f9a8e; stroke: #ffffff; stroke-width: 0.9; stroke-linejoin: miter"/>
+     <use xlink:href="#f3-md7a6caec3d" x="431.718196" y="199.16757" style="fill: #1f9a8e; stroke: #ffffff; stroke-width: 0.9; stroke-linejoin: miter"/>
+    </g>
+   </g>
+   <g id="f3-line2d_31">
+    <path d="M 44.482109 171.034176 
+L 451.08 171.034176 
+" clip-path="url(#f3-pf6550f9b0c)" style="fill: none; stroke-dasharray: 3.7,1.6; stroke-dashoffset: 0; stroke: currentColor"/>
+   </g>
+   <g id="f3-patch_3">
+    <path d="M 44.482109 219.397891 
+L 44.482109 23.64 
+" style="fill: none; stroke: var(--gray); stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="f3-patch_4">
+    <path d="M 44.482109 219.397891 
+L 451.08 219.397891 
+" style="fill: none; stroke: var(--gray); stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="f3-text_21">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans', sans-serif; text-anchor: start; fill: currentColor" x="334.909174" y="165.276591" transform="rotate(-0 334.909174 165.276591)">observed  0.21</text>
+   </g>
+   <g id="f3-text_22">
+    <text style="font-size: 9.5px; font-family: 'DejaVu Sans', sans-serif; text-anchor: start" x="44.482109" y="17.64" transform="rotate(-0 44.482109 17.64)">Best reserve in the family falls with feast duration</text>
+   </g>
+   <g id="f3-legend_1">
+    <g id="f3-line2d_32">
+     <path d="M 378.50875 34.11875 
+L 386.50875 34.11875 
+L 394.50875 34.11875 
+" style="fill: none; stroke: #d75567; stroke-width: 1.5; stroke-linecap: square"/>
+     <g>
+      <use xlink:href="#f3-maad1e15331" x="386.50875" y="34.11875" style="fill: #d75567; stroke: #ffffff; stroke-width: 0.9"/>
+     </g>
+    </g>
+    <g id="f3-text_23">
+     <text style="font-size: 8px; font-family: 'DejaVu Sans', sans-serif; text-anchor: start" x="400.90875" y="36.91875" transform="rotate(-0 400.90875 36.91875)">famine 1 h</text>
+    </g>
+    <g id="f3-line2d_33">
+     <path d="M 378.50875 46.119375 
+L 386.50875 46.119375 
+L 394.50875 46.119375 
+" style="fill: none; stroke-dasharray: 5.55,2.4; stroke-dashoffset: 0; stroke: #5a73ce; stroke-width: 1.5"/>
+     <g>
+      <use xlink:href="#f3-m303ea6006d" x="386.50875" y="46.119375" style="fill: #5a73ce; stroke: #ffffff; stroke-width: 0.9; stroke-linejoin: miter"/>
+     </g>
+    </g>
+    <g id="f3-text_24">
+     <text style="font-size: 8px; font-family: 'DejaVu Sans', sans-serif; text-anchor: start" x="400.90875" y="48.919375" transform="rotate(-0 400.90875 48.919375)">famine 2 h</text>
+    </g>
+    <g id="f3-line2d_34">
+     <path d="M 378.50875 58.12 
+L 386.50875 58.12 
+L 394.50875 58.12 
+" style="fill: none; stroke-dasharray: 1.5,2.475; stroke-dashoffset: 0; stroke: #1f9a8e; stroke-width: 1.5"/>
+     <g>
+      <use xlink:href="#f3-md7a6caec3d" x="386.50875" y="58.12" style="fill: #1f9a8e; stroke: #ffffff; stroke-width: 0.9; stroke-linejoin: miter"/>
+     </g>
+    </g>
+    <g id="f3-text_25">
+     <text style="font-size: 8px; font-family: 'DejaVu Sans', sans-serif; text-anchor: start" x="400.90875" y="60.92" transform="rotate(-0 400.90875 60.92)">famine 4 h</text>
+    </g>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="f3-pf6550f9b0c">
+   <rect x="44.482109" y="23.64" width="406.597891" height="195.757891"/>
+  </clipPath>
+ </defs>
+</svg>
+
+<figcaption><b>Figure 3.</b> Reserve at feast end against feast duration for famines of 1, 2 and 4 h, at the fixed point of the cycle map. The 2 h and 4 h curves nearly coincide. The dashed line is the observed ratio 0.21.</figcaption>
+</figure>
+
+<p>Within this model the observed 0.21 corresponds to a feast of about 2.5 h with a 1 h famine, or about 3.4 h with longer famines. The local slope is about -0.18 per hour for a 1 h famine and -0.07 for longer famines, so a reserve measured to 0.05 places the feast within 0.3 to 0.7 h. These are conditional correspondences, not estimates of a real environment.</p>
+
+<div class="box sim">
+<span class="lbl">Numbers and their assumptions</span>
+<p>Onset times at reserves 0.2 and 0.6 differ by about 0.14 h. Treating the 0.2 h single-point error as an independent standard deviation, a two-sided test at 0.05 with power 0.8 needs about 33 pathways per group. If the coefficient of variation is 0.25, the absolute standard deviation is 0.0525. The figures of about 2 and 25 are standard-error targets for 0.05 absolute and 5% relative precision. For a 95% confidence-interval half-width the normal-approximation counts are about 5 and 97. Small samples with an estimated variance need a t correction. The 33 figure assumes independent, equal-variance groups, and pathways within a cell are not independent biological replicates.</p>
+</div>
+
+<p>The example demonstrates a workflow: write the constraints, choose the objective, solve the steady problem and the dynamic family, check boundaries, report precision. It does not establish a specific biological strategy. Parameters are orders of magnitude, and modeled onset times are 2 to 4 times shorter than the measured onset range in Wu et al. (Figure 3l), so only trends are compared.</p>
+
+<div class="box note">
+<span class="lbl">Reproducibility</span>
+<p>Run <code>python analysis/run_analysis.py</code>, then <code>python .pi/skills/research-essay/scripts/build.py src-en/ fanglipei.html</code>. The script writes <code>analysis/results.json</code> with every number above and records Python, numpy, scipy and matplotlib versions. The local archive supplies <code>analysis/</code>, <code>src-en/</code> and <code>literature/</code>; the HTML is standalone but its relative PDF links need that directory. Stable DOI links are in the reference list. The calculation is deterministic, with no random seed. Figure files are regenerated, and the cycle figures report the fixed-point residual.</p>
+</div>
+
+<div class="parthead">
+  <div class="k">Part III</div>
+  <h2>Practice</h2>
+  <p>Errors usually sit in the modelling order and the interpretation, not in the solver.</p>
+</div>
+
+<h2 id="s6"><span class="n">6</span>Error list and checklist</h2>
+<p class="lede">Check the problem definition, then the algorithm, then the interpretation.</p>
+
+<p>The first error is treating accounting as mechanism. Shares summing to one is an identity and does not say which sector limits the others. The second is an undeclared objective. Without an objective there is no optimum, only a description. The third is misreading a boundary solution. Linear models often optimise at a boundary, and calling it an interior optimum leads to wrong conclusions. The fourth is unit confusion. Proteome mass fraction, dry-mass fraction and volume fraction cannot be interchanged, and neither can rates and accumulated amounts. The fifth is testing a dynamic model with steady-state data. A steady-state curve carries no timing information and cannot validate a switching policy. The growth law also has sub-optimality evidence, so not every steady-state point should be read as optimal<sup class="c"><a href="#r-towbin">8</a></sup>. The sixth is overfitting and non-identifiability. With many parameters and little data the optimum is unstable, and intervals should be reported instead of points.</p>
+
+<p>Two more are easy to miss. First, the average used here assumes stationary environmental statistics. Real environments have long tails, and a long tail changes the optimal reserve. Second, constraints can change over time, for example when the fixed share rises under stress. Treating a constraint as constant gives wrong predictions when the environment moves. Cross-species comparison also suggests a shared allocation backbone, so single-species optimality should not be extrapolated<sup class="c"><a href="#r-zhu">6</a></sup>. Spatial structure introduces nutrient gradients and breaks the well-mixed assumption<sup class="c"><a href="#r-kannan">7</a></sup>.</p>
+
+<p>A report should give three things: the source of each constraint, the objective function, and the verification of the solution. Without all three the reader cannot tell whether a conclusion is a property of the model or an artefact of the solver. Archiving code and parameters alongside the text is more useful than restating numbers in prose.</p>
+
+<div class="tablewrap">
+<table>
+<caption>Table 4. Modelling and validation checklist.</caption>
+<thead><tr><th>Stage</th><th>Check</th><th>Criterion</th></tr></thead>
+<tbody>
+<tr><td>Before modelling</td><td>resources, variables, objective</td><td>missing one means it is not an optimisation problem</td></tr>
+<tr><td>During modelling</td><td>constraints from measurement or mechanism</td><td>each constraint has a source</td></tr>
+<tr><td>After solving</td><td>interior or boundary solution</td><td>state the physical meaning of the boundary</td></tr>
+<tr><td>Validation</td><td>independent data</td><td>not a fit to the same data</td></tr>
+<tr><td>Reporting</td><td>parameter intervals and sensitivity</td><td>not a point estimate alone</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Return to the opening. Resource-allocation theory has three parts: constraints, objectives, costates. The algorithms fall into four layers: steady-state optimisation, dynamic optimal control, fluctuation evaluation, and estimation. State them separately and the model can be tested. Mix them and the conclusion is only self-consistent, not falsifiable.</p>
+<h2 id="refs">References</h2>
+<div class="refs">
+<ol>
+<li id="r-wu">Wu C, Mori M, Abele M, Banaei-Esfahani A, Zhang Z, Okano H, Aebersold R, Ludwig C, Hwa T. Enzyme expression kinetics by <i>Escherichia coli</i> during transition from rich to minimal media depends on proteome reserves. <span class="venue"><i>Nature Microbiology</i>, 2023.</span> <a class="pdf" href="literature/s41564-022-01310-w.pdf">PDF</a> <a class="pdf" href="literature/WuEtAl-2023-NatMicrobiol-enzyme-expression-kinetics-SI.pdf">SI</a> <a href="https://doi.org/10.1038/s41564-022-01310-w">DOI</a></li>
+<li id="r-basan15">Basan M, Hui S, Okano H, Zhang Z, Shen Y, Williamson JR, Hwa T. Overflow metabolism in <i>Escherichia coli</i> results from efficient proteome allocation. <span class="venue"><i>Nature</i> 528:99-104, 2015.</span> <a class="pdf" href="literature/nature15765.pdf">PDF</a> <a class="pdf" href="literature/BasanEtAl-2015-Nature-overflow-metabolism-SI.pdf">SI</a> <a href="https://doi.org/10.1038/nature15765">DOI</a></li>
+<li id="r-sadeghi">Sadeghi Arjmand S. Dynamic resource allocation in eukaryotic Resource Balance Analysis. <span class="venue"><i>Journal of Mathematical Biology</i> 93:12, 2026.</span> <a class="pdf" href="literature/s00285-026-02436-9.pdf">PDF</a> <a href="https://doi.org/10.1007/s00285-026-02436-9">DOI</a></li>
+<li id="r-basan18">Basan M. Resource allocation and metabolism: the search for governing principles. <span class="venue"><i>Current Opinion in Microbiology</i> 45:77-83, 2018.</span> <a class="pdf" href="literature/resource_allocation_review.pdf">PDF</a> <a href="https://doi.org/10.1016/j.mib.2018.02.008">DOI</a></li>
+<li id="r-mori17">Mori M, Schink S, Erickson DW, Gerland U, Hwa T. Quantifying the benefit of a proteome reserve in fluctuating environments. <span class="venue"><i>Nature Communications</i> 8:1225, 2017.</span> <a class="pdf" href="literature/MoriEtAl-2017-NatCommun-proteome-reserve-fluctuating-environments.pdf">PDF</a> <a href="https://doi.org/10.1038/s41467-017-01242-8">DOI</a></li>
+<li id="r-zhu">Zhu M, Mori M, Hwa T, Dai X. Distantly related bacteria share a rigid proteome allocation strategy with flexible enzyme kinetics. <span class="venue"><i>PNAS</i>, 2025.</span> <a class="pdf" href="literature/zhu-et-al-2025-distantly-related-bacteria-share-a-rigid-proteome-allocation-strategy-with-flexible-enzyme-kinetics.pdf">PDF</a> <a href="https://doi.org/10.1073/pnas.2427091122">DOI</a></li>
+<li id="r-kannan">Kannan H, Sun H, Warren M, Calar T, Yao P, Taylor BR, Sahu K, Ge D, Mori M, Kleinfeld D, Dong J, Li B, Hwa T. Spatiotemporal development of expanding bacterial colonies driven by emergent mechanical constraints and nutrient gradients. <span class="venue"><i>Nature Communications</i>, 2025.</span> <a class="pdf" href="literature/s41467-025-60004-z.pdf">PDF</a> <a href="https://doi.org/10.1038/s41467-025-60004-z">DOI</a></li>
+<li id="r-towbin">Towbin BD, Korem Y, Bren A, Doron S, Sorek R, Alon U. Optimality and sub-optimality in a bacterial growth law. <span class="venue"><i>Nature Communications</i> 8:14123, 2017.</span> <a class="pdf" href="literature/TowbinEtAl-2017-NatCommun-optimality-bacterial-growth-law.pdf">PDF</a> <a href="https://doi.org/10.1038/ncomms14123">DOI</a></li>
+</ol>
+</div>
+</main>
+</div>
+<script>
+(function(){
+  // ---- theme toggle -------------------------------------------------------
+  var root=document.documentElement, tt=document.getElementById('tt');
+  tt.addEventListener('click',function(){
+    var cur=root.getAttribute('data-theme');
+    if(!cur){ cur = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light'; }
+    root.setAttribute('data-theme', cur==='dark'?'light':'dark');
+    if(window.__redraw) window.__redraw();
+  });
+
+  // ---- TOC scroll spy -----------------------------------------------------
+  var links=[].slice.call(document.querySelectorAll('#toc a'));
+  var secs=links.map(function(a){return document.querySelector(a.getAttribute('href'));}).filter(Boolean);
+  function spy(){
+    var y=window.scrollY+140, best=0;
+    secs.forEach(function(s,i){ if(s && s.offsetTop<=y) best=i; });
+    links.forEach(function(a,i){ a.classList.toggle('on', i===best); });
+  }
+  window.addEventListener('scroll',spy,{passive:true}); spy();
+
+
+})();
+</script>
+</body>
+</html>
