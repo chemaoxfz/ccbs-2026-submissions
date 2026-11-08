@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Extension — Affinity has a proteome-cost floor</title>
+<meta name="author" content="Peng Su">
+<style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px;
+    border-bottom:1px solid var(--line); padding-bottom:5px; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:14px 18px; margin:14px 0; }
+  .equation { text-align:center; }
+  .fig { width:100%; border:1px solid var(--line); border-radius:6px; margin:14px 0; }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+  table { width:100%; border-collapse:collapse; margin:14px 0; font-size:.9rem; }
+  th, td { border:1px solid var(--line); padding:7px 8px; text-align:center; }
+  th { background:var(--soft); }
+  .src { font-size:.9rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Affinity has a proteome cost floor</h1>
+<p class="meta">Author: Peng Su · Lectures 14 15 · CCBS 2026</p>
+
+<p class="card"><strong>One sentence:</strong> If a designed intracellular binder must maintain at least <em>C</em><sub>req</sub> target-bound complexes, its minimum expression is <em>E</em><sub>T</sub>=<em>C</em><sub>req</sub>(1+<em>K</em><sub>d</sub>/<em>S</em>), so improving affinity saves growth capacity mainly while <em>K</em><sub>d</sub> is comparable to the ligand concentration; once <em>K</em><sub>d</sub>≪<em>S</em>, stoichiometry imposes an irreducible proteome-cost floor.</p>
+
+<h2>Turning a binding specification into a growth cost</h2>
+
+<p>Lecture 14 treated the proteome as a finite budget shared by metabolic and ribosomal machinery. Lecture 15 then emphasized that a designed protein must work at an appropriate concentration and that expression burden can change its cellular performance. Took these statements as background, a quantitative question can be asked that if a binder must produce a specified amount of bound complex, how much proteome does its affinity actually save?</p>
+
+<p>Let <em>S</em> be a free ligand concentration maintained by a reservoir, <em>K</em><sub>d</sub> the dissociation constant, and <em>E</em><sub>T</sub> the total concentration of the designed binder. For independent 1:1 binding, Lecture 15 gives the equilibrium occupied fraction</p>
+
+<p class="card equation">
+  θ = <em>S</em>/(<em>K</em><sub>d</sub>+<em>S</em>).
+</p>
+
+<p>The concentration of bound complex is therefore <em>C</em>=θ<em>E</em><sub>T</sub>. Suppose the cellular task requires an absolute complex concentration of at least <em>C</em><sub>req</sub>, rather than merely a large occupied fraction. Solving <em>C</em>≥<em>C</em><sub>req</sub> for the least binder that can meet the task gives</p>
+
+<p class="card equation">
+  <em>E</em><sub>T,min</sub> =
+  <em>C</em><sub>req</sub>
+  (<em>K</em><sub>d</sub>+<em>S</em>)/<em>S</em>
+  = <em>C</em><sub>req</sub>(1+<em>K</em><sub>d</sub>/<em>S</em>).
+</p>
+
+<p>Let α convert binder concentration into its fraction of total cellular protein, so φ<sub>D</sub>=α<em>E</em><sub>T</sub>. This factor contains the binder’s molecular mass and the cell’s total protein concentration. The minimum proteome cost is then</p>
+
+<p class="card equation">
+  φ<sub>D,min</sub> =
+  α<em>C</em><sub>req</sub>(1+<em>K</em><sub>d</sub>/<em>S</em>).
+</p>
+
+<p>The two terms have different meanings. The term α<em>C</em><sub>req</sub> is unavoidable: every required complex needs one binder molecule. The additional term α<em>C</em><sub>req</sub><em>K</em><sub>d</sub>/<em>S</em> pays for unbound binder. Better affinity can remove the second term but never the first.</p>
+
+<h2>How the expression cost enters the growth law</h2>
+
+<p>To connect this result to Lecture 14, add the designed protein as a nonproductive sector in the minimal two-sector growth model. Let φ<sub>R</sub> and φ<sub>E</sub> be the ribosomal and metabolic fractions, with translation capacity σ and precursor-supply capacity <em>k</em>. The constraints become λ≤σφ<sub>R</sub>, λ≤<em>k</em>φ<sub>E</sub>, and φ<sub>R</sub>+φ<sub>E</sub>+φ<sub>D</sub>=1. At the growth-maximizing allocation, both productive capacities are equal, giving</p>
+
+<p class="card equation">
+  λ<sup>*</sup>(φ<sub>D</sub>) =
+  (1−φ<sub>D</sub>)
+  <em>k</em>σ/(<em>k</em>+σ)
+  = (1−φ<sub>D</sub>)λ<sub>0</sub><sup>*</sup>.
+</p>
+
+<p>Within this deliberately small model, the binder’s proteome fraction becomes the same fractional loss of the maximum growth rate. Combining the equations converts a molecular design parameter into a cellular cost:</p>
+
+<p class="card equation">
+  λ<sup>*</sup>/λ<sub>0</sub><sup>*</sup>
+  = 1−α<em>C</em><sub>req</sub>(1+<em>K</em><sub>d</sub>/<em>S</em>).
+</p>
+
+<h2>A tenfold affinity improvement can become almost worthless</h2>
+
+<p>Consider an illustrative binder operating at <em>S</em>=1 μM. The task requires <em>C</em><sub>req</sub>=0.5 μM complex, and assume that each 1 μM of binder occupies 2% of the proteome, so α=0.02 μM<sup>−1</sup>. The calculated requirements are:</p>
+
+<table>
+  <thead><tr><th><em>K</em><sub>d</sub>/<em>S</em></th><th>Occupancy θ</th><th><em>E</em><sub>T,min</sub></th><th>Proteome cost</th><th>Growth retained</th></tr></thead>
+  <tbody>
+    <tr><td>10</td><td>0.091</td><td>5.50 μM</td><td>11.0%</td><td>89.0%</td></tr>
+    <tr><td>1</td><td>0.500</td><td>1.00 μM</td><td>2.0%</td><td>98.0%</td></tr>
+    <tr><td>0.1</td><td>0.909</td><td>0.55 μM</td><td>1.1%</td><td>98.9%</td></tr>
+    <tr><td>0.01</td><td>0.990</td><td>0.505 μM</td><td>1.01%</td><td>98.99%</td></tr>
+  </tbody>
+</table>
+
+<p>Improving <em>K</em><sub>d</sub> from 1 μM to 0.1 μM nearly halves the expression cost, from 2.0% to 1.1%. Improving it another tenfold recovers only 0.09 percentage points of growth because the design is already close to the stoichiometric floor of 1% proteome.</p>
+
+<figure>
+  <svg class="fig" viewBox="0 0 640 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Required binder expression approaches a stoichiometric floor as affinity improves">
+    <rect x="0" y="0" width="640" height="250" fill="none"/>
+    <text x="24" y="24" font-size="13" fill="currentColor">Required binder above the stoichiometric minimum</text>
+    <line x1="70" y1="195" x2="600" y2="195" stroke="#888"/>
+    <line x1="70" y1="195" x2="70" y2="42" stroke="#888"/>
+    <line x1="70" y1="181" x2="600" y2="181" stroke="#888" stroke-dasharray="5 4"/>
+    <polyline points="100,181 250,180 400,167 550,45" fill="none" stroke="#1f4e79" stroke-width="4"/>
+    <circle cx="100" cy="181" r="5" fill="#1f4e79"/>
+    <circle cx="250" cy="180" r="5" fill="#1f4e79"/>
+    <circle cx="400" cy="167" r="5" fill="#1f4e79"/>
+    <circle cx="550" cy="45" r="5" fill="#1f4e79"/>
+    <text x="90" y="215" font-size="11" fill="currentColor">0.01</text>
+    <text x="242" y="215" font-size="11" fill="currentColor">0.1</text>
+    <text x="396" y="215" font-size="11" fill="currentColor">1</text>
+    <text x="542" y="215" font-size="11" fill="currentColor">10</text>
+    <text x="291" y="238" font-size="12" fill="currentColor">K<tspan baseline-shift="sub" font-size="9">d</tspan>/S (log scale)</text>
+    <text x="43" y="185" font-size="11" fill="currentColor">1</text>
+    <text x="37" y="171" font-size="11" fill="currentColor">2</text>
+    <text x="31" y="49" font-size="11" fill="currentColor">11</text>
+    <text x="82" y="173" font-size="10" fill="#666">stoichiometric floor</text>
+    <text x="20" y="120" font-size="12" fill="currentColor" transform="rotate(-90 20 120)">E<tspan baseline-shift="sub" font-size="9">T,min</tspan>/C<tspan baseline-shift="sub" font-size="9">req</tspan></text>
+  </svg>
+  <figcaption>Figure 1: The normalized expression requirement is <em>E</em><sub>T,min</sub>/<em>C</em><sub>req</sub>=1+<em>K</em><sub>d</sub>/<em>S</em>. Affinity improvements strongly reduce excess unbound protein when <em>K</em><sub>d</sub>≳<em>S</em>, but the curve approaches one when <em>K</em><sub>d</sub>≪<em>S</em>. I calculated the four plotted points directly from the binding equation.</figcaption>
+</figure>
+
+<h2>Where the affinity growth connection breaks</h2>
+
+<p>The conclusion, which protein design should maximize affinity, applies when function requires an absolute number of complexes. If a reporter depends only on fractional occupancy, <em>E</em><sub>T</sub> cancels from θ and the same expression requirement does not follow. Strong binding can also perturb the supposedly fixed free ligand pool; finite ligand totals require the full binding quadratic rather than the reservoir formula.</p>
+
+<p>The growth calculation is likewise a steady, optimal, two-sector model. Real burden depends on transcription, translation efficiency, folding, degradation, localization and toxicity, so α need not be constant across designs. A tighter binder obtained mainly by reducing its dissociation rate may also reset more slowly, as Lecture 15 already warns. The useful extension is therefore narrower: once the desired complex abundance is specified, affinity has a calculable expression benefit, but that benefit saturates at a stoichiometric proteome floor.</p>
+
+<h2>Sources</h2>
+<ul class="src">
+  <li>Lecture 14: The growth biomachine. CCBS 2026 course materials, 2026. The two-sector proteome budget and growth optimum provide the cellular-cost background.</li>
+  <li>Lecture 15: Protein design: from evolutionary clues to testable molecules. CCBS 2026 course materials, 2026. The equilibrium binding relation and the qualitative warning about expression burden are background; the affinity-dependent burden floor is the extension developed here.</li>
+  <li>Scott, M., Gunderson, C. W., Mateescu, E. M., Zhang, Z. and Hwa, T. “Interdependence of cell growth and gene expression: origins and consequences.” Science 330, 1099–1102, 2010.</li>
+  <li>Ceroni, F., Algar, R., Stan, G. B. and Ellis, T. “Quantifying cellular capacity identifies gene expression designs with reduced burden.” Nature Methods 12, 415–418, 2015.</li>
+</ul>
+
+</div>
+</body>
+</html>
