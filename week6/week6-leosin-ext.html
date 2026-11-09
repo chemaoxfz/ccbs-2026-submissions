@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 6 — Extension: A correct XOR can pulse the wrong answer</title>
+<meta name="author" content="Leo Sin">
+<meta name="week" content="week6">
+<style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px;
+    border-bottom:1px solid var(--line); padding-bottom:5px; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:14px 18px; margin:14px 0; }
+  .fig { width:100%; height:auto; border:1px solid var(--line); border-radius:6px;
+    margin:14px 0; background:#fff; }
+  figure { margin:22px 0; }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; }
+  .src li { margin-bottom:8px; }
+  pre { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:12px 14px; overflow-x:auto; font-size:.78rem; line-height:1.45; }
+  code { font-family:"SF Mono",Consolas,Menlo,monospace; }
+  .eq { display:block; text-align:center; margin:14px 0; font-size:1.02rem; }
+  details { margin:12px 0; }
+  summary { cursor:pointer; color:var(--accent); }
+</style>
+</head>
+<body>
+<main class="wrap">
+<h1>A correct XOR can pulse the wrong answer</h1>
+<p class="meta">Leo Sin (施延庆) · Week 6, lectures 11–12 · CCBS 2026 · 26 October 2026</p>
+
+<p class="card"><strong>One sentence:</strong> Connecting four chemically relaxing NAND
+gates gives the right XOR truth table at rest, yet a 00&nbsp;→&nbsp;11 input step produces
+a large transient output-1 pulse even though XOR is 0 at both ends.</p>
+
+<h2>The point I am adding</h2>
+<p>Lecture 12 builds XOR from four NAND gates and derives the relaxation of one molecular
+NAND, <em>ż</em>&nbsp;=&nbsp;a(1−z)−bz, where z is the output-1 fraction [1]. That settles
+the truth table and the settling time of an isolated gate. I want to ask the next question:
+what does the <em>connected</em> circuit do while its internal gates are still changing?</p>
+<p>Use the lecture's wiring: n<sub>1</sub>&nbsp;=&nbsp;NAND(x,y),
+n<sub>2</sub>&nbsp;=&nbsp;NAND(x,n<sub>1</sub>),
+n<sub>3</sub>&nbsp;=&nbsp;NAND(y,n<sub>1</sub>), and
+z&nbsp;=&nbsp;NAND(n<sub>2</sub>,n<sub>3</sub>) [1]. At rest this gives XOR. Now switch
+00&nbsp;→&nbsp;11. The steady output is 0 before and after, so a static truth-table check
+predicts no response. The composed dynamics instead predict a pulse. This is not merely a
+mathematical nuisance: the Cello genetic-circuit study reported a temporary wrong output in
+one composed circuit and identified propagation delay as a necessary design consideration [2].
+My calculation below isolates that issue in the lecture's minimal model.</p>
+
+<figure>
+<svg class="fig" viewBox="0 0 700 190" role="img" aria-labelledby="f1t f1d" xmlns="http://www.w3.org/2000/svg">
+  <title id="f1t">Four NAND gates wired as XOR</title>
+  <desc id="f1d">x and y enter n1. x and n1 enter n2; y and n1 enter n3. n2 and n3 enter the output NAND z. Three columns indicate the longest path.</desc>
+  <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#687681"/></marker></defs>
+  <g fill="none" stroke="#687681" stroke-width="1.7" marker-end="url(#arrow)">
+    <path d="M70 48H125V65H180"/><path d="M70 122H125V95H180"/>
+    <path d="M70 48H105V20H335V45H360"/><path d="M245 80H285V55H360"/>
+    <path d="M70 122H110V160H335V125H360"/><path d="M245 80H275V115H360"/>
+    <path d="M425 45H475V80H535"/><path d="M425 125H475V100H535"/>
+  </g>
+  <g font-family="Arial,sans-serif" font-size="14" text-anchor="middle">
+    <rect x="20" y="32" width="50" height="32" rx="6" fill="#f6f8fa" stroke="#9aa7b1"/>
+    <rect x="20" y="106" width="50" height="32" rx="6" fill="#f6f8fa" stroke="#9aa7b1"/>
+    <text x="45" y="53" fill="#333">x</text><text x="45" y="127" fill="#333">y</text>
+    <g fill="#eaf1f8" stroke="#1f4e79" stroke-width="1.5">
+      <rect x="180" y="55" width="65" height="50" rx="8"/>
+      <rect x="360" y="25" width="65" height="40" rx="8"/>
+      <rect x="360" y="95" width="65" height="40" rx="8"/>
+      <rect x="535" y="65" width="85" height="50" rx="8"/>
+    </g>
+    <g fill="#1f4e79"><text x="212" y="85">n1</text><text x="392" y="50">n2</text><text x="392" y="120">n3</text><text x="577" y="95">z</text></g>
+    <g font-size="11" fill="#566"><text x="212" y="123">NAND</text><text x="392" y="18">NAND</text><text x="392" y="153">NAND</text><text x="577" y="133">NAND</text></g>
+    <text x="650" y="88" fill="#333">XOR</text>
+    <g font-size="11" fill="#777"><text x="212" y="177">layer 1</text><text x="392" y="177">layer 2</text><text x="577" y="177">layer 3</text></g>
+  </g>
+</svg>
+<figcaption>Figure 1. The four-NAND XOR circuit, redrawn from Lecture 12 [1]. The
+longest input–output path crosses three relaxing gates.</figcaption>
+</figure>
+
+<h2>Work it</h2>
+<p>The same rate law also covers intermediate values. Let two upstream signals have
+output-1 fractions u and v, with the unselected forms making up 1−u and 1−v. The lecture's
+mass-action rates become a&nbsp;=&nbsp;κc<sub>0</sub><sup>2</sup>(1−uv) and
+b&nbsp;=&nbsp;κc<sub>0</sub><sup>2</sup>uv [1]. Measuring time in gate lifetimes,
+τ&nbsp;=&nbsp;κc<sub>0</sub><sup>2</sup>t, every gate therefore obeys the simple equation</p>
+<span class="eq">dz/dτ = 1 − z − uv.</span>
+<p>Start at the settled 00 state, (n<sub>1</sub>,n<sub>2</sub>,n<sub>3</sub>,z)&nbsp;=&nbsp;(1,1,1,0),
+then apply x&nbsp;=&nbsp;y&nbsp;=&nbsp;1. The first three equations have exact solutions
+n<sub>1</sub>&nbsp;=&nbsp;e<sup>−τ</sup> and n<sub>2</sub>&nbsp;=&nbsp;n<sub>3</sub>&nbsp;=&nbsp;1−τe<sup>−τ</sup>.
+Only the output needs numerical integration:</p>
+<span class="eq">dz/dτ = 1 − z − (1 − τe<sup>−τ</sup>)², &nbsp; z(0)=0.</span>
+<p>My RK4 integration (step 10<sup>−4</sup> gate lifetimes) gives a peak output-1 fraction of
+<strong>0.4543 at τ&nbsp;=&nbsp;2.069</strong>, after which z returns to 0. The two second-layer
+signals initially dip because both see the new high inputs while n<sub>1</sub> is still high;
+they recover only after n<sub>1</sub> falls. The output NAND temporarily reads that dip as
+two low inputs. All rates are identical illustrative teaching values, not fitted biological
+parameters.</p>
+
+<figure>
+<svg class="fig" viewBox="0 0 700 260" role="img" aria-labelledby="f2t f2d" xmlns="http://www.w3.org/2000/svg">
+  <title id="f2t">A false output pulse during the 00 to 11 transition</title>
+  <desc id="f2d">The blue output z starts at zero, peaks at 0.4543 after 2.069 gate lifetimes, and returns to zero. The dashed grey second-layer signal dips from one to 0.7293 and recovers.</desc>
+  <path d="M60 25V220H660" fill="none" stroke="#5d6872" stroke-width="1.5"/>
+  <path d="M60 130H660 M60 40H660 M60 220H660" fill="none" stroke="#d8dee4" stroke-width="1"/>
+  <path d="M60 130H660" fill="none" stroke="#84929f" stroke-width="1" stroke-dasharray="5 5"/>
+  <g font-family="Arial,sans-serif" font-size="11" fill="#333">
+    <text x="35" y="44">1.0</text><text x="35" y="134">0.5</text><text x="35" y="224">0</text>
+    <text x="56" y="239">0</text><text x="206" y="239">2</text><text x="356" y="239">4</text><text x="506" y="239">6</text><text x="651" y="239">8</text>
+    <text x="265" y="256">time after 00 → 11 step (gate lifetimes)</text>
+    <text x="60" y="15">output-1 fraction</text>
+    <text x="485" y="78" fill="#1f4e79">XOR output z</text>
+    <text x="465" y="101" fill="#687681">n2 = n3 (dashed)</text>
+    <text x="480" y="126" fill="#777">steady truth table: z = 0</text>
+  </g>
+  <path d="M60.0,40.0 L67.5,56.3 L75.0,69.5 L82.5,80.0 L90.0,88.3 L97.5,94.6 L105.0,99.3 L112.5,102.6 L120.0,104.7 L127.5,105.9 L135.0,106.2 L142.5,105.9 L150.0,105.1 L157.5,103.8 L165.0,102.1 L172.5,100.2 L180.0,98.1 L187.5,95.9 L195.0,93.6 L202.5,91.2 L210.0,88.7 L217.5,86.3 L225.0,83.9 L232.5,81.5 L240.0,79.2 L247.5,76.9 L255.0,74.8 L262.5,72.7 L270.0,70.6 L277.5,68.7 L285.0,66.9 L292.5,65.1 L300.0,63.5 L307.5,61.9 L315.0,60.4 L322.5,59.0 L330.0,57.7 L337.5,56.5 L345.0,55.3 L352.5,54.2 L360.0,53.2 L367.5,52.2 L375.0,51.3 L382.5,50.5 L390.0,49.7 L397.5,49.0 L405.0,48.3 L412.5,47.7 L420.0,47.1 L427.5,46.6 L435.0,46.1 L442.5,45.6 L450.0,45.2 L457.5,44.8 L465.0,44.4 L472.5,44.0 L480.0,43.7 L487.5,43.4 L495.0,43.2 L502.5,42.9 L510.0,42.7 L517.5,42.5 L525.0,42.3 L532.5,42.1 L540.0,41.9 L547.5,41.8 L555.0,41.6 L562.5,41.5 L570.0,41.4 L577.5,41.3 L585.0,41.1 L592.5,41.1 L600.0,41.0 L607.5,40.9 L615.0,40.8 L622.5,40.7 L630.0,40.7 L637.5,40.6 L645.0,40.6 L652.5,40.5 L660.0,40.5" fill="none" stroke="#687681" stroke-width="2" stroke-dasharray="6 4"/>
+  <path d="M60.0,220.0 L67.5,218.4 L75.0,214.4 L82.5,209.0 L90.0,202.6 L97.5,195.8 L105.0,189.0 L112.5,182.3 L120.0,175.9 L127.5,169.9 L135.0,164.4 L142.5,159.4 L150.0,155.0 L157.5,151.1 L165.0,147.8 L172.5,145.0 L180.0,142.7 L187.5,140.9 L195.0,139.6 L202.5,138.8 L210.0,138.3 L217.5,138.2 L225.0,138.5 L232.5,139.1 L240.0,140.0 L247.5,141.1 L255.0,142.5 L262.5,144.1 L270.0,145.8 L277.5,147.7 L285.0,149.7 L292.5,151.8 L300.0,154.0 L307.5,156.2 L315.0,158.5 L322.5,160.8 L330.0,163.1 L337.5,165.4 L345.0,167.7 L352.5,170.0 L360.0,172.3 L367.5,174.5 L375.0,176.6 L382.5,178.8 L390.0,180.8 L397.5,182.8 L405.0,184.7 L412.5,186.6 L420.0,188.4 L427.5,190.1 L435.0,191.8 L442.5,193.4 L450.0,194.9 L457.5,196.4 L465.0,197.8 L472.5,199.1 L480.0,200.3 L487.5,201.5 L495.0,202.7 L502.5,203.8 L510.0,204.8 L517.5,205.7 L525.0,206.6 L532.5,207.5 L540.0,208.3 L547.5,209.1 L555.0,209.8 L562.5,210.5 L570.0,211.1 L577.5,211.7 L585.0,212.3 L592.5,212.8 L600.0,213.3 L607.5,213.8 L615.0,214.2 L622.5,214.6 L630.0,215.0 L637.5,215.3 L645.0,215.7 L652.5,216.0 L660.0,216.3" fill="none" stroke="#1f4e79" stroke-width="3"/>
+  <path d="M215.2 138.2V220" fill="none" stroke="#9aa7b1" stroke-dasharray="3 4"/>
+  <circle cx="215.2" cy="138.2" r="4" fill="#1f4e79"/>
+  <text x="228" y="158" font-family="Arial,sans-serif" font-size="11" fill="#1f4e79">peak 0.4543</text>
+</svg>
+<figcaption>Figure 2. My simulation of the 00&nbsp;→&nbsp;11 transition. XOR's steady
+answer stays 0, but the output-1 fraction reaches 0.4543. The dashed curve explains the
+pulse: both second-layer signals dip before recovering. Curves and numbers are computed
+by the code below.</figcaption>
+</figure>
+
+<details><summary>Code that produced Figure 2 and the peak (Python 3, standard library)</summary>
+<pre><code>import math
+
+def n2(t):
+    return 1 - t*math.exp(-t)
+
+def rate(t, z):
+    return 1 - z - n2(t)**2
+
+h, z = 0.0001, 0.0
+peak = (z, 0.0)
+rows = [(0.0, z, n2(0.0))]
+for i in range(1, 80001):
+    t = (i-1)*h
+    k1 = rate(t, z)
+    k2 = rate(t+h/2, z+h*k1/2)
+    k3 = rate(t+h/2, z+h*k2/2)
+    k4 = rate(t+h, z+h*k3)
+    z += h*(k1 + 2*k2 + 2*k3 + k4)/6
+    if z &gt; peak[0]:
+        peak = (z, i*h)
+    if i % 1000 == 0:
+        rows.append((i*h, z, n2(i*h)))
+
+print("peak z and time:", peak)       # (0.454316..., 2.0693)
+print("minimum n2:", 1-2/math.e**2)  # 0.729329..., at t = 2
+for column in (1, 2):
+    print(" ".join(("M" if j == 0 else "L") +
+          f"{60+75*row[0]:.1f},{220-180*row[column]:.1f}"
+          for j, row in enumerate(rows)))</code></pre></details>
+
+<h2>What I would argue against / where this breaks</h2>
+<p>The number 0.4543 is not a universal property of XOR. It belongs to this idealized model:
+equal catalytic constants and signal pools, instantaneous input switching, no leakage, and
+no output trapped in unresolved complexes—the same closure used for the lecture's one-gate
+calculation [1]. Unequal gate speeds or finite input ramps can change the pulse, so each
+implementation needs its own composed simulation.</p>
+<p>Also, an analog pulse is not automatically a binary mistake. A reader that calls output 1
+only above 0.5 would still classify this particular trace correctly, although only 0.0457 of
+margin remains. My claim is therefore precise: <strong>a correct steady truth table does not
+certify the transient or its readout margin.</strong> A safe sampling time must be chosen from
+the worst path and initial state, not from one gate's settling time alone.</p>
+
+<h2>Sources and what I used</h2>
+<ul class="src">
+  <li><a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture12-core.html">F. Xiao,
+  “Lecture 12: The computation biomachine,” CCBS 2026</a> [1], §2 (four-NAND XOR), B0
+  (molecular NAND rates and relaxation), and B2 (delays in composed stages). These supply
+  the circuit and rate law; the 00&nbsp;→&nbsp;11 calculation, solutions and figure here are my own.</li>
+  <li>A. A. K. Nielsen et al., <a href="https://doi.org/10.1126/science.aac7341">“Genetic
+  circuit design automation,” <em>Science</em> 352, aac7341 (2016)</a> [2]. The composed
+  genetic circuits and the reported transient output failure motivate checking dynamics,
+  not only steady input–output ranges. No numerical value in this essay is taken from that paper.</li>
+</ul>
+</main>
+</body>
+</html>

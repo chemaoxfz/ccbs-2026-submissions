@@ -1,0 +1,68 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 07 — Extension: When Growing Faster Is Not Better</title>
+<meta name="author" content=" wang fei">
+<meta name="week" content="week7">
+<style>
+ :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; }
+ @media (prefers-color-scheme:dark){:root{--ink:#e8e8e8;--muted:#9aa;--accent:#8ab4e8;--line:#3a4652;--bg:#15191d;--soft:#1e242a;}}
+ *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;line-height:1.6}
+ .wrap{max-width:760px;margin:0 auto;padding:40px 22px 80px}h1{font-size:1.6rem;line-height:1.25;margin:0 0 6px;color:var(--accent)}.meta{color:var(--muted);font-size:.92rem;margin-bottom:26px}
+ h2{font-size:1.05rem;color:var(--accent);margin:34px 0 8px;border-bottom:1px solid var(--line);padding-bottom:5px}
+ .card{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:14px 18px;margin:14px 0}.fig{width:100%;border:1px solid var(--line);border-radius:6px;margin:14px 0}figcaption{font-size:.85rem;color:var(--muted);margin-top:6px}a{color:var(--accent)}.src{font-size:.9rem}
+ .equation{font-family:Georgia,'Times New Roman',serif;background:var(--soft);border-left:3px solid var(--accent);padding:10px 15px;margin:14px 0;overflow-x:auto}
+ table{border-collapse:collapse;width:100%;font-size:.92rem}th,td{border:1px solid var(--line);padding:8px 10px;text-align:left}th{background:var(--soft)}
+ .note{color:var(--muted);font-size:.89rem}
+</style>
+</head>
+<body><div class="wrap">
+<h1>Week 07 — Extension: When Growing Faster Is Not Better</h1>
+<p class="meta">Author: wangfei · Week 7 (2026-10-27) · CCBS 2026</p>
+<p class="card"><strong>One sentence:</strong> A bacterium that sacrifices a little steady-state growth to maintain a proteome reserve can accumulate more biomass over repeated nutrient shifts, because shorter adaptation lags sometimes outweigh slower growth between shifts.</p>
+<h2>The point I am adding</h2>
+<p>Lecture 14 derives an optimal allocation of protein between metabolic enzymes and ribosomes: growth is fastest when precursor supply and translation capacities are balanced. But the word <em>optimal</em> hides an assumption: the environment stays fixed long enough for steady growth to matter. I argue that a cell competing in a fluctuating environment might rationally remain below that instantaneous optimum.</p>
+<p>Imagine two otherwise comparable bacterial phenotypes repeatedly transferred to a new carbon source. The <strong>growth specialist</strong> devotes resources to machinery useful immediately, growing rapidly after it acclimates. The <strong>reserve specialist</strong> keeps some capacity for future conditions, at a cost to its eventual growth rate, but resumes growth sooner. The claim is not that reserve is always beneficial; it is that the relevant objective is cumulative log biomass over an environmental cycle, not the maximum instantaneous rate.</p>
+<p>This distinction matters when interpreting proteomics: excess enzymes or inactive ribosomes can look inefficient in a steady-state budget, yet may reflect preparation for an environmental transition. Experimental work has demonstrated growth–lag trade-offs and investigated the possible benefit of reserve proteins. The numerical example below is my own simplified thought experiment, not a fit to either paper.</p>
+<h2>Work it</h2>
+<p>Assume each nutrient cycle offers <em>T</em> hours of potential growth. Following a sudden shift, each phenotype has a lag <em>L</em> during which net log-biomass growth is zero; it then grows exponentially at a constant rate <em>λ</em>. Ignoring any additional biomass loss during the lag, its net log gain per cycle and its time-averaged specific rate are</p>
+<div class="equation">G(T) = ln[B(T)/B(0)] = λ max(T − L, 0)<br>λ<sub>eff</sub>(T) = G(T)/T = λ max(1 − L/T, 0).</div>
+<p>Choose illustrative parameters, measured in hours and inverse hours:</p>
+<table><thead><tr><th>Strategy</th><th>Post-lag λ (h<sup>−1</sup>)</th><th>Lag L (h)</th></tr></thead><tbody><tr><td>Growth specialist</td><td>0.80</td><td>2.0</td></tr><tr><td>Reserve specialist</td><td>0.72</td><td>0.5</td></tr></tbody></table>
+<p>The reserve strategy pays a <strong>10% reduction</strong> in its post-lag growth rate in exchange for a <strong>1.5-hour shorter lag</strong>. For T &gt; 2 h, the two log gains are equal when</p>
+<div class="equation">0.80(T − 2.0) = 0.72(T − 0.5)<br>0.08T = 1.24 &nbsp;⇒&nbsp; T<sub>cross</sub> = 15.5 h.</div>
+<p>At a 12-hour cycle, G<sub>growth</sub> = 8.00 and G<sub>reserve</sub> = 8.28, giving λ<sub>eff</sub> = 0.667 and 0.690 h<sup>−1</sup>, respectively. The reserve phenotype yields exp(0.28) ≈ <strong>1.32 times as much final biomass</strong> after one idealized cycle from equal starting biomass. For a 24-hour cycle, the ranking reverses: G<sub>growth</sub> = 17.60 versus G<sub>reserve</sub> = 16.92.</p>
+<figure><svg id="cycleChart" class="fig" viewBox="0 0 660 350" role="img" aria-label="Average effective growth rate versus nutrient-cycle duration, for growth and reserve strategies"></svg><figcaption><strong>Figure 1.</strong> Original deterministic calculation of effective log-biomass growth rate, λ<sub>eff</sub> = λ max(1 − L/T, 0), for two hypothetical phenotypes over nutrient-cycle durations T = 3–30 h. The dotted line marks the analytically derived crossover at T = 15.5 h. Input parameters are illustrative, not measured data; curves are drawn directly from the formulas using JavaScript.</figcaption></figure>
+<p>Thus, the very same 10% steady-state growth penalty is either worthwhile or wasteful, depending on the frequency of environmental transitions. The ecological timescale enters the resource-allocation problem as an additional constraint.</p>
+<h2>What I would argue against / where this breaks</h2>
+<p>My example does <em>not</em> establish that maintaining reserve protein causes a particular lag reduction. It assumes both effects in advance. In reality, the pre-shift proteome may change the available metabolites, enzyme induction dynamics, stress survival, and post-shift growth rate simultaneously. Lag may also be gradual rather than a complete halt to biomass synthesis.</p>
+<p>Nor does an increased biomass fold change necessarily imply greater population fitness if survival, competition, substrate depletion, cell size, or division timing differ. The model assumes equal initial biomass, identical resource access, equal yield, no cell death, and repeatable shifts with no further penalties. Its use of a fixed lag for every cycle is especially questionable when cells retain metabolic memory. At very short cycles, neither phenotype may complete acclimation, invalidating the two-phase approximation.</p>
+<p>I would test this argument by competing barcoded <em>E. coli</em> strains or inducible proteome-allocation variants in periodically switched carbon media, measuring enzyme abundance before each switch, lag duration, biomass and cell counts, and changing only the switching period. A crossover in long-run competitive performance near the period predicted from <em>independently measured</em> growth rates and lags would support the argument. Failure of that prediction would help identify missing memory, mortality, or nonlinear allocation effects.</p>
+<h2>Sources</h2>
+<ul class="src">
+<li>CCBS 2026. <em>Lecture 14: The growth biomachine.</em> 27 October 2026, especially Sections 7–8 and optional Section A1. <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture14-core.html">Course material</a> — supplies the fixed-environment protein-allocation optimum that this extension challenges.</li>
+<li>Mori, M., Schink, S., Erickson, D. W., Gerland, U. &amp; Hwa, T. (2017). <em>Quantifying the benefit of a proteome reserve in fluctuating environments.</em> Nature Communications 8, 1225. <a href="https://doi.org/10.1038/s41467-017-01242-8">https://doi.org/10.1038/s41467-017-01242-8</a> — motivates a reserve-versus-growth trade-off under famine–feast cycles.</li>
+<li>Basan, M. et al. (2020). <em>A universal trade-off between growth and lag in fluctuating environments.</em> Nature 584, 470–474. <a href="https://doi.org/10.1038/s41586-020-2505-4">https://doi.org/10.1038/s41586-020-2505-4</a> — provides experimental evidence of a growth–adaptation lag trade-off following carbon-source shifts.</li>
+<li><em>Original calculation (2026).</em> Piecewise lag–growth model and Figure 1. All numbers are explicitly hypothetical and reproduce directly from the equations and parameters provided above.</li>
+</ul>
+</div>
+<script>
+(()=>{
+ const svg=document.getElementById('cycleChart'),NS='http://www.w3.org/2000/svg';
+ const mk=(tag,attrs,content)=>{const el=document.createElementNS(NS,tag);Object.entries(attrs).forEach(([k,v])=>el.setAttribute(k,v));if(content!==undefined)el.textContent=content;svg.appendChild(el);return el;};
+ const L=75,R=625,U=28,B=285,x=t=>L+(t-3)/27*(R-L),y=r=>B-r/.85*(B-U);
+ for(let v=0;v<=.8+1e-8;v+=.2){let yy=y(v);mk('line',{x1:L,y1:yy,x2:R,y2:yy,stroke:'#b8c1ca','stroke-dasharray':'3 5'});mk('text',{x:60,y:yy+4,'text-anchor':'end','font-size':12,fill:'currentColor'},v.toFixed(1));}
+ for(let t=3;t<=30;t+=3){mk('text',{x:x(t),y:B+21,'text-anchor':'middle','font-size':12,fill:'currentColor'},String(t));}
+ mk('line',{x1:L,x2:R,y1:B,y2:B,stroke:'currentColor','stroke-width':1.2});mk('line',{x1:L,x2:L,y1:U,y2:B,stroke:'currentColor','stroke-width':1.2});
+ mk('text',{x:350,y:338,'text-anchor':'middle','font-size':13,fill:'currentColor'},'Nutrient-cycle duration T (h)');
+ mk('text',{x:18,y:163,transform:'rotate(-90 18 163)','text-anchor':'middle','font-size':13,fill:'currentColor'},'Effective growth rate (h⁻¹)');
+ const curves=[{color:'#4874ad',rate:.80,lag:2,name:'Growth specialist'},{color:'#d18a36',rate:.72,lag:.5,name:'Reserve specialist'}];
+ for(const c of curves){let d='';for(let i=0;i<=270;i++){let t=3+i/10;let z=c.rate*Math.max(1-c.lag/t,0);d+=(i?'L':'M')+x(t).toFixed(2)+','+y(z).toFixed(2)+' ';}mk('path',{d,fill:'none',stroke:c.color,'stroke-width':3});}
+ mk('line',{x1:x(15.5),x2:x(15.5),y1:U,y2:B,stroke:'#8894a1','stroke-dasharray':'6 4'});mk('text',{x:x(15.5)+6,y:U+14,'font-size':12,fill:'currentColor'},'Crossover 15.5 h');
+ let cy=22;for(let c of curves){mk('line',{x1:400,y1:cy,x2:422,y2:cy,stroke:c.color,'stroke-width':3});mk('text',{x:430,y:cy+4,'font-size':12,fill:'currentColor'},c.name);cy+=20;}
+})();
+</script>
+</body></html>

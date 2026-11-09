@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 7 Extension — Overflow metabolism is the corner solution of the proteome budget</title>
+<style>:root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px;
+    border-bottom:1px solid var(--line); padding-bottom:5px; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:14px 18px; margin:14px 0; }
+  .fig { width:100%; max-width:640px; height:auto; border:1px solid var(--line); border-radius:6px;
+    margin:14px 0; background:#fff; }
+  figure { margin:22px 0; }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; }
+  .src li { margin-bottom:8px; }
+  pre { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:12px 14px; overflow-x:auto; font-size:.78rem; line-height:1.45; }
+  code { font-family:"SF Mono",Consolas,Menlo,monospace; }
+  .eq { display:block; text-align:center; margin:14px 0; }
+  details { margin:12px 0; }
+  summary { cursor:pointer; color:var(--accent); }</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Overflow metabolism is the corner solution of the proteome budget</h1>
+<p class="meta">Leo Sin (&#26045;&#24310;&#24198;) &middot; Week 7, lectures 13&ndash;14 &middot; CCBS 2026 &middot; 2026-11-02</p>
+
+<div class="card"><strong>In one sentence:</strong> merging the lecture-13 overflow logic (&ldquo;respiration saves carbon but costs protein, fermentation costs carbon but saves protein&rdquo;<sup><a href="#s1">1</a></sup>) with the lecture-14 proteome-allocation picture turns overflow into a theorem: acetate excretion starts exactly when the carbon supply outgrows the proteome budget, at the corner where the carbon constraint and the protein constraint first intersect.</div>
+
+<h2>The point I am adding</h2>
+<p>Lecture 13 gave the qualitative tradeoff behind the acetate switch: fully oxidising glucose through respiration yields far more ATP per carbon but demands the large respiratory machinery, whereas fermentation wastes carbon as acetate yet runs on a cheap, tiny enzyme set<sup><a href="#s1">1</a></sup>. Lecture 14 then taught us to think of the cell as an economy that allocates a fixed proteome budget across sectors, with growth rate as the return on that budget<sup><a href="#s2">2,3</a></sup>. Each lecture is convincing alone; what I want to add is that <em>together</em> they make a falsifiable quantitative prediction &mdash; the growth rate (equivalently, the carbon uptake rate) at which overflow must begin.</p>
+<p>Write the two ATP-producing pathways as fluxes J<sub>r</sub> (respiration) and J<sub>f</sub> (fermentation), and maximise growth &#955; = J<sub>r</sub> + J<sub>f</sub> subject to two constraints:</p>
+<span class="eq">proteome budget: (a<sub>r</sub>+&#945;c<sub>r</sub>)J<sub>r</sub> + (a<sub>f</sub>+&#945;c<sub>f</sub>)J<sub>f</sub> &#8804; F,&nbsp;&nbsp;&nbsp;&nbsp;carbon capacity: c<sub>r</sub>J<sub>r</sub> + c<sub>f</sub>J<sub>f</sub> &#8804; C</span>
+<p>where a<sub>r</sub> &gt; a<sub>f</sub> are protein costs per unit flux, c<sub>f</sub> &gt;&gt; c<sub>r</sub> are carbon costs per unit flux, &#945; is the protein cost of uptake machinery per carbon, F is the proteome budget, and C is the environment-imposed carbon uptake capacity. Because fermentation is simultaneously protein-cheaper and carbon-costlier, the optimal vertex migrates: at low C the carbon constraint binds and the cell runs pure respiration (&#955; = C/c<sub>r</sub>); at high C the proteome constraint binds and the cell dilutes expensive respiration with cheap fermentation. The onset is where the two constraint lines meet at J<sub>f</sub> = 0, which is algebraically immediate:</p>
+<span class="eq">C* = F&thinsp;c<sub>r</sub> / (a<sub>r</sub> + &#945;c<sub>r</sub>),&nbsp;&nbsp;&nbsp;&nbsp;&#955;* = F / (a<sub>r</sub> + &#945;c<sub>r</sub>)</span>
+<p>So the &ldquo;mysterious&rdquo; acetate switch is not a regulatory accident; it is the point where the cell becomes rich in carbon but still poor in protein, and starts spending the abundant resource (carbon) to save the scarce one (proteome). The same proteome-economics logic is what Scott <em>et al.</em> measured as ribosomal-sector growth laws<sup><a href="#s2">2</a></sup> and Molenaar <em>et al.</em> formalised as growth-strategy shifts under cellular economic tradeoffs<sup><a href="#s3">3</a></sup>; Basan <em>et al.</em> confirmed specifically that E.&nbsp;coli begins excreting acetate once its growth (hence carbon uptake) exceeds what the respiratory proteome can serve<sup><a href="#s1">1</a></sup>.</p>
+
+<h2>Work it</h2>
+<p>I set a<sub>r</sub>=1, a<sub>f</sub>=0.5, c<sub>r</sub>=1/26, c<sub>f</sub>=1/2, &#945;=0.02, F=1 (order-unity toy units: respiration &asymp; 26 ATP per glucose, fermentation &asymp; 2). The LP has only three candidate vertices, so I solve it analytically on a grid of C rather than calling a solver. The grid sweep gives &#955;*(C), the pathway mix, and the onset.</p>
+<figure>
+<svg class="fig" viewBox="0 0 560 380" role="img" aria-label="Growth rate and pathway mix versus carbon capacity">
+  <path d="M58 267H548" stroke="#d8dee4" stroke-width="1"/><path d="M58 186H548" stroke="#d8dee4" stroke-width="1"/><path d="M58 105H548" stroke="#d8dee4" stroke-width="1"/>
+  <path d="M58 14V348H548" fill="none" stroke="#5d6872" stroke-width="1.5"/>
+  <text x="58" y="362" font-size="11" fill="#8a94a0" text-anchor="middle">0.02</text><text x="78" y="362" font-size="11" fill="#8a94a0" text-anchor="middle">0.1</text><text x="177" y="362" font-size="11" fill="#8a94a0" text-anchor="middle">0.5</text><text x="301" y="362" font-size="11" fill="#8a94a0" text-anchor="middle">1</text><text x="548" y="362" font-size="11" fill="#8a94a0" text-anchor="middle">2</text><text x="50" y="352" font-size="11" fill="#8a94a0" text-anchor="end">0</text><text x="50" y="271" font-size="11" fill="#8a94a0" text-anchor="end">0.5</text><text x="50" y="190" font-size="11" fill="#8a94a0" text-anchor="end">1.0</text><text x="50" y="109" font-size="11" fill="#8a94a0" text-anchor="end">1.5</text>
+  <text x="309" y="378" font-size="12" fill="#566" text-anchor="middle">carbon uptake capacity C (arb. units)</text>
+  <text x="18" y="197" font-size="12" fill="#566" text-anchor="middle" transform="rotate(-90 18 197)">growth rate &#955;</text>
+  <path d="M 58.0,262.1 L 58.2,258.9 L 58.4,255.5 L 58.6,251.9 L 58.8,248.2 L 59.0,244.4 L 59.3,240.4 L 59.5,236.3 L 59.8,232.0 L 60.0,227.6 L 60.3,222.9 L 60.6,218.1 L 60.9,213.1 L 61.2,207.9 L 61.5,202.5 L 61.9,196.9 L 62.2,191.1 L 62.6,185.0 L 62.9,185.1 L 63.3,185.4 L 63.7,185.7 L 64.1,186.0 L 64.6,186.3 L 65.0,186.6 L 65.5,186.9 L 66.0,187.2 L 66.5,187.6 L 67.0,187.9 L 67.5,188.3 L 68.1,188.7 L 68.7,189.1 L 69.3,189.5 L 70.0,190.0 L 70.6,190.4 L 71.3,190.9 L 72.0,191.4 L 72.8,191.9 L 73.5,192.4 L 74.3,193.0 L 75.2,193.6 L 76.0,194.2 L 76.9,194.8 L 77.9,195.4 L 78.8,196.1 L 79.8,196.8 L 80.9,197.5 L 82.0,198.3 L 83.1,199.1 L 84.3,199.9 L 85.5,200.7 L 86.8,201.6 L 88.1,202.5 L 89.5,203.5 L 90.9,204.4 L 92.4,205.5 L 93.9,206.5 L 95.5,207.6 L 97.2,208.8 L 98.9,210.0 L 100.7,211.2 L 102.5,212.5 L 104.5,213.8 L 106.5,215.2 L 108.6,216.7 L 110.8,218.2 L 113.0,219.7 L 115.4,221.4 L 117.8,223.0 L 120.3,224.8 L 123.0,226.6 L 125.7,228.5 L 128.5,230.5 L 131.5,232.5 L 134.6,234.6 L 137.8,236.8 L 141.1,239.1 L 144.5,241.5 L 148.1,244.0 L 151.8,246.6 L 155.7,249.2 L 159.7,252.0 L 163.9,254.9 L 168.2,257.9 L 172.7,261.0 L 177.4,264.2 L 182.2,267.6 L 187.3,271.1 L 192.5,274.7 L 198.0,278.5 L 203.7,282.4 L 209.6,286.5 L 215.7,290.7 L 222.1,295.1 L 228.7,299.7 L 235.5,304.4 L 242.7,309.4 L 250.1,314.5 L 257.8,319.8 L 265.8,325.4 L 274.1,331.1 L 282.8,337.1 L 291.8,343.3 L 301.1,346.0 L 310.8,346.0 L 320.9,346.0 L 331.4,346.0 L 342.3,346.0 L 353.6,346.0 L 365.3,346.0 L 377.6,346.0 L 390.3,346.0 L 403.4,346.0 L 417.2,346.0 L 431.4,346.0 L 446.2,346.0 L 461.6,346.0 L 477.6,346.0 L 494.2,346.0 L 511.4,346.0 L 529.4,346.0 L 548.0,346.0 L 548.0,346.0 L 58.0,346.0 Z" fill="#bcd4ee" fill-opacity="0.85" stroke="none"/>
+  <path d="M 58.0,262.1 L 58.2,258.9 L 58.4,255.5 L 58.6,251.9 L 58.8,248.2 L 59.0,244.4 L 59.3,240.4 L 59.5,236.3 L 59.8,232.0 L 60.0,227.6 L 60.3,222.9 L 60.6,218.1 L 60.9,213.1 L 61.2,207.9 L 61.5,202.5 L 61.9,196.9 L 62.2,191.1 L 62.6,185.0 L 62.9,184.6 L 63.3,184.4 L 63.7,184.1 L 64.1,183.8 L 64.6,183.5 L 65.0,183.2 L 65.5,182.9 L 66.0,182.6 L 66.5,182.3 L 67.0,181.9 L 67.5,181.6 L 68.1,181.2 L 68.7,180.8 L 69.3,180.4 L 70.0,180.0 L 70.6,179.5 L 71.3,179.1 L 72.0,178.6 L 72.8,178.1 L 73.5,177.6 L 74.3,177.0 L 75.2,176.5 L 76.0,175.9 L 76.9,175.3 L 77.9,174.7 L 78.8,174.0 L 79.8,173.4 L 80.9,172.7 L 82.0,172.0 L 83.1,171.2 L 84.3,170.4 L 85.5,169.6 L 86.8,168.8 L 88.1,167.9 L 89.5,167.0 L 90.9,166.0 L 92.4,165.0 L 93.9,164.0 L 95.5,163.0 L 97.2,161.9 L 98.9,160.7 L 100.7,159.5 L 102.5,158.3 L 104.5,157.0 L 106.5,155.6 L 108.6,154.3 L 110.8,152.8 L 113.0,151.3 L 115.4,149.7 L 117.8,148.1 L 120.3,146.4 L 123.0,144.7 L 125.7,142.9 L 128.5,141.0 L 131.5,139.0 L 134.6,137.0 L 137.8,134.9 L 141.1,132.6 L 144.5,130.4 L 148.1,128.0 L 151.8,125.5 L 155.7,122.9 L 159.7,120.3 L 163.9,117.5 L 168.2,114.6 L 172.7,111.6 L 177.4,108.5 L 182.2,105.3 L 187.3,101.9 L 192.5,98.4 L 198.0,94.8 L 203.7,91.0 L 209.6,87.1 L 215.7,83.0 L 222.1,78.8 L 228.7,74.4 L 235.5,69.8 L 242.7,65.1 L 250.1,60.1 L 257.8,55.0 L 265.8,49.7 L 274.1,44.1 L 282.8,38.4 L 291.8,32.4 L 301.1,29.8 L 310.8,29.8 L 320.9,29.8 L 331.4,29.8 L 342.3,29.8 L 353.6,29.8 L 365.3,29.8 L 377.6,29.8 L 390.3,29.8 L 403.4,29.8 L 417.2,29.8 L 431.4,29.8 L 446.2,29.8 L 461.6,29.8 L 477.6,29.8 L 494.2,29.8 L 511.4,29.8 L 529.4,29.8 L 548.0,29.8 L 548.0,346.0 L 529.4,346.0 L 511.4,346.0 L 494.2,346.0 L 477.6,346.0 L 461.6,346.0 L 446.2,346.0 L 431.4,346.0 L 417.2,346.0 L 403.4,346.0 L 390.3,346.0 L 377.6,346.0 L 365.3,346.0 L 353.6,346.0 L 342.3,346.0 L 331.4,346.0 L 320.9,346.0 L 310.8,346.0 L 301.1,346.0 L 291.8,343.3 L 282.8,337.1 L 274.1,331.1 L 265.8,325.4 L 257.8,319.8 L 250.1,314.5 L 242.7,309.4 L 235.5,304.4 L 228.7,299.7 L 222.1,295.1 L 215.7,290.7 L 209.6,286.5 L 203.7,282.4 L 198.0,278.5 L 192.5,274.7 L 187.3,271.1 L 182.2,267.6 L 177.4,264.2 L 172.7,261.0 L 168.2,257.9 L 163.9,254.9 L 159.7,252.0 L 155.7,249.2 L 151.8,246.6 L 148.1,244.0 L 144.5,241.5 L 141.1,239.1 L 137.8,236.8 L 134.6,234.6 L 131.5,232.5 L 128.5,230.5 L 125.7,228.5 L 123.0,226.6 L 120.3,224.8 L 117.8,223.0 L 115.4,221.4 L 113.0,219.7 L 110.8,218.2 L 108.6,216.7 L 106.5,215.2 L 104.5,213.8 L 102.5,212.5 L 100.7,211.2 L 98.9,210.0 L 97.2,208.8 L 95.5,207.6 L 93.9,206.5 L 92.4,205.5 L 90.9,204.4 L 89.5,203.5 L 88.1,202.5 L 86.8,201.6 L 85.5,200.7 L 84.3,199.9 L 83.1,199.1 L 82.0,198.3 L 80.9,197.5 L 79.8,196.8 L 78.8,196.1 L 77.9,195.4 L 76.9,194.8 L 76.0,194.2 L 75.2,193.6 L 74.3,193.0 L 73.5,192.4 L 72.8,191.9 L 72.0,191.4 L 71.3,190.9 L 70.6,190.4 L 70.0,190.0 L 69.3,189.5 L 68.7,189.1 L 68.1,188.7 L 67.5,188.3 L 67.0,187.9 L 66.5,187.6 L 66.0,187.2 L 65.5,186.9 L 65.0,186.6 L 64.6,186.3 L 64.1,186.0 L 63.7,185.7 L 63.3,185.4 L 62.9,185.1 L 62.6,185.0 L 62.2,191.1 L 61.9,196.9 L 61.5,202.5 L 61.2,207.9 L 60.9,213.1 L 60.6,218.1 L 60.3,222.9 L 60.0,227.6 L 59.8,232.0 L 59.5,236.3 L 59.3,240.4 L 59.0,244.4 L 58.8,248.2 L 58.6,251.9 L 58.4,255.5 L 58.2,258.9 L 58.0,262.1 Z" fill="#f2c48d" fill-opacity="0.9" stroke="none"/>
+  <path d="M 58.0,262.1 L 58.2,258.9 L 58.4,255.5 L 58.6,251.9 L 58.8,248.2 L 59.0,244.4 L 59.3,240.4 L 59.5,236.3 L 59.8,232.0 L 60.0,227.6 L 60.3,222.9 L 60.6,218.1 L 60.9,213.1 L 61.2,207.9 L 61.5,202.5 L 61.9,196.9 L 62.2,191.1 L 62.6,185.0 L 62.9,184.6 L 63.3,184.4 L 63.7,184.1 L 64.1,183.8 L 64.6,183.5 L 65.0,183.2 L 65.5,182.9 L 66.0,182.6 L 66.5,182.3 L 67.0,181.9 L 67.5,181.6 L 68.1,181.2 L 68.7,180.8 L 69.3,180.4 L 70.0,180.0 L 70.6,179.5 L 71.3,179.1 L 72.0,178.6 L 72.8,178.1 L 73.5,177.6 L 74.3,177.0 L 75.2,176.5 L 76.0,175.9 L 76.9,175.3 L 77.9,174.7 L 78.8,174.0 L 79.8,173.4 L 80.9,172.7 L 82.0,172.0 L 83.1,171.2 L 84.3,170.4 L 85.5,169.6 L 86.8,168.8 L 88.1,167.9 L 89.5,167.0 L 90.9,166.0 L 92.4,165.0 L 93.9,164.0 L 95.5,163.0 L 97.2,161.9 L 98.9,160.7 L 100.7,159.5 L 102.5,158.3 L 104.5,157.0 L 106.5,155.6 L 108.6,154.3 L 110.8,152.8 L 113.0,151.3 L 115.4,149.7 L 117.8,148.1 L 120.3,146.4 L 123.0,144.7 L 125.7,142.9 L 128.5,141.0 L 131.5,139.0 L 134.6,137.0 L 137.8,134.9 L 141.1,132.6 L 144.5,130.4 L 148.1,128.0 L 151.8,125.5 L 155.7,122.9 L 159.7,120.3 L 163.9,117.5 L 168.2,114.6 L 172.7,111.6 L 177.4,108.5 L 182.2,105.3 L 187.3,101.9 L 192.5,98.4 L 198.0,94.8 L 203.7,91.0 L 209.6,87.1 L 215.7,83.0 L 222.1,78.8 L 228.7,74.4 L 235.5,69.8 L 242.7,65.1 L 250.1,60.1 L 257.8,55.0 L 265.8,49.7 L 274.1,44.1 L 282.8,38.4 L 291.8,32.4 L 301.1,29.8 L 310.8,29.8 L 320.9,29.8 L 331.4,29.8 L 342.3,29.8 L 353.6,29.8 L 365.3,29.8 L 377.6,29.8 L 390.3,29.8 L 403.4,29.8 L 417.2,29.8 L 431.4,29.8 L 446.2,29.8 L 461.6,29.8 L 477.6,29.8 L 494.2,29.8 L 511.4,29.8 L 529.4,29.8 L 548.0,29.8" fill="none" stroke="#1f4e79" stroke-width="2.4"/>
+  <path d="M 62.6,14 L 62.6,346" fill="none" stroke="#b0442c" stroke-width="1.4" stroke-dasharray="5 4"/>
+  <circle cx="62.6" cy="185.8" r="4" fill="#b0442c"/>
+  <text x="69.6" y="189.8" font-size="11.5" fill="#b0442c">overflow onset C* = 0.038</text>
+  <text x="93" y="329" font-size="11.5" fill="#1f4e79">&#955; = C/c&#8327; (pure respiration)</text>
+  <text x="189" y="85" font-size="11.5" fill="#8a5a18">fermentation share grows</text>
+  <text x="338" y="56" font-size="11.5" fill="#566">saturation &#955; &#8776; 1.96</text>
+  <rect x="410" y="18" width="12" height="12" fill="#bcd4ee"/><text x="426" y="28" font-size="11" fill="#566">respiration flux</text>
+  <rect x="410" y="36" width="12" height="12" fill="#f2c48d"/><text x="426" y="46" font-size="11" fill="#566">fermentation flux</text>
+</svg>
+<figcaption><strong>Figure 1.</strong> Simulated growth rate (dark line) and pathway mix (filled bands) versus carbon uptake capacity. Below C* &#8776; 0.038 growth tracks pure respiration (&#955; = 26C); the dashed line marks the overflow onset &#955;* &#8776; 1.00, above which fermentation (orange) takes over and growth saturates near 1.96. Same qualitative structure as measured acetate-onset curves in E.&nbsp;coli<sup><a href="#s1">1</a></sup>.</figcaption>
+</figure>
+<figure>
+<svg class="fig" viewBox="0 0 350 360" role="img" aria-label="LP geometry: feasible region in pathway-flux space">
+  <path d="M60 20V330H320" fill="none" stroke="#5d6872" stroke-width="1.5"/>
+  <text x="310" y="350" font-size="12" fill="#566" text-anchor="end">respiration flux J&#8347; &#8594;</text>
+  <text x="70" y="30" font-size="12" fill="#566">fermentation flux J&#8347;&#8338; &#8594;</text>
+  <path d="M90 330 L 166.9 330 L 163.8,318.8 L 90 308.5 Z" fill="#dce9f7" stroke="none"/>
+  <path d="M 243.9,330 L 90,308.5" fill="none" stroke="#b0442c" stroke-width="1.8"/>
+  <path d="M 166.9,330 L 90,55.5" fill="none" stroke="#1f4e79" stroke-width="1.8"/>
+  <circle cx="163.8" cy="318.8" r="4.5" fill="#1f4e79"/>
+  <text x="171.8" y="312.8" font-size="11.5" fill="#1f4e79">optimum = corner mix</text>
+  <text x="237.9" y="346" font-size="11" fill="#b0442c" text-anchor="end">carbon constraint C = 2C*</text>
+  <text x="96" y="69.5" font-size="11" fill="#1f4e79">proteome budget</text>
+  <circle cx="136.2" cy="330" r="4.5" fill="#666"/>
+  <text x="136.2" y="346" font-size="11" fill="#666" text-anchor="middle">C &lt; C*: pure respiration</text>
+</svg>
+<figcaption><strong>Figure 2.</strong> The LP behind Figure 1, drawn at C = 2C*. Feasible region (shaded) is bounded by the carbon line (red) and the proteome line (blue); the optimum is their intersection &mdash; a <em>mixed</em> strategy. Below C* the carbon line has already crossed the J<sub>r</sub>-axis before the proteome line, so the optimum sits on the axis (pure respiration, grey dot).</figcaption>
+</figure>
+<details><summary>Simulation code (Python, standard library only)</summary>
+<pre><code>#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+&quot;&quot;&quot;
+week7 ext simulation: overflow metabolism as the corner solution of the
+proteome-budget LP.
+
+Model (units: fluxes in ATP equivalents per unit time, protein mass fractions
+dimensionless):
+
+  Two ATP-producing pathways feed the cell&#x27;s energy demand J_r + J_f = lambda:
+    - respiration:  protein cost a_r per unit flux (expensive machinery),
+                    carbon cost c_r per unit flux (very efficient per carbon)
+    - fermentation: protein cost a_f &lt; a_r  (cheap, few enzymes),
+                    carbon cost c_f &gt;&gt; c_r   (wasteful per carbon)
+
+  Uptake machinery itself costs protein alpha per unit carbon taken up.
+
+  Proteome budget:  a_r J_r + a_f J_f + alpha (c_r J_r + c_f J_f) &lt;= F
+  Carbon capacity:  c_r J_r + c_f J_f &lt;= C      (environment-limited uptake)
+
+Maximize lambda = J_r + J_f s.t. both constraints.
+Because fermentation is both protein-cheaper and carbon-costlier, at low C the
+carbon constraint binds and respiration alone is optimal; above a threshold C*
+the proteome constraint binds and the cell mixes in fermentation (overflow).
+C* is found where both constraints are simultaneously tight with J_f = 0.
+&quot;&quot;&quot;
+import json, math
+
+# --- parameters (order-unity toy model) ---
+a_r = 1.0      # protein cost per unit respiration flux
+a_f = 0.5      # protein cost per unit fermentation flux
+c_r = 1.0/26.0 # carbon cost per unit respiration flux (PDH+TCA: ~26 ATP/glucose)
+c_f = 0.5      # carbon cost per unit fermentation flux (acetate: ~2 ATP/glucose)
+alpha = 0.02   # protein cost of uptake machinery per unit carbon taken up
+F = 1.0        # total proteome budget fraction
+
+# --- analytic solution ---
+# Candidate vertices (Jr, Jf) of the feasible polygon:
+#  A: origin;  B: carbon-only corner (Jf=0, c_r Jr = C);
+#  C: protein-only corner (Jr=0, a_f Jf + alpha c_f Jf = F);
+#  D: intersection of both constraints (when it exists with Jf &gt;= 0)
+def solve(C):
+    p_r, p_f = a_r + alpha * c_r, a_f + alpha * c_f
+    best_lam, mix = 0.0, (0.0, 0.0)
+    # vertex B: carbon-tight, Jf = 0
+    Jr = C / c_r
+    if p_r * Jr &lt;= F + 1e-12 and Jr &gt; best_lam:
+        best_lam, mix = Jr, (Jr, 0.0)
+    # vertex C: protein-tight, Jr = 0
+    Jf = F / p_f
+    if c_f * Jf &lt;= C + 1e-12 and Jf &gt; best_lam:
+        best_lam, mix = Jf, (0.0, Jf)
+    # vertex D: both constraints tight
+    det = c_r * p_f - c_f * p_r
+    Jr = (C * p_f - c_f * F) / det
+    Jf = (c_r * F - C * p_r) / det
+    if Jr &gt;= -1e-12 and Jf &gt;= -1e-12:
+        lamD = Jr + Jf
+        if lamD &gt; best_lam + 1e-12:
+            best_lam, mix = lamD, (max(Jr, 0.0), max(Jf, 0.0))
+    return best_lam, mix
+
+# overflow onset: C* where intersection D has Jf = 0  =&gt;  C* = F * c_r / p_r
+p_r, p_f = a_r + alpha * c_r, a_f + alpha * c_f
+C_star = F * c_r / p_r
+lam_star, _ = solve(C_star)
+
+grid = [0.02 * (100.0 ** (i / 120.0)) for i in range(121)]    # 0.02 .. 2.0
+rows = []
+for C in grid:
+    lam, (Jr, Jf) = solve(C)
+    rows.append((C, lam, Jr, Jf))
+
+# --- build smooth polylines for SVG (viewBox 0 0 560 380, margins l=58 t=14) ---
+W, H, ML, MT = 560, 380, 58, 14
+def px(C):  return ML + (C - grid[0]) / (grid[-1] - grid[0]) * (W - ML - 12)
+def py(lam): return MT + (1 - (lam - 0) / (rows[-1][1] * 1.05)) * (H - MT - 34)
+
+lam_path = &quot;M &quot; + &quot; L &quot;.join(f&quot;{px(C):.1f},{py(lam):.1f}&quot; for C, lam, _, _ in rows)
+# respiration/fermentation stacks
+resp_path = &quot;M &quot; + &quot; L &quot;.join(f&quot;{px(C):.1f},{py(Jr):.1f}&quot; for C, _, Jr, _ in rows) + \
+            &quot; L &quot; + f&quot;{px(grid[-1]):.1f},{py(0):.1f} L {px(grid[0]):.1f},{py(0):.1f} Z&quot;
+ferm_path = &quot;M &quot; + &quot; L &quot;.join(f&quot;{px(C):.1f},{py(Jr+Jf):.1f}&quot; for C, _, Jr, Jf in rows) + \
+            &quot; L &quot; + &quot; L &quot;.join(f&quot;{px(C):.1f},{py(Jr):.1f}&quot; for C, _, Jr, _ in reversed(rows)) + &quot; Z&quot;
+# onset marker
+onset = f&quot;M {px(C_star):.1f},{MT} L {px(C_star):.1f},{H-34}&quot;
+onset_dot = f&quot;{px(C_star):.1f},{py(lam_star):.1f}&quot;
+# annotation text x/y (kept inside box)
+ann_x, ann_y = px(C_star) - 6, py(lam_star) + 26
+
+# --- panel 2: LP geometry at a C above onset (mix) vs below (pure resp) ---
+C_geo = 2.0 * C_star
+lam_g, (Jr_g, Jf_g) = solve(C_geo)
+S = 300.0  # scale flux -&gt; px for the geometry panel
+ox, oy = 90, 330
+gx = lambda j: ox + j * S * 0.55
+gy = lambda j: oy - j * S
+carb_line = f&quot;M {gx(C/c_r):.1f},{gy(0):.1f} L {gx(0):.1f},{gy(C_geo/c_f):.1f}&quot;
+prot_line = f&quot;M {gx(F/p_r):.1f},{gy(0):.1f} L {gx(0):.1f},{gy(F/p_f):.1f}&quot;
+opt_pt = f&quot;{gx(Jr_g):.1f},{gy(Jf_g):.1f}&quot;
+low_pt = f&quot;{gx(C_star*0.6/c_r):.1f},{gy(0):.1f}&quot;
+
+out = {
+    &quot;C_star&quot;: C_star, &quot;lam_star&quot;: lam_star,
+    &quot;rows_head&quot;: rows[:3], &quot;rows_mid&quot;: [r for r in rows if abs(r[0]-C_star) &lt; 0.05][:3],
+    &quot;rows_tail&quot;: rows[-2:],
+    &quot;pure_resp_lam_at_Cstar&quot;: C_star / c_r,
+    &quot;svg&quot;: {&quot;lam_path&quot;: lam_path, &quot;resp_path&quot;: resp_path, &quot;ferm_path&quot;: ferm_path,
+            &quot;onset&quot;: onset, &quot;onset_dot&quot;: onset_dot, &quot;ann_x&quot;: round(ann_x,1), &quot;ann_y&quot;: round(ann_y,1),
+            &quot;carb_line&quot;: carb_line, &quot;prot_line&quot;: prot_line, &quot;opt_pt&quot;: opt_pt, &quot;low_pt&quot;: low_pt},
+}
+print(json.dumps(out, indent=1))
+</code></pre>
+</details>
+
+<h2>What I would argue against</h2>
+<p><strong>&ldquo;Overflow is wasteful, so it must be a failure of regulation.&rdquo;</strong> No: within the proteome-economics picture, excreting acetate is the optimal corner of a well-posed LP &mdash; the cell is rationally trading abundant carbon for scarce protein, and blocking overflow (e.g. forcing full respiration) would <em>lower</em> growth, exactly as Basan <em>et al.</em>&rsquo;s proteome-cost measurements imply<sup><a href="#s1">1</a></sup>. <strong>&ldquo;Then the onset point is arbitrary / culture-dependent.&rdquo;</strong> Also no: C* is pinned by only two things, the proteome budget F and the protein-per-flux cost of respiration (a<sub>r</sub>+&#945;c<sub>r</sub>), so perturbing translation capacity or ribosome content should shift the onset predictably &mdash; which is the direction of the nutrient-shift versus chloramphen-shift asymmetry we saw in lecture 14: the two interventions move along different constraint axes, hence opposite effects on &#966;&#775;<sub>R</sub><sup><a href="#s2">2</a></sup>.</p>
+
+<h2>Sources</h2>
+<ol class="src">
+<li id="s1">Basan M, Hui S, Okano H, Zhang Z, Shen Y, Williamson JR, Hwa T. &ldquo;Overflow metabolism in <em>Escherichia coli</em> results from efficient proteome allocation.&rdquo; <em>Nature</em> 528, 99&ndash;104 (2015). <a href="https://doi.org/10.1038/nature15765">doi:10.1038/nature15765</a></li>
+<li id="s2">Scott M, Gunderson CW, Mateescu EM, Zhang Z, Hwa T. &ldquo;Interdependence of cell growth and gene expression: origins and consequences.&rdquo; <em>Science</em> 330, 1099&ndash;1102 (2010). <a href="https://doi.org/10.1126/science.1192588">doi:10.1126/science.1192588</a></li>
+<li id="s3">Molenaar D, van Berlo R, de Ridder D, Teusink B. &ldquo;Shifts in growth strategies reflect tradeoffs in cellular economics.&rdquo; <em>Mol Syst Biol</em> 5, 323 (2009). <a href="https://doi.org/10.1038/msb.2009.82">doi:10.1038/msb.2009.82</a></li>
+</ol>
+</div>
+</body>
+</html>

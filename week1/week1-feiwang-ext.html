@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 1 — Extension: Fast diffusion does not guarantee a uniform signal</title>
+<meta name="author" content="Fei Wang">
+<meta name="week" content="week1">
+<meta name="lecture" content="lecture02">
+<meta name="description" content="A short CCBS extension on competition between diffusion and signal inactivation, with an original quantitative model, SVG figure, and reproducible JavaScript.">
+
+<style>
+ :root {
+   --ink:#1a1a1a;
+   --muted:#566;
+   --accent:#1f4e79;
+   --line:#d8dee4;
+   --bg:#fff;
+   --soft:#f6f8fa;
+ }
+
+ @media (prefers-color-scheme: dark) {
+   :root {
+     --ink:#e8e8e8;
+     --muted:#abb;
+     --accent:#8ab4e8;
+     --line:#3a4652;
+     --bg:#15191d;
+     --soft:#1e242a;
+   }
+ }
+
+ * { box-sizing:border-box; }
+
+ body {
+   margin:0;
+   background:var(--bg);
+   color:var(--ink);
+   font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+   line-height:1.6;
+ }
+
+ .wrap {
+   max-width:760px;
+   margin:0 auto;
+   padding:40px 22px 80px;
+ }
+
+ h1 {
+   font-size:1.6rem;
+   line-height:1.3;
+   margin:0 0 8px;
+   color:var(--accent);
+ }
+
+ .meta {
+   color:var(--muted);
+   font-size:.92rem;
+   margin-bottom:26px;
+ }
+
+ h2 {
+   font-size:1.05rem;
+   color:var(--accent);
+   margin:34px 0 8px;
+   border-bottom:1px solid var(--line);
+   padding-bottom:5px;
+ }
+
+ p { margin:12px 0; }
+
+ .card {
+   background:var(--soft);
+   border:1px solid var(--line);
+   border-radius:6px;
+   padding:14px 18px;
+   margin:14px 0;
+ }
+
+ .thesis { border-left:4px solid var(--accent); }
+
+ .fig {
+   display:block;
+   width:100%;
+   height:auto;
+   border:1px solid var(--line);
+   border-radius:6px;
+   margin:14px 0;
+   background:#fff;
+ }
+
+ figure { margin:20px 0; }
+
+ figcaption {
+   font-size:.85rem;
+   color:var(--muted);
+   margin-top:6px;
+ }
+
+ a {
+   color:var(--accent);
+   text-underline-offset:3px;
+ }
+
+ .src {
+   font-size:.9rem;
+   padding-left:23px;
+ }
+
+ .src li {
+   margin:14px 0;
+   overflow-wrap:anywhere;
+ }
+
+ .equation {
+   text-align:center;
+   line-height:1.85;
+   overflow-wrap:anywhere;
+ }
+
+ .small {
+   font-size:.85rem;
+   color:var(--muted);
+ }
+
+ .table-wrap { overflow-x:auto; }
+
+ table {
+   border-collapse:collapse;
+   width:100%;
+   font-size:.88rem;
+   margin:16px 0;
+ }
+
+ caption {
+   text-align:left;
+   font-weight:600;
+   margin-bottom:8px;
+ }
+
+ th,td {
+   padding:9px 7px;
+   border-bottom:1px solid var(--line);
+   text-align:left;
+ }
+
+ th { background:var(--soft); }
+
+ details {
+   border:1px solid var(--line);
+   border-radius:6px;
+   padding:12px 15px;
+   margin:16px 0;
+ }
+
+ summary {
+   cursor:pointer;
+   font-weight:600;
+   color:var(--accent);
+ }
+
+ pre {
+   white-space:pre-wrap;
+   overflow-wrap:anywhere;
+   font-size:.79rem;
+   line-height:1.5;
+   background:var(--soft);
+   border:1px solid var(--line);
+   border-radius:5px;
+   padding:13px;
+ }
+
+ code { font-family:Consolas,Monaco,monospace; }
+
+ button {
+   cursor:pointer;
+   font:inherit;
+   padding:9px 14px;
+   background:var(--accent);
+   color:var(--bg);
+   border:0;
+   border-radius:5px;
+ }
+
+ a:focus-visible,
+ button:focus-visible,
+ summary:focus-visible {
+   outline:3px solid #b87537;
+   outline-offset:3px;
+ }
+
+ footer {
+   margin-top:30px;
+   padding-top:13px;
+   border-top:1px solid var(--line);
+   font-size:.8rem;
+   color:var(--muted);
+ }
+
+ @media (max-width:480px) {
+   .wrap { padding:28px 16px 50px; }
+   h1 { font-size:1.4rem; }
+   th,td { padding:8px 5px; }
+ }
+
+ @media print {
+   :root {
+     --ink:#111;
+     --muted:#555;
+     --accent:#1f4e79;
+     --line:#ccc;
+     --bg:#fff;
+     --soft:#f7f7f7;
+   }
+
+   .wrap { max-width:none; padding:0; }
+   body { font-size:10pt; }
+   details { display:none; }
+   figure,table,.card { break-inside:avoid; }
+   h2 { break-after:avoid; }
+ }
+</style>
+</head>
+
+<body>
+<main class="wrap">
+
+<h1>Week 1 — Extension: Fast diffusion does not guarantee a uniform signal</h1>
+
+<p class="meta">
+  Author: Fei Wang · Week 1 / Lecture 2 · 2026-9-3· CCBS 2026
+</p>
+
+<p class="card thesis">
+  <strong>One sentence:</strong>
+  Even in a one-micrometre compartment, sufficiently rapid signal
+  inactivation can sustain a steep concentration gradient, so cell
+  size alone cannot justify a well-mixed model.
+</p>
+
+<h2>The point I am adding</h2>
+
+<p>
+  Lecture 2 asks us to compare the diffusion clock with the reaction
+  clock before assuming uniform concentrations
+  <a href="#ref1">[1]</a>. I want to turn that warning into a quantitative
+  decision: how fast can a signal be removed before its concentration
+  differs by more than 10% across a small compartment?
+</p>
+
+<p>
+  Imagine an active protein supplied at one boundary and inactivated
+  throughout the interior. Diffusion carries activity inward while
+  inactivation removes it. Increasing the activity of the inactivating
+  enzyme can shorten the signal’s reach without changing the diffusion
+  coefficient. The relevant comparison is between diffusion and loss
+  of the active pool, not simply one enzyme’s turnover time. Spatially
+  separated phosphorylation and dephosphorylation provide a biological
+  precedent for this competition <a href="#ref3">[3]</a>.
+</p>
+
+<p>
+  My claim is therefore conditional: a short absolute diffusion time
+  need not be short enough for the process being modeled. A concentration
+  measured near the source could substantially overestimate exposure
+  elsewhere, even when the compartment is only a micrometre long.
+</p>
+
+<h2>Work it</h2>
+
+<p>
+  Use a one-dimensional compartment of length
+  <strong>L = 1 µm</strong> with constant cross-section.
+  Set <strong>D = 7.7 µm² s<sup>−1</sup></strong>, the reported mean
+  apparent diffusion coefficient of GFP in <em>E. coli</em> under
+  one measured condition <a href="#ref2">[2]</a>. This is a reference
+  mobility, not evidence that GFP undergoes the hypothetical
+  inactivation below. Let c denote active-signal concentration and
+  k its spatially uniform, effective first-order inactivation rate.
+</p>
+
+<div class="card equation">
+  ∂c/∂t = D ∂²c/∂x² − kc<br>
+  c(0,t) = c₀ &nbsp;;&nbsp; ∂c/∂x(L,t) = 0
+</div>
+
+<p>
+  The source maintains a fixed positive concentration c₀; the opposite
+  boundary is impermeable. The rates
+  <strong>k = 1, 10, and 100 s<sup>−1</sup></strong> are illustrative
+  assumptions. For an unsaturated enzyme-mediated loss, an effective
+  k can take the form (k<sub>cat</sub>/K<sub>M</sub>)q<sub>E</sub>,
+  provided the kinetic reduction is valid and enzyme abundance is
+  uniform <a href="#ref1">[1]</a>. Thus k is a pool-loss coefficient,
+  not k<sub>cat</sub> itself.
+</p>
+
+<p>
+  At steady state, solving Dc″ − kc = 0 with these boundaries gives:
+</p>
+
+<div class="card equation">
+  ℓ = √(D/k) &nbsp;;&nbsp; Da = kL²/D<br>
+  c(x)/c₀ = cosh[(L − x)/ℓ] / cosh(L/ℓ)<br>
+  c(L)/c₀ = 1 / cosh(√Da)
+</div>
+
+<p>
+  Here ℓ is the reaction–diffusion length and Da is the Damköhler
+  number, defined as (L²/D)/(1/k). The characteristic diffusion time
+  is <strong>0.130 s</strong> in every case, yet the resulting spatial
+  profiles differ greatly.
+</p>
+
+<div class="table-wrap">
+  <table>
+    <caption>Table 1. Original calculations for the same L and D.</caption>
+    <thead>
+      <tr>
+        <th scope="col">k (s<sup>−1</sup>)</th>
+        <th scope="col">1/k (s)</th>
+        <th scope="col">Da</th>
+        <th scope="col">ℓ (µm)</th>
+        <th scope="col">c(L)/c₀</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>1.00</td>
+        <td>0.130</td>
+        <td>2.775</td>
+        <td>93.84%</td>
+      </tr>
+      <tr>
+        <td>10</td>
+        <td>0.10</td>
+        <td>1.299</td>
+        <td>0.877</td>
+        <td>58.05%</td>
+      </tr>
+      <tr>
+        <td>100</td>
+        <td>0.01</td>
+        <td>12.987</td>
+        <td>0.277</td>
+        <td>5.44%</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<figure>
+<svg class="fig"
+     role="img"
+     aria-labelledby="chart-title chart-desc"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="518.4pt"
+     height="280.8pt"
+     viewBox="0 0 518.4 280.8"
+     xmlns="http://www.w3.org/2000/svg"
+     version="1.1">
+
+<title id="chart-title">
+  Faster inactivation shortens the reach of a diffusing signal
+</title>
+
+<desc id="chart-desc">
+  At a fixed length of one micrometre and diffusion coefficient of
+  7.7 square micrometres per second, the far-boundary concentration
+  is 93.84, 58.05, or 5.44 percent of the source for inactivation
+  rates of 1, 10, or 100 per second.
+</desc>
+
+<defs>
+  <style type="text/css">
+    * { stroke-linejoin:round; stroke-linecap:butt; }
+  </style>
+</defs>
+
+<g id="figure_1">
+  <g id="patch_1">
+    <path d="M 0 280.8 L 518.4 280.8 L 518.4 0 L 0 0 z"
+          style="fill:#ffffff"/>
+  </g>
+
+  <g id="axes_1">
+    <g id="patch_2">
+      <path d="M 39.58149 247.44351
+               L 507.448198 247.44351
+               L 507.448198 3.00024
+               L 39.58149 3.00024 z"
+            style="fill:#ffffff"/>
+    </g>
+
+    <g id="matplotlib.axis_1">
+      <g id="xtick_1">
+        <g id="line2d_1">
+          <path d="M 39.58149 247.44351 L 39.58149 3.00024"
+                clip-path="url(#p057caaa161)"
+                style="fill:none;stroke:#b0b0b0;stroke-opacity:0.15;stroke-width:0.8;stroke-linecap:square"/>
+        </g>
+        <g id="line2d_2">
+          <defs>
+            <path id="me130b998f8"
+                  d="M 0 0 L 0 3.5"
+                  style="stroke:#000000;stroke-width:0.8"/>
+          </defs>
+          <g>
+            <use xlink:href="#me130b998f8"
+                 x="39.58149" y="247.44351"
+                 style="stroke:#000000;stroke-width:0.8"/>
+          </g>
+        </g>
+        <g id="text_1">
+          <text style="font-size:10px;font-family:'DejaVu Sans';text-anchor:middle"
+                x="39.58149" y="262.041947"
+                transform="rotate(-0 39.58149 262.041947)">0.0</text>
+        </g>
+      </g>
+
+      <g id="xtick_2">
+        <g id="line2d_3">
+          <path d="M 133.154832 247.44351 L 133.154832 3.00024"
+                clip-path="url(#p057caaa161)"
+                style="fill:none;stroke:#b0b0b0;stroke-opacity:0.15;stroke-width:0.8;stroke-linecap:square"/>
+        </g>
+        <g id="line2d_4">
+          <g>
+            <use xlink:href="#me130b998f8"
+                 x="133.154832" y="247.44351"
+                 style="stroke:#000000;stroke-width:0.8"/>
+          </g>
+        </g>
+        <g id="text_2">
+          <text style="font-size:10px;font-family:'DejaVu Sans';text-anchor:middle"
+                x="133.154832" y="262.041947"
+                transform="rotate(-0 133.154832 262.041947)">0.2</text>
+        </g>
+      </g>
+
+      <g id="xtick_3">
+        <g id="line2d_5">
+          <path d="M 226.728173 247.44351 L 226.728173 3.00024"
+                clip-path="url(#p057caaa161)"
+                style="fill:none;stroke:#b0b0b0;stroke-opacity:0.15;stroke-width:0.8;stroke-linecap:square"/>
+        </g>
+        <g id="line2d_6">
+          <g>
+            <use xlink:href="#me130b998f8"
+                 x="226.728173" y="247.44351"
+                 style="stroke:#000000;stroke-width:0.8"/>
+          </g>
+        </g>
+        <g id="text_3">
+          <text style="font-size:10px;font-family:'DejaVu Sans';text-anchor:middle"
+                x="226.728173" y="262.041947"
+                transform="rotate(-0 226.728173 262.041947)">0.4</text>
+        </g>
+      </g>
+
+      <g id="xtick_4">
+        <g id="line2d_7">
+          <path d="M 320.301515 247.44351 L 320.301515 3.00024"
+                clip-path="url(#p057caaa161)"
+                style="fill:none;stroke:#b0b0b0;stroke-opacity:0.15;stroke-width:0.8;stroke-linecap:square"/>
+        </g>
+        <g id="line2d_8">
+          <g>
+            <use xlink:href="#me130b998f8"
+                 x="320.301515" y="247.44351"
+                 style="stroke:#000000;stroke-width:0.8"/>
+          </g>
+        </g>
+        <g id="text_4">
+          <text style="font-size:10px;font-family:'DejaVu Sans';text-anchor:middle"
+                x="320.301515" y="262.041947"
+                transform="rotate(-0 320.301515 262.041947)">0.6</text>
+        </g>
+      </g>
+
+      <g id="xtick_5">
+        <g id="line2d_9">
+          <path d="M 413.874856 247.44351 L 413.874856 3.00024"
+                clip-path="url(#p057caaa161)"
+                style="fill:none;stroke:#b0b0b0;stroke-opacity:0.15;stroke-width:0.8;stroke-linecap:square"/>
+        </g>
+        <g id="line2d_10">
+          <g>
+            <use xlink:href="#me130b998f8"
+                 x="413.874856" y="247.44351"
+                 style="stroke:#000000;stroke-width:0.8"/>
+          </g>
+        </g>
+        <g id="text_5">
+          <text style="font-size:10px;font-family:'DejaVu Sans';text-anchor:middle"
+                x="413.874856" y="262.041947"
+                transform="rotate(-0 413.874856 262.041947)">0.8</text>
+        </g>
+      </g>
+
+      <g id="xtick_6">
+        <g id="line2d_11">
+          <path d="M 507.448198 247.44351 L 507.448198 3.00024"
+                clip-path="url(#p057caaa161)"
+                style="fill:none;stroke:#b0b0b0;stroke-opacity:0.15;stroke-width:0.8;stroke-linecap:square"/>
+        </g>
+        <g id="line2d_12">
+          <g>
+            <use xlink:href="#me130b998f8"
+                 x="507.448198" y="247.44351"
+                 style="stroke:#000000;stroke-width:0.8"/>
+          </g>
+        </g>
+        <g id="text_6">
+          <text style="font-size:10px;font-family:'DejaVu Sans';text-anchor:middle"
+                x="507.448198" y="262.041947"
+                transform="rotate(-0 507.448198 262.041947)">1.0</text>
+        </g>
+      </g>
+
+      <g id="text_7">
+        <text style="font-size:10px;font-family:'DejaVu Sans';text-anchor:middle"
+              x="273.514844" y="275.720073"
+              transform="rotate(-0 273.514844 275.720073)">Distance from the source, x (µm)</text>
+      </g>
+    </g>
+
+    <g id="matplotlib.axis_2">
+      <g id="ytick_1">
+        <g id="line2d_13">
+          <path d="M 39.58149 247.44351 L 507.448198 247.44351"
+                clip-path="url(#p057caaa161)"
+                style="fill:none;stroke:#b0b0b0;stroke-opacity:0.15;stroke-width:0.8;stroke-linecap:square"/>
+        </g>
+        <g id="line2d_14">
+          <defs>
+            <path id="m170bfd9a77"
+                  d="M 0 0 L -3.5 0"
+                  style="stroke:#000000;stroke-width:0.8"/>
+          </defs>
+          <g>
+            <use xlink:href="#m170bfd9a77"
+                 x="39.58149" y="247.44351"
+                 style="stroke:#000000;stroke-width:0.8"/>
+          </g>
+        </g>
+        <g id="text_8">
+          <text style="font-size:10px;font-family:'DejaVu Sans';text-anchor:end"
+                x="32.58149" y="251.242729"
+                transform="rotate(-0 32.58149 251.242729)">0.0</text>
+        </g>
+      </g>
+
+      <g id="ytick_2">
+        <g id="line2d_15">
+          <path d="M 39.58149 200.882887 L 507.448198 200.882887"
+                clip-path="url(#p057caaa161)"
+                style="fill:none;stroke:#b0b0b0;stroke-opacity:0.15;stroke-width:0.8;stroke-linecap:square"/>
+        </g>
+        <g id="line2d_16">
+          <g>
+            <use xlink:href="#m170bfd9a77"
+                 x="39.58149" y="200.882887"
+                 style="stroke:#000000;stroke-width:0.8"/>
+          </g>
+        </g>
+        <g id="text_9">
+          <text style="font-size:10px;font-family:'DejaVu Sans';text-anchor:end"
+                x="32.58149" y="204.682106"
+                transform="rotate(-0 32.58149 204.682106)">0.2</text>
+        </g>
+      </g>
+
+      <g id="ytick_3">
+        <g id="line2d_17">
+          <path d="M 39.58149 154.322264 L 507.448198 154.322264"
+                clip-path="url(#p057caaa161)"
+                style="fill:none;stroke:#b0b0b0;stroke-opacity:0.15;stroke-width:0.8;stroke-linecap:square"/>
+        </g>
+        <g id="line2d_18">
+          <g>
+            <use xlink:href="#m170bfd9a77"
+                 x="39.58149" y="154.322264"
+                 style="stroke:#000000;stroke-width:0.8"/>
+          </g>
+        </g>
+        <g id="text_10">
+          <text style="font-size:10px;font-family:'DejaVu Sans';text-anchor:end"
+                x="32.58149" y="158.121483"
+                transform="rotate(-0 32.58149 158.121483)">0.4</text>
+        </g>
+      </g>
+
+      <g id="ytick_4">
+        <g id="line2d_19">
+          <path d="M 39.58149 107.761641 L 507.448198 107.761641"
+                clip-path="url(#p057caaa161)"
+                style="fill:none;stroke:#b0b0b0;stroke-opacity:0.15;stroke-width:0.8;stroke-linecap:square"/>
+        </g>
+        <g id="line2d_20">
+          <g>
+            <use xlink:href="#m170bfd9a77"
+                 x="39.58149" y="107.761641"
+                 style="stroke:#000000;stroke-width:0.8"/>
+          </g>
+        </g>
+        <g id="text_11">
+          <text style="font-size:10px;font-family:'DejaVu Sans';text-anchor:end"
+                x="32.58149" y="111.56086"
+                transform="rotate(-0 32.58149 111.56086)">0.6</text>
+        </g>
+      </g>
+
+      <g id="ytick_5">
+        <g id="line2d_21">
+          <path d="M 39.58149 61.201019 L 507.448198 61.201019"
+                clip-path="url(#p057caaa161)"
+                style="fill:none;stroke:#b0b0b0;stroke-opacity:0.15;stroke-width:0.8;stroke-linecap:square"/>
+        </g>
+        <g id="line2d_22">
+          <g>
+            <use xlink:href="#m170bfd9a77"
+                 x="39.58149" y="61.201019"
+                 style="stroke:#000000;stroke-width:0.8"/>
+          </g>
+        </g>
+        <g id="text_12">
+          <text style="font-size:10px;font-family:'DejaVu Sans';text-anchor:end"
+                x="32.58149" y="65.000237"
+                transform="rotate(-0 32.58149 65.000237)">0.8</text>
+        </g>
+      </g>
+
+      <g id="ytick_6">
+        <g id="line2d_23">
+          <path d="M 39.58149 14.640396 L 507.448198 14.640396"
+                clip-path="url(#p057caaa161)"
+                style="fill:none;stroke:#b0b0b0;stroke-opacity:0.15;stroke-width:0.8;stroke-linecap:square"/>
+        </g>
+        <g id="line2d_24">
+          <g>
+            <use xlink:href="#m170bfd9a77"
+                 x="39.58149" y="14.640396"
+                 style="stroke:#000000;stroke-width:0.8"/>
+          </g>
+        </g>
+        <g id="text_13">
+          <text style="font-size:10px;font-family:'DejaVu Sans';text-anchor:end"
+                x="32.58149" y="18.439614"
+                transform="rotate(-0 32.58149 18.439614)">1.0</text>
+        </g>
+      </g>
+
+      <g id="text_14">
+        <text style="font-size:10px;font-family:'DejaVu Sans';text-anchor:middle"
+              x="10.598678" y="125.221875"
+              transform="rotate(-90 10.598678 125.221875)">Normalized concentration, c(x) / c₀</text>
+      </g>
+    </g>
+
+    <g id="line2d_25">
+      <path d="M 39.58149 14.640396
+L 79.35016 16.995696
+L 119.11883 19.134747
+L 158.8875 21.059556
+L 198.656171 22.77193
+L 238.424841 24.273476
+L 280.532844 25.635115
+L 322.640848 26.763402
+L 364.748852 27.659525
+L 406.856855 28.324427
+L 448.964859 28.758807
+L 491.072863 28.963121
+L 507.448198 28.980499
+L 507.448198 28.980499"
+            clip-path="url(#p057caaa161)"
+            style="fill:none;stroke:#1f4e79;stroke-width:2.4;stroke-linecap:square"/>
+    </g>
+
+    <g id="line2d_26">
+      <path d="M 39.58149 14.640396
+L 53.617491 20.986548
+L 67.653492 27.067985
+L 81.689494 32.891815
+L 95.725495 38.464846
+L 109.761496 43.793592
+L 123.797497 48.884283
+L 137.833499 53.742869
+L 151.8695 58.375029
+L 165.905501 62.786179
+L 179.941502 66.981475
+L 193.977503 70.96582
+L 208.013505 74.743873
+L 222.049506 78.320049
+L 238.424841 82.242669
+L 254.800175 85.902435
+L 271.17551 89.30517
+L 287.550845 92.456288
+L 303.92618 95.360802
+L 320.301515 98.023335
+L 336.676849 100.448122
+L 353.052184 102.639022
+L 369.427519 104.599521
+L 385.802854 106.332738
+L 402.178188 107.84143
+L 418.553523 109.127999
+L 434.928858 110.194491
+L 451.304193 111.042604
+L 467.679527 111.673686
+L 484.054862 112.088742
+L 500.430197 112.288433
+L 507.448198 112.308177
+L 507.448198 112.308177"
+            clip-path="url(#p057caaa161)"
+            style="fill:none;stroke-dasharray:8.88,3.84;stroke-dashoffset:0;stroke:#ba652a;stroke-width:2.4"/>
+    </g>
+
+    <g id="line2d_27">
+      <path d="M 39.58149 14.640396
+L 46.599491 26.872125
+L 53.617491 38.459171
+L 60.635492 49.4354
+L 67.653492 59.832893
+L 74.671493 69.682039
+L 81.689494 79.011626
+L 88.707494 87.848922
+L 95.725495 96.219756
+L 102.743496 104.148596
+L 109.761496 111.658614
+L 116.779497 118.771762
+L 123.797497 125.508829
+L 130.815498 131.889507
+L 137.833499 137.932445
+L 144.851499 143.655305
+L 151.8695 149.074814
+L 158.8875 154.206812
+L 165.905501 159.066299
+L 172.923502 163.667478
+L 179.941502 168.023797
+L 186.959503 172.147989
+L 193.977503 176.052108
+L 200.995504 179.747565
+L 208.013505 183.245161
+L 217.370839 187.618428
+L 226.728173 191.680781
+L 236.085507 195.453332
+L 245.442841 198.955687
+L 254.800175 202.206048
+L 264.15751 205.221308
+L 273.514844 208.017136
+L 282.872178 210.608064
+L 292.229512 213.007556
+L 303.92618 215.756622
+L 315.622847 218.248315
+L 327.319515 220.502875
+L 339.016183 222.538612
+L 350.71285 224.372062
+L 364.748852 226.326043
+L 378.784853 228.032957
+L 392.820854 229.512772
+L 406.856855 230.782803
+L 423.23219 232.019057
+L 439.607525 233.009597
+L 455.98286 233.770202
+L 472.358194 234.312988
+L 488.733529 234.646603
+L 505.108864 234.77636
+L 507.448198 234.778416
+L 507.448198 234.778416"
+            clip-path="url(#p057caaa161)"
+            style="fill:none;stroke-dasharray:15.36,3.84,2.4,3.84;stroke-dashoffset:0;stroke:#7c4a88;stroke-width:2.4"/>
+    </g>
+
+    <g id="line2d_28">
+      <path d="M 39.58149 37.920707 L 507.448198 37.920707"
+            clip-path="url(#p057caaa161)"
+            style="fill:none;stroke-dasharray:1,1.65;stroke-dashoffset:0;stroke:#788896"/>
+    </g>
+
+    <g id="patch_3">
+      <path d="M 39.58149 247.44351 L 39.58149 3.00024"
+            style="fill:none;stroke:#000000;stroke-width:0.8;stroke-linejoin:miter;stroke-linecap:square"/>
+    </g>
+
+    <g id="patch_4">
+      <path d="M 39.58149 247.44351 L 507.448198 247.44351"
+            style="fill:none;stroke:#000000;stroke-width:0.8;stroke-linejoin:miter;stroke-linecap:square"/>
+    </g>
+
+    <g id="text_15">
+      <text style="font-size:9px;font-family:'DejaVu Sans';fill:#475569"
+            transform="translate(371.940321 79.059361)">Same size. Same diffusion.</text>
+      <text style="font-size:9px;font-family:'DejaVu Sans';fill:#475569"
+            transform="translate(385.551415 89.137392)">Different reaction rates.</text>
+    </g>
+
+    <g id="legend_1">
+      <g id="line2d_29">
+        <path d="M 47.68149 194.690854
+                 L 56.68149 194.690854
+                 L 65.68149 194.690854"
+              style="fill:none;stroke:#1f4e79;stroke-width:2.4;stroke-linecap:square"/>
+      </g>
+      <g id="text_16">
+        <text style="font-size:9px;font-family:'DejaVu Sans';text-anchor:start"
+              x="72.88149" y="197.840854"
+              transform="rotate(-0 72.88149 197.840854)">k = 1 s⁻¹</text>
+      </g>
+
+      <g id="line2d_30">
+        <path d="M 47.68149 207.901166
+                 L 56.68149 207.901166
+                 L 65.68149 207.901166"
+              style="fill:none;stroke-dasharray:8.88,3.84;stroke-dashoffset:0;stroke:#ba652a;stroke-width:2.4"/>
+      </g>
+      <g id="text_17">
+        <text style="font-size:9px;font-family:'DejaVu Sans';text-anchor:start"
+              x="72.88149" y="211.051166"
+              transform="rotate(-0 72.88149 211.051166)">k = 10 s⁻¹</text>
+      </g>
+
+      <g id="line2d_31">
+        <path d="M 47.68149 221.111479
+                 L 56.68149 221.111479
+                 L 65.68149 221.111479"
+              style="fill:none;stroke-dasharray:15.36,3.84,2.4,3.84;stroke-dashoffset:0;stroke:#7c4a88;stroke-width:2.4"/>
+      </g>
+      <g id="text_18">
+        <text style="font-size:9px;font-family:'DejaVu Sans';text-anchor:start"
+              x="72.88149" y="224.261479"
+              transform="rotate(-0 72.88149 224.261479)">k = 100 s⁻¹</text>
+      </g>
+
+      <g id="line2d_32">
+        <path d="M 47.68149 234.321791
+                 L 56.68149 234.321791
+                 L 65.68149 234.321791"
+              style="fill:none;stroke-dasharray:1,1.65;stroke-dashoffset:0;stroke:#788896"/>
+      </g>
+      <g id="text_19">
+        <text style="font-size:9px;font-family:'DejaVu Sans';text-anchor:start"
+              x="72.88149" y="237.471791"
+              transform="rotate(-0 72.88149 237.471791)">90% of source level</text>
+      </g>
+    </g>
+  </g>
+</g>
+
+<defs>
+  <clipPath id="p057caaa161">
+    <rect x="39.58149"
+          y="3.00024"
+          width="467.866708"
+          height="244.44327"/>
+  </clipPath>
+</defs>
+</svg>
+
+<figcaption>
+  Figure 1. A faster sink makes the active signal less uniform while
+  size and diffusion remain fixed. The curves were calculated for
+  this essay from the analytical steady-state solution at 201 equally
+  spaced positions, using the assumptions in Table 1. The dotted line
+  marks 90% of the source concentration. These are model predictions,
+  not measured intracellular profiles; the JavaScript below reproduces
+  the numerical values and curve coordinates.
+</figcaption>
+</figure>
+
+<p>
+  Define “nearly uniform” here as c(x) staying within 10% of c₀
+  everywhere. Because this profile decreases monotonically, it is
+  enough to require c(L)/c₀ ≥ 0.90. This gives
+  <strong>Da ≤ [arcosh(1/0.90)]² = 0.218</strong>, or
+  <strong>k ≤ 1.68 s<sup>−1</sup></strong> for the chosen L and D.
+  Only the first example passes. This bound quantifies spatial
+  variation relative to the source; it is not a universal error
+  bound for every well-mixed model.
+</p>
+
+<details>
+  <summary>Reproduce the calculation — JavaScript</summary>
+
+  <p class="small">
+    No external libraries are required. The code evaluates an exact
+    steady-state solution rather than a numerical time-stepping
+    simulation. It also generates the coordinates used for the three
+    plotted curves.
+  </p>
+
+<pre><code>const D = 7.7;       // µm²/s: GFP measurement used as a reference
+const L = 1.0;       // µm: assumed compartment length
+const rates = [1, 10, 100]; // s⁻¹: hypothetical inactivation rates
+
+function profile(x, k) {
+  const lambda = Math.sqrt(D / k);
+  return Math.cosh((L - x) / lambda) / Math.cosh(L / lambda);
+}
+
+const rows = rates.map(k =&gt; ({
+  k,
+  reactionTime: 1 / k,
+  Da: k * L * L / D,
+  lambda: Math.sqrt(D / k),
+  endPercent: 100 * profile(L, k)
+}));
+
+const diffusionTime = L * L / D;
+const daLimit = Math.acosh(1 / 0.9) ** 2;
+const kLimit = D * daLimit / (L * L);
+
+// The static figure samples this exact profile every 0.005 µm.
+const curves = rates.map(k =&gt; Array.from({length: 201}, (_, i) =&gt; {
+  const x = L * i / 200;
+  return {x, relativeConcentration: profile(x, k)};
+}));
+
+console.table(rows);
+console.log({diffusionTime, daLimit, kLimit});</code></pre>
+
+  <button type="button" id="recalculate">Recalculate</button>
+
+  <pre id="calculation-output" aria-live="polite">Click “Recalculate” to reproduce Table 1 and the 10% criterion.</pre>
+</details>
+
+<h2>What I would argue against / where this breaks</h2>
+
+<p>
+  I would argue against “bacteria are small, therefore their signals
+  are uniform.” However, the calculation does not show that every
+  small cell has a gradient. With a uniform source and a uniform sink,
+  a uniform steady state can exist even at large Da. The localized
+  source is essential to this example.
+</p>
+
+<p>
+  The quantitative threshold also depends on the geometry and boundary
+  conditions. A fixed-flux source or spherical compartment requires a
+  different solution. Saturation invalidates the linear sink; binding,
+  crowding, and active transport may change mobility or add transport
+  mechanisms. The GFP diffusion coefficient cannot automatically be
+  assigned to another protein. At very low molecule counts, a
+  deterministic concentration profile is only a mean description.
+</p>
+
+<p>
+  I would test the idea by comparing source-proximal and distant signal
+  levels while changing inactivation capacity and independently
+  checking mobility. A failure to see the predicted gradient would
+  prompt examination of source localization and kinetics, rather than
+  the conclusion that diffusion is always fast enough.
+</p>
+
+<h2>Sources</h2>
+
+<ul class="src">
+  <li id="ref1">
+    <strong>[1]</strong>
+    Xiao, F.
+    <em>Lecture 2: From order of magnitude in biology to binding and catalysis.</em>
+    CCBS / EST 5053, Fall 2026, core lecture page, 3 September 2026.
+    <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture02-core.html">Course page</a>
+    (accessed 9 November 2026).
+    <strong>Why it carries the claim:</strong>
+    §§3–4 provide the diffusion estimate and the need to compare
+    transport with reaction; §9 explains the effective first-order
+    loss coefficient in the low-substrate limit.
+  </li>
+
+  <li id="ref2">
+    <strong>[2]</strong>
+    Elowitz, M. B.; Surette, M. G.; Wolf, P.-E.; Stock, J. B.; Leibler, S.
+    Protein mobility in the cytoplasm of <em>Escherichia coli</em>.
+    <em>Journal of Bacteriology</em>
+    <strong>1999</strong>, <em>181</em>(1), 197–203.
+    <a href="https://doi.org/10.1128/JB.181.1.197-203.1999">DOI</a>
+    ·
+    <a href="https://pubmed.ncbi.nlm.nih.gov/9864330/">PubMed</a>.
+    <strong>Why it carries the claim:</strong>
+    supplies the reference GFP diffusion measurement,
+    7.7 ± 2.5 µm² s<sup>−1</sup>.
+    It does not supply the inactivation rates or establish the
+    gradients calculated here.
+  </li>
+
+  <li id="ref3">
+    <strong>[3]</strong>
+    Brown, G. C.; Kholodenko, B. N.
+    Spatial gradients of cellular phospho-proteins.
+    <em>FEBS Letters</em>
+    <strong>1999</strong>, <em>457</em>(3), 452–454.
+    <a href="https://doi.org/10.1016/S0014-5793(99)01058-3">DOI</a>
+    ·
+    <a href="https://pubmed.ncbi.nlm.nih.gov/10471827/">PubMed</a>.
+    <strong>Why it carries the claim:</strong>
+    provides a theoretical biological precedent for gradients caused
+    by diffusion competing with spatially separated activation and
+    inactivation. Its analyzed geometries are not identical to this
+    illustrative slab.
+  </li>
+</ul>
+
+<footer>
+  Original model calculation and figure. Measured mobility and
+  hypothetical reaction rates are distinguished explicitly.
+  Values are rounded for display. The HTML, figure, and JavaScript
+  work offline; reference links require internet access.
+</footer>
+
+</main>
+
+<script>
+document.getElementById('recalculate').addEventListener('click', () => {
+  const D = 7.7;       // µm²/s: GFP measurement used as a reference
+  const L = 1.0;       // µm: assumed compartment length
+  const rates = [1, 10, 100]; // s⁻¹: hypothetical inactivation rates
+
+  function profile(x, k) {
+    const lambda = Math.sqrt(D / k);
+    return Math.cosh((L - x) / lambda) / Math.cosh(L / lambda);
+  }
+
+  const rows = rates.map(k => ({
+    k,
+    reactionTime: 1 / k,
+    Da: k * L * L / D,
+    lambda: Math.sqrt(D / k),
+    endPercent: 100 * profile(L, k)
+  }));
+
+  const diffusionTime = L * L / D;
+  const daLimit = Math.acosh(1 / 0.9) ** 2;
+  const kLimit = D * daLimit / (L * L);
+
+  // The static figure samples this exact profile every 0.005 µm.
+  const curves = rates.map(k => Array.from({length: 201}, (_, i) => {
+    const x = L * i / 200;
+    return {x, relativeConcentration: profile(x, k)};
+  }));
+
+  console.table(rows);
+  console.log({diffusionTime, daLimit, kLimit});
+
+  document.getElementById('calculation-output').textContent =
+    rows.map(r =>
+      `k = ${r.k} s⁻¹ | 1/k = ${r.reactionTime.toFixed(2)} s | Da = ${r.Da.toFixed(3)} | ℓ = ${r.lambda.toFixed(3)} µm | c(L)/c₀ = ${r.endPercent.toFixed(2)}%`
+    ).join('\n')
+    + `\n\nDiffusion time = ${diffusionTime.toFixed(3)} s`
+    + `\n10% criterion: Da ≤ ${daLimit.toFixed(3)}, k ≤ ${kLimit.toFixed(2)} s⁻¹.`;
+});
+</script>
+
+</body>
+</html>

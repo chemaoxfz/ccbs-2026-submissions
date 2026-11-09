@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 8 — Extension: Two relaxation experiments identify binding rates without equilibrium data</title>
+<meta name="author" content="Peng Su">
+<meta name="week" content="week8">
+<style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px;
+    border-bottom:1px solid var(--line); padding-bottom:5px; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:14px 18px; margin:14px 0; }
+  .equation { text-align:center; }
+  .fig { width:100%; border:1px solid var(--line); border-radius:6px; margin:14px 0; }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+  table { width:100%; border-collapse:collapse; margin:14px 0; font-size:.9rem; }
+  th, td { border:1px solid var(--line); padding:7px 8px; text-align:center; }
+  th { background:var(--soft); }
+  .src { font-size:.9rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Week 8 Extension: Two relaxation experiments identify binding rates without equilibrium data</h1>
+<p class="meta">Author: Peng Su · Lectures 15-16 · CCBS 2026</p>
+
+<p class="card"><strong>One sentence:</strong> Equilibrium measurements are not always required to identify a designed binder's kinetics: measuring relaxation at two known ligand concentrations makes 1/τ=<em>k</em><sub>on</sub><em>S</em>+<em>k</em><sub>off</sub> a straight line whose slope is <em>k</em><sub>on</sub> and intercept is <em>k</em><sub>off</sub>, so changing the input can remove an identifiability problem that repeated snapshots cannot.</p>
+
+<h2>From hidden binding rates to an identifiable experiment</h2>
+
+<p>Lecture 15 gives the one site binding model, its solution θ(<em>t</em>)=θ<sub>∞</sub>(1−e<sup>−<em>t</em>/τ</sup>), and the relaxation time τ=1/(<em>k</em><sub>on</sub><em>S</em>+<em>k</em><sub>off</sub>). It also shows that equal <em>K</em><sub>d</sub>=<em>k</em><sub>off</sub>/<em>k</em><sub>on</sub> can hide different response speeds and therefore motivates time-resolved measurements. These were taken as the backgroud.</p>
+
+<p>Meanwhile, lecture 16 identifies parameter unidentifiability as an obstacle to a mechanistic virtual cell. Therefore, one experimental design claim is that, instead of combining equilibrium occupancy with one transient, vary the known input concentration and use relaxation alone. For this module, two input conditions are sufficient to identify both microscopic rates.</p>
+
+<h2>Changing ligand concentration converts kinetics into a line</h2>
+
+<p>Define the measured relaxation rate <em>r</em>=1/τ. At each clamped free-ligand concentration <em>S</em>, the Lecture 15 relation becomes</p>
+
+<p class="card equation">
+  <em>r</em>(<em>S</em>) = 1/τ(<em>S</em>)
+  = <em>k</em><sub>on</sub><em>S</em> + <em>k</em><sub>off</sub>.
+</p>
+
+<p>This is a linear experiment, not merely an algebraic rewrite. The ligand concentration is the controlled input, the fitted relaxation rate is the output, and the two mechanistic parameters occupy different geometric roles. Association determines how strongly the rate changes with ligand concentration; dissociation remains when the ligand concentration is extrapolated to zero.</p>
+
+<p>For measurements (<em>S</em><sub>1</sub>,<em>r</em><sub>1</sub>) and (<em>S</em><sub>2</sub>,<em>r</em><sub>2</sub>), with <em>S</em><sub>1</sub>≠<em>S</em><sub>2</sub>,</p>
+
+<p class="card equation">
+  <em>k</em><sub>on</sub> =
+  (<em>r</em><sub>2</sub>−<em>r</em><sub>1</sub>)/
+  (<em>S</em><sub>2</sub>−<em>S</em><sub>1</sub>),
+  &nbsp;&nbsp;
+  <em>k</em><sub>off</sub> =
+  (<em>S</em><sub>2</sub><em>r</em><sub>1</sub>−<em>S</em><sub>1</sub><em>r</em><sub>2</sub>)/
+  (<em>S</em><sub>2</sub>−<em>S</em><sub>1</sub>).
+</p>
+
+<p>No equilibrium occupancy appears. The input variation breaks the parameter symmetry because changing <em>S</em> changes only the association contribution.</p>
+
+<h2>Two concentrations recover the rates; a third tests the model</h2>
+
+<p>Consider code-generated relaxation measurements from a binder with <em>k</em><sub>on</sub>=0.307 μM<sup>−1</sup>s<sup>−1</sup> and <em>k</em><sub>off</sub>=0.154 s<sup>−1</sup>. The time to reach 90% of equilibrium is <em>t</em><sub>90</sub>=τln(10).</p>
+
+<table>
+  <thead><tr><th>Free ligand <em>S</em></th><th>τ</th><th>1/τ</th><th><em>t</em><sub>90</sub></th><th>Role</th></tr></thead>
+  <tbody>
+    <tr><td>0.5 μM</td><td>3.257 s</td><td>0.307 s<sup>−1</sup></td><td>7.50 s</td><td>fit</td></tr>
+    <tr><td>2.0 μM</td><td>1.303 s</td><td>0.768 s<sup>−1</sup></td><td>3.00 s</td><td>fit</td></tr>
+    <tr><td>5.0 μM</td><td>0.592 s</td><td>1.689 s<sup>−1</sup></td><td>1.36 s</td><td>model check</td></tr>
+  </tbody>
+</table>
+
+<p>The first two rows give a slope of (0.768−0.307)/(2.0−0.5)=0.307 μM<sup>−1</sup>s<sup>−1</sup> and an intercept of 0.154 s<sup>−1</sup>. The third measurement was not needed to determine the two parameters. Instead, it checks the one-site mechanism: its point should fall on the same line. Systematic curvature would be evidence for a missing state, ligand depletion, cooperativity or another concentration-dependent process.</p>
+
+<figure>
+  <svg class="fig" viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Inverse relaxation time is linear in ligand concentration">
+    <rect x="0" y="0" width="640" height="300" fill="none"/>
+    <text x="24" y="25" font-size="13" fill="currentColor">Relaxation-rate experiment</text>
+    <line x1="80" y1="240" x2="600" y2="240" stroke="#888"/>
+    <line x1="80" y1="240" x2="80" y2="45" stroke="#888"/>
+    <line x1="80" y1="224" x2="566" y2="54" stroke="#1f4e79" stroke-width="3"/>
+    <circle cx="126" cy="208" r="7" fill="#d77a61" stroke="#8b3e2f" stroke-width="2"/>
+    <circle cx="265" cy="159" r="7" fill="#d77a61" stroke="#8b3e2f" stroke-width="2"/>
+    <circle cx="544" cy="62" r="7" fill="#8ab4e8" stroke="#1f4e79" stroke-width="2"/>
+    <circle cx="80" cy="224" r="5" fill="#1f4e79"/>
+    <text x="91" y="218" font-size="11" fill="#1f4e79">intercept = <tspan font-style="italic">k</tspan><tspan baseline-shift="sub" font-size="9">off</tspan> = 0.154 s<tspan baseline-shift="super" font-size="9">−1</tspan></text>
+    <text x="340" y="102" font-size="11" fill="#1f4e79">slope = <tspan font-style="italic">k</tspan><tspan baseline-shift="sub" font-size="9">on</tspan> = 0.307 μM<tspan baseline-shift="super" font-size="9">−1</tspan>s<tspan baseline-shift="super" font-size="9">−1</tspan></text>
+    <text x="111" y="198" font-size="10" fill="#8b3e2f">fit 1</text>
+    <text x="250" y="149" font-size="10" fill="#8b3e2f">fit 2</text>
+    <text x="510" y="51" font-size="10" fill="#1f4e79">check</text>
+    <text x="307" y="278" font-size="12" fill="currentColor">Free ligand <tspan font-style="italic">S</tspan> (μM)</text>
+    <text x="22" y="168" font-size="12" fill="currentColor" transform="rotate(-90 22 168)">Relaxation rate 1/τ (s<tspan baseline-shift="super" font-size="9">−1</tspan>)</text>
+    <text x="75" y="257" font-size="10" fill="currentColor">0</text>
+    <text x="120" y="257" font-size="10" fill="currentColor">0.5</text>
+    <text x="260" y="257" font-size="10" fill="currentColor">2</text>
+    <text x="540" y="257" font-size="10" fill="currentColor">5</text>
+  </svg>
+  <figcaption>Figure 1: Plotting inverse relaxation time against controlled free-ligand concentration separates the two rates. The first two red points determine the line; the blue third point tests whether the assumed one-site model extrapolates. I generated the values from <em>r</em>(<em>S</em>)=<em>k</em><sub>on</sub><em>S</em>+<em>k</em><sub>off</sub>.</figcaption>
+</figure>
+
+<h2>What changes when ligand concentration is unknown</h2>
+
+<p>The observation design determines which parameters exist separately in the data. If θ<sub>∞</sub> and τ are measured but <em>S</em> is unknown, define <em>A</em>=<em>k</em><sub>on</sub><em>S</em> and <em>B</em>=<em>k</em><sub>off</sub>. Then <em>A</em>=θ<sub>∞</sub>/τ and <em>B</em>=(1−θ<sub>∞</sub>)/τ. Therefore <em>k</em><sub>off</sub> remains identifiable; what cannot be separated is <em>k</em><sub>on</sub> from <em>S</em>. The indistinguishable family is</p>
+
+<p class="card equation">
+  {(<em>k</em><sub>on</sub>/<em>a</em>,
+  <em>k</em><sub>off</sub>,
+  <em>aS</em>) : <em>a</em>&gt;0}.
+</p>
+
+<p>This is more precise than saying that “only <em>k</em><sub>on</sub><em>S</em> is observed”: the dissociation rate is still recoverable. An independent concentration calibration, or controlled experiments at two known concentrations, removes the remaining scale ambiguity.</p>
+
+<h2>Where the straight-line identification breaks</h2>
+
+<p>Two relaxation measurements should not be treated as a universal solution to whole-cell unidentifiability. The result assumes a clamped and accurately known free concentration, one independent binding state, a known perturbation time and a single-exponential relaxation that can be estimated without bias. With noisy and sparsely sampled data, the parameters may be structurally identifiable yet remain practically uncertain.</p>
+<p>More importantly, curvature in the 1/τ-versus-<em>S</em> plot should not be forced into a line. Such curvature may indicate that the proposed mechanism is incomplete. Larger cellular models can also generate new combinations of unidentifiable parameters even when each isolated module is identifiable. The result should therefore be interpreted as an experimental-design principle rather than a universal theorem: before collecting more measurements of the same output under the same condition, vary an input that gives competing parameters distinguishable mathematical signatures.</p>
+<h2>Sources</h2>
+<ul class="src">
+  <li>Lecture 15: Protein design: from evolutionary clues to testable molecules. CCBS 2026 course materials, 2026. The forward binding equation, relaxation time and equal-affinity example are background.</li>
+  <li>Lecture 16: Foundational virtual cells that are fully mechanistic. CCBS 2026 course materials, 2026. Parameter unidentifiability motivates the measurement-design extension.</li>
+  <li>Karr, J. R. et al. “A whole-cell computational model predicts phenotype from genotype.” Cell 150, 389–401, 2012. DOI: 10.1016/j.cell.2012.05.044.</li>
+  <li>Raue, A. et al. “Structural and practical identifiability analysis of partially observed dynamical models by exploiting the profile likelihood.” Bioinformatics 25, 1923–1929, 2009. DOI: 10.1093/bioinformatics/btp358.</li>
+  <li>Fersht, A. Structure and Mechanism in Protein Science: A Guide to Enzyme Catalysis and Protein Folding. W. H. Freeman, 1999. Relaxation kinetics background.</li>
+</ul>
+
+</div>
+</body>
+</html>
