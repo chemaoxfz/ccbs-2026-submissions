@@ -1,0 +1,211 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Week 8 · Can Two Unfavorable Mutations Rescue Binding? | zhuxiaomeng</title>
+<meta name="author" content="zhuxiaomeng"><meta name="student-id" content="20261104507"><meta name="week" content="week8">
+<meta name="description" content="A four-variant GB1 analysis of reciprocal sign epistasis in IgG binding selection.">
+<style>
+  :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e8; --muted:#9aa; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.6; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  h1 { font-size:1.6rem; line-height:1.25; margin:0 0 6px; color:var(--accent); }
+  .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+  h2 { font-size:1.05rem; color:var(--accent); margin:34px 0 8px;
+    border-bottom:1px solid var(--line); padding-bottom:5px; }
+  .card { background:var(--soft); border:1px solid var(--line); border-radius:6px;
+    padding:14px 18px; margin:14px 0; }
+  .fig { width:100%; border:1px solid var(--line); border-radius:6px; margin:14px 0; }
+  figcaption { font-size:.85rem; color:var(--muted); margin-top:6px; }
+  a { color:var(--accent); }
+  .src { font-size:.9rem; }
+
+:root[data-theme="light"] { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; }
+:root[data-theme="dark"] { --ink:#e8e8e8; --muted:#abb; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; }
+.wrap{padding-top:28px}p{margin:11px 0}h2{margin-top:24px}#tt{float:right;font-size:12px}
+button{cursor:pointer;font:inherit;color:var(--accent);background:var(--soft);border:1px solid var(--line);border-radius:4px;padding:6px 10px}
+.equation{text-align:center;overflow-x:auto;padding:6px 0}math{font-size:1.06em}
+figure{margin:16px 0}.figure-frame{border:1px solid var(--line);border-radius:6px;overflow:hidden;background:white}
+figure svg{display:block;width:100%;height:auto}figcaption{margin-top:8px}
+.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.88rem;margin:10px 0}th,td{padding:7px;text-align:center;border-bottom:1px solid var(--line)}th{background:var(--soft)}th:first-child,td:first-child{text-align:left}
+.src li{margin-bottom:10px}.src{font-size:.85rem}sup a{text-decoration:none}
+details{border:1px solid var(--line);padding:10px 12px;border-radius:6px;margin:18px 0}summary{cursor:pointer;color:var(--accent)}
+pre{overflow:auto;max-height:350px;padding:12px;background:var(--soft);font-size:12px;line-height:1.45}
+@media(max-width:480px){.wrap{padding:20px 16px 40px}body{font-size:15px}h1{font-size:1.4rem}}
+</style></head><body><main class="wrap"><button id="tt" type="button" aria-label="Toggle light and dark theme">Light / dark</button>
+<h1>Week 8 · Can Two Unfavorable Mutations Rescue Binding?</h1>
+<p class="meta">Author · zhuxiaomeng &nbsp;|&nbsp; Student ID · 20261104507<br>Week 8 (2026-11-09) · CCBS 2026 · Lecture 15</p>
+<p class="card"><strong>One sentence.</strong> In GB1, the effect of a substitution depends on the residue at another site, so screening single mutants alone can miss a combination that improves the binding-selection readout.</p>
+
+<h2 id="point">The point I am adding</h2>
+<p>Lecture 15 uses sequence covariation to show that the identities at two positions may matter together.<sup class="c"><a href="#r-course">1</a></sup> I want to test that idea with an experiment. If two substitutions each lower the readout in a wild-type background, could combining them raise it above wild type?</p>
+<p>Olson et al. surveyed single and double substitutions across the GB1 domain.<sup class="c"><a href="#r-olson">2</a></sup> I use four variants from the later GB1 library of Wu et al., which tested binding to the Fc region of human IgG by mRNA display.<sup class="c"><a href="#r-wu">3</a></sup> Positions 40 and 41 stay fixed while I compare V39F, V54S and their combination.</p>
+
+<h2 id="work">Work it</h2>
+<p>I recalculated the normalized enrichment <em>w</em> from the input and selected read counts in Supplementary file 1. The ratio of selected to input reads is divided by the same ratio for wild type, giving wild type a score of 1.<sup class="c"><a href="#r-wu">3</a></sup><sup class="c"><a href="#r-data">4</a></sup> I use this calculation for all four variants so they share one assay scale. The supplement's published single-mutant fitness values incorporate a rescaling of Olson et al.'s measurements. The corresponding raw-score column in the authors' analysis files confirms the recomputed values.<sup class="c"><a href="#r-repo">5</a></sup></p>
+<div class="table-wrap"><table>
+<caption>Selection counts and recalculated enrichment. Four-letter codes list residues at positions 39, 40, 41 and 54.</caption>
+<thead><tr><th scope="col">Variant</th><th scope="col">Code</th><th scope="col">Input reads</th><th scope="col">Selected reads</th><th scope="col">Enrichment</th></tr></thead>
+<tbody><tr><td>Wild type</td><td><code>VDGV</code></td><td>92,735</td><td>338,346</td><td>1.000</td></tr>
+<tr><td>V39F</td><td><code>FDGV</code></td><td>136</td><td>161</td><td>0.324</td></tr>
+<tr><td>V54S</td><td><code>VDGS</code></td><td>896</td><td>1,602</td><td>0.490</td></tr>
+<tr><td>V39F/V54S</td><td><code>FDGS</code></td><td>236</td><td>1,309</td><td>1.520</td></tr></tbody></table></div>
+<p>If the substitutions act independently on a proportional scale, their effects multiply. Equivalently, they add on a log scale. For the double mutant, this gives an expected enrichment of <strong>0.159</strong>.</p>
+<div class="equation"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>ε</mi><mo>=</mo><mi>ln</mi><mo>(</mo><mfrac><msub><mi>w</mi><mtext>double</mtext></msub><mrow><msub><mi>w</mi><mtext>V39F</mtext></msub><msub><mi>w</mi><mtext>V54S</mtext></msub></mrow></mfrac><mo>)</mo><mo>≈</mo><mn>2.258</mn></mrow></math></div>
+<p>The observed double-mutant score of <strong>1.520</strong> is <strong>9.56 times</strong> the prediction. V39F lowers enrichment when introduced into wild type, but raises it when V54S is already present. V54S shows the same reversal across backgrounds. These point estimates illustrate <em>reciprocal sign epistasis</em> in the binding-selection phenotype.<sup class="c"><a href="#r-wu">3</a></sup></p>
+<figure><div class="figure-frame"><svg viewBox="0 0 660 318" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="plot-title plot-desc">
+<title id="plot-title">Two low-enrichment single mutants yield a high-enrichment double mutant</title>
+<desc id="plot-desc">Wild type 1.000, V39F 0.324, V54S 0.490, predicted double mutant 0.159, and observed double mutant 1.520.</desc>
+<rect width="660" height="318" fill="white"/>
+<g font-family="Arial, sans-serif" font-size="13" fill="#233042">
+<text x="67" y="24" font-size="15" font-weight="700">IgG Fc selection of GB1 variants</text>
+<line x1="66" y1="250" x2="637" y2="250" stroke="#e1e7ee"/>
+<text x="56" y="254" text-anchor="end">0</text>
+<line x1="66" y1="189.0" x2="637" y2="189.0" stroke="#e1e7ee"/>
+<text x="56" y="193.0" text-anchor="end">0.5</text>
+<line x1="66" y1="128" x2="637" y2="128" stroke="#93a3b3" stroke-dasharray="5 4"/>
+<text x="56" y="132" text-anchor="end">1</text>
+<line x1="66" y1="67.0" x2="637" y2="67.0" stroke="#e1e7ee"/>
+<text x="56" y="71.0" text-anchor="end">1.5</text>
+<path d="M66 43V250H637" fill="none" stroke="#49596a"/>
+<text x="17" y="150" text-anchor="middle" transform="rotate(-90 17 150)">Enrichment relative to wild type</text>
+<rect x="93" y="128.00" width="60" height="122.00" fill="#51677d"/>
+<text x="123" y="120.00" text-anchor="middle" font-weight="700">1.000</text>
+<text x="123" y="271" text-anchor="middle">Wild type</text>
+<text x="123" y="289" text-anchor="middle" fill="#536577">VDGV</text>
+<rect x="207" y="210.42" width="60" height="39.58" fill="#527bc2"/>
+<text x="237" y="202.42" text-anchor="middle" font-weight="700">0.324</text>
+<text x="237" y="271" text-anchor="middle">V39F</text>
+<text x="237" y="289" text-anchor="middle" fill="#536577">FDGV</text>
+<rect x="321" y="190.21" width="60" height="59.79" fill="#527bc2"/>
+<text x="351" y="182.21" text-anchor="middle" font-weight="700">0.490</text>
+<text x="351" y="271" text-anchor="middle">V54S</text>
+<text x="351" y="289" text-anchor="middle" fill="#536577">VDGS</text>
+<rect x="435" y="230.60" width="60" height="19.40" fill="#ffffff" stroke="#536577" stroke-width="2" stroke-dasharray="5 3"/>
+<text x="465" y="222.60" text-anchor="middle" font-weight="700">0.159</text>
+<text x="465" y="271" text-anchor="middle">Predicted</text>
+<text x="465" y="289" text-anchor="middle" fill="#536577">double mutant</text>
+<rect x="549" y="64.53" width="60" height="185.47" fill="#138375"/>
+<text x="579" y="56.53" text-anchor="middle" font-weight="700">1.520</text>
+<text x="579" y="271" text-anchor="middle">Observed</text>
+<text x="579" y="289" text-anchor="middle" fill="#536577">double mutant</text>
+</g></svg></div>
+<figcaption><strong>Figure 1.</strong> Original plot from the four published count pairs. The outlined bar is the prediction from multiplying the two single-mutant scores. The dashed line marks wild-type enrichment.</figcaption></figure>
+
+<h2 id="limits">What I would argue against / where this breaks</h2>
+<p>A rule that discards every substitution with a score below 1 would discard both starting substitutions in this example. The evidence concerns enrichment in one selection condition. Enrichment can reflect folding as well as binding, and direct affinity and stability measurements would help identify the mechanism. The pair was selected as an illustration after inspecting the data. Its effect size describes this pair under this assay condition.</p>
+
+<h2 id="sources">Sources</h2>
+<ol class="src">
+<li id="r-course">Xiao F. <em>Protein design.</em> CCBS 2026, Lecture 15 core, section 3. <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture15-core.html">Course page</a>.</li>
+<li id="r-olson">Olson CA, Wu NC, Sun R. <em>A comprehensive biophysical description of pairwise epistasis throughout an entire protein domain.</em> Current Biology 24, 2643–2651 (2014). <a href="https://doi.org/10.1016/j.cub.2014.09.072">Article</a>.</li>
+<li id="r-wu">Wu NC, Dai L, Olson CA, Lloyd-Smith JO, Sun R. <em>Adaptation in protein fitness landscapes is facilitated by indirect paths.</em> eLife 5, e16965 (2016). See Materials and methods, Calculation of fitness, Equation 1, and the reciprocal sign epistasis analysis. <a href="https://doi.org/10.7554/eLife.16965">Article</a>.</li>
+<li id="r-data">Wu et al. (2016). Supplementary file 1, rows 2, 7, 42 and 308, columns <em>Count input</em> and <em>Count selected</em>. <a href="https://doi.org/10.7554/eLife.16965.024">Data table</a>.</li>
+<li id="r-repo">Wu et al. (2016). <em>ProteinGFourMutants</em> analysis repository. Raw enrichment is reported in the <code>I20fitRaw</code> column of <code>result/Mutfit</code>. <a href="https://github.com/wchnicholas/ProteinGFourMutants">Author repository</a>.</li>
+</ol>
+<details><summary>Reproduce the calculation and figure in Python 3</summary>
+<p>Run the script to generate the numerical CSV and the SVG. The four count pairs are embedded, and the script uses only the Python standard library.</p>
+<button type="button" id="download-code">Download Python code</button>
+<pre><code id="python-code">&quot;&quot;&quot;Reproduce the GB1 enrichment analysis and figure using Python 3.
+
+The input/selected read counts are from rows 2, 7, 42 and 308 of
+Wu et al. (2016), Supplementary file 1, doi:10.7554/eLife.16965.024.
+Use the count columns, following Equation 1 in the article. The supplement
+Fitness column uses rescaled Olson et al. scores for single substitutions.
+Run this script to write gb1_epistasis.svg and gb1_enrichment.csv.
+&quot;&quot;&quot;
+import csv
+import math
+from pathlib import Path
+
+# (four-site sequence, substitution, input reads, selected reads)
+RECORDS = [
+    (&quot;VDGV&quot;, &quot;Wild type&quot;, 92735, 338346),
+    (&quot;FDGV&quot;, &quot;V39F&quot;, 136, 161),
+    (&quot;VDGS&quot;, &quot;V54S&quot;, 896, 1602),
+    (&quot;FDGS&quot;, &quot;V39F/V54S&quot;, 236, 1309),
+]
+
+
+def calculate():
+    wild_type_ratio = RECORDS[0][3] / RECORDS[0][2]
+    scores = [selected / initial / wild_type_ratio
+              for _, _, initial, selected in RECORDS]
+    expected = scores[1] * scores[2]
+    return scores, expected, math.log(scores[3] / expected)
+
+
+def figure():
+    scores, expected, _ = calculate()
+    baseline, scale = 250, 122
+    y = lambda value: baseline - scale * value
+    parts = [
+        &#x27;&lt;svg viewBox=&quot;0 0 660 318&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot; role=&quot;img&quot; aria-labelledby=&quot;plot-title plot-desc&quot;&gt;&#x27;,
+        &#x27;&lt;title id=&quot;plot-title&quot;&gt;Two low-enrichment single mutants yield a high-enrichment double mutant&lt;/title&gt;&#x27;,
+        &#x27;&lt;desc id=&quot;plot-desc&quot;&gt;Wild type 1.000, V39F 0.324, V54S 0.490, predicted double mutant 0.159, and observed double mutant 1.520.&lt;/desc&gt;&#x27;,
+        &#x27;&lt;rect width=&quot;660&quot; height=&quot;318&quot; fill=&quot;white&quot;/&gt;&#x27;,
+        &#x27;&lt;g font-family=&quot;Arial, sans-serif&quot; font-size=&quot;13&quot; fill=&quot;#233042&quot;&gt;&#x27;,
+        &#x27;&lt;text x=&quot;67&quot; y=&quot;24&quot; font-size=&quot;15&quot; font-weight=&quot;700&quot;&gt;IgG Fc selection of GB1 variants&lt;/text&gt;&#x27;,
+    ]
+    for tick in [0, 0.5, 1, 1.5]:
+        yy = y(tick)
+        stroke = &quot;#93a3b3&quot; if tick == 1 else &quot;#e1e7ee&quot;
+        dash = &#x27; stroke-dasharray=&quot;5 4&quot;&#x27; if tick == 1 else &quot;&quot;
+        parts += [
+            f&#x27;&lt;line x1=&quot;66&quot; y1=&quot;{yy}&quot; x2=&quot;637&quot; y2=&quot;{yy}&quot; stroke=&quot;{stroke}&quot;{dash}/&gt;&#x27;,
+            f&#x27;&lt;text x=&quot;56&quot; y=&quot;{yy+4}&quot; text-anchor=&quot;end&quot;&gt;{tick:g}&lt;/text&gt;&#x27;,
+        ]
+    parts += [
+        &#x27;&lt;path d=&quot;M66 43V250H637&quot; fill=&quot;none&quot; stroke=&quot;#49596a&quot;/&gt;&#x27;,
+        &#x27;&lt;text x=&quot;17&quot; y=&quot;150&quot; text-anchor=&quot;middle&quot; transform=&quot;rotate(-90 17 150)&quot;&gt;Enrichment relative to wild type&lt;/text&gt;&#x27;,
+    ]
+    bars = [
+        (&quot;Wild type&quot;, &quot;VDGV&quot;, scores[0], &quot;#51677d&quot;),
+        (&quot;V39F&quot;, &quot;FDGV&quot;, scores[1], &quot;#527bc2&quot;),
+        (&quot;V54S&quot;, &quot;VDGS&quot;, scores[2], &quot;#527bc2&quot;),
+        (&quot;Predicted&quot;, &quot;double mutant&quot;, expected, &quot;#ffffff&quot;),
+        (&quot;Observed&quot;, &quot;double mutant&quot;, scores[3], &quot;#138375&quot;),
+    ]
+    for index, (label, sublabel, value, color) in enumerate(bars):
+        center = 123 + 114 * index
+        outline = &#x27; stroke=&quot;#536577&quot; stroke-width=&quot;2&quot; stroke-dasharray=&quot;5 3&quot;&#x27; if index == 3 else &quot;&quot;
+        parts += [
+            f&#x27;&lt;rect x=&quot;{center-30}&quot; y=&quot;{y(value):.2f}&quot; width=&quot;60&quot; height=&quot;{scale*value:.2f}&quot; fill=&quot;{color}&quot;{outline}/&gt;&#x27;,
+            f&#x27;&lt;text x=&quot;{center}&quot; y=&quot;{y(value)-8:.2f}&quot; text-anchor=&quot;middle&quot; font-weight=&quot;700&quot;&gt;{value:.3f}&lt;/text&gt;&#x27;,
+            f&#x27;&lt;text x=&quot;{center}&quot; y=&quot;271&quot; text-anchor=&quot;middle&quot;&gt;{label}&lt;/text&gt;&#x27;,
+            f&#x27;&lt;text x=&quot;{center}&quot; y=&quot;289&quot; text-anchor=&quot;middle&quot; fill=&quot;#536577&quot;&gt;{sublabel}&lt;/text&gt;&#x27;,
+        ]
+    return &quot;\n&quot;.join(parts + [&#x27;&lt;/g&gt;&lt;/svg&gt;&#x27;])
+
+
+if __name__ == &quot;__main__&quot;:
+    scores, expected, epsilon = calculate()
+    with open(&quot;gb1_enrichment.csv&quot;, &quot;w&quot;, newline=&quot;&quot;, encoding=&quot;utf-8&quot;) as out:
+        writer = csv.writer(out)
+        writer.writerow([&quot;variant&quot;, &quot;substitution&quot;, &quot;input_reads&quot;, &quot;selected_reads&quot;, &quot;relative_enrichment&quot;])
+        for row, score in zip(RECORDS, scores):
+            writer.writerow([*row, score])
+    Path(&quot;gb1_epistasis.svg&quot;).write_text(figure(), encoding=&quot;utf-8&quot;)
+    print(f&quot;Observed = {scores[3]:.6f}, expected = {expected:.6f}&quot;)
+    print(f&quot;Observed / expected = {scores[3] / expected:.6f}, log epistasis = {epsilon:.6f}&quot;)
+</code></pre></details>
+<script>
+document.getElementById('tt').addEventListener('click', function () {
+  const currentTheme = document.documentElement.dataset.theme;
+  const dark = currentTheme ? currentTheme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  document.documentElement.dataset.theme = dark ? 'light' : 'dark';
+});
+document.getElementById('download-code').addEventListener('click', function () {
+  const code = document.getElementById('python-code').textContent;
+  const url = URL.createObjectURL(new Blob([code], {type: 'text/plain;charset=utf-8'}));
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'week8-zhuxiaomeng-analysis.py';
+  link.click();
+  setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+});
+</script>
+</main></body></html>

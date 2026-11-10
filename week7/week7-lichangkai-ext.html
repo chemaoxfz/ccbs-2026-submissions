@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="Your Name — replace before submission">
+  <meta name="week" content="week7">
+  <meta name="description" content="CCBS 2026 Week 7 extension mini-essay connecting FBA feasible sets with the proteome cost of extra enzymes.">
+  <title>Week 7 — More Reactions, Slower Cells?</title>
+  <style>
+    :root { color-scheme: light; --ink:#192d3a; --muted:#526574; --paper:#fffefb; --canvas:#edf2f3; --line:#d5e0e2; --navy:#163951; --teal:#087c78; --orange:#bd612d; --blue:#3976a0; --soft:#f2f7f6; }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin:0; background:var(--canvas); color:var(--ink); font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif; font-size:15.4px; line-height:1.7; }
+    main { width:min(100% - 32px,820px); margin:26px auto 42px; padding:46px 60px 46px; background:var(--paper); box-shadow:0 10px 36px rgba(25,45,58,.065); border:1px solid #d9e3e5; border-radius:12px; }
+    a { color:#08736f; text-decoration-thickness:1px; text-underline-offset:3px; }
+    a:hover { color:#0a5552; }
+    .eyebrow { color:var(--teal); font-size:.72rem; letter-spacing:.19em; font-weight:800; margin:0 0 12px; text-transform:uppercase; }
+    h1,h2 { font-family:Georgia,"Times New Roman",serif; letter-spacing:-.035em; }
+    h1 { margin:0 0 8px; max-width:650px; color:var(--navy); font-size:clamp(2.05rem,5.5vw,3.3rem); line-height:1.09; }
+    .dek { margin:0 0 13px; color:#345468; font-size:1.06rem; line-height:1.5; }
+    .meta { color:var(--muted); font-size:.82rem; margin:0 0 26px; }
+    .meta strong { color:var(--ink); }
+    .thesis { border-left:4px solid var(--teal); background:var(--soft); padding:17px 19px 18px; margin:23px 0 27px; border-radius:0 9px 9px 0; font-size:1.00rem; }
+    .thesis small { display:block; font-size:.68rem; color:var(--teal); text-transform:uppercase; font-weight:800; letter-spacing:.13em; margin-bottom:5px; }
+    h2 { color:var(--navy); font-size:1.42rem; line-height:1.3; margin:27px 0 10px; }
+    p { margin:10px 0 14px; }
+    em { color:#294a55; }
+    .mathbox { margin:15px 0 18px; border:1px solid var(--line); border-radius:8px; background:#fbfdfc; padding:15px 18px 13px; text-align:center; }
+    .mathbox .formula { display:block; color:var(--navy); font-family:Georgia,"Times New Roman",serif; font-size:clamp(1.13rem,3.5vw,1.35rem); line-height:1.8; white-space:normal; }
+    .formula sup { font-size:65%; }
+    .mathbox small { display:block; color:var(--muted); font-size:.75rem; line-height:1.5; }
+    .frac { display:inline-flex; flex-direction:column; align-items:center; vertical-align:middle; font-size:.94em; line-height:1.15; margin:0 .17em; }
+    .frac>span:first-child { border-bottom:1.5px solid currentColor; padding:0 .18em .09em; }
+    .frac>span:last-child { padding:.13em .18em 0; }
+    .teaching-note { font-size:.89rem; color:var(--muted); }
+    .inline-math { font-family:Georgia,"Times New Roman",serif; white-space:nowrap; }
+    .numerics { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:9px; margin:14px 0 12px; }
+    .metric { padding:11px 12px; border:1px solid var(--line); background:#f8faf9; border-radius:7px; }
+    .metric span { display:block; color:var(--muted); font-size:.72rem; font-weight:600; }
+    .metric strong { display:block; color:var(--navy); font-size:1.33rem; font-weight:700; line-height:1.45; font-variant-numeric:tabular-nums; }
+    .metric.last { background:#fff7f0; border-color:#ead9c9; }
+    .metric.last strong { color:var(--orange); }
+    .interactive { margin-top:20px; background:#fbfcfb; border:1px solid var(--line); padding:17px 17px 12px; border-radius:10px; }
+    .interactive h3 { font-size:1rem; color:var(--navy); margin:0 0 2px; }
+    .interactive p { font-size:.85rem; color:var(--muted); margin:2px 0 13px; }
+    .control { display:flex; gap:20px; align-items:center; justify-content:space-between; margin:3px 0 10px; }
+    label { font-size:.88rem; font-weight:700; color:var(--navy); }
+    output { font-weight:800; font-variant-numeric:tabular-nums; color:var(--orange); min-width:45px; text-align:right; }
+    input[type=range] { display:block; margin:8px 0 15px; width:100%; accent-color:var(--teal); cursor:pointer; }
+    .proteome { display:flex; width:100%; height:32px; overflow:hidden; border-radius:5px; border:1px solid rgba(0,0,0,.09); }
+    .sector { min-width:0; color:white; font-size:.74rem; font-weight:800; display:flex; align-items:center; justify-content:center; transition:width 160ms ease; }
+    .sector.q { background:#62717c; }
+    .sector.r { background:#246c93; }
+    .sector.m { background:#218a81; }
+    .sector.u { background:#ce7842; }
+    .sector-legend { display:flex; flex-wrap:wrap; column-gap:14px; row-gap:2px; margin-top:8px; color:var(--muted); font-size:.72rem; }
+    .sector-legend b { color:var(--navy); }
+    .chart-heading { font-size:.85rem; color:var(--navy); font-weight:750; margin:21px 0 1px; }
+    svg.plot { display:block; width:100%; height:auto; min-width:470px; overflow:visible; }
+    .plot-holder { width:100%; overflow-x:auto; }
+    .plot text { font-family:system-ui,-apple-system,"Segoe UI",sans-serif; fill:#546b76; font-size:13px; }
+    .plot .axislabel { fill:#274655; font-size:13px; font-weight:650; }
+    .plot .tick { stroke:#dfe8e8; stroke-width:1; }
+    .plot .axis { stroke:#93a8b0; stroke-width:1.3; }
+    .plot .fba { stroke:#7b8996; stroke-width:3; stroke-dasharray:9 6; fill:none; }
+    .plot .burden { stroke:#087c78; stroke-width:4; stroke-linecap:round; fill:none; }
+    .plot .mark { fill:#c76b35; stroke:#fff; stroke-width:3; }
+    .figure-key { display:flex; flex-wrap:wrap; align-items:center; gap:14px; font-size:.73rem; color:var(--muted); margin:-6px 0 2px; }
+    .swatch { display:inline-block; width:22px; border-top:3px solid var(--teal); vertical-align:middle; margin-right:5px; }
+    .swatch.dash { border-top:3px dashed #7b8996; }
+    figcaption { font-size:.79rem; line-height:1.55; color:var(--muted); margin:10px 0 0; }
+    .limits { background:#f5f8fa; border-left:3px solid #86a3b2; padding:13px 17px; margin:15px 0; font-size:.92rem; }
+    .sources { padding-left:20px; font-size:.82rem; line-height:1.65; }
+    .sources li { margin:0 0 8px; padding-left:3px; }
+    details { border:1px solid var(--line); border-radius:8px; margin-top:18px; overflow:hidden; }
+    summary { cursor:pointer; color:var(--navy); font-size:.87rem; font-weight:750; padding:12px 14px; background:#f5f8f8; }
+    pre { white-space:pre; overflow:auto; max-height:430px; background:#142d39; color:#eaf3f4; padding:15px; margin:0; font-size:.75rem; line-height:1.55; tab-size:2; }
+    .provenance { color:var(--muted); font-size:.76rem; margin:12px 0 0; }
+    .footer { border-top:1px solid var(--line); font-size:.74rem; color:var(--muted); padding-top:12px; margin-top:24px; }
+    @media (prefers-reduced-motion:reduce) { .sector { transition:none; } html { scroll-behavior:auto; } }
+    @media (max-width:700px) { main { width:100%; margin:0 auto; padding:30px 21px 40px; border:0; border-radius:0; box-shadow:none; } .numerics { gap:5px; } .metric { padding:9px 7px; } .metric strong { font-size:1.05rem; } .interactive { padding:12px; } }
+    @media print { body { background:white; font-size:12px; } main { border:0; box-shadow:none; margin:0; padding:0; width:100%; } .sector { transition:none; } details { break-inside:avoid; } h2, figure, .mathbox { break-inside:avoid; } }
+    @media (max-width:460px) { .numerics { grid-template-columns:repeat(2,minmax(0,1fr)); } .metric.last { grid-column:span 2; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="eyebrow">CCBS / 2026 Fall / Week 07 · Lectures 13 &amp; 14</p>
+    <h1>More reactions,<br>slower cells?</h1>
+    <p class="dek">Why an expanded metabolic network can coexist with reduced cellular growth.</p>
+    <p class="meta">Author: <strong>Li Changkai</strong> &nbsp;·&nbsp; Extension mini-essay &nbsp;·&nbsp; 2 November 2026</p>
+  </header>
+
+  <div class="thesis"><small>One-sentence claim</small>Adding an <em>optional reaction</em> cannot reduce the optimal objective in ordinary flux balance analysis (FBA), but expressing the enzyme for that reaction can reduce real growth by taking proteome away from ribosomes and essential metabolism.</div>
+
+  <section aria-labelledby="point">
+    <h2 id="point">The point I am adding</h2>
+    <p>Lecture 13 uses FBA to optimize a biomass flux under stoichiometric and uptake constraints; Lecture 14 explains why making catalytic machinery itself costs resources. Combining them reveals a useful distinction: <strong>adding a possible reaction</strong> and <strong>expressing its catalyst</strong> are different operations. <a href="#src-fba">[1]</a><a href="#src-course">[2]</a></p>
+    <p>The first operation has a simple mathematical guarantee. If a new reaction can carry zero flux, and all old constraints and the biomass objective stay unchanged, every old feasible solution remains feasible by setting its new flux to zero. Therefore</p>
+    <div class="mathbox" role="math" aria-label="Maximum biomass flux of the augmented model is at least that of the original model.">
+      <span class="formula">max&nbsp;v<sub>biomass, new</sub> &nbsp;≥&nbsp; max&nbsp;v<sub>biomass, old</sub></span>
+      <small>Feasible-set inclusion; an optimization theorem, not a claim about the phenotype of an enzyme-expressing cell.</small>
+    </div>
+  </section>
+
+  <section aria-labelledby="work">
+    <h2 id="work">Work it: charge the cell for the protein</h2>
+    <p>Take a deliberately small <em>balanced-growth</em> model. Let the fixed housekeeping fraction be <span class="inline-math">φ<sub>Q</sub></span>, leaving <span class="inline-math">Φ = 1 − φ<sub>Q</sub></span> of total protein for three parts: ribosomes <span class="inline-math">φ<sub>R</sub></span>, useful metabolic enzymes <span class="inline-math">φ<sub>M</sub></span>, and an expressed but unused enzyme <span class="inline-math">φ<sub>U</sub></span>. Translation and precursor supply both have to support the same specific growth rate <span class="inline-math">λ</span>: <a href="#src-course">[2]</a></p>
+    <div class="mathbox" role="math" aria-label="The budget: ribosomes plus metabolic enzymes plus unused enzyme equals Phi. Growth is bounded by sigma times ribosomal fraction and kappa times metabolic fraction.">
+      <span class="formula">φ<sub>R</sub> + φ<sub>M</sub> + φ<sub>U</sub> = Φ; &nbsp; λ ≤ min(σφ<sub>R</sub>, κφ<sub>M</sub>)</span>
+      <small>σ and κ are capacities per unit protein fraction (h<sup>−1</sup>); all fractions are nonnegative.</small>
+    </div>
+    <p>For fixed <span class="inline-math">φ<sub>U</sub></span>, the maximum occurs when neither productive capacity is wasted: <span class="inline-math">σφ<sub>R</sub> = κφ<sub>M</sub></span>. Solving the two equalities gives</p>
+    <div class="mathbox" role="math" aria-label="Optimal growth lambda star equals sigma times kappa divided by sigma plus kappa, times Phi minus phi U.">
+      <span class="formula">λ<sup>*</sup>(φ<sub>U</sub>) = <span class="frac"><span>σκ</span><span>σ + κ</span></span>(Φ − φ<sub>U</sub>)</span>
+      <small>Thus λ<sup>*</sup>(φ<sub>U</sub>) / λ<sup>*</sup>(0) = 1 − φ<sub>U</sub>/Φ. The burden is relative to the <em>allocatable</em> proteome, not all protein.</small>
+    </div>
+    <p>As a <strong>hypothetical worked example</strong> (not a fit to a bacterium), set <span class="inline-math">Φ = 0.60</span>, <span class="inline-math">σ = 3 h<sup>−1</sup></span>, and <span class="inline-math">κ = 1.5 h<sup>−1</sup></span>. Allocating 12% of <em>total</em> protein to an unused enzyme leaves only 48% for the two growth-supporting sectors. The optimum falls from <strong>0.60</strong> to <strong>0.48 h<sup>−1</sup></strong>, a <strong>20% decrease</strong>; the model doubling time rises from 69.3 to 86.6 minutes.</p>
+  </section>
+
+  <figure class="interactive" aria-labelledby="f-title">
+    <h3 id="f-title">Figure 1 · What FBA does not budget</h3>
+    <p>Move the burden slider; the model recomputes its optimal protein allocation and growth. Everything is calculated offline by code in this HTML.</p>
+    <div class="control"><label for="burden-slider">Unused protein as % of total proteome</label><output id="u-label" for="burden-slider">12%</output></div>
+    <input id="burden-slider" type="range" min="0" max="20" step="1" value="12" aria-label="Unused protein fraction, percent of total proteome">
+    <div class="proteome" role="img" aria-label="Proteome allocation at 12 percent unused protein: 40 percent fixed, 16 percent ribosomes, 32 percent metabolic enzymes, 12 percent unused enzyme.">
+      <span id="sector-q" class="sector q" style="width:40%">Q</span>
+      <span id="sector-r" class="sector r" style="width:16%">R</span>
+      <span id="sector-m" class="sector m" style="width:32%">M</span>
+      <span id="sector-u" class="sector u" style="width:12%">U</span>
+    </div>
+    <div class="sector-legend"><span><b>Q</b> fixed 40%</span><span><b>R</b> <span id="r-label">16%</span> ribosomes</span><span><b>M</b> <span id="m-label">32%</span> metabolism</span><span><b>U</b> <span id="u-key">12%</span> unused</span></div>
+    <div class="numerics" aria-live="polite">
+      <div class="metric"><span>Optimal growth</span><strong id="lambda-label">0.480 h⁻¹</strong></div>
+      <div class="metric"><span>Doubling time</span><strong id="doubling-label">86.6 min</strong></div>
+      <div class="metric last"><span>Loss vs no burden</span><strong id="loss-label">20.0%</strong></div>
+    </div>
+    <div class="chart-heading">Maximum growth relative to the no-burden case</div>
+    <div class="plot-holder">
+      <svg class="plot" viewBox="0 0 760 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="plot-title plot-desc">
+        <title id="plot-title">Growth predictions versus expression of unused protein</title>
+        <desc id="plot-desc">Dashed grey line: in this illustrative medium, the added optional reaction offers no flux benefit, so ordinary FBA stays at the reference optimum and cannot see enzyme-expression cost. Solid green line: growth-optimal proteome allocation declines linearly from 100 percent to about 66.7 percent as unused protein rises from zero to 20 percent. Orange dot is the selected burden.</desc>
+        <rect x="0" y="0" width="760" height="320" fill="#fbfcfb"/>
+        <g>
+          <line class="tick" x1="84" y1="45" x2="706" y2="45"/>
+          <line class="tick" x1="84" y1="97" x2="706" y2="97"/>
+          <line class="tick" x1="84" y1="149" x2="706" y2="149"/>
+          <line class="tick" x1="84" y1="201" x2="706" y2="201"/>
+          <line class="tick" x1="84" y1="253" x2="706" y2="253"/>
+          <text x="70" y="50" text-anchor="end">100%</text>
+          <text x="70" y="102" text-anchor="end">75%</text>
+          <text x="70" y="154" text-anchor="end">50%</text>
+          <text x="70" y="206" text-anchor="end">25%</text>
+          <text x="70" y="258" text-anchor="end">0%</text>
+          <line class="axis" x1="84" y1="45" x2="84" y2="253"/>
+          <line class="axis" x1="84" y1="253" x2="706" y2="253"/>
+          <text x="84" y="275" text-anchor="middle">0%</text>
+          <text x="239.5" y="275" text-anchor="middle">5%</text>
+          <text x="395" y="275" text-anchor="middle">10%</text>
+          <text x="550.5" y="275" text-anchor="middle">15%</text>
+          <text x="706" y="275" text-anchor="middle">20%</text>
+          <text class="axislabel" x="395" y="308" text-anchor="middle">Unused protein fraction (of total proteome)</text>
+          <text class="axislabel" x="84" y="24">Normalized maximum growth</text>
+        </g>
+        <path class="fba" d="M84 45 L706 45"/>
+        <path class="burden" d="M84 45 L706 114.333333"/>
+        <line id="guide-line" x1="457.2" y1="86.6" x2="457.2" y2="253" stroke="#c76b35" stroke-width="1.5" stroke-dasharray="4 5" opacity="0.48"/>
+        <circle id="guide-dot" class="mark" cx="457.2" cy="86.6" r="7"/>
+        <text id="guide-label" x="473.2" y="71.6" font-weight="750" fill="#b55a2e" style="fill:#a84f25">80% of baseline</text>
+      </svg>
+    </div>
+    <div class="figure-key"><span><span class="swatch dash"></span>Ordinary FBA: extra route unused; no expression cost</span><span><span class="swatch"></span>Proteome-constrained growth optimum</span></div>
+    <figcaption>Original analytic calculation, not experimental points. The dashed FBA line is a <em>special case</em>: the optional reaction cannot improve biomass production in this medium, so its FBA optimum stays at baseline. Other new reactions could raise the FBA optimum. The solid line adds a cost for actually expressing unused protein. These are different model assumptions, not competing fits to data. The solid curve is <span class="inline-math">1 − φ<sub>U</sub>/0.60</span>. The orange marker is computed from the slider.</figcaption>
+  </figure>
+
+  <section aria-labelledby="limits">
+    <h2 id="limits">Where this claim breaks</h2>
+    <p>Making a new reaction <em>available in the genome</em> is not the same as making its enzyme: a silent gene need not impose this protein-allocation burden. Conversely, an expressed enzyme can earn back its cost if the new pathway becomes useful under another condition. The calculation assumes fixed housekeeping share, constant per-protein capacities, balanced growth and no direct enzyme toxicity; it cannot predict transient regulation or a real organism's cost without data. <a href="#src-scott">[3]</a></p>
+    <div class="limits"><strong>Empirical check, kept separate from the toy numbers.</strong> Scott <em>et al.</em> (2010) measured growth defects from gratuitous protein expression in <em>E. coli</em> and derived a growth-law explanation using proteome allocation. That supports the <em>mechanism</em>; the values 0.60, 3 and 1.5 above are my illustrative choices, not their measured parameters. <a href="#src-scott">[3]</a></div>
+  </section>
+
+  <section aria-labelledby="sources">
+    <h2 id="sources">Sources &amp; what was checked</h2>
+    <ol class="sources">
+      <li id="src-fba">Orth, J. D., Thiele, I. &amp; Palsson, B. Ø. (2010). “What is flux balance analysis?” <em>Nature Biotechnology</em> 28, 245–248. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3108565/">Full text</a> · <a href="https://doi.org/10.1038/nbt.1614">DOI</a>. Read the FBA formulation (<span class="inline-math">Sv = 0</span>, reaction bounds, linear objective); the feasible-set inclusion proof above is worked out here, not quoted from the paper.</li>
+      <li id="src-course">Fangzhou Xiao. <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture13-core.html">Lecture 13 core</a> (FBA / metabolic resources), and <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture14-core.html">Lecture 14 core</a> (ribosomal and metabolic sector constraints), CCBS 2026. Read the corresponding model definitions; the extra unused-protein sector is the extension.</li>
+      <li id="src-scott">Scott, M., Gunderson, C. W., Mateescu, E. M., Zhang, Z. &amp; Hwa, T. (2010). “Interdependence of cell growth and gene expression: origins and consequences.” <em>Science</em> 330, 1099–1102. <a href="https://doi.org/10.1126/science.1192588">DOI</a> · <a href="https://garcialab.berkeley.edu/courses/papers/Scott2010.pdf">Full text</a>. Inspected the unnecessary-protein argument and Fig. 4 on page 1101; no experimental data were digitized for this figure.</li>
+    </ol>
+    <details>
+      <summary>Reproducibility: exact calculation and figure-update code (JavaScript, included in this file)</summary>
+      <pre id="code-view">The JavaScript source is embedded at the end of this HTML. Open View Source if scripts are disabled.</pre>
+    </details>
+    <p class="provenance">The solid figure line is an exact analytic consequence of the displayed model. All values and coordinates are recalculated locally; the only URLs in this document are ordinary reference links, not loaded stylesheets, fonts, or libraries.</p>
+  </section>
+</main>
+<script id="reproduction-code">
+// Reproduction of every displayed numerical result and the interactive Figure 1.
+// No external libraries or network access. Greek fractions are of TOTAL protein.
+(() => {
+  'use strict';
+  const PHI = 0.60;     // allocatable protein after fixed housekeeping
+  const SIGMA = 3.0;   // translation capacity, h^-1 per protein fraction
+  const KAPPA = 1.5;   // metabolic capacity, h^-1 per protein fraction
+  const NO_BURDEN = SIGMA * KAPPA / (SIGMA + KAPPA) * PHI;
+  const el = (id) => document.getElementById(id);
+  const slider = el('burden-slider');
+  const optimum = (u) => {
+    const available = PHI - u;
+    const r = KAPPA * available / (SIGMA + KAPPA);
+    const m = SIGMA * available / (SIGMA + KAPPA);
+    const lambda = Math.min(SIGMA * r, KAPPA * m);
+    return {r, m, lambda};
+  };
+  const display = () => {
+    const percent = Number(slider.value);
+    const u = percent / 100;
+    const {r,m,lambda} = optimum(u);
+    const normalized = lambda / NO_BURDEN;
+    const doubling = 60 * Math.log(2) / lambda;
+    el('u-label').textContent = `${percent}%`;
+    el('u-key').textContent = `${percent}%`;
+    el('r-label').textContent = `${(100*r).toFixed(1)}%`;
+    el('m-label').textContent = `${(100*m).toFixed(1)}%`;
+    el('lambda-label').textContent = `${lambda.toFixed(3)} h⁻¹`;
+    el('doubling-label').textContent = `${doubling.toFixed(1)} min`;
+    el('loss-label').textContent = `${((1-normalized)*100).toFixed(1)}%`;
+    el('sector-r').style.width = `${100*r}%`;
+    el('sector-m').style.width = `${100*m}%`;
+    el('sector-u').style.width = `${percent}%`;
+    // SVG maps u in [0, .20] onto x in [84,706], growth ratio in [0,1] onto y in [253,45].
+    const x = 84 + 622 * (u / 0.20);
+    const y = 45 + 208 * (1 - normalized);
+    el('guide-dot').setAttribute('cx', x.toFixed(3));
+    el('guide-dot').setAttribute('cy', y.toFixed(3));
+    el('guide-line').setAttribute('x1', x.toFixed(3));
+    el('guide-line').setAttribute('x2', x.toFixed(3));
+    el('guide-line').setAttribute('y1', y.toFixed(3));
+    el('guide-label').setAttribute('x', Math.min(x + 16, 565).toFixed(3));
+    el('guide-label').setAttribute('y', (y < 75 ? y + 20 : y - 15).toFixed(3));
+    el('guide-label').textContent = `${(100*normalized).toFixed(1)}% of baseline`;
+    document.querySelector('.proteome').setAttribute('aria-label',
+      `Proteome fractions: 40% housekeeping, ${(100*r).toFixed(1)}% ribosomal, ` +
+      `${(100*m).toFixed(1)}% metabolic and ${percent}% unused.`);
+  };
+  slider.addEventListener('input', display);
+  display();
+  // Show the exact executable source inside the HTML for reproducibility.
+  el('code-view').textContent = el('reproduction-code').textContent.trim();
+})();
+</script>
+</body>
+</html>
