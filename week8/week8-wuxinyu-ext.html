@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 8 — Can one binding time course give both k_on and k_off?</title>
+<meta name="author" content="Xinyu Wu">
+<meta name="week" content="week8">
+<style>
+:root{--ink:#1a1a1a;--muted:#566;--accent:#1f4e79;--line:#d8dee4;--bg:#fff;--soft:#f6f8fa}
+@media (prefers-color-scheme:dark){:root{--ink:#e8e8e8;--muted:#9aa;--accent:#8ab4e8;--line:#3a4652;--bg:#15191d;--soft:#1e242a}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;line-height:1.6}
+.wrap{max-width:760px;margin:0 auto;padding:40px 22px 80px}
+h1{font-size:1.6rem;line-height:1.25;margin:0 0 6px;color:var(--accent)}
+.meta{color:var(--muted);font-size:.92rem;margin-bottom:26px}
+h2{font-size:1.05rem;color:var(--accent);margin:34px 0 8px;border-bottom:1px solid var(--line);padding-bottom:5px}
+.card{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:14px 18px;margin:14px 0}
+.eq{text-align:center;overflow-x:auto}
+figure{margin:18px 0}
+.figbox{background:#fff;border:1px solid var(--line);border-radius:6px;padding:6px;overflow-x:auto}
+.figbox svg{display:block;width:100%;min-width:560px;height:auto}
+figcaption,.note{font-size:.85rem;color:var(--muted);margin-top:6px}
+table{border-collapse:collapse;width:100%;font-size:.92rem;display:block;overflow-x:auto}
+th,td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+pre{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:10px;overflow-x:auto;font-size:.78rem;line-height:1.45}
+details{margin:8px 0}summary{cursor:pointer}
+a{color:var(--accent);overflow-wrap:anywhere}.src{font-size:.9rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Week 8 — Can one binding time course give both k<sub>on</sub> and k<sub>off</sub>?</h1>
+<p class="meta">Xinyu Wu · Week 8 (lectures 15–16) · CCBS 2026</p>
+
+<p class="card"><strong>One sentence:</strong> when the signal scale is unknown, a binding time course at a single ligand concentration fixes only k<sub>obs</sub> = k<sub>+</sub>S + k<sub>−</sub>, so separating k<sub>+</sub> from k<sub>−</sub> needs at least two concentrations, and k<sub>−</sub> is estimated best when the two bracket K<sub>d</sub> about six-fold apart rather than as far apart as possible.</p>
+
+<h2>The question</h2>
+<p>Lecture 15 closes with a reversible binding reaction: two pairs of rate constants with the same K<sub>d</sub> = 1 µM respond with time constants of 0.5 s and 5 s, so a requirement such as “reach 90% of equilibrium occupancy within two seconds” needs a time-resolved binding measurement [1]. Lecture 16 names parameter unidentifiability as one reason current whole-cell models do not compose [2]. Put together, they raise an experimental question: after a binder has been designed, which time courses must be measured so that k<sub>+</sub> and k<sub>−</sub> can each be handed to a cell model?</p>
+
+<h2>The model</h2>
+<p>I keep the Lecture 15 setting: free ligand S clamped by a reservoir, independent sites, protein initially unbound [1]. The occupied fraction is</p>
+<p class="eq">θ(t) = A (1 − e<sup>−k<sub>obs</sub> t</sup>),&emsp; A = k<sub>+</sub>S / k<sub>obs</sub>,&emsp; k<sub>obs</sub> = k<sub>+</sub>S + k<sub>−</sub>.</p>
+<p>An instrument reports a signal y = F·θ, for example fluorescence, where F is the signal of fully bound protein and is usually unknown. Demonstration values: k<sub>+</sub> = 1 µM<sup>−1</sup> s<sup>−1</sup> and k<sub>−</sub> = 1 s<sup>−1</sup> (the “fast pair” of Lecture 15, K<sub>d</sub> = 1 µM), F = 1, Gaussian noise with standard deviation σ = 0.02, and 120 time points per experimental design, log-spaced from 0.01 to 10 s and split equally between concentrations. None of these are measured values.</p>
+
+<h2>One concentration: two observables, three unknowns</h2>
+<p>A single curve y(t) = F·A (1 − e<sup>−k<sub>obs</sub> t</sup>) is set by two numbers, its plateau F·A and its rate k<sub>obs</sub>. The unknowns are F, k<sub>+</sub> and k<sub>−</sub>, so every point on the line k<sub>+</sub>S + k<sub>−</sub> = k<sub>obs</sub> fits equally well once F is adjusted. Figure 1a shows one case. At 1 µM, (k<sub>+</sub>, k<sub>−</sub>, F) = (1, 1, 1) and (0.5, 1.5, 2) give identical curves (maximum difference 0), yet the second set has K<sub>d</sub> = 3 µM. At 4 µM their plateaus are 0.80 and 1.14; the difference of 0.34 is about 17 times the noise.</p>
+<p>If F is known, so that the signal is calibrated to occupancy, one concentration suffices: the relative standard errors of k<sub>+</sub> and k<sub>−</sub> are 2.1% and 2.9%. Calibrating F, however, requires a measurement near saturation, which amounts to a second concentration.</p>
+
+<figure>
+<div class="figbox"><svg xmlns:xlink="http://www.w3.org/1999/xlink"  viewBox="0 0 662.4 259.2" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ 
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 259.2 
+L 662.4 259.2 
+L 662.4 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 39.982271 223.396635 
+L 325.540344 223.396635 
+L 325.540344 16.978599 
+L 39.982271 16.978599 
+z
+" style="fill: #ffffff"/>
+   </g>
+   <g id="matplotlib.axis_1">
+    <g id="xtick_1">
+     <g id="line2d_1">
+      <defs>
+       <path id="mc41ee4d862" d="M 0 0 
+L 0 3.5 
+" style="stroke: #52514e; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#mc41ee4d862" x="39.982271" y="223.396635" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_1">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle; fill: #52514e" x="39.982271" y="237.994291" transform="rotate(-0 39.982271 237.994291)">0.0</text>
+     </g>
+    </g>
+    <g id="xtick_2">
+     <g id="line2d_2">
+      <g>
+       <use xlink:href="#mc41ee4d862" x="87.575283" y="223.396635" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_2">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle; fill: #52514e" x="87.575283" y="237.994291" transform="rotate(-0 87.575283 237.994291)">0.5</text>
+     </g>
+    </g>
+    <g id="xtick_3">
+     <g id="line2d_3">
+      <g>
+       <use xlink:href="#mc41ee4d862" x="135.168295" y="223.396635" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_3">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle; fill: #52514e" x="135.168295" y="237.994291" transform="rotate(-0 135.168295 237.994291)">1.0</text>
+     </g>
+    </g>
+    <g id="xtick_4">
+     <g id="line2d_4">
+      <g>
+       <use xlink:href="#mc41ee4d862" x="182.761307" y="223.396635" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_4">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle; fill: #52514e" x="182.761307" y="237.994291" transform="rotate(-0 182.761307 237.994291)">1.5</text>
+     </g>
+    </g>
+    <g id="xtick_5">
+     <g id="line2d_5">
+      <g>
+       <use xlink:href="#mc41ee4d862" x="230.35432" y="223.396635" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_5">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle; fill: #52514e" x="230.35432" y="237.994291" transform="rotate(-0 230.35432 237.994291)">2.0</text>
+     </g>
+    </g>
+    <g id="xtick_6">
+     <g id="line2d_6">
+      <g>
+       <use xlink:href="#mc41ee4d862" x="277.947332" y="223.396635" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_6">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle; fill: #52514e" x="277.947332" y="237.994291" transform="rotate(-0 277.947332 237.994291)">2.5</text>
+     </g>
+    </g>
+    <g id="xtick_7">
+     <g id="line2d_7">
+      <g>
+       <use xlink:href="#mc41ee4d862" x="325.540344" y="223.396635" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_7">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle; fill: #52514e" x="325.540344" y="237.994291" transform="rotate(-0 325.540344 237.994291)">3.0</text>
+     </g>
+    </g>
+    <g id="text_8">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle; fill: #0b0b0b" x="182.761307" y="251.995072" transform="rotate(-0 182.761307 251.995072)">Time / s</text>
+    </g>
+   </g>
+   <g id="matplotlib.axis_2">
+    <g id="ytick_1">
+     <g id="line2d_8">
+      <defs>
+       <path id="m7b8c472713" d="M 0 0 
+L -3.5 0 
+" style="stroke: #52514e; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#m7b8c472713" x="39.982271" y="223.396635" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_9">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end; fill: #52514e" x="32.982271" y="227.195463" transform="rotate(-0 32.982271 227.195463)">0.0</text>
+     </g>
+    </g>
+    <g id="ytick_2">
+     <g id="line2d_9">
+      <g>
+       <use xlink:href="#m7b8c472713" x="39.982271" y="191.640014" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_10">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end; fill: #52514e" x="32.982271" y="195.438842" transform="rotate(-0 32.982271 195.438842)">0.2</text>
+     </g>
+    </g>
+    <g id="ytick_3">
+     <g id="line2d_10">
+      <g>
+       <use xlink:href="#m7b8c472713" x="39.982271" y="159.883393" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_11">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end; fill: #52514e" x="32.982271" y="163.682221" transform="rotate(-0 32.982271 163.682221)">0.4</text>
+     </g>
+    </g>
+    <g id="ytick_4">
+     <g id="line2d_11">
+      <g>
+       <use xlink:href="#m7b8c472713" x="39.982271" y="128.126772" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_12">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end; fill: #52514e" x="32.982271" y="131.925601" transform="rotate(-0 32.982271 131.925601)">0.6</text>
+     </g>
+    </g>
+    <g id="ytick_5">
+     <g id="line2d_12">
+      <g>
+       <use xlink:href="#m7b8c472713" x="39.982271" y="96.370152" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_13">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end; fill: #52514e" x="32.982271" y="100.16898" transform="rotate(-0 32.982271 100.16898)">0.8</text>
+     </g>
+    </g>
+    <g id="ytick_6">
+     <g id="line2d_13">
+      <g>
+       <use xlink:href="#m7b8c472713" x="39.982271" y="64.613531" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_14">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end; fill: #52514e" x="32.982271" y="68.412359" transform="rotate(-0 32.982271 68.412359)">1.0</text>
+     </g>
+    </g>
+    <g id="ytick_7">
+     <g id="line2d_14">
+      <g>
+       <use xlink:href="#m7b8c472713" x="39.982271" y="32.85691" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_15">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end; fill: #52514e" x="32.982271" y="36.655738" transform="rotate(-0 32.982271 36.655738)">1.2</text>
+     </g>
+    </g>
+    <g id="text_16">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle; fill: #0b0b0b" x="10.676803" y="120.187617" transform="rotate(-90 10.676803 120.187617)">Signal y = F·θ (a.u.)</text>
+    </g>
+   </g>
+   <g id="line2d_15">
+    <path d="M 39.982271 223.396635 
+L 43.789712 217.292722 
+L 47.597153 211.658101 
+L 51.404594 206.45669 
+L 55.212035 201.655182 
+L 59.019476 197.222832 
+L 62.826917 193.131257 
+L 66.634358 189.354257 
+L 70.441799 185.867647 
+L 74.24924 182.6491 
+L 78.056681 179.678007 
+L 82.815982 176.283279 
+L 87.575283 173.211603 
+L 92.334585 170.432235 
+L 97.093886 167.917359 
+L 101.853187 165.641805 
+L 106.612488 163.582799 
+L 112.32365 161.368959 
+L 118.034811 159.405459 
+L 123.745973 157.663992 
+L 130.408994 155.879568 
+L 137.072016 154.328264 
+L 144.686898 152.801918 
+L 152.30178 151.501251 
+L 160.868522 150.266409 
+L 170.387124 149.131423 
+L 180.857587 148.119067 
+L 192.27991 147.241257 
+L 205.605953 146.450931 
+L 220.835717 145.781133 
+L 238.921062 145.219655 
+L 260.813847 144.771822 
+L 289.369655 144.425878 
+L 325.540344 144.201875 
+L 325.540344 144.201875 
+" clip-path="url(#pb711ec2e20)" style="fill: none; stroke: #2a78d6; stroke-width: 2; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_16">
+    <path d="M 39.982271 223.396635 
+L 43.789712 217.292722 
+L 47.597153 211.658101 
+L 51.404594 206.45669 
+L 55.212035 201.655182 
+L 59.019476 197.222832 
+L 62.826917 193.131257 
+L 66.634358 189.354257 
+L 70.441799 185.867647 
+L 74.24924 182.6491 
+L 78.056681 179.678007 
+L 82.815982 176.283279 
+L 87.575283 173.211603 
+L 92.334585 170.432235 
+L 97.093886 167.917359 
+L 101.853187 165.641805 
+L 106.612488 163.582799 
+L 112.32365 161.368959 
+L 118.034811 159.405459 
+L 123.745973 157.663992 
+L 130.408994 155.879568 
+L 137.072016 154.328264 
+L 144.686898 152.801918 
+L 152.30178 151.501251 
+L 160.868522 150.266409 
+L 170.387124 149.131423 
+L 180.857587 148.119067 
+L 192.27991 147.241257 
+L 205.605953 146.450931 
+L 220.835717 145.781133 
+L 238.921062 145.219655 
+L 260.813847 144.771822 
+L 289.369655 144.425878 
+L 325.540344 144.201875 
+L 325.540344 144.201875 
+" clip-path="url(#pb711ec2e20)" style="fill: none; stroke-dasharray: 8,6; stroke-dashoffset: 0; stroke: #eb6834; stroke-width: 2"/>
+   </g>
+   <g id="line2d_17">
+    <path d="M 39.982271 223.396635 
+L 41.885992 211.308467 
+L 43.789712 200.37064 
+L 45.693433 190.473685 
+L 47.597153 181.51855 
+L 49.500874 173.415608 
+L 51.404594 166.083764 
+L 53.308315 159.449636 
+L 55.212035 153.44683 
+L 57.115756 148.015266 
+L 59.019476 143.100583 
+L 60.923197 138.653595 
+L 62.826917 134.629793 
+L 64.730638 130.988907 
+L 66.634358 127.694497 
+L 68.538079 124.713591 
+L 70.441799 122.016356 
+L 73.29738 118.444044 
+L 76.15296 115.369327 
+L 79.008541 112.722894 
+L 81.864122 110.445087 
+L 84.719703 108.484561 
+L 87.575283 106.79712 
+L 90.430864 105.344727 
+L 93.286445 104.09464 
+L 97.093886 102.694428 
+L 100.901327 101.548031 
+L 104.708768 100.609441 
+L 109.468069 99.671713 
+L 115.17923 98.816009 
+L 120.890392 98.182087 
+L 128.505274 97.584728 
+L 137.072016 97.1446 
+L 148.494339 96.795178 
+L 164.675963 96.551814 
+L 190.376189 96.417246 
+L 255.102686 96.371723 
+L 325.540344 96.37019 
+L 325.540344 96.37019 
+" clip-path="url(#pb711ec2e20)" style="fill: none; stroke: #2a78d6; stroke-width: 2; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_18">
+    <path d="M 39.982271 223.396635 
+L 42.837852 205.308884 
+L 45.693433 189.024039 
+L 48.549013 174.362393 
+L 51.404594 161.162154 
+L 54.260175 149.277655 
+L 57.115756 138.577749 
+L 59.971336 128.944362 
+L 62.826917 120.271187 
+L 65.682498 112.462514 
+L 68.538079 105.432175 
+L 71.393659 99.102589 
+L 74.24924 93.403906 
+L 77.104821 88.273243 
+L 79.960401 83.653981 
+L 82.815982 79.495146 
+L 85.671563 75.750845 
+L 88.527144 72.379759 
+L 91.382724 69.344688 
+L 94.238305 66.612139 
+L 97.093886 64.151958 
+L 99.949466 61.936997 
+L 102.805047 59.942813 
+L 106.612488 57.589617 
+L 110.419929 55.543847 
+L 114.22737 53.76534 
+L 118.034811 52.21918 
+L 122.794112 50.567362 
+L 127.553413 49.180731 
+L 132.312715 48.016714 
+L 138.023876 46.863838 
+L 143.735038 45.929335 
+L 150.398059 45.060348 
+L 158.012941 44.295922 
+L 166.579683 43.656686 
+L 177.050146 43.104998 
+L 190.376189 42.649924 
+L 207.509674 42.313533 
+L 231.30618 42.090015 
+L 271.28431 41.966969 
+L 325.540344 41.935227 
+L 325.540344 41.935227 
+" clip-path="url(#pb711ec2e20)" style="fill: none; stroke-dasharray: 8,6; stroke-dashoffset: 0; stroke: #eb6834; stroke-width: 2"/>
+   </g>
+   <g id="line2d_19"/>
+   <g id="line2d_20"/>
+   <g id="patch_3">
+    <path d="M 39.982271 223.396635 
+L 39.982271 16.978599 
+" style="fill: none; stroke: #8a8984; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 39.982271 223.396635 
+L 325.540344 223.396635 
+" style="fill: none; stroke: #8a8984; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="text_17">
+    <text style="font-size: 9px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: start; fill: #52514e" x="154.2055" y="159.883393" transform="rotate(-0 154.2055 159.883393)">S = 1 µM: the two curves coincide</text>
+   </g>
+   <g id="text_18">
+    <text style="font-size: 9px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: start; fill: #52514e" x="187.520609" y="86.843165" transform="rotate(-0 187.520609 86.843165)">S = 4 µM</text>
+   </g>
+   <g id="text_19">
+    <text style="font-size: 9px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: start; fill: #52514e" x="187.520609" y="36.032572" transform="rotate(-0 187.520609 36.032572)">S = 4 µM</text>
+   </g>
+   <g id="text_20">
+    <text style="font-size: 10.5px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: start" x="39.982271" y="10.978599" transform="rotate(-0 39.982271 10.978599)">a  One concentration, unknown signal scale</text>
+   </g>
+   <g id="legend_1">
+    <g id="line2d_21">
+     <path d="M 138.875031 197.978979 
+L 147.375031 197.978979 
+L 155.875031 197.978979 
+" style="fill: none; stroke: #2a78d6; stroke-width: 2; stroke-linecap: square"/>
+    </g>
+    <g id="text_21">
+     <text style="font-size: 8.5px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: start" x="162.675031" y="200.953979" transform="rotate(-0 162.675031 200.953979)">k₊ = 1 µM⁻¹s⁻¹, k₋ = 1 s⁻¹, F = 1</text>
+    </g>
+    <g id="line2d_22">
+     <path d="M 138.875031 210.729643 
+L 147.375031 210.729643 
+L 155.875031 210.729643 
+" style="fill: none; stroke-dasharray: 8,6; stroke-dashoffset: 0; stroke: #eb6834; stroke-width: 2"/>
+    </g>
+    <g id="text_22">
+     <text style="font-size: 8.5px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: start" x="162.675031" y="213.704643" transform="rotate(-0 162.675031 213.704643)">k₊ = 0.5 µM⁻¹s⁻¹, k₋ = 1.5 s⁻¹, F = 2</text>
+    </g>
+   </g>
+  </g>
+  <g id="axes_2">
+   <g id="patch_5">
+    <path d="M 373.841687 223.396635 
+L 659.39976 223.396635 
+L 659.39976 16.978599 
+L 373.841687 16.978599 
+z
+" style="fill: #ffffff"/>
+   </g>
+   <g id="line2d_23">
+    <path d="M 392.942256 223.396635 
+L 392.942256 16.978599 
+" clip-path="url(#p480173c4c8)" style="fill: none; stroke: #d6d5d0; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_24">
+    <path d="M 438.111593 223.396635 
+L 438.111593 16.978599 
+" clip-path="url(#p480173c4c8)" style="fill: none; stroke: #d6d5d0; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_25">
+    <path d="M 526.171008 223.396635 
+L 526.171008 16.978599 
+" clip-path="url(#p480173c4c8)" style="fill: none; stroke: #d6d5d0; stroke-linecap: square"/>
+   </g>
+   <g id="matplotlib.axis_3">
+    <g id="xtick_8">
+     <g id="line2d_26">
+      <g>
+       <use xlink:href="#mc41ee4d862" x="482.1413" y="223.396635" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_23">
+      <!-- $\mathdefault{10^{1}}$ -->
+      <g style="fill: #52514e" transform="translate(473.3413 239.696635)">
+       <text>
+        <tspan x="0" y="-0.762187" style="font-size: 10px; font-family: 'DejaVu Sans'; fill: #52514e">1</tspan>
+        <tspan x="6.362305" y="-0.762187" style="font-size: 10px; font-family: 'DejaVu Sans'; fill: #52514e">0</tspan>
+        <tspan x="12.820312" y="-4.892187" style="font-size: 7px; font-family: 'DejaVu Sans'; fill: #52514e">1</tspan>
+       </text>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_9">
+     <g id="line2d_27">
+      <g>
+       <use xlink:href="#mc41ee4d862" x="592.785384" y="223.396635" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_24">
+      <!-- $\mathdefault{10^{2}}$ -->
+      <g style="fill: #52514e" transform="translate(583.985384 239.796635)">
+       <text>
+        <tspan x="0" y="-0.674688" style="font-size: 10px; font-family: 'DejaVu Sans'; fill: #52514e">1</tspan>
+        <tspan x="6.362305" y="-0.674688" style="font-size: 10px; font-family: 'DejaVu Sans'; fill: #52514e">0</tspan>
+        <tspan x="12.820312" y="-4.804688" style="font-size: 7px; font-family: 'DejaVu Sans'; fill: #52514e">2</tspan>
+       </text>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_10">
+     <g id="line2d_28">
+      <defs>
+       <path id="m9a9e56498f" d="M 0 0 
+L 0 2 
+" style="stroke: #52514e; stroke-width: 0.6"/>
+      </defs>
+      <g>
+       <use xlink:href="#m9a9e56498f" x="404.804405" y="223.396635" style="fill: #52514e; stroke: #52514e; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_11">
+     <g id="line2d_29">
+      <g>
+       <use xlink:href="#m9a9e56498f" x="424.287861" y="223.396635" style="fill: #52514e; stroke: #52514e; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_12">
+     <g id="line2d_30">
+      <g>
+       <use xlink:href="#m9a9e56498f" x="438.111593" y="223.396635" style="fill: #52514e; stroke: #52514e; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_13">
+     <g id="line2d_31">
+      <g>
+       <use xlink:href="#m9a9e56498f" x="448.834112" y="223.396635" style="fill: #52514e; stroke: #52514e; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_14">
+     <g id="line2d_32">
+      <g>
+       <use xlink:href="#m9a9e56498f" x="457.595049" y="223.396635" style="fill: #52514e; stroke: #52514e; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_15">
+     <g id="line2d_33">
+      <g>
+       <use xlink:href="#m9a9e56498f" x="465.002315" y="223.396635" style="fill: #52514e; stroke: #52514e; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_16">
+     <g id="line2d_34">
+      <g>
+       <use xlink:href="#m9a9e56498f" x="471.418781" y="223.396635" style="fill: #52514e; stroke: #52514e; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_17">
+     <g id="line2d_35">
+      <g>
+       <use xlink:href="#m9a9e56498f" x="477.078505" y="223.396635" style="fill: #52514e; stroke: #52514e; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_18">
+     <g id="line2d_36">
+      <g>
+       <use xlink:href="#m9a9e56498f" x="515.448488" y="223.396635" style="fill: #52514e; stroke: #52514e; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_19">
+     <g id="line2d_37">
+      <g>
+       <use xlink:href="#m9a9e56498f" x="534.931944" y="223.396635" style="fill: #52514e; stroke: #52514e; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_20">
+     <g id="line2d_38">
+      <g>
+       <use xlink:href="#m9a9e56498f" x="548.755676" y="223.396635" style="fill: #52514e; stroke: #52514e; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_21">
+     <g id="line2d_39">
+      <g>
+       <use xlink:href="#m9a9e56498f" x="559.478196" y="223.396635" style="fill: #52514e; stroke: #52514e; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_22">
+     <g id="line2d_40">
+      <g>
+       <use xlink:href="#m9a9e56498f" x="568.239132" y="223.396635" style="fill: #52514e; stroke: #52514e; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_23">
+     <g id="line2d_41">
+      <g>
+       <use xlink:href="#m9a9e56498f" x="575.646399" y="223.396635" style="fill: #52514e; stroke: #52514e; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_24">
+     <g id="line2d_42">
+      <g>
+       <use xlink:href="#m9a9e56498f" x="582.062864" y="223.396635" style="fill: #52514e; stroke: #52514e; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_25">
+     <g id="line2d_43">
+      <g>
+       <use xlink:href="#m9a9e56498f" x="587.722588" y="223.396635" style="fill: #52514e; stroke: #52514e; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_26">
+     <g id="line2d_44">
+      <g>
+       <use xlink:href="#m9a9e56498f" x="626.092572" y="223.396635" style="fill: #52514e; stroke: #52514e; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_27">
+     <g id="line2d_45">
+      <g>
+       <use xlink:href="#m9a9e56498f" x="645.576028" y="223.396635" style="fill: #52514e; stroke: #52514e; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_28">
+     <g id="line2d_46">
+      <g>
+       <use xlink:href="#m9a9e56498f" x="659.39976" y="223.396635" style="fill: #52514e; stroke: #52514e; stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="text_25">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle; fill: #0b0b0b" x="516.620724" y="253.797416" transform="rotate(-0 516.620724 253.797416)">S_high / S_low  (geometric mean fixed at 1 µM)</text>
+    </g>
+   </g>
+   <g id="matplotlib.axis_4">
+    <g id="ytick_8">
+     <g id="line2d_47">
+      <g>
+       <use xlink:href="#m7b8c472713" x="373.841687" y="223.396635" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_26">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end; fill: #52514e" x="366.841687" y="227.195463" transform="rotate(-0 366.841687 227.195463)">0</text>
+     </g>
+    </g>
+    <g id="ytick_9">
+     <g id="line2d_48">
+      <g>
+       <use xlink:href="#m7b8c472713" x="373.841687" y="182.113028" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_27">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end; fill: #52514e" x="366.841687" y="185.911856" transform="rotate(-0 366.841687 185.911856)">5</text>
+     </g>
+    </g>
+    <g id="ytick_10">
+     <g id="line2d_49">
+      <g>
+       <use xlink:href="#m7b8c472713" x="373.841687" y="140.829421" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_28">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end; fill: #52514e" x="366.841687" y="144.628249" transform="rotate(-0 366.841687 144.628249)">10</text>
+     </g>
+    </g>
+    <g id="ytick_11">
+     <g id="line2d_50">
+      <g>
+       <use xlink:href="#m7b8c472713" x="373.841687" y="99.545814" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_29">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end; fill: #52514e" x="366.841687" y="103.344642" transform="rotate(-0 366.841687 103.344642)">15</text>
+     </g>
+    </g>
+    <g id="ytick_12">
+     <g id="line2d_51">
+      <g>
+       <use xlink:href="#m7b8c472713" x="373.841687" y="58.262206" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_30">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end; fill: #52514e" x="366.841687" y="62.061035" transform="rotate(-0 366.841687 62.061035)">20</text>
+     </g>
+    </g>
+    <g id="ytick_13">
+     <g id="line2d_52">
+      <g>
+       <use xlink:href="#m7b8c472713" x="373.841687" y="16.978599" style="fill: #52514e; stroke: #52514e; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_31">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: end; fill: #52514e" x="366.841687" y="20.777427" transform="rotate(-0 366.841687 20.777427)">25</text>
+     </g>
+    </g>
+    <g id="text_32">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: middle; fill: #0b0b0b" x="347.714344" y="120.187617" transform="rotate(-90 347.714344 120.187617)">Relative s.e. / %</text>
+    </g>
+   </g>
+   <g id="line2d_53">
+    <path d="M 376.190278 -1 
+L 376.241335 3.757724 
+L 378.640983 76.879164 
+L 381.040631 113.03499 
+L 383.440278 134.510959 
+L 385.839926 148.679281 
+L 388.239574 158.686171 
+L 390.639221 166.100623 
+L 393.038869 171.792808 
+L 395.438517 176.284221 
+L 397.838164 179.906441 
+L 400.237812 182.88036 
+L 402.63746 185.358792 
+L 405.037107 187.450788 
+L 407.436755 189.236223 
+L 409.836403 190.774902 
+L 412.23605 192.11246 
+L 414.635698 193.28429 
+L 417.035346 194.318234 
+L 419.434993 195.23647 
+L 421.834641 196.056861 
+L 424.234289 196.793932 
+L 426.633936 197.459603 
+L 429.033584 198.063728 
+L 431.433232 198.614514 
+L 433.832879 199.118842 
+L 436.232527 199.58251 
+L 438.632175 200.010436 
+L 441.031822 200.406808 
+L 443.43147 200.775211 
+L 445.831118 201.118725 
+L 448.230765 201.440009 
+L 450.630413 201.741364 
+L 453.030061 202.024794 
+L 455.429708 202.292042 
+L 457.829356 202.544636 
+L 460.229004 202.783915 
+L 462.628651 203.011059 
+L 465.028299 203.227108 
+L 467.427947 203.432983 
+L 469.827594 203.6295 
+L 472.227242 203.817387 
+L 474.62689 203.99729 
+L 477.026537 204.169788 
+L 479.426185 204.335402 
+L 481.825833 204.494595 
+L 484.22548 204.647789 
+L 486.625128 204.79536 
+L 489.024776 204.937651 
+L 491.424423 205.074973 
+L 493.824071 205.207607 
+L 496.223719 205.33581 
+L 498.623366 205.459815 
+L 501.023014 205.579837 
+L 503.422662 205.696072 
+L 505.822309 205.808699 
+L 508.221957 205.917886 
+L 510.621605 206.023784 
+L 513.021252 206.126536 
+L 515.4209 206.226271 
+L 517.820548 206.323113 
+L 520.220195 206.417173 
+L 522.619843 206.508557 
+L 525.019491 206.597363 
+L 527.419138 206.683683 
+L 529.818786 206.767603 
+L 532.218434 206.849204 
+L 534.618081 206.928561 
+L 537.017729 207.005746 
+L 539.417377 207.080826 
+L 541.817024 207.153864 
+L 544.216672 207.22492 
+L 546.61632 207.294051 
+L 549.015967 207.36131 
+L 551.415615 207.426748 
+L 553.815263 207.490413 
+L 556.21491 207.552351 
+L 558.614558 207.612605 
+L 561.014206 207.671215 
+L 563.413853 207.728222 
+L 565.813501 207.783661 
+L 568.213149 207.837569 
+L 570.612796 207.889978 
+L 573.012444 207.94092 
+L 575.412092 207.990426 
+L 577.811739 208.038524 
+L 580.211387 208.085241 
+L 582.611035 208.130602 
+L 585.010682 208.174633 
+L 587.41033 208.217355 
+L 589.809978 208.25879 
+L 592.209625 208.298958 
+L 594.609273 208.337879 
+L 597.008921 208.37557 
+L 599.408568 208.412047 
+L 601.808216 208.447327 
+L 604.207864 208.481423 
+L 606.607511 208.514347 
+L 609.007159 208.546113 
+L 611.406807 208.576731 
+L 613.806454 208.606209 
+L 616.206102 208.634557 
+L 618.60575 208.661782 
+L 621.005397 208.68789 
+L 623.405045 208.712886 
+L 625.804693 208.736773 
+L 628.20434 208.759555 
+L 630.603988 208.781233 
+L 633.003636 208.801807 
+L 635.403283 208.821276 
+L 637.802931 208.839638 
+L 640.202579 208.85689 
+L 642.602226 208.873028 
+L 645.001874 208.888044 
+L 647.401522 208.901934 
+L 649.801169 208.914687 
+L 652.200817 208.926294 
+L 654.600465 208.936744 
+L 657.000112 208.946024 
+L 659.39976 208.95412 
+" clip-path="url(#p480173c4c8)" style="fill: none; stroke: #2a78d6; stroke-width: 2; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_54">
+    <path d="M 376.198839 -1 
+L 376.241335 2.952743 
+L 378.640983 75.673721 
+L 381.040631 111.436866 
+L 383.440278 132.530004 
+L 385.839926 146.32701 
+L 388.239574 155.975334 
+L 390.639221 163.044768 
+L 393.038869 168.405878 
+L 395.438517 172.580189 
+L 397.838164 175.898999 
+L 400.237812 178.58267 
+L 402.63746 180.783291 
+L 405.037107 182.609047 
+L 407.436755 184.13885 
+L 409.836403 185.43149 
+L 412.23605 186.531558 
+L 414.635698 187.473405 
+L 417.035346 188.283849 
+L 419.434993 188.984073 
+L 421.834641 189.590985 
+L 424.234289 190.118201 
+L 426.633936 190.576777 
+L 429.033584 190.975753 
+L 431.433232 191.322568 
+L 433.832879 191.62338 
+L 436.232527 191.883309 
+L 438.632175 192.106633 
+L 441.031822 192.296939 
+L 443.43147 192.457244 
+L 445.831118 192.590091 
+L 448.230765 192.697632 
+L 450.630413 192.781686 
+L 453.030061 192.843794 
+L 455.429708 192.885261 
+L 457.829356 192.907192 
+L 460.229004 192.910522 
+L 462.628651 192.896036 
+L 465.028299 192.864395 
+L 467.427947 192.81615 
+L 469.827594 192.751758 
+L 472.227242 192.671593 
+L 474.62689 192.575956 
+L 477.026537 192.465086 
+L 479.426185 192.339166 
+L 481.825833 192.198328 
+L 484.22548 192.042664 
+L 486.625128 191.872222 
+L 489.024776 191.68702 
+L 491.424423 191.487042 
+L 493.824071 191.272243 
+L 496.223719 191.042554 
+L 498.623366 190.797882 
+L 501.023014 190.538112 
+L 503.422662 190.263111 
+L 505.822309 189.972724 
+L 508.221957 189.666782 
+L 510.621605 189.345098 
+L 513.021252 189.007472 
+L 515.4209 188.653688 
+L 517.820548 188.283516 
+L 520.220195 187.896713 
+L 522.619843 187.493023 
+L 525.019491 187.072178 
+L 527.419138 186.633899 
+L 529.818786 186.177891 
+L 532.218434 185.703853 
+L 534.618081 185.211467 
+L 537.017729 184.700405 
+L 539.417377 184.170329 
+L 541.817024 183.620888 
+L 544.216672 183.051719 
+L 546.61632 182.462446 
+L 549.015967 181.852685 
+L 551.415615 181.222034 
+L 553.815263 180.570085 
+L 556.21491 179.896411 
+L 558.614558 179.200578 
+L 561.014206 178.482135 
+L 563.413853 177.74062 
+L 565.813501 176.975555 
+L 568.213149 176.186451 
+L 570.612796 175.372803 
+L 573.012444 174.534092 
+L 575.412092 173.669784 
+L 577.811739 172.779329 
+L 580.211387 171.862164 
+L 582.611035 170.917707 
+L 585.010682 169.945362 
+L 587.41033 168.944514 
+L 589.809978 167.914532 
+L 592.209625 166.854769 
+L 594.609273 165.764558 
+L 597.008921 164.643214 
+L 599.408568 163.490033 
+L 601.808216 162.304292 
+L 604.207864 161.085248 
+L 606.607511 159.832137 
+L 609.007159 158.544176 
+L 611.406807 157.220559 
+L 613.806454 155.860458 
+L 616.206102 154.463023 
+L 618.60575 153.027382 
+L 621.005397 151.552639 
+L 623.405045 150.037872 
+L 625.804693 148.482137 
+L 628.20434 146.884463 
+L 630.603988 145.243853 
+L 633.003636 143.559285 
+L 635.403283 141.829707 
+L 637.802931 140.054043 
+L 640.202579 138.231185 
+L 642.602226 136.359996 
+L 645.001874 134.439311 
+L 647.401522 132.467933 
+L 649.801169 130.444634 
+L 652.200817 128.368151 
+L 654.600465 126.237193 
+L 657.000112 124.050431 
+L 659.39976 121.806502 
+" clip-path="url(#p480173c4c8)" style="fill: none; stroke: #eb6834; stroke-width: 2; stroke-linecap: square"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 373.841687 223.396635 
+L 373.841687 16.978599 
+" style="fill: none; stroke: #8a8984; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 373.841687 223.396635 
+L 659.39976 223.396635 
+" style="fill: none; stroke: #8a8984; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="text_33">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; fill: #52514e" transform="translate(401.820325 82.094071) rotate(-90)">0.8 + 1.25 µM</text>
+   </g>
+   <g id="text_34">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; fill: #52514e" transform="translate(446.989662 69.371571) rotate(-90)">0.5 + 2 µM</text>
+   </g>
+   <g id="text_35">
+    <text style="font-size: 8px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; fill: #52514e" transform="translate(535.049077 69.371571) rotate(-90)">0.2 + 5 µM</text>
+   </g>
+   <g id="text_36">
+    <text style="font-size: 10.5px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: start" x="373.841687" y="10.978599" transform="rotate(-0 373.841687 10.978599)">b  Two concentrations, unknown signal scale</text>
+   </g>
+   <g id="legend_2">
+    <g id="line2d_55">
+     <path d="M 584.836166 28.767193 
+L 593.836166 28.767193 
+L 602.836166 28.767193 
+" style="fill: none; stroke: #2a78d6; stroke-width: 2; stroke-linecap: square"/>
+    </g>
+    <g id="text_37">
+     <text style="font-size: 9px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: start" x="610.036166" y="31.917193" transform="rotate(-0 610.036166 31.917193)">k₊ (k_on)</text>
+    </g>
+    <g id="line2d_56">
+     <path d="M 584.836166 42.267896 
+L 593.836166 42.267896 
+L 602.836166 42.267896 
+" style="fill: none; stroke: #eb6834; stroke-width: 2; stroke-linecap: square"/>
+    </g>
+    <g id="text_38">
+     <text style="font-size: 9px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: start" x="610.036166" y="45.417896" transform="rotate(-0 610.036166 45.417896)">k₋ (k_off)</text>
+    </g>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pb711ec2e20">
+   <rect x="39.982271" y="16.978599" width="285.558072" height="206.418036"/>
+  </clipPath>
+  <clipPath id="p480173c4c8">
+   <rect x="373.841687" y="16.978599" width="285.558073" height="206.418036"/>
+  </clipPath>
+ </defs>
+</svg>
+</div>
+<figcaption>Figure 1. (a) With an unknown signal scale, two parameter sets give coinciding curves at 1 µM and separate at 4 µM. (b) Relative standard errors of k<sub>+</sub> and k<sub>−</sub> for two concentrations whose geometric mean is held at 1 µM (= K<sub>d</sub>), plotted against their ratio; computed from the Fisher information matrix. Vertical lines mark the designs in Table 1. Demonstration parameters throughout; code below.</figcaption>
+</figure>
+
+<h2>Two concentrations: a slope and an intercept</h2>
+<p>k<sub>obs</sub> is linear in S, with slope k<sub>+</sub> and intercept k<sub>−</sub>. Two concentrations give two rates and two plateaus, four numbers for three unknowns, and the parameters become identifiable. How well depends on how far apart the two points are.</p>
+<table>
+<tr><th>Design</th><th>Relative s.e. of k<sub>+</sub></th><th>Relative s.e. of k<sub>−</sub></th><th>Correlation of the two estimates</th></tr>
+<tr><td>1 µM, F unknown</td><td colspan="3">not identifiable</td></tr>
+<tr><td>1 µM, F known</td><td>2.1%</td><td>2.9%</td><td>0.89</td></tr>
+<tr><td>0.8 + 1.25 µM</td><td>6.3%</td><td>6.7%</td><td>−0.73</td></tr>
+<tr><td>0.5 + 2 µM</td><td>2.8%</td><td>3.8%</td><td>−0.05</td></tr>
+<tr><td>0.2 + 5 µM</td><td>2.0%</td><td>4.4%</td><td>0.03</td></tr>
+</table>
+<p class="note">Table 1. Fisher-information estimates. Each identifiable design was checked against 1000 refits of noisy simulated data; the standard errors agree within 3% of each other.</p>
+<p>The error in k<sub>+</sub> falls steadily as the concentrations move apart, because a longer baseline fixes the slope. The error in k<sub>−</sub> does not: it is smallest, 3.7%, at a ratio of about 6.3 (0.40 and 2.52 µM) and grows again beyond that. At the low end the plateau A = S/(S + K<sub>d</sub>) shrinks into the noise; at the high end k<sub>obs</sub> ≈ k<sub>+</sub>S, and k<sub>−</sub> becomes a small intercept reached only by extrapolation. For k<sub>−</sub>, the two concentrations should bracket K<sub>d</sub> rather than be pushed as far apart as possible.</p>
+<p>This changes what a design report should contain. The two-second requirement of Lecture 15 needs only k<sub>obs</sub> at the working concentration, which one curve answers. A cell model needs k<sub>+</sub> and k<sub>−</sub> separately, because ligand concentration in a cell is not fixed. A binder delivered as a component should therefore come with time courses at two or more concentrations around K<sub>d</sub>, or with a calibrated single curve together with the saturating measurement used to calibrate it.</p>
+
+<h2>Where this breaks</h2>
+<p>The result inherits the simplifications of the Lecture 15 model: clamped ligand, independent sites, a single-exponential response and noise that does not scale with the signal. The optimal ratio of 6.3 depends on the time window, the number of points and the noise level, and must be recomputed for other choices. Bracketing K<sub>d</sub> also presupposes a rough K<sub>d</sub> estimate before the kinetic experiment. Ligand depletion, multistep binding or a conformational change after binding make the response deviate from one exponential and need a different model; in those cases two concentrations may not be enough.</p>
+
+<h2>Code</h2>
+<details><summary>binding_identifiability.py — identifiability, Fisher information, Monte Carlo check and ratio scan</summary><pre>&quot;&quot;&quot;Week 8: which binding time courses separate k_on from k_off?
+
+Model (Lecture 15, free ligand clamped, independent sites, start unbound):
+    theta(t) = S/(S+Kd) * (1 - exp(-kobs t)),  kobs = kp*S + km,  Kd = km/kp
+Observed signal: y = F*theta + noise, F = unknown signal scale (e.g. fluorescence per
+fully bound site). All parameter values are demonstration values, not measurements.
+&quot;&quot;&quot;
+import json
+import numpy as np
+from scipy.optimize import least_squares
+
+KP, KM, F = 1.0, 1.0, 1.0      # uM^-1 s^-1, s^-1, signal units (L15 &quot;fast pair&quot;)
+SIGMA = 0.02                    # noise s.d., same units as F (demo)
+N_TOTAL = 120                   # total time points in every design
+T = np.geomspace(0.01, 10.0, 60)  # s; each concentration gets 60 points
+
+def curve(t, S, kp, km, f):
+    kobs = kp * S + km
+    return f * kp * S / kobs * (1 - np.exp(-kobs * t))
+
+def design_points(concs):
+    n_each = N_TOTAL // len(concs)
+    t = np.geomspace(0.01, 10.0, n_each)
+    return [(S, t) for S in concs]
+
+def model(params, pts, f_known):
+    kp, km = np.exp(params[:2])
+    f = F if f_known else np.exp(params[2])
+    return np.concatenate([curve(t, S, kp, km, f) for S, t in pts])
+
+def fisher_se(pts, f_known):
+    &quot;&quot;&quot;Standard errors of ln kp, ln km (relative errors) from J^T J / sigma^2.&quot;&quot;&quot;
+    p0 = np.log([KP, KM] + ([] if f_known else [F]))
+    h = 1e-6
+    J = np.column_stack([(model(p0 + h * e, pts, f_known) - model(p0 - h * e, pts, f_known)) / (2 * h)
+                         for e in np.eye(len(p0))])
+    M = J.T @ J / SIGMA**2
+    cond = np.linalg.cond(M)
+    if cond &gt; 1e12:
+        return None, cond
+    C = np.linalg.inv(M)
+    return C[:2, :2], cond
+
+def monte_carlo(pts, f_known, n=1000, seed=8):
+    rng = np.random.default_rng(seed)
+    p_true = np.log([KP, KM] + ([] if f_known else [F]))
+    y0 = model(p_true, pts, f_known)
+    est = []
+    for _ in range(n):
+        y = y0 + rng.normal(0, SIGMA, y0.size)
+        r = least_squares(lambda p: model(p, pts, f_known) - y, p_true + 0.3)
+        est.append(r.x[:2])
+    est = np.array(est)
+    return est.std(axis=0), np.corrcoef(est.T)[0, 1]
+
+designs = {
+    &quot;1 uM, calibrated F&quot;: ([1.0], True),
+    &quot;1 uM, unknown F&quot;: ([1.0], False),
+    &quot;0.8 + 1.25 uM&quot;: ([0.8, 1.25], False),
+    &quot;0.5 + 2 uM&quot;: ([0.5, 2.0], False),
+    &quot;0.2 + 5 uM&quot;: ([0.2, 5.0], False),
+}
+
+results = {}
+for name, (concs, f_known) in designs.items():
+    pts = design_points(concs)
+    C, cond = fisher_se(pts, f_known)
+    row = {&quot;concs_uM&quot;: concs, &quot;F_known&quot;: f_known, &quot;fisher_condition&quot;: float(cond)}
+    if C is None:
+        row[&quot;identifiable&quot;] = False
+    else:
+        se = np.sqrt(np.diag(C))
+        mc_se, mc_r = monte_carlo(pts, f_known)
+        row.update(identifiable=True,
+                   cv_kp_fisher=float(se[0]), cv_km_fisher=float(se[1]),
+                   corr_fisher=float(C[0, 1] / se[0] / se[1]),
+                   cv_kp_mc=float(mc_se[0]), cv_km_mc=float(mc_se[1]), corr_mc=float(mc_r),
+                   cov_ln=C.tolist())
+    results[name] = row
+
+# Exact degeneracy at a single concentration with unknown F:
+# any (kp&#x27;, km&#x27;) with kp&#x27;S + km&#x27; = kobs reproduces the curve if F&#x27; = F*kp/kp&#x27;.
+S = 1.0
+alt = (0.5, 1.5)          # kp&#x27;, km&#x27;  -&gt; same kobs = 2 s^-1, Kd&#x27; = 3 uM
+f_alt = F * KP / alt[0]   # = 2
+t = np.linspace(0, 5, 501)
+dev_1 = np.max(np.abs(curve(t, S, KP, KM, F) - curve(t, S, *alt, f_alt)))
+dev_4 = np.max(np.abs(curve(t, 4.0, KP, KM, F) - curve(t, 4.0, *alt, f_alt)))
+results[&quot;degeneracy&quot;] = {&quot;alt_kp&quot;: alt[0], &quot;alt_km&quot;: alt[1], &quot;alt_F&quot;: f_alt,
+                         &quot;max_diff_at_1uM&quot;: float(dev_1), &quot;max_diff_at_4uM&quot;: float(dev_4),
+                         &quot;plateau_true_4uM&quot;: float(curve(1e3, 4.0, KP, KM, F)),
+                         &quot;plateau_alt_4uM&quot;: float(curve(1e3, 4.0, *alt, f_alt))}
+
+json.dump(results, open(&quot;week8-results.json&quot;, &quot;w&quot;), indent=2)
+for k, v in results.items():
+    print(k, {a: (round(b, 4) if isinstance(b, float) else b) for a, b in v.items() if a != &quot;cov_ln&quot;})
+
+# Scan the spread of two concentrations around a geometric mean of 1 uM (= Kd).
+ratios = np.geomspace(1.05, 400, 120)
+scan = []
+for r in ratios:
+    C, _ = fisher_se(design_points([1 / np.sqrt(r), np.sqrt(r)]), False)
+    se = np.sqrt(np.diag(C))
+    scan.append((r, se[0], se[1]))
+scan = np.array(scan)
+i_best = np.argmin(scan[:, 2])   # column 2 = CV of k_off
+print(&quot;km CV minimum at ratio %.1f (S = %.2f, %.2f uM): cv_kp %.4f cv_km %.4f&quot;
+      % (scan[i_best, 0], 1 / np.sqrt(scan[i_best, 0]), np.sqrt(scan[i_best, 0]), scan[i_best, 1], scan[i_best, 2]))
+results[&quot;scan_best_km&quot;] = {&quot;ratio&quot;: float(scan[i_best, 0]), &quot;cv_kp&quot;: float(scan[i_best, 1]), &quot;cv_km&quot;: float(scan[i_best, 2])}
+np.savetxt(&quot;ratio-scan.csv&quot;, scan, delimiter=&quot;,&quot;, header=&quot;ratio,cv_kp,cv_km&quot;, comments=&quot;&quot;)
+json.dump(results, open(&quot;week8-results.json&quot;, &quot;w&quot;), indent=2)
+</pre></details>
+<details><summary>make_figure.py — Figure 1</summary><pre>&quot;&quot;&quot;Figure for Week 8: (a) single-concentration degeneracy, (b) precision vs concentration spread.&quot;&quot;&quot;
+import numpy as np
+import matplotlib
+matplotlib.use(&quot;svg&quot;)
+import matplotlib.pyplot as plt
+from binding_identifiability import curve, KP, KM, F  # reruns the calculation once
+
+plt.rcParams.update({&quot;svg.fonttype&quot;: &quot;none&quot;, &quot;font.family&quot;: &quot;sans-serif&quot;, &quot;font.size&quot;: 10,
+                     &quot;axes.edgecolor&quot;: &quot;#8a8984&quot;, &quot;axes.labelcolor&quot;: &quot;#0b0b0b&quot;,
+                     &quot;xtick.color&quot;: &quot;#52514e&quot;, &quot;ytick.color&quot;: &quot;#52514e&quot;})
+BLUE, ORANGE, INK2 = &quot;#2a78d6&quot;, &quot;#eb6834&quot;, &quot;#52514e&quot;
+
+fig, (a, b) = plt.subplots(1, 2, figsize=(9.2, 3.6), constrained_layout=True)
+
+t = np.linspace(0, 3, 301)
+alt = (0.5, 1.5, 2.0)
+for S, ls in ((1.0, &quot;-&quot;), (4.0, &quot;-&quot;)):
+    a.plot(t, curve(t, S, KP, KM, F), color=BLUE, lw=2, ls=ls)
+    a.plot(t, curve(t, S, *alt), color=ORANGE, lw=2, ls=(0, (4, 3)))
+a.text(1.2, 0.40, &quot;S = 1 µM: the two curves coincide&quot;, color=INK2, fontsize=9)
+a.text(1.55, 0.86, &quot;S = 4 µM&quot;, color=INK2, fontsize=9)
+a.text(1.55, 1.18, &quot;S = 4 µM&quot;, color=INK2, fontsize=9)
+a.plot([], [], color=BLUE, lw=2, label=&quot;k₊ = 1 µM⁻¹s⁻¹, k₋ = 1 s⁻¹, F = 1&quot;)
+a.plot([], [], color=ORANGE, lw=2, ls=(0, (4, 3)), label=&quot;k₊ = 0.5 µM⁻¹s⁻¹, k₋ = 1.5 s⁻¹, F = 2&quot;)
+a.legend(frameon=False, fontsize=8.5, loc=&quot;lower right&quot;)
+a.set(xlabel=&quot;Time / s&quot;, ylabel=&quot;Signal y = F·θ (a.u.)&quot;, xlim=(0, 3), ylim=(0, 1.3))
+a.set_title(&quot;a  One concentration, unknown signal scale&quot;, loc=&quot;left&quot;, fontsize=10.5)
+
+d = np.loadtxt(&quot;ratio-scan.csv&quot;, delimiter=&quot;,&quot;, skiprows=1)
+b.plot(d[:, 0], 100 * d[:, 1], color=BLUE, lw=2, label=&quot;k₊ (k_on)&quot;)
+b.plot(d[:, 0], 100 * d[:, 2], color=ORANGE, lw=2, label=&quot;k₋ (k_off)&quot;)
+for r, lab in ((1.5625, &quot;0.8 + 1.25&quot;), (4, &quot;0.5 + 2&quot;), (25, &quot;0.2 + 5&quot;)):
+    b.axvline(r, color=&quot;#d6d5d0&quot;, lw=1, zorder=0)
+    b.text(r * 1.06, 24, lab + &quot; µM&quot;, color=INK2, fontsize=8, rotation=90, va=&quot;top&quot;)
+b.set(xscale=&quot;log&quot;, xlabel=&quot;S_high / S_low  (geometric mean fixed at 1 µM)&quot;,
+      ylabel=&quot;Relative s.e. / %&quot;, ylim=(0, 25), xlim=(1.05, 400))
+b.legend(frameon=False, fontsize=9, loc=&quot;upper right&quot;)
+b.set_title(&quot;b  Two concentrations, unknown signal scale&quot;, loc=&quot;left&quot;, fontsize=10.5)
+for ax in (a, b):
+    ax.spines[[&quot;top&quot;, &quot;right&quot;]].set_visible(False)
+
+fig.savefig(&quot;week8-figure.svg&quot;)
+fig.savefig(&quot;week8-figure.png&quot;, dpi=150)
+</pre></details>
+
+<h2>Sources</h2>
+<ol class="src">
+<li>CCBS 2026 Lecture 15 core page, “Protein design: from evolutionary clues to testable molecules”, section 11: the reversible binding model, τ = 1/(k<sub>+</sub>S + k<sub>−</sub>), and the fast and slow rate-constant pairs used here. <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture15-core.html">chemaoxfz.github.io/assets/ccbs/2026fall/lecture15-core.html</a></li>
+<li>CCBS 2026 Lecture 16 core page, “Foundational virtual cells that are fully mechanistic”: parameter unidentifiability as a reason whole-cell models do not compose. <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture16-core.html">chemaoxfz.github.io/assets/ccbs/2026fall/lecture16-core.html</a></li>
+</ol>
+
+</div>
+</body>
+</html>

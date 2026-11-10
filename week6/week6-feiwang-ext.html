@@ -1,0 +1,643 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Week 6 — Extension: Enzyme Saturation Limits Perfect Adaptation</title>
+<meta name="author" content="wangfei">
+<meta name="week" content="week6">
+
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --muted: #566;
+    --accent: #1f4e79;
+    --line: #d8dee4;
+    --bg: #fff;
+    --soft: #f6f8fa;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #e8e8e8;
+      --muted: #9aa;
+      --accent: #8ab4e8;
+      --line: #3a4652;
+      --bg: #15191d;
+      --soft: #1e242a;
+    }
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.6;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 40px 22px 80px;
+  }
+
+  h1 {
+    font-size: 1.6rem;
+    line-height: 1.25;
+    margin: 0 0 6px;
+    color: var(--accent);
+  }
+
+  .meta {
+    color: var(--muted);
+    font-size: .92rem;
+    margin-bottom: 26px;
+  }
+
+  h2 {
+    font-size: 1.05rem;
+    color: var(--accent);
+    margin: 34px 0 8px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 5px;
+  }
+
+  .card {
+    background: var(--soft);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 14px 0;
+  }
+
+  .fig {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    margin: 14px 0;
+  }
+
+  figcaption {
+    font-size: .85rem;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  a {
+    color: var(--accent);
+  }
+
+  .src {
+    font-size: .9rem;
+  }
+
+  .math {
+    overflow-x: auto;
+    padding: 8px 12px;
+    margin: 12px 0;
+    border-left: 3px solid var(--accent);
+    background: var(--soft);
+    font-family: Georgia, "Times New Roman", serif;
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    font-size: .85rem;
+  }
+
+  .legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .legend-item i {
+    display: inline-block;
+    width: 20px;
+    height: 3px;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: .9rem;
+  }
+
+  th, td {
+    border: 1px solid var(--line);
+    padding: 8px 11px;
+    text-align: left;
+  }
+
+  th {
+    background: var(--soft);
+  }
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+<h1>
+  Week 6 — Extension:
+  Can Enzyme Saturation Destroy Perfect Adaptation?
+</h1>
+
+<p class="meta">
+  Author: wangfei · Week 6 (2026-10-15) · CCBS 2026
+</p>
+
+<p class="card">
+  <strong>One sentence:</strong>
+  An incoherent feedforward loop may have the correct wiring
+  for perfect adaptation, but saturation of its removal pathway
+  introduces a nonzero steady-state input–output gain and
+  restricts adaptation to a suitable kinetic regime.
+</p>
+
+<h2>The point I am adding</h2>
+
+<p>
+  Lecture 11 shows that a stable incoherent feedforward loop
+  (IFFL) can restore its output after a sustained input change
+  when the direct and indirect input effects cancel.
+  I want to distinguish
+  <em>having the right network topology</em>
+  from
+  <em>actually achieving accurate adaptation</em>.
+  The same circuit can lose this function when its molecular
+  reaction law changes.
+</p>
+
+<p>
+  Consider an input <em>w</em> that both produces an output
+  <em>x</em> and increases a mediator <em>e</em> that removes
+  <em>x</em>. With bilinear removal, the minimal model is
+</p>
+
+<div class="math">
+  dx/dt = w − xe
+  <br>
+  de/dt = w − e
+</div>
+
+<p>
+  At a positive steady state, e* = w and x* = 1 for every
+  w &gt; 0. Thus, an input step can produce a transient response
+  but cannot permanently shift x*. This is the ideal
+  cancellation discussed in class.
+</p>
+
+<p>
+  Now suppose the removal arm becomes saturated with respect
+  to the mediator. Keeping the same arrows in the network,
+  replace the removal flux by a Michaelis-type effective
+  dependence:
+</p>
+
+<div class="math">
+  dx/dt = w − (K + 1)xe/(K + e)
+  <br>
+  de/dt = w − e
+  <br>
+  K &gt; 0
+</div>
+
+<p>
+  Here K is a dimensionless saturation scale; the factor
+  K + 1 normalizes the output to x* = 1 at baseline w = 1.
+  The saturating law is a phenomenological model of
+  mediator-limited removal, rather than an assertion that
+  x itself is Michaelis–Menten saturated.
+  It keeps the same IFFL topology while changing only
+  one reaction order.
+</p>
+
+<h2>Work it</h2>
+
+<p>
+  The steady-state equations give e* = w and
+</p>
+
+<div class="math">
+  x*(w) = (K + w)/(K + 1)
+</div>
+
+<p>
+  In the ideal bilinear model, the logarithmic gain
+  d ln(x*)/d ln(w) is zero.
+  For the saturating model it becomes
+</p>
+
+<div class="math">
+  G(w) = d ln(x*)/d ln(w)
+  <br>
+  = w/(K + w)
+  <br>
+  = 1 − K/(K + w)
+</div>
+
+<p>
+  The removal flux has order K/(K + e) with respect to e,
+  while the production flux has order one with respect to w.
+  Thus the unmatched fraction is exactly the residual
+  steady-state gain.
+</p>
+
+<p>
+  At K = 0.5, the mediator-side removal order is 1/3
+  at baseline; the output gain is 2/3, not zero.
+</p>
+
+<p>
+  For an input step from w = 1 to w = 2, the fractional
+  change in the settled output is
+</p>
+
+<div class="math">
+  Δx*/x*(1) = 1/(K + 1)
+</div>
+
+<p>
+  The following original figure plots the exact
+  steady-state expressions, not fitted data or
+  numerical ODE trajectories.
+</p>
+
+<figure>
+
+<svg
+  id="adaptationChart"
+  class="fig"
+  viewBox="0 0 640 300"
+  xmlns="http://www.w3.org/2000/svg"
+  role="img"
+  aria-label="Steady-state output under different saturation strengths">
+</svg>
+
+<div class="legend">
+  <span class="legend-item">
+    <i style="background:#20877f"></i>
+    Ideal bilinear
+  </span>
+
+  <span class="legend-item">
+    <i style="background:#5367ac"></i>
+    K = 10
+  </span>
+
+  <span class="legend-item">
+    <i style="background:#d18a36"></i>
+    K = 2
+  </span>
+
+  <span class="legend-item">
+    <i style="background:#bb5368"></i>
+    K = 0.5
+  </span>
+</div>
+
+<figcaption>
+  Figure 1. Original analytically generated plot of
+  normalized steady-state output versus input.
+  Curves use x*(w) = (K + w)/(K + 1)
+  for K = 0.5, 2, 10, and x* = 1 for ideal
+  bilinear removal. All models begin at
+  (w, x*) = (1, 1).
+  The vertical dashed line marks a twofold input.
+  The curves were calculated from the equations
+  using 141 evenly spaced input values.
+</figcaption>
+
+</figure>
+
+<table>
+  <thead>
+    <tr>
+      <th>Removal law</th>
+      <th>x* at w = 2</th>
+      <th>Steady error</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td>Ideal bilinear</td>
+      <td>1.000</td>
+      <td>0%</td>
+    </tr>
+
+    <tr>
+      <td>K = 10</td>
+      <td>1.091</td>
+      <td>9.1%</td>
+    </tr>
+
+    <tr>
+      <td>K = 2</td>
+      <td>1.333</td>
+      <td>33.3%</td>
+    </tr>
+
+    <tr>
+      <td>K = 0.5</td>
+      <td>1.667</td>
+      <td>66.7%</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>
+  These are dimensionless model calculations,
+  not experimental measurements.
+  The equilibrium remains locally stable:
+  the Jacobian in the order (x, e) is triangular
+  with diagonal terms
+  −(K + 1)e/(K + e) and −1,
+  both negative at e* &gt; 0.
+</p>
+
+<p>
+  Hence the problem is
+  <em>imperfect adaptation despite stable dynamics</em>,
+  not the loss of stability.
+</p>
+
+<h2>What I would argue against / where this breaks</h2>
+
+<p>
+  It would be too strong to conclude that enzyme saturation
+  <em>always</em> destroys adaptation.
+  The result depends on where saturation occurs,
+  how the mediator couples to output removal,
+  and whether other reactions compensate.
+</p>
+
+<p>
+  For example, ordinary Michaelis–Menten saturation
+  in the <em>substrate x</em>, rather than in mediator e,
+  need not introduce input dependence if production and
+  enzyme abundance still scale proportionally.
+  Saturating an input-responsive branch can also
+  be offset by matching nonlinearities elsewhere.
+</p>
+
+<p>
+  My model also assumes a freely adjustable mediator,
+  first-order mediator turnover, a stable positive
+  equilibrium, and an effective saturation law
+  that remains valid throughout the tested input range.
+</p>
+
+<p>
+  Strong binding-induced sequestration, feedback,
+  or an input-dependent K could change the prediction.
+  Therefore, the experimentally testable claim is narrower:
+  <em>
+    a mismatch between the effective input order
+    of production and the mediator-side removal order
+    creates an adaptation error in this specific IFFL model.
+  </em>
+</p>
+
+<p>
+  A useful experiment would impose graded input steps,
+  measure the mediator and output after transients decay,
+  estimate the local slope d ln(x*)/d ln(w),
+  and ask whether it rises as the removal arm saturates.
+  This tests molecular operating regime rather than
+  classifying the network from its wiring diagram alone.
+</p>
+
+<h2>Sources</h2>
+
+<ul class="src">
+
+  <li>
+    CCBS 2026.
+    <em>
+      Lecture 11: Reaction orders connect structure to dynamics.
+    </em>
+    Section 6, 15 October 2026.
+    <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture11-core.html">
+      Course lecture
+    </a>
+    — supplies the balance-order and input–output
+    cancellation framework extended here.
+  </li>
+
+  <li>
+    Ma, W., Trusina, A., El-Samad, H.,
+    Lim, W. A., &amp; Tang, C. (2009).
+    <em>
+      Defining network topologies that can achieve
+      biochemical adaptation.
+    </em>
+    Cell, 138(4), 760–773.
+    <a href="https://doi.org/10.1016/j.cell.2009.06.013">
+      https://doi.org/10.1016/j.cell.2009.06.013
+    </a>
+    — establishes the relevance of IFFL architectures
+    and the importance of parameter regimes.
+  </li>
+
+  <li>
+    Original calculation for this extension (2026).
+    <em>Steady-state saturation test.</em>
+    Equations and Figure 1 generated analytically
+    from the explicitly defined dimensionless
+    two-variable model above.
+    No experimental dataset was used.
+  </li>
+
+</ul>
+
+</div>
+
+<!-- Original SVG figure generated directly from model equations -->
+<script>
+(function () {
+
+  const svg = document.getElementById("adaptationChart");
+  const NS = "http://www.w3.org/2000/svg";
+
+  const left = 72;
+  const right = 610;
+  const top = 26;
+  const bottom = 248;
+
+  const xMin = 0.5;
+  const xMax = 4.0;
+  const yMin = 0.8;
+  const yMax = 3.1;
+
+  function X(w) {
+    return left + (w - xMin) / (xMax - xMin)
+      * (right - left);
+  }
+
+  function Y(v) {
+    return bottom - (v - yMin) / (yMax - yMin)
+      * (bottom - top);
+  }
+
+  function add(tag, attrs, content = "") {
+    const el = document.createElementNS(NS, tag);
+
+    for (const [key, value] of Object.entries(attrs)) {
+      el.setAttribute(key, value);
+    }
+
+    if (content) {
+      el.textContent = content;
+    }
+
+    svg.appendChild(el);
+    return el;
+  }
+
+  // Grid lines and Y-axis labels
+  for (const v of [1, 1.5, 2, 2.5, 3]) {
+    const y = Y(v);
+
+    add("line", {
+      x1: left,
+      y1: y,
+      x2: right,
+      y2: y,
+      stroke: "var(--line)",
+      "stroke-dasharray": "3 5"
+    });
+
+    add("text", {
+      x: 60,
+      y: y + 4,
+      "text-anchor": "end",
+      fill: "var(--muted)",
+      "font-size": 12
+    }, String(v));
+  }
+
+  // X-axis labels
+  for (let w = 0.5; w <= 4; w += 0.5) {
+    add("text", {
+      x: X(w),
+      y: 268,
+      "text-anchor": "middle",
+      fill: "var(--muted)",
+      "font-size": 11
+    }, String(w));
+  }
+
+  // Axes
+  add("line", {
+    x1: left,
+    y1: bottom,
+    x2: right,
+    y2: bottom,
+    stroke: "var(--ink)"
+  });
+
+  add("line", {
+    x1: left,
+    y1: top,
+    x2: left,
+    y2: bottom,
+    stroke: "var(--ink)"
+  });
+
+  // Axis titles
+  add("text", {
+    x: 341,
+    y: 292,
+    "text-anchor": "middle",
+    fill: "var(--ink)",
+    "font-size": 13
+  }, "Input w (fold of baseline)");
+
+  add("text", {
+    x: 17,
+    y: 145,
+    transform: "rotate(-90 17 145)",
+    "text-anchor": "middle",
+    fill: "var(--ink)",
+    "font-size": 13
+  }, "Steady output x* (normalized)");
+
+  // Exact steady-state analytical models
+  const models = [
+    {
+      color: "#20877f",
+      fn: w => 1
+    },
+    {
+      color: "#5367ac",
+      fn: w => (10 + w) / 11
+    },
+    {
+      color: "#d18a36",
+      fn: w => (2 + w) / 3
+    },
+    {
+      color: "#bb5368",
+      fn: w => (0.5 + w) / 1.5
+    }
+  ];
+
+  // Draw curves with 141 points each
+  models.forEach(model => {
+
+    let d = "";
+
+    for (let i = 0; i <= 140; i++) {
+
+      const w = 0.5 + i * (3.5 / 140);
+      const v = model.fn(w);
+
+      d += `${i === 0 ? "M" : "L"}${X(w).toFixed(2)},${Y(v).toFixed(2)} `;
+    }
+
+    add("path", {
+      d: d,
+      fill: "none",
+      stroke: model.color,
+      "stroke-width": 3,
+      "stroke-linecap": "round"
+    });
+
+  });
+
+  // Baseline steady-state marker
+  add("circle", {
+    cx: X(1),
+    cy: Y(1),
+    r: 5,
+    fill: "var(--ink)",
+    stroke: "var(--bg)",
+    "stroke-width": 2
+  });
+
+  // Marker for the twofold input
+  add("line", {
+    x1: X(2),
+    y1: top,
+    x2: X(2),
+    y2: bottom,
+    stroke: "var(--muted)",
+    "stroke-dasharray": "4 5"
+  });
+
+})();
+</script>
+
+</body>
+</html>

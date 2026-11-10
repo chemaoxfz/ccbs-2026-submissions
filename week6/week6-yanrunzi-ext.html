@@ -1,0 +1,720 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>An antenna that spends its coherence on timing</title>
+<meta name="author" content="yanrunzi">
+<meta name="week" content="week6">
+<meta name="description" content="The FMO light-harvesting complex is a protein that really does run on quantum coherence, but its coherence sets how fast energy arrives, not which answer it gives — so it is a quantum device without being a quantum computer.">
+<style>
+:root{
+  /* Sunset-Sky marks */
+  --coral:#EE8168; --peri:#5A73CE; --lime:#8FB043; --plum:#77488C; --teal:#1F9A8E; --rose:#D75567;
+  /* Sunset-Sky fills */
+  --blush:#F5E6EB; --lavender:#E6E4F1; --powder:#D0DAE4; --lilac:#D8CDDD; --pinkf:#F8CFCD; --cream:#FAF0D5;
+  /* neutrals */
+  --ink:#20201E; --gray:#877F77; --leader:#B8AEA5; --gridc:#EDE7E0;
+
+  --bg:#FCFAF7; --bg2:#FFFFFF; --fg:var(--ink); --muted:#6E675F; --rule:#E3DCD3;
+  --shadow:0 1px 2px rgba(32,32,30,.05), 0 8px 28px rgba(32,32,30,.05);
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Charter,Georgia,"Times New Roman",serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif;
+  --mono:"SF Mono",ui-monospace,Menlo,Consolas,"Liberation Mono",monospace;
+  --maxw:44rem;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141513; --bg2:#1C1D1A; --fg:#EDE9E2; --muted:#A9A197; --rule:#33352F;
+    --gridc:#2C2E28; --leader:#5C574F; --ink:#EDE9E2; --gray:#9A9289;
+    --blush:#33262B; --lavender:#262538; --powder:#1F2A33; --lilac:#2E2634; --pinkf:#3A2626; --cream:#332F20;
+    --coral:#F2937D; --peri:#8497E0; --lime:#A6C55C; --plum:#B183C6; --teal:#4FC0B3; --rose:#E8768A;
+    --shadow:0 1px 2px rgba(0,0,0,.35), 0 10px 30px rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141513; --bg2:#1C1D1A; --fg:#EDE9E2; --muted:#A9A197; --rule:#33352F;
+  --gridc:#2C2E28; --leader:#5C574F; --ink:#EDE9E2; --gray:#9A9289;
+  --blush:#33262B; --lavender:#262538; --powder:#1F2A33; --lilac:#2E2634; --pinkf:#3A2626; --cream:#332F20;
+  --coral:#F2937D; --peri:#8497E0; --lime:#A6C55C; --plum:#B183C6; --teal:#4FC0B3; --rose:#E8768A;
+  --shadow:0 1px 2px rgba(0,0,0,.35), 0 10px 30px rgba(0,0,0,.4);
+}
+:root[data-theme="light"]{
+  --bg:#FCFAF7; --bg2:#FFFFFF; --fg:#20201E; --muted:#6E675F; --rule:#E3DCD3;
+  --gridc:#EDE7E0; --leader:#B8AEA5; --ink:#20201E; --gray:#877F77;
+  --blush:#F5E6EB; --lavender:#E6E4F1; --powder:#D0DAE4; --lilac:#D8CDDD; --pinkf:#F8CFCD; --cream:#FAF0D5;
+  --coral:#EE8168; --peri:#5A73CE; --lime:#8FB043; --plum:#77488C; --teal:#1F9A8E; --rose:#D75567;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%; scroll-behavior:smooth}
+body{margin:0; background:var(--bg); color:var(--fg);
+  font-family:var(--serif); font-size:18px; line-height:1.62;
+  font-kerning:normal; text-rendering:optimizeLegibility}
+.wrap{max-width:78rem;margin:0 auto;padding:0 1.25rem;display:grid;grid-template-columns:15rem minmax(0,1fr);gap:3rem}
+@media (max-width:1000px){.wrap{grid-template-columns:1fr;gap:0}}
+
+/* ---------- nav ---------- */
+nav.toc{position:sticky;top:0;align-self:start;max-height:100vh;overflow-y:auto;padding:2.5rem 0 3rem;
+  font-family:var(--sans);font-size:.8rem;line-height:1.45}
+nav.toc .brand{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--rose);
+  font-weight:700;margin:0 0 1.1rem}
+nav.toc h2{font-size:.7rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin:0 0 .9rem;font-weight:600}
+nav.toc ol{list-style:none;margin:0;padding:0}
+nav.toc li{margin:0 0 .1rem}
+nav.toc a{display:block;padding:.26rem .55rem;color:var(--muted);text-decoration:none;
+  border-left:2px solid transparent;border-radius:0 4px 4px 0}
+nav.toc a:hover{color:var(--fg);background:var(--bg2)}
+nav.toc a.on{color:var(--fg);border-left-color:var(--rose);background:var(--bg2);font-weight:600}
+nav.toc .part{margin:1.1rem 0 .35rem;font-size:.66rem;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--leader);font-weight:700}
+@media (max-width:1000px){nav.toc{position:static;max-height:none;border-bottom:1px solid var(--rule);margin-bottom:1rem}}
+
+main{padding:2.5rem 0 6rem;min-width:0}
+main > *{max-width:var(--maxw)}
+main > figure, main > .wide, main > .tablewrap{max-width:60rem}
+
+h1{font-size:2.5rem;line-height:1.1;letter-spacing:-.02em;margin:.4rem 0 .8rem;font-weight:700;max-width:30ch}
+.meta{font-family:var(--sans);font-size:.8rem;color:var(--muted);letter-spacing:.02em;margin:0 0 1.6rem}
+h2{font-size:1.05rem;font-family:var(--sans);font-weight:700;letter-spacing:.02em;margin:3.6rem 0 .2rem;scroll-margin-top:1.5rem}
+h2 .n{color:var(--rose);font-variant-numeric:tabular-nums;margin-right:.5rem}
+h2 + .lede{color:var(--muted);font-size:1.02rem;margin:.1rem 0 1.1rem}
+h3{font-size:.95rem;font-family:var(--sans);font-weight:700;margin:2.1rem 0 .5rem;color:var(--fg)}
+.parthead{margin:4.5rem 0 1.2rem;padding-top:1.6rem;border-top:2px solid var(--fg)}
+.parthead .k{font-family:var(--sans);font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--rose);font-weight:700}
+.parthead h2{font-size:1.8rem;margin:.35rem 0 .3rem;letter-spacing:-.01em;font-family:var(--serif)}
+.parthead p{color:var(--muted);margin:0;font-size:1.02rem}
+p{margin:0 0 1.05rem}
+a{color:var(--fg);text-underline-offset:2px;text-decoration-color:var(--leader)}
+a:hover{text-decoration-color:var(--rose)}
+ul,ol{margin:0 0 1.05rem;padding-left:1.35rem}
+li{margin:.28rem 0}
+hr{border:0;border-top:1px solid var(--rule);margin:2.6rem 0}
+.small{font-size:.88rem;color:var(--muted)}
+
+/* ---------- math ---------- */
+.eq{display:block;margin:1.3rem auto;padding:.9rem 1rem;text-align:center;font-size:1.06rem;
+    background:var(--bg2);border:1px solid var(--rule);border-radius:8px;overflow-x:auto;line-height:1.9}
+.eq .tag{float:right;color:var(--leader);font-family:var(--sans);font-size:.85em}
+.eq b{color:var(--rose);font-weight:700}
+code{font-family:var(--mono);font-size:.9em}
+sub,sup{font-size:.72em;line-height:0}
+i{font-style:italic}
+
+/* ---------- callouts ---------- */
+.box{border:1px solid var(--rule);background:var(--bg2);border-radius:10px;padding:1rem 1.15rem;
+  margin:1.5rem 0;box-shadow:var(--shadow)}
+.box .lbl{font-family:var(--sans);font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;
+  font-weight:700;margin-bottom:.45rem;display:block}
+.box p:last-child,.box ul:last-child,.box ol:last-child{margin-bottom:0}
+.box.key{border-left:3px solid var(--rose);background:linear-gradient(94deg,var(--blush),var(--bg2) 62%)}
+.box.key .lbl{color:var(--rose)}
+.box.def{border-left:3px solid var(--peri);background:linear-gradient(94deg,var(--lavender),var(--bg2) 62%)}
+.box.def .lbl{color:var(--peri)}
+.box.thm{border-left:3px solid var(--peri);background:linear-gradient(94deg,var(--lavender),var(--bg2) 62%)}
+.box.thm .lbl{color:var(--peri)}
+.box.note{border-left:3px solid var(--lime)}
+.box.note .lbl{color:var(--lime)}
+.box.caution{border-left:3px solid var(--coral);background:linear-gradient(94deg,var(--pinkf),var(--bg2) 62%)}
+.box.caution .lbl{color:var(--coral)}
+.box.hist{border-left:3px solid var(--leader)}
+.box.hist .lbl{color:var(--leader)}
+.box.sim{border-left:3px solid var(--teal);background:linear-gradient(94deg,var(--powder),var(--bg2) 62%)}
+.box.sim .lbl{color:var(--teal)}
+.box.open{border-left:3px solid var(--plum);background:linear-gradient(94deg,var(--lilac),var(--bg2) 62%)}
+.box.open .lbl{color:var(--plum)}
+
+/* ---------- pulled quotations ---------- */
+blockquote.quote{margin:1.4rem 0;padding:.15rem 0 .15rem 1.15rem;border-left:3px solid var(--leader);
+  color:var(--gray);font-style:italic;font-size:.96em;line-height:1.62}
+blockquote.quote cite{display:block;margin-top:.5rem;font-style:normal;font-family:var(--sans);
+  font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--leader)}
+blockquote.quote cite::before{content:"— "}
+
+/* ---------- figures ---------- */
+figure{margin:2rem 0;padding:1.1rem;background:var(--bg2);border:1px solid var(--rule);
+  border-radius:10px;box-shadow:var(--shadow)}
+figure svg{display:block;width:100%;height:auto;max-width:100%}
+.svgwrap{overflow-x:auto}
+.svgwrap svg{min-width:620px}
+figcaption{font-family:var(--sans);font-size:.8rem;line-height:1.5;color:var(--muted);margin-top:.9rem;max-width:56rem}
+figcaption b{color:var(--rose);font-weight:700}
+figcaption b.t{color:var(--fg)}
+
+/* ---------- tables ---------- */
+.tablewrap{overflow-x:auto;margin:1.6rem 0;border:1px solid var(--rule);border-radius:10px;
+  background:var(--bg2);box-shadow:var(--shadow)}
+table{border-collapse:collapse;width:100%;font-family:var(--sans);font-size:.83rem;line-height:1.45}
+th,td{text-align:left;padding:.6rem .8rem;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:700;font-size:.68rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);background:var(--bg)}
+th.up{text-transform:none;letter-spacing:.02em;font-size:.72rem;text-align:right}
+th.grp{text-align:center;color:var(--rose);background:var(--bg)}
+tbody tr:last-child td{border-bottom:0}
+tbody th{background:transparent;color:var(--muted);font-weight:600;font-size:.72rem;
+  letter-spacing:.09em;text-transform:uppercase;padding-top:1rem}
+td.sp{font-family:var(--serif);font-style:italic;font-size:.9rem;color:var(--fg);
+  border-right:1px solid var(--rule);vertical-align:middle;white-space:nowrap}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
+td.hl{color:var(--rose);font-weight:600}
+caption{caption-side:bottom;text-align:left;padding:.7rem .8rem;font-family:var(--sans);font-size:.78rem;color:var(--muted)}
+
+/* ---------- refs ---------- */
+.refs{font-size:.88rem;line-height:1.5}
+.refs ol{padding-left:1.8rem}
+.refs li{margin:.5rem 0}
+.refs .venue{color:var(--muted)}
+sup.c{font-size:.68em;color:var(--rose);font-weight:700}
+sup.c a{color:inherit;text-decoration:none}
+
+/* ---------- theme toggle ---------- */
+#tt{position:fixed;right:1rem;bottom:1rem;z-index:50;width:2.4rem;height:2.4rem;border-radius:50%;
+  display:grid;place-items:center;font-size:1rem;background:var(--bg2);box-shadow:var(--shadow);
+  border:1px solid var(--rule);color:var(--fg)}
+@media print{#tt,nav.toc{display:none}.wrap{display:block}main>*{max-width:none}}
+</style>
+</head>
+<body>
+<button id="tt" title="Toggle light / dark">◐</button>
+<div class="wrap">
+<nav class="toc" id="toc">
+  <div class="brand">CCBS · EST 5053 · Fall 2026</div>
+  <h2>Contents</h2>
+  <ol>
+    <li class="part">I · The claim</li>
+    <li><a href="#s1">1 · A candidate device, and what it is</a></li>
+    <li><a href="#s2">2 · Four things a computer must do</a></li>
+    <li class="part">II · The mechanism</li>
+    <li><a href="#s3">3 · The funnel, and where the coherence lives</a></li>
+    <li><a href="#s4">4 · Three states in, one number out</a></li>
+    <li class="part">III · Consequences</li>
+    <li><a href="#s5">5 · The fingerprint is in the timing</a></li>
+    <li class="part">IV · Situating</li>
+    <li><a href="#s6">6 · Where this could be wrong</a></li>
+    <li><a href="#refs">References</a></li>
+  </ol>
+</nav>
+<main>
+
+<h1>An antenna that spends its coherence on timing</h1>
+<p class="meta">Author: Yan Runzi · Week 6 (2026-10-23) · CCBS 2026</p>
+
+<p>Lecture&nbsp;12 builds a computer out of binding and then counts what it costs. A molecular NAND
+needs four dedicated catalytic channels, so a cell with a thousand catalytic types buys about two
+hundred and fifty gates — roughly a twentieth of the Apollo Block&nbsp;II guidance computer, and a
+rounding error against a modern chip.<sup class="c"><a href="#r-lecture12">1</a></sup> The lecture then
+turns to a different question: how a cell holds a decision once it has made one. It never asks whether
+the cell already contains a device that is quantum-mechanical in the strong sense — one whose function
+cannot be written down without a density matrix. There is such a device, and this course has met it
+before: the Fenna–Matthews–Olson complex, the antenna protein of green sulfur bacteria.</p>
+
+<p>The temptation is to call it a quantum computer. It has the ingredients people point at: an
+excitonic system, room-temperature operation, and long-lived coherences that two-dimensional
+spectroscopy has actually observed.<sup class="c"><a href="#r-engel07">5</a>,
+<a href="#r-panit10">6</a></sup> The review I am working from ends its introduction by hoping the
+complex might serve as "a biological resource of quantum processing."<sup class="c"><a href="#r-gsa20">2</a></sup>
+This essay takes that hope seriously enough to test it, and argues the opposite. The FMO complex is a
+quantum device. It is not a quantum computer. What its coherence buys is <em>speed</em> — it sets when
+the excitation arrives — and not an answer, which is set by the energy landscape and the temperature and
+barely notices which state the system started in. The evidence for that is a single table in the source,
+read one way rather than another.</p>
+
+<div class="box note">
+<span class="lbl">The assignment · what to hand in</span>
+<p>One point taken beyond the lecture and pushed. Lecture&nbsp;12 supplies the frame — build the
+computing unit, then ask what it costs — and stops at chemical gates. Here the frame is aimed at a
+candidate the lecture does not discuss at all: a protein whose operation is genuinely quantum-mechanical.
+The point pushed is that being quantum and computing are different claims, and the parameter sweep in
+González-Soria, Delgado and Anaya-Morales<sup class="c"><a href="#r-gsa20">2</a></sup> contains the
+numbers that separate them. Structure follows the previous weeks: the claim, then the object, then the
+one number, then what would break it.</p>
+</div>
+
+<div class="parthead">
+  <div class="k">Part I</div>
+  <h2>The claim, and the budget it runs into</h2>
+  <p>A real quantum device, holding far too little coherence to be a computer.</p>
+</div>
+
+<h2 id="s1"><span class="n">1</span>A candidate device, and what it is</h2>
+<p class="lede">Eight pigments in a bag, 8.3&nbsp;nm across, running at room temperature.</p>
+
+<p>The FMO complex is a water-soluble protein of about 150,000&nbsp;Da that sits between the chlorosome
+and the reaction centre of green sulfur bacteria.<sup class="c"><a href="#r-fm75">7</a></sup> It is a
+homotrimer with a maximum diameter near 8.3&nbsp;nm; each monomer folds into a bag holding eight
+bacteriochlorophyll&nbsp;<i>a</i> molecules, spaced about 12&nbsp;Å apart — close enough that their
+transition dipoles couple strongly and the excitation is not localised on any one of them. Light
+absorbed by the chlorosome enters at pigment&nbsp;8 and its excitonically coupled partner
+pigment&nbsp;1, is funnelled through two branches — one through pigment&nbsp;2, one through
+pigment&nbsp;4 and then 7 — and lands on pigment&nbsp;3, the sink from which it leaves for the reaction
+centre. Absorption peaks at 830–840&nbsp;nm. The two best-studied species, <i>Chlorobaculum
+tepidum</i> and <i>Prosthecochloris aestuarii</i>, have crystal structures at 3BSD and 3EOJ and are
+78&nbsp;% identical over the mature sequence.<sup class="c"><a href="#r-tronrud09">8</a>,
+<a href="#r-gsa20">2</a></sup></p>
+
+<p>The first thing to get right is that the usual comparison to gate budgets is the wrong comparison,
+and it is worth saying why, because the wrong version of the argument is the one that is easy to make.
+Lecture&nbsp;12's figure of merit is</p>
+
+<div class="eq">
+  <span class="tag">(1)</span>
+  <b>G<sub>cell</sub></b> &nbsp;~&nbsp; N<sub>cat</sub>/4 &nbsp;~&nbsp; 10<sup>3</sup>/4 &nbsp;=&nbsp; 250 gates,
+</div>
+
+<p>set against Apollo's 5,600 counted logic gates, a factor of about twenty-two. One is tempted to run
+the same arithmetic on FMO: eight pigments per monomer, twenty-four per trimer, and call each pigment a
+device. That count would come out around twenty-four, which the number above would then be invited to
+dismiss. But this is a category error in both directions. Gate count is not what makes a computer;
+<em>programmability</em> is. The Apollo computer can be loaded with a different mission; the FMO
+complex has one Hamiltonian, fixed by its folded structure, and cannot be reconfigured without
+re-engineering the protein. So count the pigments and you learn nothing. The real question is
+architectural, and it is the subject of the next section.</p>
+
+<div class="box key">
+<span class="lbl">The claim</span>
+<p>The FMO complex operates in a genuine quantum regime — its excitation is delocalised, its off-diagonal
+density-matrix elements are non-zero and oscillate, and its transfer is modelled by a non-Markovian
+open-system equation rather than by rate theory. But quantum <em>coherence</em> and quantum
+<em>computation</em> are separate claims, and FMO satisfies only the first. Its coherence acts as a
+timing signal on a single fixed transport step; it does not carry an input-dependent result. The protein
+is a quantum clock, not a quantum processor.</p>
+</div>
+
+<h2 id="s2"><span class="n">2</span>Four things a computer must do</h2>
+<p class="lede">FMO fails three of them, and the failure is measurable rather than interpretive.</p>
+
+<p>A physical system computes when its final state carries information about its initial state, through
+a sequence of operations that preserve the amplitudes long enough to interfere. Written out plainly, a
+computer needs four things: a preparable input; operations that act on the state without measuring it;
+coherence that outlives the sequence of operations; and an output that is a function of the input.
+Anything short of all four is a physical device that is not computing. Table&nbsp;1 puts FMO against
+each requirement, and the verdicts are not equally close — the first is nearly met, the third is met by
+a factor of ten at best, and the fourth fails by a mechanism rather than by a margin.</p>
+
+<div class="tablewrap">
+<table>
+<caption>Table&nbsp;1. What a computer needs, and what the FMO complex supplies. The last column is
+the verdict reached in §4 and §5 from the numbers in Table&nbsp;2; the first row is the only one where
+the protein comes close.</caption>
+<thead><tr><th>A computer needs</th><th>What the FMO complex supplies</th><th>Verdict</th></tr></thead>
+<tbody>
+<tr><td>a preparable input state</td><td>an excitation placed by light into one of eight pigments; three
+  distinct initial states have been modelled<sup class="c"><a href="#r-gsa20">2</a></sup></td>
+  <td>partial — light prepares it, but there is no addressable input alphabet</td></tr>
+<tr><td>operations that act without measuring</td><td>one Hamiltonian, fixed by the folded structure; the
+  coupling matrix cannot be reprogrammed<sup class="c"><a href="#r-fm75">7</a></sup></td>
+  <td class="hl"><b>no</b> — the circuit is hard-wired</td></tr>
+<tr><td>coherence that outlives the operation</td><td>coherence half-life is 1.1–15.4&nbsp;% of the
+  transfer time across all twelve modelled conditions (Table&nbsp;2)</td>
+  <td class="hl"><b>no</b> — coherence is shorter than the step it accompanies</td></tr>
+<tr><td>an output that is a function of the input</td><td>η = 0.536–0.564 at λ = 35&nbsp;cm<sup>−1</sup>
+  across three unrelated initial states</td>
+  <td class="hl"><b>no</b> — the output is a function of temperature and λ</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>The third and fourth rows are the argument, and both are quantitative. Rows one and two are the reasons
+the question is worth asking at all: the protein does have quantum amplitudes, and it is not a
+classical rate machine. Nothing above says the coherence is absent or negligible. It says the coherence
+occupies a different place in the causal order than a computer's coherence does.</p>
+
+<div class="parthead">
+  <div class="k">Part II</div>
+  <h2>The mechanism</h2>
+  <p>The object, the quantity that measures its coherence, and the quantity that measures its output.</p>
+</div>
+
+<h2 id="s3"><span class="n">3</span>The funnel, and where the coherence lives</h2>
+<p class="lede">A downhill path through eight coupled pigments, with a coherence transient at the entrance.</p>
+
+<p>The source models the monomer as an eight-site excitonic system coupled to a structured phonon bath,
+and solves it with the hierarchical equations of motion — a non-Markovian method that keeps the bath's
+memory rather than assuming it is instantaneous.<sup class="c"><a href="#r-gsa20">2</a></sup> Three
+parameters are swept: the bath temperature <i>T</i> from 77 to 347&nbsp;K, the bath cutoff
+γ<sub>k</sub> from 30 to 50&nbsp;cm<sup>−1</sup>, and the site reorganization energy λ<sub>k</sub>
+from 35 to 75&nbsp;cm<sup>−1</sup>. That is 150 combinations, of which 121 converged at hierarchy
+depth 3. The two pigments that matter for the essay's claim are the entrance and the sink, and
+Figure&nbsp;1 draws both the route between them and the timescales on which it happens.</p>
+
+<figure>
+<div class="svgwrap">
+<svg viewBox="0 0 760 426" role="img" aria-label="The FMO energy funnel: excitation enters at bacteriochlorophyll 8 and 1, travels through 2 and through 4 to 7, and lands on 3 before the reaction centre; beneath it, the range of coherence half-lives and transfer times taken from the source's Table 2.">
+  <defs>
+    <marker id="ar" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+      <path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker>
+  </defs>
+  <g font-family="var(--sans)" font-size="13" fill="var(--fg)" color="var(--gray)">
+
+    <text x="18" y="26" font-size="11" letter-spacing="1.4" fill="var(--gray)">ANTENNA → REACTION CENTRE</text>
+
+    <!-- coherence transient above the entrance -->
+    <path d="M148,52 q8,-9 16,0 q8,8 16,0 q7,-6 14,0 q6,5 12,0 q5,-4 10,0 q4,4 8,0 q4,-3 8,0"
+          fill="none" stroke="var(--rose)" stroke-width="1.8" stroke-linecap="round"/>
+    <text x="240" y="56" font-size="11" fill="var(--rose)" font-family="var(--serif)" font-style="italic">C<tspan font-size="8" dy="2">l1</tspan></text>
+
+    <!-- baseplate -->
+    <rect x="18" y="96" width="96" height="44" rx="8" fill="var(--lavender)" stroke="var(--peri)" stroke-width="1.4"/>
+    <text x="66" y="115" text-anchor="middle" font-size="12">chlorosome</text>
+    <text x="66" y="130" text-anchor="middle" font-size="12">baseplate</text>
+
+    <!-- light in from the baseplate -->
+    <line x1="114" y1="118" x2="142" y2="118" stroke="var(--fg)" stroke-width="1.6" marker-end="url(#ar)" color="var(--fg)"/>
+    <path d="M66,140 q0,42 68,50" fill="none" stroke="var(--leader)" stroke-width="1.4"
+          stroke-dasharray="4 4" marker-end="url(#ar)" color="var(--leader)"/>
+    <!-- the strongly coupled entrance pair -->
+    <line x1="175" y1="118" x2="217" y2="118" stroke="var(--fg)" stroke-width="3.2" color="var(--fg)"/>
+    <!-- branch through pigment 2 -->
+    <line x1="247" y1="115" x2="334" y2="93" stroke="var(--fg)" stroke-width="1.6" marker-end="url(#ar)" color="var(--fg)"/>
+    <line x1="369" y1="93" x2="548" y2="144" stroke="var(--fg)" stroke-width="1.6" marker-end="url(#ar)" color="var(--fg)"/>
+    <!-- branch through pigment 4 and on to 7 -->
+    <line x1="172" y1="132" x2="337" y2="186" stroke="var(--fg)" stroke-width="1.6" marker-end="url(#ar)" color="var(--fg)"/>
+    <line x1="367" y1="192" x2="464" y2="232" stroke="var(--fg)" stroke-width="1.6" marker-end="url(#ar)" color="var(--fg)"/>
+    <line x1="491" y1="226" x2="554" y2="164" stroke="var(--fg)" stroke-width="1.6" marker-end="url(#ar)" color="var(--fg)"/>
+    <!-- into the reaction centre -->
+    <line x1="587" y1="150" x2="616" y2="150" stroke="var(--fg)" stroke-width="1.6" marker-end="url(#ar)" color="var(--fg)"/>
+
+    <!-- pigments -->
+    <circle cx="160" cy="118" r="15" fill="var(--blush)" stroke="var(--rose)" stroke-width="1.8"/>
+    <text x="160" y="123" text-anchor="middle" font-size="12" fill="var(--rose)">8</text>
+    <circle cx="232" cy="118" r="15" fill="var(--blush)" stroke="var(--rose)" stroke-width="1.8"/>
+    <text x="232" y="123" text-anchor="middle" font-size="12" fill="var(--rose)">1</text>
+    <circle cx="150" cy="196" r="15" fill="var(--bg2)" stroke="var(--gray)" stroke-width="1.4"/>
+    <text x="150" y="201" text-anchor="middle" font-size="12">6</text>
+    <circle cx="352" cy="88" r="15" fill="var(--powder)" stroke="var(--teal)" stroke-width="1.5"/>
+    <text x="352" y="93" text-anchor="middle" font-size="12" fill="var(--teal)">2</text>
+    <circle cx="352" cy="190" r="15" fill="var(--powder)" stroke="var(--teal)" stroke-width="1.5"/>
+    <text x="352" y="195" text-anchor="middle" font-size="12" fill="var(--teal)">4</text>
+    <circle cx="478" cy="238" r="15" fill="var(--powder)" stroke="var(--teal)" stroke-width="1.5"/>
+    <text x="478" y="243" text-anchor="middle" font-size="12" fill="var(--teal)">7</text>
+    <circle cx="568" cy="150" r="17" fill="var(--lavender)" stroke="var(--peri)" stroke-width="1.8"/>
+    <text x="568" y="155" text-anchor="middle" font-size="12" fill="var(--peri)">3</text>
+
+    <!-- reaction centre -->
+    <rect x="620" y="124" width="118" height="52" rx="8" fill="var(--cream)" stroke="var(--leader)" stroke-width="1.4"/>
+    <text x="679" y="146" text-anchor="middle" font-size="12">reaction</text>
+    <text x="679" y="162" text-anchor="middle" font-size="12">centre</text>
+
+    <!-- annotations -->
+    <text x="196" y="88" text-anchor="middle" font-size="10.5" fill="var(--muted)">excitonic pair</text>
+    <text x="150" y="230" text-anchor="middle" font-size="10.5" fill="var(--muted)">alternative route</text>
+    <text x="352" y="62" text-anchor="middle" font-size="10.5" fill="var(--muted)">2 sets the 1.5 ps limit</text>
+    <text x="400" y="262" text-anchor="middle" font-size="10.5" fill="var(--muted)">4 → 7 in 500 fs</text>
+    <text x="568" y="126" text-anchor="middle" font-size="10.5" fill="var(--muted)">sink</text>
+
+    <!-- timescale strip -->
+    <line x1="18" y1="308" x2="740" y2="308" stroke="var(--rule)" stroke-width="1"/>
+
+    <text x="18" y="342" font-size="11" fill="var(--muted)">coherence</text>
+    <text x="18" y="355" font-size="11" fill="var(--muted)">half-life</text>
+    <rect x="110" y="334" width="80" height="20" rx="4" fill="var(--blush)" stroke="var(--rose)" stroke-width="1.2"/>
+    <text x="198" y="349" font-size="11" fill="var(--rose)">T<tspan font-size="8" dy="2">d50%</tspan><tspan font-size="11" dy="-2"> = 0.05 – 1.22 ps</tspan></text>
+
+    <text x="18" y="374" font-size="11" fill="var(--muted)">transfer</text>
+    <text x="18" y="387" font-size="11" fill="var(--muted)">completes</text>
+    <rect x="222" y="366" width="458" height="20" rx="4" fill="var(--powder)" stroke="var(--teal)" stroke-width="1.2"/>
+    <text x="290" y="381" font-size="11" fill="var(--teal)">T<tspan font-size="8" dy="2">t95%</tspan><tspan font-size="11" dy="-2"> = 1.7 – 8.7 ps</tspan></text>
+
+    <line x1="110" y1="398" x2="700" y2="398" stroke="var(--gray)" stroke-width="1" color="var(--gray)"/>
+    <line x1="110" y1="394" x2="110" y2="402" stroke="var(--gray)" color="var(--gray)"/>
+    <line x1="307" y1="394" x2="307" y2="402" stroke="var(--gray)" color="var(--gray)"/>
+    <line x1="504" y1="394" x2="504" y2="402" stroke="var(--gray)" color="var(--gray)"/>
+    <line x1="700" y1="394" x2="700" y2="402" stroke="var(--gray)" color="var(--gray)"/>
+    <text x="110" y="412" text-anchor="middle" font-size="10.5" fill="var(--muted)">0</text>
+    <text x="307" y="412" text-anchor="middle" font-size="10.5" fill="var(--muted)">3</text>
+    <text x="504" y="412" text-anchor="middle" font-size="10.5" fill="var(--muted)">6</text>
+    <text x="700" y="412" text-anchor="middle" font-size="10.5" fill="var(--muted)">9 ps</text>
+  </g>
+</svg>
+</div>
+<figcaption><b class="t">Figure 1.</b> The FMO funnel, drawn from the route the source describes, with
+the two timescales it reports for the branches.<sup class="c"><a href="#r-gsa20">2</a></sup> Excitation
+enters at pigment&nbsp;8 and its excitonically coupled partner 1; pigment&nbsp;6 is a secondary
+entrance reached from the baseplate. Relaxation proceeds along two branches — through 2, and through 4
+to 7 — and both converge on 3, the sink that feeds the reaction centre. The lower strip is the point of
+the essay: the coherence half-life (0.05–1.22&nbsp;ps) sits well inside the time the transfer takes
+(1.7–8.7&nbsp;ps), and in every one of the twelve conditions of Table&nbsp;2 the transfer takes between
+6.5 and 91 times as long as the coherence lasts.</figcaption>
+</figure>
+
+<div class="box def">
+<span class="lbl">The two quantities</span>
+<p>Coherence is measured by the <i>l</i><sub>1</sub> norm of the off-diagonal part of the density
+matrix, which for a density matrix is exactly twice the sum of the absolute values of its off-diagonal
+entries, and which decomposes exactly into the pairwise coherences of each pigment pair:</p>
+</div>
+
+<div class="eq">
+  <span class="tag">(2)</span>
+  <b>C<sub>l1</sub>(ρ)</b> &nbsp;=&nbsp; min<sub>σ∈Γ</sub> &sum;|ρ<sub>ij</sub> − σ<sub>ij</sub>|
+  &nbsp;=&nbsp; 2 &sum;<sub><i>i</i>&lt;<i>j</i></sub>|ρ<sub>ij</sub>|
+  &nbsp;=&nbsp; &sum;<sub><i>k</i>&lt;<i>l</i></sub> C<sub>kl</sub> &nbsp;≤&nbsp; <i>d</i>−1 = 6.
+</div>
+
+<p>The identity on the right is the source's own, and it matters here: an eight-site system can hold at
+most seven units of coherence, so <i>C</i><sub>l1</sub> is a bounded resource, and the values in
+Table&nbsp;2 sit at 1.3 to 2.3 — between a fifth and a little over a third of the ceiling. The output,
+meanwhile, is a population, and needs no coherence at all to be defined:</p>
+
+<div class="eq">
+  <span class="tag">(3)</span>
+  <b>η</b> &nbsp;=&nbsp; lim<sub><i>t</i>→∞</sub> [ ρ<sub>33</sub>(<i>t</i>) + ρ<sub>44</sub>(<i>t</i>) ].
+</div>
+
+<p>Equation&nbsp;(3) is the fraction of the excitation that ends up on pigments 3 and 4 and leaves for
+the reaction centre; it is the efficiency of the antenna, read as a diagonal of the density matrix after
+everything has settled. Equations&nbsp;(2) and (3) are the two ends of the argument. One is off-diagonal
+and transient; the other is diagonal and final.</p>
+
+<h2 id="s4"><span class="n">4</span>Three states in, one number out</h2>
+<p class="lede">The efficiency barely notices which state the excitation started in. The coherence
+notices enormously.</p>
+
+<p>The source runs the same model from three initial conditions: an excitation localised on pigment&nbsp;1
+(ρ(0) = |1⟩⟨1|), one localised on pigment&nbsp;6 (|6⟩⟨6|), and a Förster-like mixed state,
+ρ<sub>8</sub><sup>FRET</sup>, built from the pigment-8 site energies and weights. These are not three
+states of one physical apparatus being switched; they are three different ways light could have left the
+baseplate. But they are the closest thing in the literature to three different inputs, and what the
+model does with them is the crux. Table&nbsp;2 reproduces the source's summary at room temperature,
+<i>T</i> = 293&nbsp;K and γ = 50&nbsp;cm<sup>−1</sup>, for the two values of λ.</p>
+
+<div class="tablewrap">
+<table>
+<caption>Table&nbsp;2. Reproduced from the source, Table&nbsp;2,<sup class="c"><a href="#r-gsa20">2</a></sup>
+at <i>T</i> = 293&nbsp;K, γ = 50&nbsp;cm<sup>−1</sup>. Times in ps; <i>C</i><sub>l1</sub><sup>max</sup>
+is the maximum of (2) over the whole trajectory, <i>T</i><sub>d50%</sub> is the time for the pigment-1
+population to fall to half, <i>T</i><sub>t95%</sub> is the time to reach 95&nbsp;% of the final exit
+population, and η is equation&nbsp;(3).</caption>
+<thead>
+<tr><th rowspan="2">Species</th><th rowspan="2" class="up">ρ(0)</th>
+    <th colspan="4" class="grp">λ = 35 cm<sup>−1</sup></th>
+    <th colspan="4" class="grp">λ = 65 cm<sup>−1</sup></th></tr>
+<tr><th class="up">C<sub>l1</sub><sup>max</sup></th><th class="up">T<sub>d50%</sub></th>
+    <th class="up">T<sub>t95%</sub></th><th class="up">η</th>
+    <th class="up">C<sub>l1</sub><sup>max</sup></th><th class="up">T<sub>d50%</sub></th>
+    <th class="up">T<sub>t95%</sub></th><th class="up">η</th></tr>
+</thead>
+<tbody>
+<tr><td rowspan="3" class="sp">C. tepidum</td><td class="num">|1⟩⟨1|</td><td class="num">1.403</td><td class="num">0.067</td><td class="num">3.353</td><td class="num">0.563</td><td class="num">1.297</td><td class="num">1.220</td><td class="num">7.911</td><td class="num">0.655</td></tr>
+<tr><td class="num">|6⟩⟨6|</td><td class="num">2.107</td><td class="num">0.057</td><td class="num">1.725</td><td class="num">0.564</td><td class="num">1.669</td><td class="num">0.081</td><td class="num">2.882</td><td class="num">0.656</td></tr>
+<tr><td class="num">ρ<sub>8</sub><sup>FRET</sup></td><td class="num">2.260</td><td class="num">0.397</td><td class="num">5.070</td><td class="num">0.536</td><td class="num">2.260</td><td class="num">0.562</td><td class="num">7.933</td><td class="num">0.596</td></tr>
+<tr><td rowspan="3" class="sp">P. aestuarii</td><td class="num">|1⟩⟨1|</td><td class="num">1.532</td><td class="num">0.048</td><td class="num">2.294</td><td class="num">0.564</td><td class="num">1.328</td><td class="num">0.057</td><td class="num">5.171</td><td class="num">0.648</td></tr>
+<tr><td class="num">|6⟩⟨6|</td><td class="num">2.107</td><td class="num">0.052</td><td class="num">2.337</td><td class="num">0.563</td><td class="num">1.842</td><td class="num">0.065</td><td class="num">4.151</td><td class="num">0.649</td></tr>
+<tr><td class="num">ρ<sub>8</sub><sup>FRET</sup></td><td class="num">1.268</td><td class="num">0.252</td><td class="num">4.215</td><td class="num">0.556</td><td class="num">1.268</td><td class="num">0.466</td><td class="num">8.667</td><td class="num">0.609</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Read down the η columns. At λ = 35&nbsp;cm<sup>−1</sup> the six conditions give efficiencies between
+0.536 and 0.564, a spread of five per cent, across two species and three initial states. At
+λ = 65&nbsp;cm<sup>−1</sup> they lie between 0.596 and 0.656, a spread of ten per cent. Now read down
+<i>T</i><sub>d50%</sub> in the same columns: at λ = 35 it runs from 0.048 to 0.397&nbsp;ps, a factor of
+8.3; at λ = 65 it runs from 0.057 to 1.220&nbsp;ps, a factor of 21.4. The transient and the output vary
+by two different orders of magnitude in the same set of runs.</p>
+
+<p>The source sees this and reads it as a signature. Its own gloss is that the differences in
+decoherence and transfer time "constitut[e] a quantum fingerprint in their structure." Strangely, the
+same paragraph notes that the efficiencies are "very similar at the end … because in their relatives
+markovian models final populations depend only on the energy spectrum and temperature." Both sentences
+are correct, and together they state my thesis more compactly than I can. A fingerprint tells you
+<em>which</em> protein you are looking at. A computation's output tells you what the input was. The
+efficiency is nearly a function of (λ, <i>T</i>) alone; the coherence dynamics are a function of the
+protein and the starting state. That is the profile of a clock, or of an identity tag, not of a
+processor.</p>
+
+<div class="parthead">
+  <div class="k">Part III</div>
+  <h2>Consequences</h2>
+  <p>What the coherence does buy, and what would have to change for the computing claim to hold.</p>
+</div>
+
+<h2 id="s5"><span class="n">5</span>The fingerprint is in the timing</h2>
+<p class="lede">If coherence is a clock rather than a bit, the number that measures it should be a
+duration, and it is.</p>
+
+<p>The claim can be made into a single ratio. Take the time over which the coherence survives,
+<i>T</i><sub>d50%</sub>, and divide by the time the transfer takes, <i>T</i><sub>t95%</sub>. If
+coherence were carrying anything through the transfer, that ratio would approach one: the amplitudes
+would have to persist as long as the process they were supposed to influence. If coherence is a
+transient trigger, the ratio is small. The ratio is also dimensionless and involves no parameter I
+chose, so it is the honest place to put the argument's weight.</p>
+
+<div class="box sim">
+<span class="lbl">One number, made and checked</span>
+<p>Form <i>T</i><sub>d50%</sub>/<i>T</i><sub>t95%</sub> for all twelve conditions in Table&nbsp;2:
+0.020, 0.033, 0.078, 0.021, 0.022, 0.060, 0.154, 0.028, 0.071, 0.011, 0.016, 0.054. The range is
+<b>0.011 to 0.154</b>. In the best case for the computing hypothesis — <i>C. tepidum</i>, ρ(0) =
+|1⟩⟨1|, λ = 65&nbsp;cm<sup>−1</sup> — the coherence lasts 15&nbsp;% of the transfer. In the worst it
+lasts one per cent. There is no condition in the entire sweep, at any temperature or bath cutoff the
+study covers, in which the coherence outlives the transfer it is supposed to be influencing by any
+margin at all, and none in which it approaches the ratio quantum algorithms require: a circuit of
+<i>N</i> gates needs coherence over <i>N</i> gate times, and here even <i>N</i> = 1 is not reached.</p>
+<p>The comparison that makes this a mechanism rather than a curiosity is the one between the
+<i>spread</i> in the coherence times and the spread in the output. Fix λ and vary species and initial
+state — the six-way comparison within each half of Table&nbsp;2. At λ = 35&nbsp;cm<sup>−1</sup>
+η moves by a factor of 1.05, <i>T</i><sub>d50%</sub> by 8.3 and <i>T</i><sub>t95%</sub> by 2.9; at
+λ = 65&nbsp;cm<sup>−1</sup> the same three factors are 1.10, 21.4 and 3.0. The transient carries
+between eight and twenty times more variation than the answer does. Across the twelve rows the maximum
+coherence and the efficiency are in fact slightly <em>anti</em>-correlated (Pearson <i>r</i> = −0.36),
+though twelve conditions are not twelve independent draws and I would not lean on that coefficient.</p>
+</div>
+
+<blockquote class="quote">
+Coherence decay occurs on different timescale as the energy transfer, thus questioning the actual
+importance of quantum coherence.
+<cite>González-Soria, Delgado &amp; Anaya-Morales, 2020, p. 2</cite>
+</blockquote>
+
+<p>My disagreement with the source is narrow and, I think, worth stating precisely, because it is not
+about the data. The authors report these numbers accurately; the sentence above is theirs, and so is the
+caution that follows it — that the efficiency may need both coherent and incoherent transfer, and that
+the rapid decoherence "might be necessary to assure fast unidirectional transfer towards the reaction
+centre." Where we part is in the last step, the one from "FMO is a quantum system" to "FMO is a resource
+for quantum processing." Everything in Table&nbsp;2 argues that the coherence has a job, and the job is
+to make the transfer fast and one-way. That is a real function, and it is not computation.</p>
+
+<p>What follows constructively is that the correct technological reading of this protein is not as a
+processor but as a <em>coherence standard</em>. FMO's off-diagonal elements are readable by
+two-dimensional electronic spectroscopy, reproducible across a homotrimer and across species, and
+stably expressed at ambient temperature — a combination that engineered solid-state qubits do not
+offer. Because the sweep shows the coherence lifetime responding systematically to both λ and γ,
+the complex also works as a bath spectrometer: a fixed molecular object whose decoherence reports the
+memory time of whatever environment you put it in. Neither application is a computer. Both are things
+the protein demonstrably does.</p>
+
+<div class="box caution">
+<span class="lbl">A correction the full text forced</span>
+<p>I came to this essay from the source's framing and expected a paper about a photosynthetic complex
+being groomed for quantum information. The sentence that invited that reading is in the introduction:
+"This may lead to the hopeful application of this system as a biological resource of quantum processing,
+particularly due to its room temperature performance."<sup class="c"><a href="#r-gsa20">2</a></sup>
+Reading the body changed the claim three pages later. The processing sentence is a hope in a discussion
+paragraph with no result behind it; the results are the parametric sweep, and the sweep's own summary
+paragraph says the coherence and the transfer run on different timescales and that this "question[s] the
+actual importance of quantum coherence." A review can hold both sentences because it is a review. An
+essay cannot, and the numbers decide which one to keep.</p>
+</div>
+
+<div class="parthead">
+  <div class="k">Part IV</div>
+  <h2>Situating and testing</h2>
+  <p>What would make me wrong, and the concession the timescale argument has to make.</p>
+</div>
+
+<h2 id="s6"><span class="n">6</span>Where this could be wrong</h2>
+<p class="lede">A coherence lifetime of one per cent of a picosecond is short for a computer and long for
+an optical field.</p>
+
+<p>The argument above is a negative one and should be stated so that it can be attacked. Four things
+would move it.</p>
+
+<ul>
+<li><b>A different readout.</b> Efficiency is a <em>population</em> readout — a diagonal of the density
+matrix. A device could in principle compute in the phases and never show it in the diagonals, and no
+measurement in this study would see that. My claim is therefore about what has been measured, not about
+what the protein might be doing invisibly. The refutation is concrete: exhibit an output observable that
+is not <i>ρ</i><sub>33</sub> + <i>ρ</i><sub>44</sub>, depends on the input state at fixed λ and
+<i>T</i>, and depends on <i>T</i><sub>d50%</sub>. Nothing in the literature I have read does this.</li>
+<li><b>An efficiency that tracks the coherence.</b> If the output were a function of the transient at
+fixed landscape and temperature, the anti-correlation would have to reverse and grow. Table&nbsp;2 is
+twelve points against that, but they are twelve points from one model at one temperature and two values
+of λ; a sweep at fixed λ across <i>T</i> could look different, and the source's own 77&nbsp;K
+measurements are where long-lived coherence is best established.<sup class="c"><a href="#r-engel07">5</a></sup></li>
+<li><b>The circuit might be reprogrammable in a way I have dismissed.</b> The coupling matrix is fixed
+by the fold, but the fold is not fixed across species, and the source shows the dynamics change with
+the sequence. The two mature sequences are 78&nbsp;% identical, so more than a fifth of the residues
+differ,<sup class="c"><a href="#r-gsa20">2</a></sup> and the coherence times differ by up to twentyfold.
+That is a knob — a slow, evolutionary one, but a knob. What it is not is a knob that can be set per
+computation.</li>
+<li><b>Short is not the same as useless.</b> This is the concession the argument owes. The optical
+period at 830&nbsp;nm is 2.77&nbsp;fs. A coherence half-life of 48&nbsp;fs to 1.22&nbsp;ps therefore
+spans <b>17 to 440 optical cycles</b> — enough for the excitation to interfere with itself hundreds of
+times, which is exactly why the oscillations are visible at all.<sup class="c"><a href="#r-panit10">6</a></sup>
+Coherence that survives a hundred cycles is a serious physical resource. It is simply not a resource
+that survives a <em>sequence of operations</em>, because the sequence is the transfer itself and the
+transfer takes the coherence with it.</li>
+</ul>
+
+<div class="box sim">
+<span class="lbl">One number, made and checked</span>
+<p>Convert the timescales into cycles, which is the units quantum information actually uses. At
+λ = 830&nbsp;nm the field period is λ/<i>c</i> = 830&nbsp;nm / 2.998&nbsp;×&nbsp;10<sup>8</sup>&nbsp;m
+s<sup>−1</sup> = 2.77&nbsp;fs. The twelve coherence half-lives of Table&nbsp;2 span 0.048 to
+1.220&nbsp;ps, which is <b>17 to 440 periods</b>. Compare the gate requirement: a quantum circuit of
+<i>N</i> gates needs the coherence to survive <i>N</i> gate intervals. Even reading the ratio in the
+most generous way — one optical period per gate — FMO supports of order 10<sup>2</sup> elementary
+operations. That is not nothing; it is roughly the coherence budget of an early solid-state qubit. It is
+also two to three orders of magnitude short of anything that would factor a number, and, unlike a qubit,
+its operations cannot be addressed.</p>
+</div>
+
+<p>What I would want to see before changing my mind is a measured quantity that is not a population, that
+varies with the initial state at fixed λ and <i>T</i>, and that varies <em>with</em> the coherence
+lifetime rather than against it. Until then the honest summary of the FMO complex is the one
+Lecture&nbsp;12's framing suggests but does not say: a cell does contain a quantum-mechanical device, it
+is excellent at the one computation it was selected for, and that computation is not a computation — it
+is a transfer that the coherence makes fast.</p>
+
+<h2 id="refs">References</h2>
+<div class="refs">
+<ol>
+<li id="r-lecture12">CCBS 2026, Lecture&nbsp;12 — The computation biomachine. §3 (dedicated catalytic gate
+  architecture; <i>G</i><sub>cell</sub> ~ 250 gates against the Apollo Block&nbsp;II's 5,600), §8–10
+  (binding as a minimum and a rectified difference; stable expression states).
+  <span class="venue">chemaoxfz.github.io/assets/ccbs/2026fall/lecture12-core.html.</span></li>
+<li id="r-gsa20">González-Soria B, Delgado F, Anaya-Morales A. Parametric mapping of quantum regime in
+  Fenna–Matthews–Olson light-harvesting complexes: a synthetic review of models, methods and approaches.
+  <span class="venue"><i>Applied Sciences</i> 10(18):6474, 42 pp., 2020. Table&nbsp;2 (p. 33) and the
+  measures of equations (31), (32), (35)–(38).</span>
+  <a href="https://doi.org/10.3390/app10186474">doi:10.3390/app10186474</a></li>
+<li id="r-fm75">Fenna RE, Matthews BW. Chlorophyll arrangement in a bacteriochlorophyll protein from
+  <i>Chlorobium limicola</i>.
+  <span class="venue"><i>Nature</i> 258:573–577, 1975. The 150,000&nbsp;Da water-soluble antenna protein
+  and its threefold symmetry.</span></li>
+<li id="r-tronrud09">Tronrud DE, Wen J, Gay L, Blankenship RE. The structural basis for the difference in
+  absorbance spectra for the FMO antenna protein from various green sulfur bacteria.
+  <span class="venue"><i>Photosynthesis Research</i> 100:79–87, 2009. PDB 3BSD and 3EOJ; the
+  78&nbsp;% identity and 87&nbsp;% similarity between the two species' structures.</span></li>
+<li id="r-engel07">Engel GS, Calhoun TR, Read EL, Ahn T-K, Mančal T, Cheng Y-C, Blankenship RE,
+  Fleming GR. Evidence for wavelike energy transfer through quantum coherence in photosynthetic systems.
+  <span class="venue"><i>Nature</i> 446:782–786, 2007. Two-dimensional electronic spectroscopy of FMO
+  at 77&nbsp;K.</span></li>
+<li id="r-panit10">Panitchayangkoon G, Hayes D, Fransted KA, Caram JR, Harel E, Wen J, Blankenship RE,
+  Engel GS. Long-lived quantum coherence in photosynthetic complexes at physiological temperature.
+  <span class="venue"><i>PNAS</i> 107:12766–12770, 2010.</span></li>
+<li id="r-caruso09">Caruso F, Chin AW, Datta A, Huelga SF, Plenio MB. Highly efficient energy excitation
+  transfer in light-harvesting complexes: the fundamental role of noise-assisted transport.
+  <span class="venue"><i>Journal of Chemical Physics</i> 131:105106, 2009. Noise as an aid to
+  unidirectional transfer.</span></li>
+<li id="r-wilkins15">Wilkins DM, Dattani NS. Why quantum coherence is not important in the
+  Fenna–Matthews–Olsen complex.
+  <span class="venue"><i>Journal of Chemical Theory and Computation</i> 11:3411–3419, 2015. The
+  dissenting position on the functional role of coherence, which this essay reaches from the source's
+  own numbers.</span></li>
+</ol>
+</div>
+
+</main>
+</div>
+<script>
+(function(){
+  // ---- theme toggle -------------------------------------------------------
+  var root=document.documentElement, tt=document.getElementById('tt');
+  tt.addEventListener('click',function(){
+    var cur=root.getAttribute('data-theme');
+    if(!cur){ cur = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light'; }
+    root.setAttribute('data-theme', cur==='dark'?'light':'dark');
+  });
+
+  // ---- TOC scroll spy -----------------------------------------------------
+  var links=[].slice.call(document.querySelectorAll('#toc a'));
+  var secs=links.map(function(a){return document.querySelector(a.getAttribute('href'));}).filter(Boolean);
+  function spy(){
+    var y=window.scrollY+140, best=0;
+    secs.forEach(function(s,i){ if(s && s.offsetTop<=y) best=i; });
+    links.forEach(function(a,i){ a.classList.toggle('on', i===best); });
+  }
+  window.addEventListener('scroll',spy,{passive:true}); spy();
+})();
+</script>
+</body>
+</html>

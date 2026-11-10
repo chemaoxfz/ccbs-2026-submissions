@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 8 — Extension: A virtual cell must predict recovery, not just the resting state</title>
+<meta name="author" content="Fei Wang">
+<meta name="week" content="week8">
+<meta name="lecture" content="lecture16">
+<meta name="description" content="A CCBS mini-essay on identifiability, turnover, and perturbation-based validation of mechanistic virtual cells, with an original calculation and reproducible JavaScript.">
+<style>
+ :root { --ink:#1a1a1a; --muted:#566; --accent:#1f4e79; --line:#d8dee4; --bg:#fff; --soft:#f6f8fa; }
+ @media (prefers-color-scheme: dark) {
+  :root { --ink:#e8e8e8; --muted:#a8b9b9; --accent:#8ab4e8; --line:#3a4652; --bg:#15191d; --soft:#1e242a; }
+ }
+ * { box-sizing:border-box; }
+ body { margin:0; background:var(--bg); color:var(--ink); font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; line-height:1.65; }
+ .wrap { max-width:760px; margin:0 auto; padding:40px 22px 70px; }
+ h1 { font-size:1.65rem; line-height:1.3; margin:0 0 10px; color:var(--accent); }
+ .eyebrow { font-size:.78rem; letter-spacing:.11em; text-transform:uppercase; color:var(--muted); margin:0 0 12px; }
+ .meta { color:var(--muted); font-size:.92rem; margin-bottom:26px; }
+ h2 { font-size:1.08rem; color:var(--accent); margin:34px 0 8px; border-bottom:1px solid var(--line); padding-bottom:5px; }
+ p { margin:12px 0; }
+ .card { background:var(--soft); border:1px solid var(--line); border-left:3px solid var(--accent); border-radius:6px; padding:14px 18px; margin:14px 0; }
+ .fig { display:block; width:100%; height:auto; border:1px solid var(--line); border-radius:6px; margin:14px 0 6px; background:#fff; }
+ figure { margin:20px 0; }
+ figcaption,.small { font-size:.85rem; color:var(--muted); }
+ a { color:var(--accent); text-underline-offset:3px; }
+ .src { font-size:.9rem; padding-left:24px; }
+ .src li { margin:15px 0; overflow-wrap:anywhere; }
+ .equation { text-align:center; padding:10px 4px; font-size:1.08rem; }
+ table { border-collapse:collapse; width:100%; font-size:.88rem; margin:15px 0; }
+ caption { text-align:left; font-weight:600; margin-bottom:8px; }
+ th,td { border-bottom:1px solid var(--line); padding:8px 7px; text-align:left; vertical-align:top; }
+ th { background:var(--soft); }
+ .table-scroll { overflow-x:auto; }
+ pre { white-space:pre-wrap; overflow-wrap:anywhere; font-size:.79rem; background:var(--soft); border:1px solid var(--line); padding:14px; border-radius:6px; line-height:1.5; }
+ code { font-family:Consolas,Monaco,monospace; }
+ details { border:1px solid var(--line); padding:12px 14px; border-radius:6px; margin:16px 0; }
+ summary { cursor:pointer; color:var(--accent); font-weight:600; }
+ button { background:var(--accent); color:var(--bg); border:0; border-radius:5px; padding:9px 13px; font:inherit; cursor:pointer; margin-top:10px; }
+ button:focus-visible,a:focus-visible,summary:focus-visible { outline:3px solid #c47d35; outline-offset:3px; }
+ footer { margin-top:32px; padding-top:14px; border-top:1px solid var(--line); font-size:.8rem; color:var(--muted); }
+ @media (max-width:480px) { .wrap{padding:26px 17px 50px;} h1{font-size:1.4rem;} th,td{padding:7px 5px;} }
+ @media print { :root {--ink:#111;--muted:#444;--accent:#1f4e79;--line:#ccc;--bg:#fff;--soft:#f7f7f7;} .wrap{max-width:none;padding:0;} body{font-size:10pt;} figure,table,.card{break-inside:avoid;} h2{break-after:avoid;} details{display:none;} a{text-decoration:none;} }
+</style>
+</head>
+<body><main class="wrap">
+<p class="eyebrow">CCBS 2026 · Mechanistic virtual cells · Lecture 16</p>
+<h1>Week 8 — Extension: A virtual cell must predict recovery, not just the resting state</h1>
+<p class="meta">Author: Fei Wang · Week 8 / Lecture 16 · 2026-11-09</p>
+
+<p class="card"><strong>One sentence:</strong> A common reaction language can make a virtual cell easier to assemble, but reliable predictions of recovery require dynamic constraints that steady-state agreement alone cannot provide.</p>
+
+<h2>The point I am adding</h2>
+<p><strong>Problem.</strong> Lecture 16 proposes binding and catalysis as a shared language for mechanistic virtual cells <a href="#ref1">[1]</a>. I support this ambition, but would evaluate its success with a specific question: can the model predict how a molecular pool recovers after depletion? Matching its resting concentration is a weaker test.</p>
+<p><strong>Challenge.</strong> A concentration measures the amount present, not the speed of replacement. Rapid production balanced by rapid loss can produce the same baseline as slow production balanced by slow loss. Even when the reaction network is known exactly, a baseline measurement may leave its rates unidentified. A more consistent representation does not, by itself, supply the missing information.</p>
+<p><strong>Approach.</strong> I would retain all parameter sets compatible with baseline data and compare their predictions after a defined perturbation. Karr et al. integrated 28 submodels in a whole-cell model of <em>Mycoplasma genitalium</em> and evaluated predictions against independent data <a href="#ref2">[2]</a>. My proposed extension is to make disagreement among equally compatible models a guide to choosing the next dynamic measurement.</p>
+<p><strong>Proof.</strong> The calculation below is a counterexample, not a whole-cell simulation: two parameter sets share the same reactions and exactly the same baseline, yet differ tenfold in recovery time. It establishes that steady-state agreement is insufficient for this prediction. It does not establish that every virtual-cell model is unreliable.</p>
+<p><strong>Significance.</strong> A practical virtual cell should report which perturbation predictions remain uncertain and which observations could resolve them. For a future model of cellular stress adaptation, this would distinguish maintaining an unchanged molecular abundance from restoring that abundance rapidly. The useful output is a testable recovery prediction with an explicit range of possibilities.</p>
+
+<h2>Work it</h2>
+<p>Consider an effective production–loss module, ∅ → X → ∅, with constant production rate α and first-order loss rate δ. It is deliberately simpler than an explicit binding–catalysis model: both parameter sets already use identical reaction rules. X is a concentration in a well-mixed compartment of fixed volume; α has units nM min<sup>−1</sup> and δ has units min<sup>−1</sup>.</p>
+<div class="card equation" aria-label="Model equation and steady state">dX/dt = α − δX &nbsp;;&nbsp; X<sub>ss</sub> = α/δ</div>
+<p>All parameters are <strong>illustrative choices, not fitted measurements</strong>. A baseline of 100 nM constrains only α/δ: every pair α = 100δ fits it exactly. The rates remain non-identifiable from this observation, however precisely the baseline is measured.</p>
+<div class="table-scroll"><table>
+<caption>Table 1. Two compatible baselines, two different recoveries.</caption>
+<thead><tr><th scope="col">Quantity</th><th scope="col">A: fast turnover</th><th scope="col">B: slow turnover</th></tr></thead>
+<tbody>
+<tr><th scope="row">α (nM min<sup>−1</sup>)</th><td>10</td><td>1</td></tr>
+<tr><th scope="row">δ (min<sup>−1</sup>)</th><td>0.10</td><td>0.01</td></tr>
+<tr><th scope="row">X<sub>ss</sub> (nM)</th><td>100</td><td>100</td></tr>
+<tr><th scope="row">X at 20 min (nM)</th><td>93.23</td><td>59.06</td></tr>
+<tr><th scope="row">Time to recover 90% of the deficit (min)</th><td>23.03</td><td>230.26</td></tr>
+</tbody></table></div>
+<p>At t = 0, remove half of X instantaneously, so X(0) = 50 nM; then restore the original conditions without changing α or δ. Solving the differential equation gives:</p>
+<div class="card equation">X(t) = 100 − 50e<sup>−δt</sup><br>t<sub>90</sub> = ln(10)/δ</div>
+<p>Here, 90% recovery means replacing 45 of the missing 50 nM, reaching <strong>95 nM</strong>; it does not mean reaching 90 nM. At 20 minutes, the two predictions differ by <strong>34.17 nM</strong> despite their identical baselines.</p>
+<figure><svg class="fig" role="img" aria-labelledby="plot-title plot-desc" xmlns:xlink="http://www.w3.org/1999/xlink" width="518.4pt" height="273.6pt" viewBox="0 0 518.4 273.6" xmlns="http://www.w3.org/2000/svg" version="1.1"><title id="plot-title">Identical steady states, different recovery dynamics</title><desc id="plot-desc">After depletion from 100 to 50 nanomolar, model A recovers faster than model B. Their maximal concentration difference is 34.84 nanomolar at 25.58 minutes.</desc>
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-11-09T14:02:19.297795</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.10.8, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 273.6 
+L 518.4 273.6 
+L 518.4 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 42.765865 240.24351 
+L 509.03726 240.24351 
+L 509.03726 3.00024 
+L 42.765865 3.00024 
+z
+" style="fill: #ffffff"/>
+   </g>
+   <g id="matplotlib.axis_1">
+    <g id="xtick_1">
+     <g id="line2d_1">
+      <defs>
+       <path id="m0986a5e936" d="M 0 0 
+L 0 3.5 
+" style="stroke: #000000; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#m0986a5e936" x="42.765865" y="240.24351" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_1">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle" x="42.765865" y="254.841947" transform="rotate(-0 42.765865 254.841947)">0</text>
+     </g>
+    </g>
+    <g id="xtick_2">
+     <g id="line2d_2">
+      <g>
+       <use xlink:href="#m0986a5e936" x="120.477764" y="240.24351" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_2">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle" x="120.477764" y="254.841947" transform="rotate(-0 120.477764 254.841947)">10</text>
+     </g>
+    </g>
+    <g id="xtick_3">
+     <g id="line2d_3">
+      <g>
+       <use xlink:href="#m0986a5e936" x="198.189663" y="240.24351" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_3">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle" x="198.189663" y="254.841947" transform="rotate(-0 198.189663 254.841947)">20</text>
+     </g>
+    </g>
+    <g id="xtick_4">
+     <g id="line2d_4">
+      <g>
+       <use xlink:href="#m0986a5e936" x="275.901563" y="240.24351" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_4">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle" x="275.901563" y="254.841947" transform="rotate(-0 275.901563 254.841947)">30</text>
+     </g>
+    </g>
+    <g id="xtick_5">
+     <g id="line2d_5">
+      <g>
+       <use xlink:href="#m0986a5e936" x="353.613462" y="240.24351" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_5">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle" x="353.613462" y="254.841947" transform="rotate(-0 353.613462 254.841947)">40</text>
+     </g>
+    </g>
+    <g id="xtick_6">
+     <g id="line2d_6">
+      <g>
+       <use xlink:href="#m0986a5e936" x="431.325361" y="240.24351" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_6">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle" x="431.325361" y="254.841947" transform="rotate(-0 431.325361 254.841947)">50</text>
+     </g>
+    </g>
+    <g id="xtick_7">
+     <g id="line2d_7">
+      <g>
+       <use xlink:href="#m0986a5e936" x="509.03726" y="240.24351" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_7">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle" x="509.03726" y="254.841947" transform="rotate(-0 509.03726 254.841947)">60</text>
+     </g>
+    </g>
+    <g id="text_8">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle" x="275.901563" y="268.520072" transform="rotate(-0 275.901563 268.520072)">Time after 50% depletion (min)</text>
+    </g>
+   </g>
+   <g id="matplotlib.axis_2">
+    <g id="ytick_1">
+     <g id="line2d_8">
+      <path d="M 42.765865 220.79734 
+L 509.03726 220.79734 
+" clip-path="url(#p588a45587a)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.15; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_9">
+      <defs>
+       <path id="mccb438425c" d="M 0 0 
+L -3.5 0 
+" style="stroke: #000000; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#mccb438425c" x="42.765865" y="220.79734" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_9">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end" x="35.765865" y="224.596559" transform="rotate(-0 35.765865 224.596559)">50</text>
+     </g>
+    </g>
+    <g id="ytick_2">
+     <g id="line2d_10">
+      <path d="M 42.765865 181.905001 
+L 509.03726 181.905001 
+" clip-path="url(#p588a45587a)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.15; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_11">
+      <g>
+       <use xlink:href="#mccb438425c" x="42.765865" y="181.905001" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_10">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end" x="35.765865" y="185.70422" transform="rotate(-0 35.765865 185.70422)">60</text>
+     </g>
+    </g>
+    <g id="ytick_3">
+     <g id="line2d_12">
+      <path d="M 42.765865 143.012662 
+L 509.03726 143.012662 
+" clip-path="url(#p588a45587a)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.15; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_13">
+      <g>
+       <use xlink:href="#mccb438425c" x="42.765865" y="143.012662" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_11">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end" x="35.765865" y="146.81188" transform="rotate(-0 35.765865 146.81188)">70</text>
+     </g>
+    </g>
+    <g id="ytick_4">
+     <g id="line2d_14">
+      <path d="M 42.765865 104.120322 
+L 509.03726 104.120322 
+" clip-path="url(#p588a45587a)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.15; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_15">
+      <g>
+       <use xlink:href="#mccb438425c" x="42.765865" y="104.120322" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_12">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end" x="35.765865" y="107.919541" transform="rotate(-0 35.765865 107.919541)">80</text>
+     </g>
+    </g>
+    <g id="ytick_5">
+     <g id="line2d_16">
+      <path d="M 42.765865 65.227983 
+L 509.03726 65.227983 
+" clip-path="url(#p588a45587a)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.15; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_17">
+      <g>
+       <use xlink:href="#mccb438425c" x="42.765865" y="65.227983" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_13">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end" x="35.765865" y="69.027202" transform="rotate(-0 35.765865 69.027202)">90</text>
+     </g>
+    </g>
+    <g id="ytick_6">
+     <g id="line2d_18">
+      <path d="M 42.765865 26.335644 
+L 509.03726 26.335644 
+" clip-path="url(#p588a45587a)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.15; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_19">
+      <g>
+       <use xlink:href="#mccb438425c" x="42.765865" y="26.335644" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_14">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: end" x="35.765865" y="30.134862" transform="rotate(-0 35.765865 30.134862)">100</text>
+     </g>
+    </g>
+    <g id="text_15">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle" x="10.598678" y="121.621875" transform="rotate(-90 10.598678 121.621875)">X concentration (nM)</text>
+    </g>
+   </g>
+   <g id="line2d_20">
+    <path d="M 42.765865 220.79734 
+L 47.428579 209.472773 
+L 52.091293 198.807697 
+L 56.754007 188.763706 
+L 61.416721 179.304632 
+L 66.079435 170.396412 
+L 70.742149 162.006966 
+L 75.404863 154.106083 
+L 80.067577 146.665312 
+L 84.730291 139.657858 
+L 89.393005 133.058486 
+L 94.055718 126.843431 
+L 98.718432 120.990313 
+L 103.381146 115.478054 
+L 108.04386 110.286804 
+L 112.706574 105.397869 
+L 117.369288 100.793644 
+L 122.809121 95.759823 
+L 128.248954 91.066319 
+L 133.688787 86.690126 
+L 139.12862 82.60979 
+L 144.568453 78.80531 
+L 150.008286 75.258036 
+L 155.448119 71.95058 
+L 161.665071 68.443537 
+L 167.882023 65.206128 
+L 174.098975 62.217623 
+L 180.315927 59.458886 
+L 187.309997 56.608007 
+L 194.304068 54.002501 
+L 201.298139 51.621247 
+L 209.069329 49.215004 
+L 216.840519 47.037745 
+L 225.388828 44.881293 
+L 233.937137 42.949469 
+L 243.262565 41.070785 
+L 253.365112 39.274504 
+L 264.244778 37.584148 
+L 275.901563 36.017321 
+L 288.335466 34.585825 
+L 301.546489 33.296032 
+L 316.31175 32.0916 
+L 331.85413 31.048222 
+L 349.727867 30.079946 
+L 369.155842 29.251709 
+L 391.692292 28.517629 
+L 418.114338 27.888716 
+L 449.199098 27.376699 
+L 488.055047 26.967076 
+L 509.03726 26.817666 
+L 509.03726 26.817666 
+" clip-path="url(#p588a45587a)" style="fill: none; stroke: #1f4e79; stroke-width: 2.5; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_21">
+    <path d="M 42.765865 220.79734 
+L 69.96503 214.108911 
+L 97.164194 207.650528 
+L 125.140478 201.239287 
+L 153.116762 195.054745 
+L 181.870165 188.926215 
+L 211.400686 182.863691 
+L 240.931208 177.027221 
+L 271.238849 171.263375 
+L 302.323608 165.580677 
+L 334.185487 159.987083 
+L 366.047366 154.618188 
+L 398.686363 149.341899 
+L 432.10248 144.164737 
+L 466.295715 139.092661 
+L 501.26607 134.131068 
+L 509.03726 133.058486 
+L 509.03726 133.058486 
+" clip-path="url(#p588a45587a)" style="fill: none; stroke-dasharray: 9.25,4; stroke-dashoffset: 0; stroke: #bc5a30; stroke-width: 2.5"/>
+   </g>
+   <g id="line2d_22">
+    <path d="M 42.765865 26.335644 
+L 509.03726 26.335644 
+" clip-path="url(#p588a45587a)" style="fill: none; stroke-dasharray: 1,1.65; stroke-dashoffset: 0; stroke: #7b8794"/>
+   </g>
+   <g id="line2d_23">
+    <path d="M 241.586155 240.24351 
+L 241.586155 3.00024 
+" clip-path="url(#p588a45587a)" style="fill: none; stroke-dasharray: 1,1.65; stroke-dashoffset: 0; stroke: #99a3ad"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 42.765865 240.24351 
+L 42.765865 3.00024 
+" style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 42.765865 240.24351 
+L 509.03726 240.24351 
+" style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 241.586155 173.561243 
+Q 241.586155 109.147767 241.586155 44.73429 
+" style="fill: none; stroke: #334155; stroke-width: 1.2; stroke-linecap: round"/>
+    <path d="M 243.586155 169.561243 
+L 241.586155 173.561243 
+L 239.586155 169.561243 
+" style="fill: none; stroke: #334155; stroke-width: 1.2; stroke-linecap: round"/>
+    <path d="M 239.586155 48.73429 
+L 241.586155 44.73429 
+L 243.586155 48.73429 
+" style="fill: none; stroke: #334155; stroke-width: 1.2; stroke-linecap: round"/>
+   </g>
+   <g id="text_16">
+    <text style="font-size: 9px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(252.46582 87.853494)">Largest gap</text>
+    <text style="font-size: 9px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(252.46582 97.931525)">34.84 nM</text>
+    <text style="font-size: 9px; font-family: 'DejaVu Sans'; fill: #334155" transform="translate(252.46582 108.009556)">at 25.58 min</text>
+   </g>
+   <g id="legend_1">
+    <g id="line2d_24">
+     <path d="M 364.097885 200.701166 
+L 373.097885 200.701166 
+L 382.097885 200.701166 
+" style="fill: none; stroke: #1f4e79; stroke-width: 2.5; stroke-linecap: square"/>
+    </g>
+    <g id="text_17">
+     <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: start" x="389.297885" y="203.851166" transform="rotate(-0 389.297885 203.851166)">A: fast turnover</text>
+    </g>
+    <g id="line2d_25">
+     <path d="M 364.097885 213.911479 
+L 373.097885 213.911479 
+L 382.097885 213.911479 
+" style="fill: none; stroke-dasharray: 9.25,4; stroke-dashoffset: 0; stroke: #bc5a30; stroke-width: 2.5"/>
+    </g>
+    <g id="text_18">
+     <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: start" x="389.297885" y="217.061479" transform="rotate(-0 389.297885 217.061479)">B: slow turnover</text>
+    </g>
+    <g id="line2d_26">
+     <path d="M 364.097885 227.121791 
+L 373.097885 227.121791 
+L 382.097885 227.121791 
+" style="fill: none; stroke-dasharray: 1,1.65; stroke-dashoffset: 0; stroke: #7b8794"/>
+    </g>
+    <g id="text_19">
+     <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: start" x="389.297885" y="230.271791" transform="rotate(-0 389.297885 230.271791)">Shared baseline: 100 nM</text>
+    </g>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p588a45587a">
+   <rect x="42.765865" y="3.00024" width="466.271395" height="237.24327"/>
+  </clipPath>
+ </defs>
+</svg>
+<figcaption>Figure 1. Identical baseline concentrations do not imply identical recovery dynamics. Both models start at 50 nM after depletion. Curves were generated for this essay by evaluating X(t) = 100 − 50 exp(−δt) at 0.1-minute intervals in Python/Matplotlib; the embedded JavaScript independently reproduces the reported numbers. Solid blue: δ = 0.10 min⁻¹; dashed orange: δ = 0.01 min⁻¹. The arrow marks the largest gap between the two candidates. These are calculated trajectories, not experimental data.</figcaption></figure>
+<p>For these two fixed candidates, the concentration gap is ΔX(t) = 50(e<sup>−0.01t</sup> − e<sup>−0.10t</sup>). Setting its derivative to zero yields t* = ln(0.10/0.01)/(0.10 − 0.01) = <strong>25.58 min</strong>, where the gap is <strong>34.84 nM</strong>. With equal, time-independent absolute measurement error, this is the single sampling time that maximizes their predicted separation. It is not a universal optimal time for parameter estimation.</p>
+<details><summary>Reproduce the numbers — JavaScript, no dependencies</summary>
+<p class="small">This code evaluates the exact solution; it does not approximate the ODE by time steps. The figure samples that same solution every 0.1 min from 0 to 60 min. Use the button or paste the code into a browser console.</p>
+<pre><code id="source-code">const baseline = 100; // nM; illustrative, not measured
+const initial = 50;   // nM immediately after depletion
+const models = [
+  {name: &quot;A&quot;, alpha: 10, delta: 0.10},
+  {name: &quot;B&quot;, alpha: 1,  delta: 0.01}
+]; // alpha: nM/min; delta: 1/min
+function concentration(m, t) {
+  const steady = m.alpha / m.delta;
+  return steady + (initial - steady) * Math.exp(-m.delta * t);
+}
+const rows = models.map(m =&gt; ({
+  model: m.name,
+  baseline_nM: m.alpha / m.delta,
+  at20min_nM: concentration(m, 20),
+  t90_min: Math.log(10) / m.delta
+}));
+const tBest = Math.log(models[0].delta / models[1].delta)
+            / (models[0].delta - models[1].delta);
+const gap = concentration(models[0], tBest)
+          - concentration(models[1], tBest);
+console.table(rows);
+console.log({tBest, gap});</code></pre>
+<button type="button" id="run">Recalculate results</button>
+<pre id="results" aria-live="polite">Select “Recalculate results” to evaluate the model.</pre>
+</details>
+
+<h2>What I would argue against / where this breaks</h2>
+<p>I would argue against treating a correct baseline plus a common reaction language as sufficient evidence of predictive validity. The lecture itself lists parameter unidentifiability as a challenge <a href="#ref1">[1]</a>; my example gives that challenge an explicit, falsifiable consequence rather than claiming the lecture ignores it.</p>
+<p>I would also reject the opposite extreme: requiring every parameter to be precisely measured before trusting any prediction. Gutenkunst et al. showed that some predictions can remain tightly constrained even when individual parameters are uncertain <a href="#ref3">[3]</a>. Their “sloppiness” concerns unequal sensitivities to parameter combinations; my example is the narrower case of exact non-identifiability from a single steady-state observable. Uncertainty should be assessed for the specific prediction.</p>
+<p>This toy model assumes constant production, linear loss, fixed volume, and a perturbation that leaves both rates unchanged. Feedback, growth dilution, saturation, or spatial transport could invalidate its recovery curve. A trajectory matching neither candidate would challenge the model assumptions, not merely select a new rate. More dynamic measurements would then be needed. Thus the result motivates targeted validation; it is not evidence that one recovery measurement can validate an entire cell.</p>
+
+<h2>Sources</h2>
+<ol class="src">
+<li id="ref1">Xiao, F. <em>Lecture 16: Foundational virtual cells that are fully mechanistic.</em> CCBS / EST 5053, Fall 2026, core lecture page, 3 November 2026. <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture16-core.html">Course page</a> (accessed 9 November 2026). <strong>Why it matters:</strong> supplies the common-language proposal and identifies unidentifiable parameters as an open challenge. Its brief identifies this extension as the week-8 mini-essay.</li>
+<li id="ref2">Karr, J. R.; Sanghvi, J. C.; Macklin, D. N.; Gutschow, M. V.; Jacobs, J. M.; Bolival, B., Jr.; Assad-Garcia, N.; Glass, J. I.; Covert, M. W. A whole-cell computational model predicts phenotype from genotype. <em>Cell</em> <strong>2012</strong>, <em>150</em>(2), 389–401. <a href="https://doi.org/10.1016/j.cell.2012.05.044">DOI</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/22817898/">PubMed</a> · <a href="https://karr-lab.org/static/doc/papers/Karr2012.pdf">Full text</a>. <strong>Why it matters:</strong> demonstrates whole-cell integration and validation beyond training data; see “Whole-Cell Model Construction and Integration” and “Model Validation against Independent Experimental Data.”</li>
+<li id="ref3">Gutenkunst, R. N.; Waterfall, J. J.; Casey, F. P.; Brown, K. S.; Myers, C. R.; Sethna, J. P. Universally sloppy parameter sensitivities in systems biology models. <em>PLoS Computational Biology</em> <strong>2007</strong>, <em>3</em>(10), e189. <a href="https://doi.org/10.1371/journal.pcbi.0030189">DOI / full text</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/17922568/">PubMed</a>. <strong>Why it matters:</strong> supports distinguishing parameter uncertainty from prediction uncertainty; see the Introduction and Discussion. It does not supply the numerical parameters in this essay.</li>
+</ol>
+<footer>Original illustrative calculation and figure for this extension. The two research papers were checked in full text. Values are rounded to two decimals for display. The document, figure, and calculation work offline; external links require internet access.</footer>
+</main>
+<script>
+document.getElementById('run').addEventListener('click', () => {
+const baseline = 100; // nM; illustrative, not measured
+const initial = 50;   // nM immediately after depletion
+const models = [
+  {name: "A", alpha: 10, delta: 0.10},
+  {name: "B", alpha: 1,  delta: 0.01}
+]; // alpha: nM/min; delta: 1/min
+function concentration(m, t) {
+  const steady = m.alpha / m.delta;
+  return steady + (initial - steady) * Math.exp(-m.delta * t);
+}
+const rows = models.map(m => ({
+  model: m.name,
+  baseline_nM: m.alpha / m.delta,
+  at20min_nM: concentration(m, 20),
+  t90_min: Math.log(10) / m.delta
+}));
+const tBest = Math.log(models[0].delta / models[1].delta)
+            / (models[0].delta - models[1].delta);
+const gap = concentration(models[0], tBest)
+          - concentration(models[1], tBest);
+console.table(rows);
+console.log({tBest, gap});
+document.getElementById('results').textContent = rows.map(r =>
+  `${r.model}: baseline = ${r.baseline_nM.toFixed(2)} nM; X(20) = ${r.at20min_nM.toFixed(2)} nM; t90 = ${r.t90_min.toFixed(2)} min`
+).join('\n') + `\nLargest separation: ${gap.toFixed(2)} nM at ${tBest.toFixed(2)} min.`;
+});
+</script>
+</body></html>
