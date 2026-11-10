@@ -1,0 +1,993 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Can Reaction-Order Geometry Screen Whole-Cell Model Interfaces?</title>
+<meta name="description" content="An equilibrium-binding screen, a steady-state flux counterexample, and a test of local stability.">
+<style>
+:root{
+  /* Sunset-Sky marks */
+  --coral:#EE8168; --peri:#5A73CE; --lime:#8FB043; --plum:#77488C; --teal:#1F9A8E; --rose:#D75567;
+  /* Sunset-Sky fills */
+  --blush:#F5E6EB; --lavender:#E6E4F1; --powder:#D0DAE4; --lilac:#D8CDDD; --pinkf:#F8CFCD; --cream:#FAF0D5;
+  /* neutrals */
+  --ink:#20201E; --gray:#877F77; --leader:#B8AEA5; --gridc:#EDE7E0;
+
+  --bg:#FCFAF7; --bg2:#FFFFFF; --fg:var(--ink); --muted:#6E675F; --rule:#E3DCD3;
+  --shadow:0 1px 2px rgba(32,32,30,.05), 0 8px 28px rgba(32,32,30,.05);
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Charter,Georgia,"Times New Roman",serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif;
+  --mono:"SF Mono",ui-monospace,Menlo,Consolas,"Liberation Mono",monospace;
+  --maxw:44rem;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141513; --bg2:#1C1D1A; --fg:#EDE9E2; --muted:#A9A197; --rule:#33352F;
+    --gridc:#2C2E28; --leader:#5C574F; --ink:#EDE9E2; --gray:#9A9289;
+    --blush:#33262B; --lavender:#262538; --powder:#1F2A33; --lilac:#2E2634; --pinkf:#3A2626; --cream:#332F20;
+    --coral:#F2937D; --peri:#8497E0; --lime:#A6C55C; --plum:#B183C6; --teal:#4FC0B3; --rose:#E8768A;
+    --shadow:0 1px 2px rgba(0,0,0,.35), 0 10px 30px rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141513; --bg2:#1C1D1A; --fg:#EDE9E2; --muted:#A9A197; --rule:#33352F;
+  --gridc:#2C2E28; --leader:#5C574F; --ink:#EDE9E2; --gray:#9A9289;
+  --blush:#33262B; --lavender:#262538; --powder:#1F2A33; --lilac:#2E2634; --pinkf:#3A2626; --cream:#332F20;
+  --coral:#F2937D; --peri:#8497E0; --lime:#A6C55C; --plum:#B183C6; --teal:#4FC0B3; --rose:#E8768A;
+  --shadow:0 1px 2px rgba(0,0,0,.35), 0 10px 30px rgba(0,0,0,.4);
+}
+:root[data-theme="light"]{
+  --bg:#FCFAF7; --bg2:#FFFFFF; --fg:#20201E; --muted:#6E675F; --rule:#E3DCD3;
+  --gridc:#EDE7E0; --leader:#B8AEA5; --ink:#20201E; --gray:#877F77;
+  --blush:#F5E6EB; --lavender:#E6E4F1; --powder:#D0DAE4; --lilac:#D8CDDD; --pinkf:#F8CFCD; --cream:#FAF0D5;
+  --coral:#EE8168; --peri:#5A73CE; --lime:#8FB043; --plum:#77488C; --teal:#1F9A8E; --rose:#D75567;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%; scroll-behavior:smooth}
+body{margin:0; background:var(--bg); color:var(--fg);
+  font-family:var(--serif); font-size:18px; line-height:1.62;
+  font-kerning:normal; text-rendering:optimizeLegibility}
+.wrap{max-width:78rem;margin:0 auto;padding:0 1.25rem;display:grid;grid-template-columns:15rem minmax(0,1fr);gap:3rem}
+@media (max-width:1000px){.wrap{grid-template-columns:1fr;gap:0}}
+
+/* ---------- nav ---------- */
+nav.toc{position:sticky;top:0;align-self:start;max-height:100vh;overflow-y:auto;padding:2.5rem 0 3rem;
+  font-family:var(--sans);font-size:.8rem;line-height:1.45}
+nav.toc .brand{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--rose);
+  font-weight:700;margin:0 0 1.1rem}
+nav.toc h2{font-size:.7rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin:0 0 .9rem;font-weight:600}
+nav.toc ol{list-style:none;margin:0;padding:0}
+nav.toc li{margin:0 0 .1rem}
+nav.toc a{display:block;padding:.26rem .55rem;color:var(--muted);text-decoration:none;
+  border-left:2px solid transparent;border-radius:0 4px 4px 0}
+nav.toc a:hover{color:var(--fg);background:var(--bg2)}
+nav.toc a.on{color:var(--fg);border-left-color:var(--rose);background:var(--bg2);font-weight:600}
+nav.toc .part{margin:1.1rem 0 .35rem;font-size:.66rem;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--leader);font-weight:700}
+@media (max-width:1000px){nav.toc{position:static;max-height:none;border-bottom:1px solid var(--rule);margin-bottom:1rem}}
+
+main{padding:2.5rem 0 6rem;min-width:0}
+main > *{max-width:var(--maxw)}
+main > figure, main > .wide, main > .demo, main > .tablewrap{max-width:56rem}
+
+/* ---------- type ---------- */
+h1{font-size:2.5rem;line-height:1.1;letter-spacing:-.02em;margin:.4rem 0 .8rem;font-weight:700;max-width:26ch}
+.sub{font-size:1.18rem;color:var(--muted);margin:0 0 1.6rem;line-height:1.5;max-width:38rem}
+.byline{font-family:var(--sans);font-size:.8rem;color:var(--muted);letter-spacing:.02em;
+  margin-bottom:2.6rem;padding-bottom:1.6rem;border-bottom:1px solid var(--rule)}
+h2{font-size:1.05rem;font-family:var(--sans);font-weight:700;letter-spacing:.02em;margin:3.6rem 0 .2rem;scroll-margin-top:1.5rem}
+h2 .n{color:var(--rose);font-variant-numeric:tabular-nums;margin-right:.5rem}
+h2 + .lede{color:var(--muted);font-size:1.02rem;margin:.1rem 0 1.1rem}
+h3{font-size:.95rem;font-family:var(--sans);font-weight:700;margin:2.1rem 0 .5rem;color:var(--fg)}
+.parthead{margin:4.5rem 0 1.2rem;padding-top:1.6rem;border-top:2px solid var(--fg)}
+.parthead .k{font-family:var(--sans);font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--rose);font-weight:700}
+.parthead h2{font-size:1.8rem;margin:.35rem 0 .3rem;letter-spacing:-.01em;font-family:var(--serif)}
+.parthead p{color:var(--muted);margin:0;font-size:1.02rem}
+p{margin:0 0 1.05rem}
+a{color:var(--fg);text-underline-offset:2px;text-decoration-color:var(--leader)}
+a:hover{text-decoration-color:var(--rose)}
+ul,ol{margin:0 0 1.05rem;padding-left:1.35rem}
+li{margin:.28rem 0}
+hr{border:0;border-top:1px solid var(--rule);margin:2.6rem 0}
+.small{font-size:.88rem;color:var(--muted)}
+
+/* ---------- math ---------- */
+math{font-family:"STIX Two Math","Cambria Math","Latin Modern Math",serif;font-size:1em}
+.m{white-space:nowrap}
+.eq{display:flex;align-items:center;gap:1rem;margin:1.3rem auto;padding:.85rem 1rem;text-align:center;
+    font-size:1.05rem;background:var(--bg2);border:1px solid var(--rule);border-radius:8px;overflow-x:auto}
+.eq > math{flex:1;min-width:max-content;margin:0}
+.eq .tag{flex:none;color:var(--leader);font-family:var(--sans);font-size:.85em}
+.eq b{color:var(--rose);font-weight:700}
+code{font-family:var(--mono);font-size:.9em}
+sub,sup{font-size:.7em;line-height:0}
+
+/* ---------- callouts ---------- */
+.box{border:1px solid var(--rule);background:var(--bg2);border-radius:10px;padding:1rem 1.15rem;
+  margin:1.5rem 0;box-shadow:var(--shadow)}
+.box .lbl{font-family:var(--sans);font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;
+  font-weight:700;margin-bottom:.45rem;display:block}
+.box p:last-child,.box ul:last-child,.box ol:last-child{margin-bottom:0}
+.box.key{border-left:3px solid var(--rose);background:linear-gradient(94deg,var(--blush),var(--bg2) 62%)}
+.box.key .lbl{color:var(--rose)}
+.box.def{border-left:3px solid var(--peri);background:linear-gradient(94deg,var(--lavender),var(--bg2) 62%)}
+.box.def .lbl{color:var(--peri)}
+.box.thm{border-left:3px solid var(--peri);background:linear-gradient(94deg,var(--lavender),var(--bg2) 62%)}
+.box.thm .lbl{color:var(--peri)}
+.box.note{border-left:3px solid var(--lime)}
+.box.note .lbl{color:var(--lime)}
+.box.caution{border-left:3px solid var(--coral);background:linear-gradient(94deg,var(--pinkf),var(--bg2) 62%)}
+.box.caution .lbl{color:var(--coral)}
+.box.hist{border-left:3px solid var(--leader)}
+.box.hist .lbl{color:var(--leader)}
+.box.sim{border-left:3px solid var(--teal);background:linear-gradient(94deg,var(--powder),var(--bg2) 62%)}
+.box.sim .lbl{color:var(--teal)}
+.box.open{border-left:3px solid var(--plum);background:linear-gradient(94deg,var(--lilac),var(--bg2) 62%)}
+.box.open .lbl{color:var(--plum)}
+
+/* ---------- pulled quotations ---------- */
+blockquote.quote{margin:1.4rem 0;padding:.15rem 0 .15rem 1.15rem;border-left:3px solid var(--leader);
+  color:var(--gray);font-style:italic;font-size:.96em;line-height:1.62}
+blockquote.quote cite{display:block;margin-top:.5rem;font-style:normal;font-family:var(--sans);
+  font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--leader)}
+blockquote.quote cite::before{content:""}
+
+/* ---------- figures ---------- */
+figure{margin:2rem 0;padding:0}
+figure svg{display:block;width:100%;height:auto;max-width:100%}
+.svgwrap{overflow-x:auto}
+.svgwrap svg{min-width:620px}
+figcaption{font-family:var(--sans);font-size:.8rem;line-height:1.5;color:var(--muted);margin-top:.7rem;max-width:44rem}
+figcaption b{color:var(--fg);font-weight:700}
+.figbox{background:var(--bg2);border:1px solid var(--rule);border-radius:10px;padding:1.1rem;box-shadow:var(--shadow)}
+
+/* ---------- tables ---------- */
+.tablewrap{overflow-x:auto;margin:1.6rem 0;border:1px solid var(--rule);border-radius:10px;
+  background:var(--bg2);box-shadow:var(--shadow)}
+table{border-collapse:collapse;width:100%;font-family:var(--sans);font-size:.83rem;line-height:1.45}
+th,td{text-align:left;padding:.6rem .8rem;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:700;font-size:.68rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);background:var(--bg)}
+tbody tr:last-child td{border-bottom:0}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+td.hl{color:var(--rose);font-weight:600}
+caption{caption-side:bottom;text-align:left;padding:.7rem .8rem;font-family:var(--sans);font-size:.78rem;color:var(--muted)}
+
+/* ---------- demos ---------- */
+.demo{background:var(--bg2);border:1px solid var(--rule);border-radius:12px;padding:1.15rem;margin:2rem 0;box-shadow:var(--shadow)}
+.demo h4{font-family:var(--sans);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--rose);margin:0 0 .1rem;font-weight:700}
+.demo .dsub{font-family:var(--sans);font-size:.83rem;color:var(--muted);margin:0 0 .9rem}
+.ctl{display:flex;flex-wrap:wrap;gap:.9rem 1.4rem;align-items:center;font-family:var(--sans);font-size:.78rem;margin:.9rem 0 .2rem}
+.ctl label{display:flex;flex-direction:column;gap:.15rem;min-width:9.5rem;flex:1 1 9.5rem}
+.ctl .lv{display:flex;justify-content:space-between;gap:.6rem;color:var(--muted)}
+.ctl .lv b{color:var(--fg);font-family:var(--mono);font-weight:600}
+input[type=range]{width:100%;accent-color:var(--rose);height:1.1rem}
+button{font-family:var(--sans);font-size:.78rem;font-weight:600;padding:.42rem .85rem;border-radius:7px;
+  border:1px solid var(--rule);background:var(--bg);color:var(--fg);cursor:pointer}
+button:hover{border-color:var(--rose);color:var(--rose)}
+button.pri{background:var(--rose);border-color:var(--rose);color:#fff}
+.readout{font-family:var(--mono);font-size:.78rem;color:var(--muted);margin-top:.6rem;line-height:1.7}
+.readout b{color:var(--fg)}
+canvas{display:block;width:100%;height:auto;border-radius:8px}
+
+/* ---------- refs ---------- */
+.refs{font-size:.88rem;line-height:1.5}
+.refs ol{padding-left:1.8rem}
+.refs li{margin:.5rem 0}
+.refs .venue{color:var(--muted)}
+.pdf{font-family:var(--sans);font-size:.68rem;font-weight:700;letter-spacing:.04em;color:var(--teal);
+  border:1px solid var(--teal);border-radius:4px;padding:.02rem .3rem;text-decoration:none;margin-left:.3rem;white-space:nowrap}
+.pdf:hover{background:var(--teal);color:var(--bg2)}
+.pdf.no{color:var(--leader);border-color:var(--leader)}
+sup.c{font-size:.68em;color:var(--rose);font-weight:700}
+sup.c a{color:inherit;text-decoration:none}
+
+/* ---------- theme toggle ---------- */
+#tt{position:fixed;right:1rem;bottom:1rem;z-index:50;width:2.4rem;height:2.4rem;border-radius:50%;
+  display:grid;place-items:center;font-size:1rem;background:var(--bg2);box-shadow:var(--shadow);border:1px solid var(--rule)}
+@media print{#tt,nav.toc{display:none}.wrap{display:block}main>*{max-width:none}}
+
+/* Essay layout */
+:root{--link:#913044;--teal-ink:#17675e}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--link:#ff9bac;--teal-ink:#82d9cf}}
+:root[data-theme="dark"]{--link:#ff9bac;--teal-ink:#82d9cf}
+:root[data-theme="light"]{--link:#913044;--teal-ink:#17675e}
+.wrap{max-width:74rem;grid-template-columns:12rem minmax(0,1fr);gap:3.5rem}
+main{padding-top:3.2rem}
+main > figure,main > .tablewrap{max-width:47rem}
+main > p{line-height:1.64}
+.eyebrow{font:700 .72rem/1.4 var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--link);margin:0 0 .85rem}
+.essay-head h1{font-size:clamp(2.15rem,4vw,3.2rem);max-width:23ch;line-height:1.07;letter-spacing:-.028em}
+.byline{margin-bottom:1.6rem;padding-bottom:1rem}
+.sub{margin-bottom:1.1rem}
+h2.essay-section{font-size:1.22rem;line-height:1.3;margin-top:3rem;padding-top:1.2rem;border-top:1px solid var(--rule)}
+.essay-section .n{display:block;margin-bottom:.38rem;color:var(--link);font-size:.67rem;letter-spacing:.14em;text-transform:uppercase}
+h3{font-size:1rem;line-height:1.35}
+h2+ p{margin-top:.8rem}
+nav.toc .brand,.box.key .lbl,sup.c{color:var(--link)}
+nav.toc a.on{border-left-color:var(--link)}
+sup.c{margin-left:.12em;white-space:nowrap}
+a:focus-visible,button:focus-visible,summary:focus-visible,.svgwrap:focus-visible,.tablewrap:focus-visible{outline:2px solid var(--link);outline-offset:3px}
+figure{scroll-margin-top:1.3rem}
+figure svg{font-family:var(--sans);color:var(--fg)}
+figure svg text{fill:var(--fg);font-variant-numeric:tabular-nums}
+figure svg .svg-title,figure svg .svg-strong{font-weight:700}
+figure svg .svg-muted{fill:var(--muted)}
+figure svg .svg-rose{fill:var(--link)}
+figure svg .svg-var{font-family:var(--serif);font-size:1.08em;font-style:italic}
+.figbox{padding:.85rem}
+.svgwrap svg{min-width:515px;max-width:none}
+figcaption{font-size:.86rem}
+figcaption math{font-size:1.08em}
+.figure-hint{display:none}
+@media (max-width:570px){.figure-hint{display:block;margin:0 0 .3rem;font:600 .72rem/1.4 var(--sans);color:var(--muted)}}
+.tablewrap table{min-width:470px}
+th{letter-spacing:.045em}
+td.num{text-align:right;font:inherit;font-variant-numeric:tabular-nums}
+th.center{text-align:center}
+caption b{color:var(--fg)}
+.eq{justify-content:space-between}
+.eq > math{font-size:1.11em}
+.eq .tag{color:var(--muted)}
+.eq[data-stack] > math{min-width:0}
+.repro-note{font-family:var(--sans);font-size:.84rem;color:var(--muted)}
+details{border:1px solid var(--rule);border-radius:8px;background:var(--bg2);margin:1rem 0}
+summary{cursor:pointer;padding:.7rem .85rem;font:650 .86rem/1.4 var(--sans)}
+pre{overflow:auto;max-height:26rem;margin:0;border-top:1px solid var(--rule);padding:.9rem;font: .85rem/1.53 var(--mono);tab-size:4}
+pre code{font:inherit}
+#download-code{display:none}
+@media (max-width:900px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0;max-width:48rem}
+  nav.toc{padding:.95rem 0 .65rem;margin:0}
+  nav.toc .brand,nav.toc h2{margin:0 0 .42rem}
+  nav.toc ol{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 .15rem}
+  nav.toc a{padding:.22rem .4rem}
+  main{padding-top:1.5rem}
+}
+@media (max-width:490px){
+  .wrap{padding:0 .9rem}
+  body{font-size:17px}
+  .sub{font-size:1.04rem}
+  .byline{margin-bottom:1.05rem}
+  .figbox{padding:.65rem}
+  .eq{gap:.4rem;padding:.7rem .55rem;font-size:.93rem}
+  .eq .tag{font-size:.73rem}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+@media print{
+  :root,:root[data-theme="dark"]{--bg:#fff;--bg2:#fff;--fg:#20201e;--muted:#534f49;--rule:#ddd;--link:#913044;--gridc:#eee;--powder:#d0dae4;--lavender:#e6e4f1;--blush:#f5e6eb;--ink:#20201e;--teal:#1f9a8e;--rose:#d75567;--peri:#5a73ce;--leader:#877f77}
+  .figbox,.eq,.tablewrap{break-inside:avoid}
+  #download-code{display:none!important}
+  .svgwrap svg,.tablewrap table{min-width:0}
+}
+</style>
+</head>
+<body>
+<button id="tt" type="button" aria-label="Switch to dark theme" title="Switch to dark theme">◐</button>
+<div class="wrap">
+<nav class="toc" id="toc" aria-label="Essay contents">
+  <div class="brand">CCBS 2026 · Assignment 4</div>
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#s1">1 · Problem</a></li>
+    <li><a href="#s2">2 · Challenge</a></li>
+    <li><a href="#s3">3 · Approach</a></li>
+    <li><a href="#s4">4 · Proof</a></li>
+    <li><a href="#s5">5 · Significance</a></li>
+    <li><a href="#refs">References</a></li>
+    <li><a href="#repro">Code appendix</a></li>
+  </ol>
+</nav>
+<main>
+<header class="essay-head">
+  <p class="eyebrow">EST 5053 · Research essay</p>
+  <h1>Can Reaction-Order Geometry Screen Whole-Cell Model Interfaces?</h1>
+  <p class="sub">A binding-equilibrium screen, a flux-balance counterexample, and a stability test</p>
+  <p class="byline"><strong>zhuxiaomeng</strong> · Student ID 20261104507<br>Control and Computation in Biological Systems · Fall 2026</p>
+</header>
+<div class="box key">
+  <span class="lbl">Central claim</span>
+  <p>For a specified equilibrium binding mechanism, an impossible pair of reaction orders rules out the proposed molecular response. An attainable pair can occur at some positive equilibrium. Connecting two modules also requires checking their absolute rates and how those rates respond to the shared pool.</p>
+</div>
+
+<h2 id="s1" class="essay-section"><span class="n">1 · Problem</span> When do two submodels describe the same interface?</h2>
+<p>In their 2012 whole-cell model of <i>Mycoplasma genitalium</i>, Karr and colleagues represented 28 cellular processes through 16 categories of shared state. Each process could use mathematics suited to its data. Metabolism used flux-balance analysis, a way to constrain reaction flows, while RNA and protein degradation used stochastic models. At each one-second step the algorithm allocated shared resources, ran the process models on their allocations, and combined their updates. This schedule assumed that the submodels could execute separately over a short step.<sup class="c"><a href="#r-karr">1</a></sup></p>
+
+<figure class="figbox" id="fig-architecture">
+<span class="figure-hint" aria-hidden="true">Swipe to see the full figure</span>
+<div class="svgwrap" tabindex="0" role="region" aria-label="Figure 1 illustration">
+<svg role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 306" aria-label="Example of Karr and colleagues’ integration architecture. Distinct process models read allocated shared state and return updates.">
+<defs>
+  <marker id="f1-arrow" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse">
+    <path d="M0 0 L8 4 L0 8 Z" fill="var(--muted)"/>
+  </marker>
+</defs>
+<text x="20" y="26" text-anchor="start" font-size="23" class="svg-title">Different process models share one cell state</text>
+<text x="20" y="52" text-anchor="start" font-size="16" class="svg-muted">Conceptual schematic of the Karr et al. simulation</text>
+<rect x="151" y="74" width="338" height="65" rx="8" fill="var(--powder)" stroke="var(--rule)"/>
+<text x="320" y="100" text-anchor="middle" font-size="18" class="svg-strong">16 categories of shared state</text>
+<text x="320" y="123" text-anchor="middle" font-size="15">Metabolites, RNAs and proteins among them</text>
+<path d="M191 139 L140 186" fill="none" stroke="var(--muted)" stroke-width="1.7" marker-end="url(#f1-arrow)"/>
+<path d="M211 185 L248 141" fill="none" stroke="var(--muted)" stroke-width="1.7" stroke-dasharray="5 4" marker-end="url(#f1-arrow)"/>
+<path d="M449 139 L500 186" fill="none" stroke="var(--muted)" stroke-width="1.7" marker-end="url(#f1-arrow)"/>
+<path d="M429 185 L392 141" fill="none" stroke="var(--muted)" stroke-width="1.7" stroke-dasharray="5 4" marker-end="url(#f1-arrow)"/>
+<rect x="25" y="191" width="270" height="64" rx="8" fill="var(--lavender)" stroke="var(--rule)"/>
+<rect x="345" y="191" width="270" height="64" rx="8" fill="var(--blush)" stroke="var(--rule)"/>
+<text x="160" y="218" text-anchor="middle" font-size="18" class="svg-strong">Metabolism</text>
+<text x="160" y="240" text-anchor="middle" font-size="15">Flux-balance analysis</text>
+<text x="480" y="218" text-anchor="middle" font-size="18" class="svg-strong">RNA and protein degradation</text>
+<text x="480" y="240" text-anchor="middle" font-size="15">Stochastic rate laws</text>
+<line x1="86" y1="282" x2="125" y2="282" stroke="var(--muted)" stroke-width="1.7" marker-end="url(#f1-arrow)"/>
+<text x="135" y="288" text-anchor="start" font-size="15">Allocate shared resources</text>
+<line x1="355" y1="282" x2="394" y2="282" stroke="var(--muted)" stroke-width="1.7" stroke-dasharray="5 4" marker-end="url(#f1-arrow)"/>
+<text x="404" y="288" text-anchor="start" font-size="15">Return state updates</text>
+</svg>
+
+</div>
+<figcaption><b>Figure 1.</b> Metabolism and the RNA and protein degradation processes illustrate how distinct mathematical models exchange information through one state. The schematic is based on Karr et al., Figure 1 and Experimental Procedures.<sup class="c"><a href="#r-karr">1</a></sup></figcaption>
+</figure>
+
+<p>Now suppose one module supplies a molecular pool and another removes from it. If both read the same state, their rates can be evaluated in one simulation. If that state is also meant to be stationary, the two rates must agree. A separate question is whether either module's response to a change in molecular abundance can arise from the mechanism it claims to represent. Which part of this compatibility problem can be tested before the coupled simulation runs?</p>
+
+<h2 id="s2" class="essay-section"><span class="n">2 · Challenge</span> Connecting model elements leaves scientific checks to do</h2>
+<p>Macklin, Ruggero, and Covert distinguished linking common state variables from making the combined behavior satisfy physical and biological constraints.<sup class="c"><a href="#r-macklin">2</a></sup> Karr's energy budget illustrates why absolute quantities matter. The modeled processes accounted for 44.3% of the energy experimentally observed to be produced during growth.<sup class="c"><a href="#r-karr">1</a></sup> Locating the remainder requires investigating which processes consume energy and how much each consumes. Freddolino and Tavazoie treated discrepancies of this kind as leads for refining the model.<sup class="c"><a href="#r-freddolino">3</a></sup></p>
+
+<p>Standards and mathematical frameworks address different parts of this problem. The Systems Biology Markup Language (SBML) encodes a model. Its hierarchical composition package specifies how to nest submodels, reference ports, and replace model elements. SED-ML records the simulation protocol.<sup class="c"><a href="#r-sbml">4</a>, <a href="#r-comp">5</a>, <a href="#r-sedml">6</a></sup> In a formal framework for open reaction networks, Baez and Pollard compose steady-state relations that retain both concentrations and boundary flows.<sup class="c"><a href="#r-baez">7</a></sup> The screen developed below uses only two slopes of one output at equilibrium. Its narrower input is useful precisely because a contradiction can be detected even when absolute rates are unavailable.</p>
+
+<figure class="figbox" id="fig-checks">
+<span class="figure-hint" aria-hidden="true">Swipe to see the full figure</span>
+<div class="svgwrap" tabindex="0" role="region" aria-label="Figure 2 illustration">
+<svg role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 313" aria-label="Three checks ask whether an order pair is attainable, whether a pool is balanced, and whether the coupled system returns after perturbation. Each needs different information.">
+<text x="20" y="26" text-anchor="start" font-size="23" class="svg-title">Three checks require different information</text>
+<text x="20" y="52" text-anchor="start" font-size="16" class="svg-muted">For a pool intended to operate at steady state</text>
+<rect x="20" y="74" width="600" height="64" rx="8" fill="var(--powder)"/>
+<rect x="20" y="156" width="600" height="64" rx="8" fill="var(--lavender)"/>
+<rect x="20" y="238" width="600" height="64" rx="8" fill="var(--blush)"/>
+<text x="39" y="99" text-anchor="start" font-size="18" class="svg-strong">1 · Mechanism</text>
+<text x="39" y="122" text-anchor="start" font-size="15">Can this response occur?</text>
+<text x="356" y="99" text-anchor="start" font-size="17" class="svg-strong">Requires</text>
+<text x="356" y="122" text-anchor="start" font-size="15">Joint orders and binding constraints</text>
+<text x="39" y="181" text-anchor="start" font-size="18" class="svg-strong">2 · Interface</text>
+<text x="39" y="204" text-anchor="start" font-size="15">Do the flows balance?</text>
+<text x="356" y="204" text-anchor="start" font-size="15">Pool identity, units and absolute rates</text>
+<text x="39" y="263" text-anchor="start" font-size="18" class="svg-strong">3 · Dynamics</text>
+<text x="39" y="286" text-anchor="start" font-size="15">Does the pool return after a perturbation?</text>
+<text x="356" y="286" text-anchor="start" font-size="15">Coupled rate laws and time scales</text>
+<path d="M320 141 v10 m-4 -4 l4 4 l4 -4 M320 223 v10 m-4 -4 l4 4 l4 -4" fill="none" stroke="var(--muted)" stroke-width="1.6"/>
+</svg>
+
+</div>
+<figcaption><b>Figure 2.</b> The mechanism constrains the pair of relative responses. The interface requires a separate material balance at the prescribed state. The dynamics depend on how the coupled rates change when the state moves.</figcaption>
+</figure>
+
+<p>The distinction matters in practice. Choi and Covert found that separating tRNA charging, which supplies amino acid carriers, from translation, which uses them, could deplete the charged pool within a simulation step. Their analysis cites observed charging rates of 1.8–8.1 cycles per tRNA molecule per second and typical model steps of 1–2 seconds. In their integrated <i>E. coli</i> model, the catalytic constants estimated to support growth were 7.6-fold higher, at the median, than the highest curated in vitro measurements for the corresponding enzymes.<sup class="c"><a href="#r-choi">8</a></sup> The first result concerns the timing of exchange between processes. The second concerns absolute capacity. The example motivates checking both when two processes share a pool.</p>
+
+<h2 id="s3" class="essay-section"><span class="n">3 · Approach</span> One binding pair gives an exact feasibility region</h2>
+<p>Consider reversible binding <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi mathvariant="normal">E</mi><mo>+</mo><mi mathvariant="normal">S</mi><mo>⇌</mo><mi mathvariant="normal">C</mi></mrow></math>. The variables <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>E</mi></mrow></math> and <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>S</mi></mrow></math> are free concentrations and <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>C</mi></mrow></math> is the concentration of the bound complex. At equilibrium they obey <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mi>K</mi><mi mathvariant="normal">d</mi></msub><mi>C</mi><mo>=</mo><mi>E</mi><mi>S</mi></mrow></math>, where <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mi>K</mi><mi mathvariant="normal">d</mi></msub><mo>&gt;</mo><mn>0</mn></mrow></math> is a dissociation constant with concentration units. The conserved totals are <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mi>q</mi><mi>E</mi></msub><mo>=</mo><mi>E</mi><mo>+</mo><mi>C</mi></mrow></math> and <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mi>q</mi><mi>S</mi></msub><mo>=</mo><mi>S</mi><mo>+</mo><mi>C</mi></mrow></math>. Each intervention changes one total and holds the other total and affinity fixed. Holding free substrate fixed would define a different intervention.<sup class="c"><a href="#r-lecture">9</a></sup></p>
+
+<p>Take the readout to be <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>v</mi><mo>=</mo><mi>k</mi><mi>C</mi></mrow></math>, with a fixed <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>k</mi><mo>&gt;</mo><mn>0</mn></mrow></math>. When <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>v</mi></mrow></math> is a flux, <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>k</mi></mrow></math> has inverse-time units and <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>v</mi></mrow></math> has concentration per time units. Here this is a readout of an equilibrium state. It introduces no additional binding dynamics. The two <em>reaction orders</em> describe fractional changes in <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>v</mi></mrow></math> per fractional change in one input. For example, <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>a</mi><mo>=</mo><mn>0.7</mn></mrow></math> means that near the reference state, a 1% increase in total enzyme gives about a 0.7% increase in <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>v</mi></mrow></math>.</p>
+
+<div class="eq"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>a</mi><mo>=</mo><mfrac><mrow><mi mathvariant="normal">∂</mi><mi>ln</mi><mo>⁡</mo><mi>v</mi></mrow><mrow><mi mathvariant="normal">∂</mi><mi>ln</mi><mo>⁡</mo><msub><mi>q</mi><mi>E</mi></msub></mrow></mfrac><mo separator="true">,</mo><mspace width="2em"/><mi>b</mi><mo>=</mo><mfrac><mrow><mi mathvariant="normal">∂</mi><mi>ln</mi><mo>⁡</mo><mi>v</mi></mrow><mrow><mi mathvariant="normal">∂</mi><mi>ln</mi><mo>⁡</mo><msub><mi>q</mi><mi>S</mi></msub></mrow></mfrac><mi mathvariant="normal">.</mi></mrow></math><span class="tag">(1)</span></div>
+
+<p>Since <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>d</mi><mi>E</mi><mo>=</mo><mi>d</mi><msub><mi>q</mi><mi>E</mi></msub><mo>−</mo><mi>d</mi><mi>C</mi></mrow></math> and <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>d</mi><mi>S</mi><mo>=</mo><mi>d</mi><msub><mi>q</mi><mi>S</mi></msub><mo>−</mo><mi>d</mi><mi>C</mi></mrow></math>, differentiating the equilibrium relation gives <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mo stretchy="false">(</mo><msub><mi>K</mi><mi mathvariant="normal">d</mi></msub><mo>+</mo><mi>E</mi><mo>+</mo><mi>S</mi><mo stretchy="false">)</mo><mi>d</mi><mi>C</mi><mo>=</mo><mi>S</mi><mtext> </mtext><mi>d</mi><msub><mi>q</mi><mi>E</mi></msub><mo>+</mo><mi>E</mi><mtext> </mtext><mi>d</mi><msub><mi>q</mi><mi>S</mi></msub></mrow></math>. The constant <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>k</mi></mrow></math> drops out of the logarithmic derivatives. Multiplying the ordinary derivatives by <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mi>q</mi><mi>E</mi></msub><mi mathvariant="normal">/</mi><mi>C</mi></mrow></math> or <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mi>q</mi><mi>S</mi></msub><mi mathvariant="normal">/</mi><mi>C</mi></mrow></math>, respectively, gives the expressions below. The first numerator simplifies because <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mi>q</mi><mi>E</mi></msub><mi>S</mi><mo>=</mo><mo stretchy="false">(</mo><mi>E</mi><mo>+</mo><mi>C</mi><mo stretchy="false">)</mo><mi>S</mi><mo>=</mo><mi>C</mi><mo stretchy="false">(</mo><msub><mi>K</mi><mi mathvariant="normal">d</mi></msub><mo>+</mo><mi>S</mi><mo stretchy="false">)</mo></mrow></math>. The second follows by exchanging <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>E</mi></mrow></math> and <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>S</mi></mrow></math>.</p>
+
+<div class="eq"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>a</mi><mo>=</mo><mfrac><mrow><msub><mi>K</mi><mi mathvariant="normal">d</mi></msub><mo>+</mo><mi>S</mi></mrow><mrow><msub><mi>K</mi><mi mathvariant="normal">d</mi></msub><mo>+</mo><mi>E</mi><mo>+</mo><mi>S</mi></mrow></mfrac><mo separator="true">,</mo><mspace width="2em"/><mi>b</mi><mo>=</mo><mfrac><mrow><msub><mi>K</mi><mi mathvariant="normal">d</mi></msub><mo>+</mo><mi>E</mi></mrow><mrow><msub><mi>K</mi><mi mathvariant="normal">d</mi></msub><mo>+</mo><mi>E</mi><mo>+</mo><mi>S</mi></mrow></mfrac><mi mathvariant="normal">.</mi></mrow></math><span class="tag">(2)</span></div>
+
+<p>At every finite positive state, each order is less than one because its numerator omits one positive term in the denominator. Their sum exceeds one by <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mi>K</mi><mi mathvariant="normal">d</mi></msub><mi mathvariant="normal">/</mi><mo stretchy="false">(</mo><msub><mi>K</mi><mi mathvariant="normal">d</mi></msub><mo>+</mo><mi>E</mi><mo>+</mo><mi>S</mi><mo stretchy="false">)</mo></mrow></math>. The orders therefore obey the joint condition</p>
+
+<div class="eq"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mn>0</mn><mo>&lt;</mo><mi>a</mi><mo>&lt;</mo><mn>1</mn><mo separator="true">,</mo><mspace width="2em"/><mn>0</mn><mo>&lt;</mo><mi>b</mi><mo>&lt;</mo><mn>1</mn><mo separator="true">,</mo><mspace width="2em"/><mi>a</mi><mo>+</mo><mi>b</mi><mo>&gt;</mo><mn>1.</mn></mrow></math><span class="tag">(3)</span></div>
+
+<p>The converse makes this an exact description of the attainable set. For a pair satisfying (3), choose any <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mi>K</mi><mi mathvariant="normal">d</mi></msub><mo>&gt;</mo><mn>0</mn></mrow></math> and construct the free concentrations as follows.</p>
+
+<div class="eq"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mfrac><mi>E</mi><msub><mi>K</mi><mi mathvariant="normal">d</mi></msub></mfrac><mo>=</mo><mfrac><mrow><mn>1</mn><mo>−</mo><mi>a</mi></mrow><mrow><mi>a</mi><mo>+</mo><mi>b</mi><mo>−</mo><mn>1</mn></mrow></mfrac><mo separator="true">,</mo><mspace width="2em"/><mfrac><mi>S</mi><msub><mi>K</mi><mi mathvariant="normal">d</mi></msub></mfrac><mo>=</mo><mfrac><mrow><mn>1</mn><mo>−</mo><mi>b</mi></mrow><mrow><mi>a</mi><mo>+</mo><mi>b</mi><mo>−</mo><mn>1</mn></mrow></mfrac><mi mathvariant="normal">.</mi></mrow></math><span class="tag">(4)</span></div>
+
+<p>Both concentrations are positive. Set <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>C</mi><mo>=</mo><mi>E</mi><mi>S</mi><mi mathvariant="normal">/</mi><msub><mi>K</mi><mi mathvariant="normal">d</mi></msub></mrow></math> and recover the two totals by conservation. Substitution into (2) gives the original orders. Thus every interior point of the triangle is attainable for some positive totals. The vertices <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mo stretchy="false">(</mo><mn>0</mn><mo separator="true">,</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></math>, <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mo stretchy="false">(</mo><mn>1</mn><mo separator="true">,</mo><mn>0</mn><mo stretchy="false">)</mo></mrow></math>, and <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mo stretchy="false">(</mo><mn>1</mn><mo separator="true">,</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></math> and the edges represent limits. If the totals and affinity are already specified, their equilibrium gives a single predicted order pair to check. Lecture 11 derives this region and shows how changing the readout from complex to free enzyme changes the constraints.<sup class="c"><a href="#r-lecture">9</a></sup></p>
+
+<h2 id="s4" class="essay-section"><span class="n">4 · Proof</span> Four tests separate attainable orders from flux balance</h2>
+
+<h3>Tests A and B · One binding mechanism, two screening outcomes</h3>
+<p>The conservation equations give a quadratic for <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>C</mi></mrow></math>. With <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>T</mi><mo>=</mo><msub><mi>q</mi><mi>E</mi></msub><mo>+</mo><msub><mi>q</mi><mi>S</mi></msub><mo>+</mo><msub><mi>K</mi><mi mathvariant="normal">d</mi></msub></mrow></math> and <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi mathvariant="normal">Δ</mi><mo>=</mo><mo stretchy="false">(</mo><msub><mi>q</mi><mi>E</mi></msub><mo>−</mo><msub><mi>q</mi><mi>S</mi></msub><msup><mo stretchy="false">)</mo><mn>2</mn></msup><mo>+</mo><msub><mi>K</mi><mi mathvariant="normal">d</mi></msub><mo stretchy="false">[</mo><mn>2</mn><mo stretchy="false">(</mo><msub><mi>q</mi><mi>E</mi></msub><mo>+</mo><msub><mi>q</mi><mi>S</mi></msub><mo stretchy="false">)</mo><mo>+</mo><msub><mi>K</mi><mi mathvariant="normal">d</mi></msub><mo stretchy="false">]</mo></mrow></math>, its physical root is</p>
+
+<div class="eq"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>C</mi><mo>=</mo><mfrac><mrow><mn>2</mn><msub><mi>q</mi><mi>E</mi></msub><msub><mi>q</mi><mi>S</mi></msub></mrow><mrow><mi>T</mi><mo>+</mo><msqrt><mi mathvariant="normal">Δ</mi></msqrt></mrow></mfrac><mo separator="true">,</mo><mspace width="2em"/><mn>0</mn><mo>&lt;</mo><mi>C</mi><mo>&lt;</mo><mi>min</mi><mo>⁡</mo><mo stretchy="false">(</mo><msub><mi>q</mi><mi>E</mi></msub><mo separator="true">,</mo><msub><mi>q</mi><mi>S</mi></msub><mo stretchy="false">)</mo><mi mathvariant="normal">.</mi></mrow></math><span class="tag">(5)</span></div>
+
+<p>In Test A1, both totals and affinity equal one model concentration unit. Equation (5) gives <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>C</mi><mo>≈</mo><mn>0.381966</mn></mrow></math>, and (2) gives <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>a</mi><mo>=</mo><mi>b</mi><mo>≈</mo><mn>0.723607</mn></mrow></math>. To check the derivatives numerically, the code perturbs each total by factors <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>exp</mi><mo>⁡</mo><mo stretchy="false">(</mo><mo>±</mo><mi>h</mi><mo stretchy="false">)</mo></mrow></math> and divides the change in <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>ln</mi><mo>⁡</mo><mi>C</mi></mrow></math> by <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mn>2</mn><mi>h</mi></mrow></math>. At <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>h</mi><mo>=</mo><msup><mn>10</mn><mrow><mo>−</mo><mn>4</mn></mrow></msup></mrow></math>, the largest absolute difference from (2) across the four cases is about <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mn>3.3</mn><mo>×</mo><msup><mn>10</mn><mrow><mo>−</mo><mn>10</mn></mrow></msup></mrow></math>. Swapping the totals in A2 and A3 swaps the orders, as the symmetry of (2) predicts. In A2, almost all substrate is bound. More enzyme therefore changes the complex little, while more substrate increases the complex nearly in proportion.</p>
+
+<div class="tablewrap" tabindex="0" role="region" aria-label="Test A numerical results">
+<table>
+  <caption><b>Table 1.</b> Synthetic equilibria for Test A. Totals, affinity, and complex concentrations share the same model units. Orders are dimensionless. Values shown are rounded.</caption>
+  <thead><tr><th scope="col">Case</th><th scope="col" class="center"><math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mi>q</mi><mi>E</mi></msub></mrow></math></th><th scope="col" class="center"><math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mi>q</mi><mi>S</mi></msub></mrow></math></th><th scope="col" class="center"><math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mi>K</mi><mi mathvariant="normal">d</mi></msub></mrow></math></th><th scope="col" class="center"><math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>C</mi></mrow></math></th><th scope="col" class="center"><math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>a</mi></mrow></math></th><th scope="col" class="center"><math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>b</mi></mrow></math></th></tr></thead>
+  <tbody><tr><th scope="row">A1</th><td class="num">1</td><td class="num">1</td><td class="num">1</td><td class="num">0.381966</td><td class="num">0.723607</td><td class="num">0.723607</td></tr>
+    <tr><th scope="row">A2</th><td class="num">10</td><td class="num">1</td><td class="num">0.1</td><td class="num">0.989024</td><td class="num">0.012166</td><td class="num">0.998797</td></tr>
+    <tr><th scope="row">A3</th><td class="num">1</td><td class="num">10</td><td class="num">0.1</td><td class="num">0.989024</td><td class="num">0.998797</td><td class="num">0.012166</td></tr>
+    <tr><th scope="row">A4</th><td class="num">0.2</td><td class="num">1</td><td class="num">2</td><td class="num">0.063771</td><td class="num">0.955661</td><td class="num">0.695283</td></tr></tbody>
+</table>
+</div>
+
+<p>Test B proposes the local law <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>v</mi><mo>=</mo><msub><mi>v</mi><mn>0</mn></msub><mo stretchy="false">(</mo><msub><mi>q</mi><mi>E</mi></msub><mi mathvariant="normal">/</mi><msub><mi>q</mi><mn>0</mn></msub><msup><mo stretchy="false">)</mo><mn>0.3</mn></msup><mo stretchy="false">(</mo><msub><mi>q</mi><mi>S</mi></msub><mi mathvariant="normal">/</mi><msub><mi>q</mi><mn>0</mn></msub><msup><mo stretchy="false">)</mo><mn>0.3</mn></msup></mrow></math>, with fixed positive reference scales <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mi>v</mi><mn>0</mn></msub></mrow></math> and <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mi>q</mi><mn>0</mn></msub></mrow></math>. Both orders individually lie between zero and one. Together they give <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>a</mi><mo>+</mo><mi>b</mi><mo>=</mo><mn>0.6</mn></mrow></math>, which violates (3). This excludes the one-pair equilibrium explanation for that law. A different mechanism would require its own feasibility test.</p>
+
+<figure class="figbox" id="fig-orders">
+<span class="figure-hint" aria-hidden="true">Swipe to see the full figure</span>
+<div class="svgwrap" tabindex="0" role="region" aria-label="Figure 3 illustration">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 467" class="ccbs-result" role="img" aria-label="Orders a and b. All four binding cases have marker centers inside the dashed triangle. The candidate (0.3, 0.3) lies below the diagonal and is excluded.">
+
+<style>
+.ccbs-result { background-color:var(--bg2,#ffffff) }
+.ccbs-result text { font-family:system-ui,sans-serif; fill:var(--fg,#242321) }
+.ccbs-result .svg-title, .ccbs-result .svg-strong { font-weight:700 }
+.ccbs-result .svg-muted { fill:var(--muted,#6e675f) }
+.ccbs-result .svg-rose { fill:var(--link,#913044) }
+.ccbs-result .svg-var { font-family:serif; font-style:italic }
+</style>
+<text x="20.000" y="26.000" text-anchor="start" font-size="23" class="svg-title">The two orders constrain each other</text>
+<text x="20.000" y="53.000" text-anchor="start" font-size="16" class="svg-muted">Complex output of one equilibrium binding pair</text>
+<polygon points="75,84 388,397 388,84" fill="var(--powder,#d0dae4)"/>
+<line x1="75.0000" y1="84.0000" x2="75.0000" y2="397.0000" stroke="var(--gridc,#eae6df)" stroke-width="1"/>
+<line x1="75.0000" y1="397.0000" x2="388.0000" y2="397.0000" stroke="var(--gridc,#eae6df)" stroke-width="1"/>
+<text x="75.000" y="419.000" text-anchor="middle" font-size="14" class="">0</text>
+<line x1="153.2500" y1="84.0000" x2="153.2500" y2="397.0000" stroke="var(--gridc,#eae6df)" stroke-width="1"/>
+<line x1="75.0000" y1="318.7500" x2="388.0000" y2="318.7500" stroke="var(--gridc,#eae6df)" stroke-width="1"/>
+<text x="153.250" y="419.000" text-anchor="middle" font-size="14" class="">0.25</text>
+<text x="64.000" y="323.750" text-anchor="end" font-size="14" class="">0.25</text>
+<line x1="231.5000" y1="84.0000" x2="231.5000" y2="397.0000" stroke="var(--gridc,#eae6df)" stroke-width="1"/>
+<line x1="75.0000" y1="240.5000" x2="388.0000" y2="240.5000" stroke="var(--gridc,#eae6df)" stroke-width="1"/>
+<text x="231.500" y="419.000" text-anchor="middle" font-size="14" class="">0.5</text>
+<text x="64.000" y="245.500" text-anchor="end" font-size="14" class="">0.5</text>
+<line x1="309.7500" y1="84.0000" x2="309.7500" y2="397.0000" stroke="var(--gridc,#eae6df)" stroke-width="1"/>
+<line x1="75.0000" y1="162.2500" x2="388.0000" y2="162.2500" stroke="var(--gridc,#eae6df)" stroke-width="1"/>
+<text x="309.750" y="419.000" text-anchor="middle" font-size="14" class="">0.75</text>
+<text x="64.000" y="167.250" text-anchor="end" font-size="14" class="">0.75</text>
+<line x1="388.0000" y1="84.0000" x2="388.0000" y2="397.0000" stroke="var(--gridc,#eae6df)" stroke-width="1"/>
+<line x1="75.0000" y1="84.0000" x2="388.0000" y2="84.0000" stroke="var(--gridc,#eae6df)" stroke-width="1"/>
+<text x="388.000" y="419.000" text-anchor="middle" font-size="14" class="">1</text>
+<text x="64.000" y="89.000" text-anchor="end" font-size="14" class="">1</text>
+<line x1="75.0000" y1="397.0000" x2="388.0000" y2="397.0000" stroke="var(--fg,#242321)" stroke-width="1.5"/>
+<line x1="75.0000" y1="84.0000" x2="75.0000" y2="397.0000" stroke="var(--fg,#242321)" stroke-width="1.5"/>
+<polyline points="75,84 388,397 388,84 75,84" fill="none" stroke="var(--peri,#5a73ce)" stroke-width="1.6" stroke-dasharray="5 4"/>
+<text x="231.500" y="447.000" text-anchor="middle" font-size="16" class="">Order in total enzyme, <tspan class="svg-var">a</tspan></text>
+<g transform="rotate(-90 21 241)"><text x="21.000" y="241.000" text-anchor="middle" font-size="16" class="">Order in total substrate, <tspan class="svg-var">b</tspan></text></g>
+<rect x="413.000" y="99.000" width="205.000" height="165.000" rx="8" fill="var(--bg,#fcfaf7)"/>
+<text x="429.000" y="127.000" text-anchor="start" font-size="17" class="svg-strong">Shaded interior</text>
+<text x="429.000" y="152.000" text-anchor="start" font-size="16" class="">Attainable at finite states</text>
+<text x="429.000" y="188.000" text-anchor="start" font-size="17" class="svg-strong">Dashed boundary</text>
+<text x="429.000" y="213.000" text-anchor="start" font-size="16" class="">Limiting states</text>
+<text x="429.000" y="241.000" text-anchor="start" font-size="15" class="">Diagonal <tspan class="svg-var">a</tspan> + <tspan class="svg-var">b</tspan> = 1</text>
+<circle cx="422.0000" cy="291.0000" r="5" fill="var(--teal,#1f9a8e)" stroke="var(--bg2,#ffffff)" stroke-width="1.7"/>
+<text x="436.000" y="297.000" text-anchor="start" font-size="16" class="">A1–A4  Binding cases</text>
+<text x="417.000" y="333.000" text-anchor="start" font-size="21" class="svg-rose">×</text>
+<text x="436.000" y="331.000" text-anchor="start" font-size="16" class="">B  Excluded candidate</text>
+<circle cx="301.4889" cy="170.5111" r="5.5" fill="var(--teal,#1f9a8e)" stroke="var(--bg2,#ffffff)" stroke-width="1.7"/>
+<text x="313.489" y="161.511" text-anchor="start" font-size="15" class="svg-strong">A1</text>
+<circle cx="78.8079" cy="84.3766" r="5.5" fill="var(--teal,#1f9a8e)" stroke="var(--bg2,#ffffff)" stroke-width="1.7"/>
+<text x="91.808" y="76.377" text-anchor="start" font-size="15" class="svg-strong">A2</text>
+<circle cx="387.6234" cy="393.1921" r="5.5" fill="var(--teal,#1f9a8e)" stroke="var(--bg2,#ffffff)" stroke-width="1.7"/>
+<text x="402.623" y="385.192" text-anchor="start" font-size="15" class="svg-strong">A3</text>
+<circle cx="374.1220" cy="179.3763" r="5.5" fill="var(--teal,#1f9a8e)" stroke="var(--bg2,#ffffff)" stroke-width="1.7"/>
+<text x="355.122" y="204.376" text-anchor="start" font-size="15" class="svg-strong">A4</text>
+<line x1="163.9000" y1="298.1000" x2="173.9000" y2="308.1000" stroke="var(--rose,#d75567)" stroke-width="3" stroke-linecap="round"/>
+<line x1="163.9000" y1="308.1000" x2="173.9000" y2="298.1000" stroke="var(--rose,#d75567)" stroke-width="3" stroke-linecap="round"/>
+<text x="181.900" y="309.100" text-anchor="start" font-size="15" class="svg-strong">B</text>
+</svg>
+
+</div>
+<figcaption><b>Figure 3.</b> Test B falls below the diagonal, even though each order lies between zero and one. Tests A1–A4 are inside the attainable region. The centers of A2 and A3 lie close to the limiting corners.</figcaption>
+</figure>
+
+<h3>Tests C and D · Equal orders leave the absolute scale free</h3>
+<p>Hold the two totals and affinity at the A1 values. Let two modules share the same binding response <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>C</mi><mo stretchy="false">(</mo><msub><mi>q</mi><mi>E</mi></msub><mo separator="true">,</mo><msub><mi>q</mi><mi>S</mi></msub><mo stretchy="false">)</mo></mrow></math> and supply and remove a distinct pool <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>X</mi></mrow></math>, respectively. Their rates are <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mi>v</mi><mrow><mi mathvariant="normal">i</mi><mi mathvariant="normal">n</mi></mrow></msub><mo>=</mo><msub><mi>k</mi><mrow><mi mathvariant="normal">i</mi><mi mathvariant="normal">n</mi></mrow></msub><mi>C</mi></mrow></math> and <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mi>v</mi><mrow><mi mathvariant="normal">o</mi><mi mathvariant="normal">u</mi><mi mathvariant="normal">t</mi></mrow></msub><mo>=</mo><msub><mi>k</mi><mrow><mi mathvariant="normal">o</mi><mi mathvariant="normal">u</mi><mi mathvariant="normal">t</mi></mrow></msub><mi>C</mi></mrow></math>. Here the rates refer to the same pool concentration, with fixed volume and matched units. With these two contributions, the material balance is</p>
+
+<div class="eq"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mfrac><mrow><mi>d</mi><mi>X</mi></mrow><mrow><mi>d</mi><mi>t</mi></mrow></mfrac><mo>=</mo><msub><mi>v</mi><mrow><mi mathvariant="normal">i</mi><mi mathvariant="normal">n</mi></mrow></msub><mo>−</mo><msub><mi>v</mi><mrow><mi mathvariant="normal">o</mi><mi mathvariant="normal">u</mi><mi mathvariant="normal">t</mi></mrow></msub><mi mathvariant="normal">.</mi></mrow></math><span class="tag">(6)</span></div>
+
+<p>For Test C, set <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mi>k</mi><mrow><mi mathvariant="normal">i</mi><mi mathvariant="normal">n</mi></mrow></msub><mo>=</mo><mn>1</mn></mrow></math> and <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mi>k</mi><mrow><mi mathvariant="normal">o</mi><mi mathvariant="normal">u</mi><mi mathvariant="normal">t</mi></mrow></msub><mo>=</mo><mn>3</mn></mrow></math> in inverse model time units. Because both constants disappear from (1), the two modules have identical orders, <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mo stretchy="false">(</mo><mn>0.723607</mn><mo separator="true">,</mo><mn>0.723607</mn><mo stretchy="false">)</mo></mrow></math>. Their rates are approximately <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mn>0.381966</mn></mrow></math> and <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mn>1.145898</mn></mrow></math> concentration units per time. The net rate is approximately <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mo>−</mo><mn>0.763932</mn></mrow></math>, so the designated state fails the stationarity requirement. For Test D, setting <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mi>k</mi><mrow><mi mathvariant="normal">o</mi><mi mathvariant="normal">u</mi><mi mathvariant="normal">t</mi></mrow></msub><mo>=</mo><mn>1</mn></mrow></math> makes the rates equal and the net rate zero at the same state. The order pair stays the same. In general, multiplication by any positive constant preserves the entire local order pair while changing the rate scale.</p>
+
+<figure class="figbox" id="fig-flux">
+<span class="figure-hint" aria-hidden="true">Swipe to see the full figure</span>
+<div class="svgwrap" tabindex="0" role="region" aria-label="Figure 4 illustration">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 345" class="ccbs-result" role="img" aria-label="Test C has inflow 0.382, outflow 1.146 and negative net rate. Test D has equal inflow and outflow of 0.382 and zero net rate.">
+
+<style>
+.ccbs-result { background-color:var(--bg2,#ffffff) }
+.ccbs-result text { font-family:system-ui,sans-serif; fill:var(--fg,#242321) }
+.ccbs-result .svg-title, .ccbs-result .svg-strong { font-weight:700 }
+.ccbs-result .svg-muted { fill:var(--muted,#6e675f) }
+.ccbs-result .svg-rose { fill:var(--link,#913044) }
+.ccbs-result .svg-var { font-family:serif; font-style:italic }
+</style>
+<text x="20.000" y="26.000" text-anchor="start" font-size="23" class="svg-title">Matching orders can coexist with unequal rates</text>
+<text x="20.000" y="52.000" text-anchor="start" font-size="16" class="svg-muted">Same binding state and influx in both tests</text>
+<rect x="121.000" y="71.000" width="13.000" height="13.000" rx="2" fill="var(--teal,#1f9a8e)"/>
+<text x="143.000" y="83.000" text-anchor="start" font-size="16" class="">Inflow</text>
+<rect x="222.000" y="71.000" width="13.000" height="13.000" rx="2" fill="var(--peri,#5a73ce)"/>
+<text x="244.000" y="83.000" text-anchor="start" font-size="16" class="">Outflow</text>
+<text x="544.000" y="83.000" text-anchor="middle" font-size="15" class="svg-strong">Net rate</text>
+<line x1="121.0000" y1="96.0000" x2="121.0000" y2="280.0000" stroke="var(--gridc,#eae6df)" stroke-width="1"/>
+<text x="121.000" y="302.000" text-anchor="middle" font-size="14" class="">0</text>
+<line x1="191.2000" y1="96.0000" x2="191.2000" y2="280.0000" stroke="var(--gridc,#eae6df)" stroke-width="1"/>
+<text x="191.200" y="302.000" text-anchor="middle" font-size="14" class="">0.25</text>
+<line x1="261.4000" y1="96.0000" x2="261.4000" y2="280.0000" stroke="var(--gridc,#eae6df)" stroke-width="1"/>
+<text x="261.400" y="302.000" text-anchor="middle" font-size="14" class="">0.5</text>
+<line x1="331.6000" y1="96.0000" x2="331.6000" y2="280.0000" stroke="var(--gridc,#eae6df)" stroke-width="1"/>
+<text x="331.600" y="302.000" text-anchor="middle" font-size="14" class="">0.75</text>
+<line x1="401.8000" y1="96.0000" x2="401.8000" y2="280.0000" stroke="var(--gridc,#eae6df)" stroke-width="1"/>
+<text x="401.800" y="302.000" text-anchor="middle" font-size="14" class="">1</text>
+<line x1="472.0000" y1="96.0000" x2="472.0000" y2="280.0000" stroke="var(--gridc,#eae6df)" stroke-width="1"/>
+<text x="472.000" y="302.000" text-anchor="middle" font-size="14" class="">1.25</text>
+<text x="20.000" y="126.000" text-anchor="start" font-size="17" class="svg-strong">Test C</text>
+<text x="20.000" y="149.000" text-anchor="start" font-size="15" class="svg-muted">Mismatch</text>
+<rect x="121.000" y="112.000" width="107.256" height="20.000" rx="3" fill="var(--teal,#1f9a8e)"/>
+<text x="236.256" y="127.000" text-anchor="start" font-size="15" class="">0.382</text>
+<rect x="121.000" y="142.000" width="321.768" height="20.000" rx="3" fill="var(--peri,#5a73ce)"/>
+<text x="450.768" y="157.000" text-anchor="start" font-size="15" class="">1.146</text>
+<text x="544.000" y="144.000" text-anchor="middle" font-size="19" class="svg-strong">−0.764</text>
+<text x="20.000" y="212.000" text-anchor="start" font-size="17" class="svg-strong">Test D</text>
+<text x="20.000" y="235.000" text-anchor="start" font-size="15" class="svg-muted">Balanced</text>
+<rect x="121.000" y="198.000" width="107.256" height="20.000" rx="3" fill="var(--teal,#1f9a8e)"/>
+<text x="236.256" y="213.000" text-anchor="start" font-size="15" class="">0.382</text>
+<rect x="121.000" y="228.000" width="107.256" height="20.000" rx="3" fill="var(--peri,#5a73ce)"/>
+<text x="236.256" y="243.000" text-anchor="start" font-size="15" class="">0.382</text>
+<text x="544.000" y="230.000" text-anchor="middle" font-size="19" class="svg-strong">0.000</text>
+<line x1="121.0000" y1="96.0000" x2="121.0000" y2="280.0000" stroke="var(--fg,#242321)" stroke-width="1.5"/>
+<line x1="121.0000" y1="280.0000" x2="472.0000" y2="280.0000" stroke="var(--fg,#242321)" stroke-width="1.5"/>
+<text x="296.500" y="328.000" text-anchor="middle" font-size="16" class="">Rate (model concentration per time unit)</text>
+</svg>
+
+</div>
+<figcaption><b>Figure 4.</b> Identical order pairs give two different outcomes for the required pool balance. The inflow is fixed, and only the outflow multiplier changes from Test C to Test D.</figcaption>
+</figure>
+
+<p>Figure 5 integrates (6) over one model time unit from <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>X</mi><mo stretchy="false">(</mo><mn>0</mn><mo stretchy="false">)</mo><mo>=</mo><mn>2</mn></mrow></math>, holding the rates at the values used in Figure 4. In Test C, <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>X</mi></mrow></math> falls to approximately <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mn>1.236068</mn></mrow></math>. In Test D it stays at <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mn>2</mn></mrow></math>. The straight lines follow from holding the rates fixed. To ask what happens after a disturbance, allow the rates to depend on <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>X</mi></mrow></math>.</p>
+
+<figure class="figbox" id="fig-pool">
+<span class="figure-hint" aria-hidden="true">Swipe to see the full figure</span>
+<div class="svgwrap" tabindex="0" role="region" aria-label="Figure 5 illustration">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 383" class="ccbs-result" role="img" aria-label="Fixed-rate illustration from time zero to one. Both tests begin at X = 2. Test C declines to 1.236 and Test D stays at 2.000. The vertical scale starts at zero.">
+
+<style>
+.ccbs-result { background-color:var(--bg2,#ffffff) }
+.ccbs-result text { font-family:system-ui,sans-serif; fill:var(--fg,#242321) }
+.ccbs-result .svg-title, .ccbs-result .svg-strong { font-weight:700 }
+.ccbs-result .svg-muted { fill:var(--muted,#6e675f) }
+.ccbs-result .svg-rose { fill:var(--link,#913044) }
+.ccbs-result .svg-var { font-family:serif; font-style:italic }
+</style>
+<text x="20.000" y="26.000" text-anchor="start" font-size="23" class="svg-title">Excess outflow lowers the shared pool</text>
+<text x="20.000" y="51.000" text-anchor="start" font-size="16" class="svg-muted">Illustrative integration with rates held fixed</text>
+<text x="74.000" y="77.000" text-anchor="start" font-size="16" class="">Shared pool <tspan class="svg-var">X</tspan> (model concentration units)</text>
+<line x1="74.0000" y1="314.0000" x2="450.0000" y2="314.0000" stroke="var(--gridc,#eae6df)" stroke-width="1"/>
+<text x="62.000" y="319.000" text-anchor="end" font-size="14" class="">0</text>
+<line x1="74.0000" y1="263.5455" x2="450.0000" y2="263.5455" stroke="var(--gridc,#eae6df)" stroke-width="1"/>
+<text x="62.000" y="268.545" text-anchor="end" font-size="14" class="">0.5</text>
+<line x1="74.0000" y1="213.0909" x2="450.0000" y2="213.0909" stroke="var(--gridc,#eae6df)" stroke-width="1"/>
+<text x="62.000" y="218.091" text-anchor="end" font-size="14" class="">1</text>
+<line x1="74.0000" y1="162.6364" x2="450.0000" y2="162.6364" stroke="var(--gridc,#eae6df)" stroke-width="1"/>
+<text x="62.000" y="167.636" text-anchor="end" font-size="14" class="">1.5</text>
+<line x1="74.0000" y1="112.1818" x2="450.0000" y2="112.1818" stroke="var(--gridc,#eae6df)" stroke-width="1"/>
+<text x="62.000" y="117.182" text-anchor="end" font-size="14" class="">2</text>
+<line x1="74.0000" y1="92.0000" x2="74.0000" y2="314.0000" stroke="var(--gridc,#eae6df)" stroke-width="1"/>
+<text x="74.000" y="338.000" text-anchor="middle" font-size="14" class="">0</text>
+<line x1="168.0000" y1="92.0000" x2="168.0000" y2="314.0000" stroke="var(--gridc,#eae6df)" stroke-width="1"/>
+<text x="168.000" y="338.000" text-anchor="middle" font-size="14" class="">0.25</text>
+<line x1="262.0000" y1="92.0000" x2="262.0000" y2="314.0000" stroke="var(--gridc,#eae6df)" stroke-width="1"/>
+<text x="262.000" y="338.000" text-anchor="middle" font-size="14" class="">0.5</text>
+<line x1="356.0000" y1="92.0000" x2="356.0000" y2="314.0000" stroke="var(--gridc,#eae6df)" stroke-width="1"/>
+<text x="356.000" y="338.000" text-anchor="middle" font-size="14" class="">0.75</text>
+<line x1="450.0000" y1="92.0000" x2="450.0000" y2="314.0000" stroke="var(--gridc,#eae6df)" stroke-width="1"/>
+<text x="450.000" y="338.000" text-anchor="middle" font-size="14" class="">1</text>
+<line x1="74.0000" y1="314.0000" x2="450.0000" y2="314.0000" stroke="var(--fg,#242321)" stroke-width="1.5" data-axis="x"/>
+<line x1="74.0000" y1="92.0000" x2="74.0000" y2="314.0000" stroke="var(--fg,#242321)" stroke-width="1.5"/>
+<text x="262.000" y="367.000" text-anchor="middle" font-size="16" class="">Time <tspan class="svg-var">t</tspan> (model time units)</text>
+<line x1="74.0000" y1="112.1818" x2="450.0000" y2="112.1818" stroke="var(--teal,#1f9a8e)" stroke-width="3" stroke-linecap="round" stroke-dasharray="9 6" data-trajectory="D"/>
+<circle cx="450.0000" cy="112.1818" r="5.5" fill="var(--teal,#1f9a8e)" stroke="var(--bg2,#ffffff)" stroke-width="1.7"/>
+<text x="470.000" y="107.182" text-anchor="start" font-size="17" class="svg-strong">D  Balanced</text>
+<text x="470.000" y="128.182" text-anchor="start" font-size="15" class=""><tspan class="svg-var">X</tspan>(1) = 2.000</text>
+<line x1="74.0000" y1="112.1818" x2="450.0000" y2="189.2695" stroke="var(--rose,#d75567)" stroke-width="3" stroke-linecap="round" data-trajectory="C"/>
+<circle cx="450.0000" cy="189.2695" r="5.5" fill="var(--rose,#d75567)" stroke="var(--bg2,#ffffff)" stroke-width="1.7"/>
+<text x="470.000" y="184.270" text-anchor="start" font-size="17" class="svg-strong">C  Mismatch</text>
+<text x="470.000" y="205.270" text-anchor="start" font-size="15" class=""><tspan class="svg-var">X</tspan>(1) = 1.236</text>
+<circle cx="74.0000" cy="112.1818" r="5" fill="var(--fg,#242321)" stroke="var(--bg2,#ffffff)" stroke-width="1.7"/>
+</svg>
+
+</div>
+<figcaption><b>Figure 5.</b> With rates fixed at Figure 4’s values, Test C falls to <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mn>1.236</mn></mrow></math> and Test D stays at <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mn>2.000</mn></mrow></math> at <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>t</mi><mo>=</mo><mn>1</mn></mrow></math>. The concentration axis starts at zero.</figcaption>
+</figure>
+
+<h2 id="s5" class="essay-section"><span class="n">5 · Significance</span> Stability needs the response to the shared pool</h2>
+<p>Keep Test D's reference rates and introduce feedback from <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>X</mi></mrow></math>. Let <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mi>X</mi><mo>∗</mo></msub><mo>=</mo><mn>2</mn></mrow></math> be the target concentration, <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>z</mi><mo>=</mo><mi>X</mi><mi mathvariant="normal">/</mi><msub><mi>X</mi><mo>∗</mo></msub></mrow></math>, and <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>r</mi><mo stretchy="false">(</mo><msub><mi>q</mi><mi>E</mi></msub><mo separator="true">,</mo><msub><mi>q</mi><mi>S</mi></msub><mo stretchy="false">)</mo><mo>=</mo><msub><mi>k</mi><mrow><mi mathvariant="normal">i</mi><mi mathvariant="normal">n</mi></mrow></msub><mi>C</mi><mo stretchy="false">(</mo><msub><mi>q</mi><mi>E</mi></msub><mo separator="true">,</mo><msub><mi>q</mi><mi>S</mi></msub><mo stretchy="false">)</mo></mrow></math>. At the A1 binding state, <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>r</mi></mrow></math> is the positive rate in Test D. As a minimal extension, let inflow be <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>r</mi><msup><mi>z</mi><mn>2</mn></msup></mrow></math> and outflow be <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>r</mi><msup><mi>z</mi><mi>γ</mi></msup></mrow></math>, with <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>γ</mi><mo>=</mo><mn>1</mn></mrow></math> or <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mn>3</mn></mrow></math>. For either exponent, both rates equal <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>r</mi></mrow></math> at <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mi>X</mi><mo>∗</mo></msub></mrow></math>. When the binding totals are perturbed at fixed <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>X</mi></mrow></math>, both rates also retain the same orders from (2). This lets us vary the shared-pool feedback while holding the first two checks fixed.</p>
+
+<p>The linearized growth rate of a small disturbance in <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>X</mi></mrow></math> is the derivative of the net rate at <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><msub><mi>X</mi><mo>∗</mo></msub></mrow></math>. It is</p>
+
+<div class="eq"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>λ</mi><mo>=</mo><msub><mrow><mfrac><mi>d</mi><mrow><mi>d</mi><mi>X</mi></mrow></mfrac><mo fence="false" stretchy="true" minsize="1.2em" maxsize="1.2em">[</mo><mi>r</mi><mo stretchy="false">(</mo><msup><mi>z</mi><mn>2</mn></msup><mo>−</mo><msup><mi>z</mi><mi>γ</mi></msup><mo stretchy="false">)</mo><mo fence="false" stretchy="true" minsize="1.2em" maxsize="1.2em">]</mo><mo fence="true">∣</mo></mrow><msub><mi>X</mi><mo>∗</mo></msub></msub><mo>=</mo><mfrac><mi>r</mi><msub><mi>X</mi><mo>∗</mo></msub></mfrac><mo stretchy="false">(</mo><mn>2</mn><mo>−</mo><mi>γ</mi><mo stretchy="false">)</mo><mi mathvariant="normal">.</mi></mrow></math><span class="tag">(7)</span></div>
+
+<p>For <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>γ</mi><mo>=</mo><mn>1</mn></mrow></math>, <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>λ</mi><mo>≈</mo><mo>+</mo><mn>0.190983</mn></mrow></math> per time unit. A small increase in <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>X</mi></mrow></math> grows because the inflow increases faster than the outflow. For <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>γ</mi><mo>=</mo><mn>3</mn></mrow></math>, <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>λ</mi><mo>≈</mo><mo>−</mo><mn>0.190983</mn></mrow></math> per time unit and a small increase decays. The same binding orders and the same balanced rates are therefore compatible with opposite local stability outcomes. The scalar example illustrates the turnover-scaled balance of response orders developed in Lecture 11.<sup class="c"><a href="#r-lecture">9</a></sup></p>
+
+<p>For a proposed interface, the first check is to identify the molecular readout and independently vary each total at fixed affinity. An order pair outside the region rejects the specified mechanism. At known totals, comparison with (2) supplies a more specific prediction. When the slopes are estimated from data, the rejection should account for their joint uncertainty. The next check compares signed flux contributions in the same pool and units at the intended operating point. If that state balances, the dynamics check needs the rate derivatives with respect to all coupled pools. Structural kinetic modeling illustrates this step by combining local rate sensitivities with scaled steady-state fluxes and stoichiometry in a Jacobian.<sup class="c"><a href="#r-steuer">10</a></sup> A test of the binding-equilibrium approximation itself would require comparing those dynamics with a model that retains finite binding rates.</p>
+
+<p>The gain is a specific early rejection criterion for an interface that claims this binding mechanism. It turns an apparent fit at one state into a testable prediction about how the output changes. Flux measurements and perturbations of the shared pool then answer the distinct questions of stationarity and return.</p>
+<h2 id="refs" class="essay-section"><span class="n">Sources</span> References</h2>
+<div class="refs">
+<ol>
+  <li id="r-karr">Karr JR, Sanghvi JC, Macklin DN, et al. A whole-cell computational model predicts phenotype from genotype. <span class="venue"><i>Cell</i> 150, 389–401 (2012).</span> <a href="https://doi.org/10.1016/j.cell.2012.05.044">DOI</a> · <a href="https://karr-lab.org/static/doc/papers/Karr2012.pdf">Full text</a></li>
+  <li id="r-macklin">Macklin DN, Ruggero NA, Covert MW. The future of whole-cell modeling. <span class="venue"><i>Current Opinion in Biotechnology</i> 28, 111–115 (2014).</span> <a href="https://doi.org/10.1016/j.copbio.2014.01.012">DOI</a> · <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC4111988/">Full text</a></li>
+  <li id="r-freddolino">Freddolino PL, Tavazoie S. The dawn of virtual cell biology. <span class="venue"><i>Cell</i> 150, 248–250 (2012).</span> <a href="https://doi.org/10.1016/j.cell.2012.07.001">DOI</a> · <a href="https://tavazoielab.c2b2.columbia.edu/lab/publications/Freddolino_Tavazoie_Cell_2012.pdf">Full text</a></li>
+  <li id="r-sbml">Hucka M, Bergmann FT, Dräger A, et al. SBML Level 3: an extensible format for the exchange and reuse of biological models. <span class="venue"><i>Molecular Systems Biology</i> 16, e9110 (2020).</span> <a href="https://doi.org/10.15252/msb.20199110">DOI</a> · <a href="https://www.embopress.org/doi/full/10.15252/msb.20199110">Full text</a></li>
+  <li id="r-comp">Smith LP, Hucka M, Hoops S, et al. SBML Level 3 package: Hierarchical Model Composition, Version 1 Release 3. <span class="venue"><i>Journal of Integrative Bioinformatics</i> 12, 268 (2015).</span> <a href="https://doi.org/10.2390/biecoll-jib-2015-268">DOI</a> · <a href="https://raw.githubusercontent.com/sbmlteam/sbml-specifications/release/sbml-level-3/version-1/comp/spec/sbml-l3v1-comp-v1r3.pdf">Specification</a></li>
+  <li id="r-sedml">Waltemath D, Adams R, Bergmann FT, et al. Reproducible computational biology experiments with SED-ML, the Simulation Experiment Description Markup Language. <span class="venue"><i>BMC Systems Biology</i> 5, 198 (2011).</span> <a href="https://doi.org/10.1186/1752-0509-5-198">DOI</a> · <a href="https://link.springer.com/article/10.1186/1752-0509-5-198">Full text</a></li>
+  <li id="r-baez">Baez JC, Pollard BS. A compositional framework for reaction networks. <span class="venue"><i>Reviews in Mathematical Physics</i> 29, 1750028 (2017).</span> <a href="https://doi.org/10.1142/S0129055X17500283">DOI</a> · <a href="https://arxiv.org/abs/1704.02051">Open version</a></li>
+  <li id="r-choi">Choi H, Covert MW. Whole-cell modeling of <i>E. coli</i> confirms that <i>in vitro</i> tRNA aminoacylation measurements are insufficient to support cell growth and predicts a positive feedback mechanism regulating arginine biosynthesis. <span class="venue"><i>Nucleic Acids Research</i> 51, 5911–5930 (2023).</span> <a href="https://doi.org/10.1093/nar/gkad435">DOI</a> · <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC10325894/">Full text</a></li>
+  <li id="r-lecture">Xiao F. Calculate dynamics from reaction orders. <span class="venue"><i>CCBS 2026 Lecture 11 exposition</i>, §§3–4 and 11–12 (2026).</span> <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture11-exposition.html">Course material</a></li>
+  <li id="r-steuer">Steuer R, Gross T, Selbig J, Blasius B. Structural kinetic modeling of metabolic networks. <span class="venue"><i>Proceedings of the National Academy of Sciences USA</i> 103, 11868–11873 (2006).</span> <a href="https://doi.org/10.1073/pnas.0600013103">DOI</a> · <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC1524928/">Full text</a></li>
+</ol>
+</div>
+
+<h2 id="repro" class="essay-section"><span class="n">Appendix</span> Reproduce the calculations and figures</h2>
+<p class="repro-note">The examples use synthetic inputs and deterministic calculations. Save the source below as <code>reproduce.py</code>, then run <code>python3 reproduce.py</code>. It prints the numbers in Table 1 and Tests A–D, checks the derivatives and feedback slopes, and writes the numerical results and SVGs for Figures 3–5 to <code>results/</code>. It uses the Python 3 standard library.</p>
+<button id="download-code" type="button">Download reproduce.py</button>
+<details>
+<summary>View Python source</summary>
+<pre><code id="python-source">"""Recompute the CCBS binding tests, table and quantitative SVGs with Python 3."""
+import argparse
+from html import escape
+import json
+import math
+from pathlib import Path
+
+CASES = {
+    "A1": (1.0, 1.0, 1.0),
+    "A2": (10.0, 1.0, 0.1),
+    "A3": (1.0, 10.0, 0.1),
+    "A4": (0.2, 1.0, 2.0),
+}
+STEP = 1e-4
+X0 = 2.0
+T_END = 1.0
+
+
+def binding(q_e, q_s, kd):
+    """Return the physical equilibrium and its two total-pool orders."""
+    total = q_e + q_s + kd
+    discriminant = (q_e - q_s) ** 2 + kd * (2 * (q_e + q_s) + kd)
+    c = 2 * q_e * q_s / (total + math.sqrt(discriminant))
+    e, s = q_e - c, q_s - c
+    assert 0 &lt; c &lt; min(q_e, q_s)
+    assert math.isclose(e * s, kd * c, rel_tol=1e-12)
+    return c, (kd + s) / (kd + e + s), (kd + e) / (kd + e + s)
+
+
+def feasible(a, b):
+    return 0 &lt; a &lt; 1 and 0 &lt; b &lt; 1 and a + b &gt; 1
+
+
+def from_orders(a, b, kd):
+    """Construct totals realizing an interior order pair at the chosen affinity."""
+    assert feasible(a, b)
+    e = kd * (1 - a) / (a + b - 1)
+    s = kd * (1 - b) / (a + b - 1)
+    c = e * s / kd
+    return e + c, s + c
+
+
+def numerical_orders(rate, q_e, q_s):
+    lo, hi = math.exp(-STEP), math.exp(STEP)
+    return (
+        (math.log(rate(q_e * hi, q_s)) - math.log(rate(q_e * lo, q_s))) / (2 * STEP),
+        (math.log(rate(q_e, q_s * hi)) - math.log(rate(q_e, q_s * lo))) / (2 * STEP),
+    )
+
+
+def calculate():
+    geometry = {}
+    for name, (q_e, q_s, kd) in CASES.items():
+        c, a, b = binding(q_e, q_s, kd)
+
+        def rate(e, s):
+            return binding(e, s, kd)[0]
+
+        a_fd, b_fd = numerical_orders(rate, q_e, q_s)
+        error = max(abs(a - a_fd), abs(b - b_fd))
+        assert error &lt; 1e-8
+        q_e_inv, q_s_inv = from_orders(a, b, kd)
+        assert math.isclose(q_e, q_e_inv, rel_tol=1e-10)
+        assert math.isclose(q_s, q_s_inv, rel_tol=1e-10)
+        geometry[name] = dict(q_e=q_e, q_s=q_s, kd=kd, c=c, a=a, b=b, error=error)
+
+    def candidate(e, s):
+        return e ** 0.3 * s ** 0.3
+
+    a_bad, b_bad = 0.3, 0.3
+    for exact, numeric in zip((a_bad, b_bad), numerical_orders(candidate, 1.0, 1.0)):
+        assert abs(exact - numeric) &lt; 1e-8
+    assert not feasible(a_bad, b_bad)
+    geometry["B"] = dict(a=a_bad, b=b_bad)
+
+    q_e, q_s, kd = CASES["A1"]
+    c, a, b = binding(q_e, q_s, kd)
+    interface = {}
+    for name, k_out in (("C", 3.0), ("D", 1.0)):
+        v_in, v_out = c, k_out * c
+
+        def outflow(e, s):
+            return k_out * binding(e, s, kd)[0]
+
+        for exact, numeric in zip((a, b), numerical_orders(outflow, q_e, q_s)):
+            assert abs(exact - numeric) &lt; 1e-8
+        net = v_in - v_out
+        interface[name] = dict(v_in=v_in, v_out=v_out, net=net, end=X0 + T_END * net)
+
+    feedback = {}
+    for gamma in (1, 3):
+        def rhs(x):
+            z = x / X0
+            return c * (z**2 - z**gamma)
+
+        slope = c * (2 - gamma) / X0
+        step = 1e-5 * X0
+        assert rhs(X0) == 0
+        assert math.isclose(slope, (rhs(X0 + step) - rhs(X0 - step)) / (2 * step),
+                            rel_tol=1e-8)
+        feedback[gamma] = slope
+
+    return dict(geometry=geometry, interface=interface, feedback=feedback,
+                max_error=max(geometry[name]["error"] for name in CASES))
+
+
+def svg(height, description, body):
+    # Fall back to the light palette when the SVG is opened outside the essay.
+    colors = {
+        "fg": "#242321", "muted": "#6e675f", "bg2": "#ffffff", "bg": "#fcfaf7",
+        "powder": "#d0dae4", "teal": "#1f9a8e", "peri": "#5a73ce",
+        "rose": "#d75567", "gridc": "#eae6df",
+    }
+    marks = "\n".join(body)
+    for name, color in colors.items():
+        marks = marks.replace(f"var(--{name})", f"var(--{name},{color})")
+    styles = """
+&lt;style&gt;
+.ccbs-result { background-color:var(--bg2,#ffffff) }
+.ccbs-result text { font-family:system-ui,sans-serif; fill:var(--fg,#242321) }
+.ccbs-result .svg-title, .ccbs-result .svg-strong { font-weight:700 }
+.ccbs-result .svg-muted { fill:var(--muted,#6e675f) }
+.ccbs-result .svg-rose { fill:var(--link,#913044) }
+.ccbs-result .svg-var { font-family:serif; font-style:italic }
+&lt;/style&gt;"""
+    return (f'&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 {height}" '
+            f'class="ccbs-result" role="img" aria-label="{escape(description)}"&gt;\n'
+            + styles + "\n" + marks + "\n&lt;/svg&gt;\n")
+
+
+def label(x, y, content, size=16, anchor="start", style=""):
+    return (f'&lt;text x="{x:.3f}" y="{y:.3f}" text-anchor="{anchor}" '
+            f'font-size="{size}" class="{style}"&gt;{content}&lt;/text&gt;')
+
+
+def line(x1, y1, x2, y2, attrs=""):
+    return (f'&lt;line x1="{x1:.4f}" y1="{y1:.4f}" x2="{x2:.4f}" y2="{y2:.4f}" '
+            f'{attrs}/&gt;')
+
+
+def box(x, y, width, height, fill, radius=0):
+    return (f'&lt;rect x="{x:.3f}" y="{y:.3f}" width="{width:.3f}" height="{height:.3f}" '
+            f'rx="{radius}" fill="var(--{fill})"/&gt;')
+
+
+def point(x, y, radius, color):
+    return (f'&lt;circle cx="{x:.4f}" cy="{y:.4f}" r="{radius}" fill="var(--{color})" '
+            f'stroke="var(--bg2)" stroke-width="1.7"/&gt;')
+
+
+def mathvar(value):
+    return f'&lt;tspan class="svg-var"&gt;{value}&lt;/tspan&gt;'
+
+
+def number(value, digits=3):
+    return f"{value:.{digits}f}".replace("-", "−")
+
+
+AXIS = 'stroke="var(--fg)" stroke-width="1.5"'
+GRID = 'stroke="var(--gridc)" stroke-width="1"'
+ROSE = 'stroke="var(--rose)" stroke-width="3" stroke-linecap="round"'
+TEAL = 'stroke="var(--teal)" stroke-width="3" stroke-linecap="round" stroke-dasharray="9 6"'
+
+
+def plot_orders(geometry):
+    left, bottom, size = 75, 397, 313
+    right, top = left + size, bottom - size
+
+    def coordinates(a, b):
+        return left + size * a, bottom - size * b
+
+    marks = [
+        label(20, 26, "The two orders constrain each other", 23, style="svg-title"),
+        label(20, 53, "Complex output of one equilibrium binding pair", style="svg-muted"),
+        f'&lt;polygon points="{left},{top} {right},{bottom} {right},{top}" fill="var(--powder)"/&gt;',
+    ]
+    for value in (0, .25, .5, .75, 1):
+        x, y = coordinates(value, value)
+        marks.extend((line(x, top, x, bottom, GRID), line(left, y, right, y, GRID),
+                      label(x, bottom + 22, f"{value:g}", 14, "middle")))
+        if value &gt; 0:
+            marks.append(label(left - 11, y + 5, f"{value:g}", 14, "end"))
+    marks.extend((
+        line(left, bottom, right, bottom, AXIS), line(left, top, left, bottom, AXIS),
+        f'&lt;polyline points="{left},{top} {right},{bottom} {right},{top} {left},{top}" '
+        'fill="none" stroke="var(--peri)" stroke-width="1.6" stroke-dasharray="5 4"/&gt;',
+        label((left + right) / 2, 447, "Order in total enzyme, " + mathvar("a"), 16, "middle"),
+        f'&lt;g transform="rotate(-90 21 241)"&gt;{label(21, 241, "Order in total substrate, " + mathvar("b"), 16, "middle")}&lt;/g&gt;',
+        box(413, 99, 205, 165, "bg", 8),
+        label(429, 127, "Shaded interior", 17, style="svg-strong"),
+        label(429, 152, "Attainable at finite states"),
+        label(429, 188, "Dashed boundary", 17, style="svg-strong"),
+        label(429, 213, "Limiting states"),
+        label(429, 241, "Diagonal " + mathvar("a") + " + " + mathvar("b") + " = 1", 15),
+        point(422, 291, 5, "teal"), label(436, 297, "A1–A4  Binding cases", 16),
+        label(417, 333, "×", 21, style="svg-rose"), label(436, 331, "B  Excluded candidate", 16),
+    ))
+    offsets = {"A1": (12, -9), "A2": (13, -8), "A3": (15, -8), "A4": (-19, 25), "B": (13, 6)}
+    for name, row in geometry.items():
+        x, y = coordinates(row["a"], row["b"])
+        dx, dy = offsets[name]
+        if name == "B":
+            marks.extend((line(x - 5, y - 5, x + 5, y + 5, ROSE),
+                          line(x - 5, y + 5, x + 5, y - 5, ROSE)))
+        else:
+            marks.append(point(x, y, 5.5, "teal"))
+        marks.append(label(x + dx, y + dy, name, 15, style="svg-strong"))
+    return svg(467, "Orders a and b. All four binding cases have marker centers inside the dashed "
+                    "triangle. The candidate (0.3, 0.3) lies below the diagonal and is excluded.", marks)
+
+
+def plot_flux(interface):
+    left, width, max_flux = 121, 351, 1.25
+
+    def coordinate(rate):
+        return left + width * rate / max_flux
+
+    marks = [
+        label(20, 26, "Matching orders can coexist with unequal rates", 23, style="svg-title"),
+        label(20, 52, "Same binding state and influx in both tests", style="svg-muted"),
+        box(121, 71, 13, 13, "teal", 2), label(143, 83, "Inflow", 16),
+        box(222, 71, 13, 13, "peri", 2), label(244, 83, "Outflow", 16),
+        label(544, 83, "Net rate", 15, "middle", "svg-strong"),
+    ]
+    for value in (0, .25, .5, .75, 1, 1.25):
+        x = coordinate(value)
+        marks.extend((line(x, 96, x, 280, GRID), label(x, 302, f"{value:g}", 14, "middle")))
+    for index, (name, row) in enumerate(interface.items()):
+        y = 112 + index * 86
+        status = "Mismatch" if name == "C" else "Balanced"
+        marks.extend((
+            label(20, y + 14, f"Test {name}", 17, style="svg-strong"),
+            label(20, y + 37, status, 15, style="svg-muted"),
+        ))
+        for j, (key, color) in enumerate((("v_in", "teal"), ("v_out", "peri"))):
+            rate = row[key]
+            bar_y = y + 30 * j
+            end = coordinate(rate)
+            marks.extend((box(left, bar_y, end - left, 20, color, 3),
+                          label(end + 8, bar_y + 15, number(rate), 15)))
+        marks.append(label(544, y + 32, number(row["net"]), 19, "middle", "svg-strong"))
+    marks.extend((line(left, 96, left, 280, AXIS), line(left, 280, left + width, 280, AXIS),
+                  label(left + width / 2, 328, "Rate (model concentration per time unit)", 16, "middle")))
+    return svg(345, "Test C has inflow 0.382, outflow 1.146 and negative net rate. Test D has "
+                    "equal inflow and outflow of 0.382 and zero net rate.", marks)
+
+
+def plot_pool(interface):
+    left, right, top, bottom = 74, 450, 92, 314
+    ceiling = 2.2
+
+    def coordinate(t, x):
+        return left + (right - left) * t / T_END, bottom - (bottom - top) * x / ceiling
+
+    marks = [
+        label(20, 26, "Excess outflow lowers the shared pool", 23, style="svg-title"),
+        label(20, 51, "Illustrative integration with rates held fixed", style="svg-muted"),
+        label(left, 77, "Shared pool " + mathvar("X") + " (model concentration units)", 16),
+    ]
+    for value in (0, .5, 1, 1.5, 2):
+        _, y = coordinate(0, value)
+        marks.extend((line(left, y, right, y, GRID), label(left - 12, y + 5, f"{value:g}", 14, "end")))
+    for fraction in (0, .25, .5, .75, 1):
+        t = fraction * T_END
+        x, _ = coordinate(t, 0)
+        marks.extend((line(x, top, x, bottom, GRID), label(x, bottom + 24, f"{t:g}", 14, "middle")))
+    marks.extend((line(left, bottom, right, bottom, AXIS + ' data-axis="x"'),
+                  line(left, top, left, bottom, AXIS),
+                  label((left + right) / 2, 367, "Time " + mathvar("t") + " (model time units)", 16, "middle")))
+    x0, y0 = coordinate(0, X0)
+    for name, style, color, description in (
+        ("D", TEAL, "teal", "D  Balanced"),
+        ("C", ROSE, "rose", "C  Mismatch"),
+    ):
+        endpoint = interface[name]["end"]
+        x1, y1 = coordinate(T_END, endpoint)
+        assert 0 &lt; endpoint &lt;= ceiling and top &lt;= y0 &lt; bottom and top &lt;= y1 &lt; bottom
+        marks.extend((line(x0, y0, x1, y1, f'{style} data-trajectory="{name}"'),
+                      point(x1, y1, 5.5, color),
+                      label(470, y1 - 5, description, 17, style="svg-strong"),
+                      label(470, y1 + 16, f'{mathvar("X")}(1) = {number(endpoint)}', 15)))
+    marks.append(point(x0, y0, 5, "fg"))
+    return svg(383, "Fixed-rate illustration from time zero to one. Both tests begin at X = 2. "
+                    "Test C declines to 1.236 and Test D stays at 2.000. The vertical scale starts at zero.", marks)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output", type=Path, default=Path("results"))
+    args = parser.parse_args()
+    args.output.mkdir(parents=True, exist_ok=True)
+    results = calculate()
+    summary = json.dumps(results, indent=2)
+    (args.output / "results.json").write_text(summary + "\n", encoding="utf-8")
+    for name, plot in (
+        ("fig-orders", plot_orders(results["geometry"])),
+        ("fig-flux", plot_flux(results["interface"])),
+        ("fig-pool", plot_pool(results["interface"])),
+    ):
+        (args.output / (name + ".svg")).write_text(plot, encoding="utf-8")
+    print(summary)
+
+
+if __name__ == "__main__":
+    main()
+</code></pre>
+</details>
+<p class="repro-note"><strong>AI use.</strong> AI assisted literature retrieval, revision, code verification, and figure production.</p>
+</main>
+</div>
+<script>
+(() => {
+  const root = document.documentElement;
+  const toggle = document.getElementById('tt');
+  const preference = matchMedia('(prefers-color-scheme: dark)');
+  function darkActive() {
+    return root.dataset.theme ? root.dataset.theme === 'dark' : preference.matches;
+  }
+  function updateToggle() {
+    const label = darkActive() ? 'Switch to light theme' : 'Switch to dark theme';
+    toggle.title = label;
+    toggle.setAttribute('aria-label', label);
+  }
+  toggle.addEventListener('click', () => {
+    root.dataset.theme = darkActive() ? 'light' : 'dark';
+    updateToggle();
+  });
+  preference.addEventListener('change', updateToggle);
+  updateToggle();
+
+  const links = [...document.querySelectorAll('nav.toc a')];
+  const targets = links.map(link => document.getElementById(link.hash.slice(1)));
+  function markLocation() {
+    let current = 0;
+    targets.forEach((target, i) => {
+      if (target.getBoundingClientRect().top <= 80) current = i;
+    });
+    if (window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 3) {
+      current = targets.length - 1;
+    }
+    links.forEach((link, i) => {
+      link.classList.toggle('on', i === current);
+      if (i === current) link.setAttribute('aria-current', 'location');
+      else link.removeAttribute('aria-current');
+    });
+  }
+  window.addEventListener('scroll', markLocation, {passive: true});
+  window.addEventListener('resize', markLocation);
+  markLocation();
+
+  const download = document.getElementById('download-code');
+  download.style.display = 'inline-block';
+  download.addEventListener('click', () => {
+    const source = document.getElementById('python-source').textContent;
+    const url = URL.createObjectURL(new Blob([source], {type: 'text/x-python;charset=utf-8'}));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'reproduce.py';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  });
+})();
+</script>
+</body>
+</html>
