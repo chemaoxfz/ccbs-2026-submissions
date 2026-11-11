@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Proteorhodopsin can rescue bacterial motility under respiratory stress, but swimming speed alone cannot measure how much light-derived power reaches the flagellar motor.">
+<title>When Light Turns on Swimming | Shunkang Xue</title>
+<style>
+:root{
+  --bg:#fbfaf7;--surface:#fff;--fg:#20211f;--muted:#62665f;--rule:#d9ddd7;
+  --coral:#c94f3d;--teal:#147c73;--blue:#4268a8;--green:#5d7d35;--plum:#76558c;
+  --coral-bg:#f8e8e4;--teal-bg:#e4f1ee;--blue-bg:#e9eef8;--green-bg:#edf2e5;--plum-bg:#f0eaf4;
+  --shadow:0 2px 12px rgba(32,33,31,.055);--serif:Georgia,"Times New Roman",serif;
+  --sans:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;--mono:ui-monospace,Consolas,monospace;
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#171a19;--surface:#202522;--fg:#e7ece7;--muted:#aab3ac;--rule:#3b4540;
+  --coral:#f08772;--teal:#66c4b2;--blue:#90a9e5;--green:#aecf73;--plum:#c4a1dc;
+  --coral-bg:#382522;--teal-bg:#1e3430;--blue-bg:#252e40;--green-bg:#293222;--plum-bg:#302638;
+  --shadow:0 2px 14px rgba(0,0,0,.25)
+}}
+:root[data-theme="dark"]{--bg:#171a19;--surface:#202522;--fg:#e7ece7;--muted:#aab3ac;--rule:#3b4540;--coral:#f08772;--teal:#66c4b2;--blue:#90a9e5;--green:#aecf73;--plum:#c4a1dc;--coral-bg:#382522;--teal-bg:#1e3430;--blue-bg:#252e40;--green-bg:#293222;--plum-bg:#302638;--shadow:0 2px 14px rgba(0,0,0,.25)}
+:root[data-theme="light"]{--bg:#fbfaf7;--surface:#fff;--fg:#20211f;--muted:#62665f;--rule:#d9ddd7;--coral:#c94f3d;--teal:#147c73;--blue:#4268a8;--green:#5d7d35;--plum:#76558c;--coral-bg:#f8e8e4;--teal-bg:#e4f1ee;--blue-bg:#e9eef8;--green-bg:#edf2e5;--plum-bg:#f0eaf4;--shadow:0 2px 12px rgba(32,33,31,.055)}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:18px/1.65 var(--serif);font-kerning:normal;text-rendering:optimizeLegibility}
+.layout{max-width:78rem;margin:0 auto;padding:0 1.25rem;display:grid;grid-template-columns:14rem minmax(0,1fr);gap:3rem}
+nav{position:sticky;top:0;align-self:start;max-height:100vh;overflow:auto;padding:2rem 0;font: .78rem/1.45 var(--sans)}
+nav .navhead{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin:0 0 .9rem}
+nav .label{margin:0;color:var(--teal);font-size:.68rem;font-weight:750;text-transform:uppercase}
+nav ol{list-style:none;padding:0;margin:0}nav li{margin:.14rem 0}nav a{display:block;padding:.28rem .5rem;color:var(--muted);text-decoration:none;border-left:2px solid transparent}
+nav a:hover,nav a.active{color:var(--fg);background:var(--surface);border-left-color:var(--coral)}
+main{min-width:0;padding:2.4rem 0 6rem}main>*{max-width:47rem}main>figure,main>.wide{max-width:58rem}
+h1{font-size:2.3rem;line-height:1.12;margin:.25rem 0 .75rem;max-width:24ch}
+.dek{font-size:1.1rem;line-height:1.48;color:var(--muted);max-width:39rem;margin:0 0 1rem}
+.byline{font: .78rem/1.5 var(--sans);color:var(--muted);padding:0 0 1.4rem;border-bottom:1px solid var(--rule);margin:1rem 0 1.8rem}
+h2{font:700 1.3rem/1.3 var(--sans);margin:3.1rem 0 .6rem;scroll-margin-top:1rem}
+h3{font:700 1rem/1.35 var(--sans);margin:1.7rem 0 .5rem}
+p{margin:0 0 1rem}a{color:inherit;text-decoration-color:var(--muted);text-underline-offset:2px}a:hover{text-decoration-color:var(--coral)}
+sup.cite{font:700 .67em var(--sans);color:var(--coral)}sup.cite a{text-decoration:none;color:inherit}
+.part{border-top:2px solid var(--fg);padding-top:1.1rem;margin-top:3.3rem}
+.part .kicker{font:750 .68rem var(--sans);color:var(--teal);text-transform:uppercase}
+.part h2{font:700 1.7rem/1.2 var(--serif);margin:.25rem 0 .35rem}
+.part p{color:var(--muted);margin:0}
+.box{margin:1.4rem 0;padding:1rem 1.1rem;background:var(--surface);border:1px solid var(--rule);border-left:3px solid var(--teal);box-shadow:var(--shadow)}
+.box p:last-child{margin-bottom:0}.box .tag{display:block;font:750 .65rem var(--sans);text-transform:uppercase;color:var(--teal);margin:0 0 .35rem}
+.box.claim{border-left-color:var(--coral)}.box.claim .tag{color:var(--coral)}.box.caveat{border-left-color:var(--plum)}.box.caveat .tag{color:var(--plum)}
+.eq{margin:1.2rem 0;padding:.9rem 1rem;background:var(--surface);border:1px solid var(--rule);overflow-x:auto;text-align:center;font-size:1.05rem}
+math{font-family:"Cambria Math",Georgia,serif;font-size:1em}.eq math{white-space:nowrap}
+figure{margin:1.6rem 0;padding:1rem;background:var(--surface);border:1px solid var(--rule);box-shadow:var(--shadow)}
+figure svg{display:block;width:100%;height:auto}figcaption{margin:.75rem .15rem 0;color:var(--muted);font: .78rem/1.5 var(--sans)}figcaption strong{color:var(--fg)}
+.tablewrap{overflow-x:auto;margin:1.3rem 0;background:var(--surface);border:1px solid var(--rule)}
+table{border-collapse:collapse;width:100%;min-width:42rem;font:.8rem/1.45 var(--sans)}th,td{padding:.65rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--rule)}
+th{background:var(--bg);font-size:.67rem;text-transform:uppercase;color:var(--muted)}tbody tr:last-child td{border-bottom:0}.num{font-family:var(--mono);white-space:nowrap}
+.demo{margin:1.4rem 0;padding:1rem;background:var(--surface);border:1px solid var(--rule)}.demo h3{margin:.1rem 0}.demo p{font: .8rem/1.45 var(--sans);color:var(--muted)}
+.controls{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;font: .8rem var(--sans)}.controls label{display:grid;grid-template-columns:auto minmax(9rem,1fr) auto;gap:.65rem;align-items:center;flex:1 1 26rem}
+input[type=range]{width:100%;accent-color:var(--coral)}output{font: .78rem var(--mono);white-space:nowrap}
+button{font:600 .76rem var(--sans);color:var(--fg);background:var(--surface);border:1px solid var(--rule);padding:.48rem .65rem;cursor:pointer}
+button:hover{border-color:var(--teal)}button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.readout{font: .78rem/1.5 var(--mono);color:var(--muted);margin-top:.35rem}.readout strong{color:var(--fg)}
+.refs{font: .82rem/1.5 var(--sans)}.refs li{margin:.55rem 0;padding-left:.25rem;scroll-margin-top:1rem}.refs .venue{color:var(--muted)}
+.small{font: .78rem/1.5 var(--sans);color:var(--muted)}.decision{font-family:var(--sans);font-size:.88rem}.decision li{margin:.4rem 0}
+#theme{flex:none;width:2.35rem;height:2.35rem;border-radius:50%;font-size:1.05rem;box-shadow:var(--shadow);padding:0}
+@media(max-width:1000px){.layout{display:block;max-width:52rem}nav{position:static;max-height:none;border-bottom:1px solid var(--rule);padding:1rem 0}nav ol{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.1rem .6rem}main{padding-top:1.2rem}}
+@media(max-width:560px){body{font-size:17px}.layout{padding:0 .9rem}h1{font-size:2rem}.part h2{font-size:1.45rem}figure{padding:.65rem}.controls label{grid-template-columns:1fr auto}.controls label input{grid-column:1/-1;grid-row:2}nav ol{grid-template-columns:1fr 1fr}main{padding-bottom:4rem}}
+@media print{nav{display:none}.layout{display:block;max-width:none}main{padding:0}figure,.box,.tablewrap{box-shadow:none;break-inside:avoid}a{color:inherit}}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav aria-label="Essay contents" id="toc">
+  <div class="navhead"><p class="label">CCBS Research Essay</p><button id="theme" type="button" title="Toggle light and dark theme" aria-label="Toggle light and dark theme">◐</button></div>
+  <ol>
+    <li><a href="#problem">1 · The rescue</a></li>
+    <li><a href="#challenge">2 · What is routed?</a></li>
+    <li><a href="#ledger">3 · The ledger</a></li>
+    <li><a href="#evidence">4 · What was measured</a></li>
+    <li><a href="#saturation">5 · Diminishing returns</a></li>
+    <li><a href="#proxy">6 · Speed is not power</a></li>
+    <li><a href="#test">7 · A decisive test</a></li>
+    <li><a href="#meaning">8 · What follows</a></li>
+    <li><a href="#references">References</a></li>
+  </ol>
+</nav>
+<main>
+<h1>When Light Turns on Swimming</h1>
+<p class="dek">What the bacterial flagellar motor does, and does not, prove about energy routing</p>
+<p class="byline">Shunkang Xue · CCBS Research Essay · 11 November 2026</p>
+
+<p>A bacterium that stops swimming when respiration fails can start moving again under green light. That is a striking demonstration that an auxiliary energy converter can restore a cellular function. It is not, by itself, a measurement of how much optical power reaches the motor, nor proof that the cell has a dedicated energy line from light to propulsion.</p>
+<p>This distinction matters because the flagellar motor is not connected to a wire. Proteorhodopsin (PR) pumps protons across the inner membrane; the motor also draws on the proton electrochemical gradient across that membrane. Between absorbed photons and a moving cell lie proton pumping, membrane voltage and pH, competing proton pathways, motor load, and the mechanics of swimming. Each link can limit or reshape the output.</p>
+<div class="box claim"><span class="tag">Central claim</span><p>PR can rescue motility when endogenous respiration is constrained, but swimming speed alone cannot quantify source-to-motor power transfer or establish a dedicated route. To claim useful routing, source flux, membrane state, motor work, and cellular cost must be kept distinct and connected by measurements.</p></div>
+
+<div class="part"><span class="kicker">Problem</span><h2 id="problem">The rescue is real, but conditional</h2><p>The phenotype establishes that light can matter. Its dependence on physiological context is the first clue about the mechanism.</p></div>
+<p>Walter and colleagues expressed a green-light-driven SAR86 PR in engineered <i>Escherichia coli</i>. With respiration operating, green light caused no detectable increase in swimming velocity. When respiration was inhibited with 30 mM azide, the same PR-positive cells swam at 5.4 ± 0.4 μm/s under red illumination and 10.6 ± 0.9 μm/s during green-light periods, a 96% increase. Under oxygen depletion, light increased tethered-cell angular velocity by 45 ± 25%.<sup class="cite"><a href="#r-walter">[1]</a></sup></p>
+<p>The experiment supports a conditional-rescue account: PR can help when endogenous proton pumping no longer maintains enough motive force for the motor. It does not show that PR is a general motor booster. Indeed, the lack of a detectable effect during respiration is a useful counterexample to that stronger claim. The azide result is also not perfectly selective: azide has multiple cellular effects. The independent oxygen-depletion result strengthens the interpretation, while remaining a different perturbation rather than a duplicate of the azide experiment.</p>
+<p>In the 2007 study, a protonophore that collapses the gradient abolished motility, and green light did not restore it. This is consistent with PR acting through a membrane electrochemical gradient, not directly pushing the flagellum. The authors' circuit model further proposed that PR becomes effective when the existing gradient falls below its light-dependent pump limit. That threshold explanation is a model-based interpretation, not a direct measurement of proton current in each motor.<sup class="cite"><a href="#r-walter">[1]</a></sup></p>
+
+<div class="part"><span class="kicker">Challenge</span><h2 id="challenge">“More energy” hides several different quantities</h2><p>A change in one observable does not identify every intermediate in the causal chain.</p></div>
+<p>At least four quantities need separate names. Incident irradiance is optical input per area; absorbed photon rate depends on spectrum, absorption, and PR abundance. Proton flux is a rate of transport. The proton-motive force (PMF) is an electrochemical state difference across the membrane. Finally, swimming is a whole-cell phenotype downstream of the motor and its mechanical load. A larger value at one stage does not imply a proportionally larger value at the next.</p>
+<figure>
+<svg viewBox="0 0 920 250" role="img" aria-labelledby="route-title route-desc" xmlns="http://www.w3.org/2000/svg">
+<title id="route-title">From light input to swimming output</title>
+<desc id="route-desc">A causal chain separates incident light, absorbed photons, proteorhodopsin proton pumping, membrane electrochemical state, flagellar motor work, and swimming phenotype. A competing proton-sink branch leaves the membrane state before the motor.</desc>
+<defs><marker id="arr-route" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--muted)"/></marker></defs>
+<g font-family="system-ui,Arial,sans-serif" fill="var(--fg)" text-anchor="middle">
+  <g font-size="14" font-weight="650">
+    <rect x="12" y="62" width="112" height="61" rx="5" fill="var(--blue-bg)" stroke="var(--blue)"/><text x="68" y="88">Incident</text><text x="68" y="107">irradiance</text>
+    <rect x="151" y="62" width="119" height="61" rx="5" fill="var(--blue-bg)" stroke="var(--blue)"/><text x="210" y="88">Absorbed</text><text x="210" y="107">photons</text>
+    <rect x="297" y="62" width="131" height="61" rx="5" fill="var(--teal-bg)" stroke="var(--teal)"/><text x="362" y="88">PR proton</text><text x="362" y="107">current</text>
+    <rect x="456" y="62" width="145" height="61" rx="5" fill="var(--green-bg)" stroke="var(--green)"/><text x="528" y="88">Membrane</text><text x="528" y="107">electrochemical state</text>
+    <rect x="630" y="62" width="130" height="61" rx="5" fill="var(--coral-bg)" stroke="var(--coral)"/><text x="695" y="88">Motor torque</text><text x="695" y="107">and rotation</text>
+    <rect x="789" y="62" width="119" height="61" rx="5" fill="var(--plum-bg)" stroke="var(--plum)"/><text x="848" y="88">Swimming</text><text x="848" y="107">phenotype</text>
+  </g>
+  <g stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr-route)">
+    <line x1="124" y1="92" x2="146" y2="92"/><line x1="270" y1="92" x2="292" y2="92"/>
+    <line x1="428" y1="92" x2="451" y2="92"/><line x1="601" y1="92" x2="625" y2="92"/><line x1="760" y1="92" x2="784" y2="92"/>
+    <line x1="528" y1="124" x2="528" y2="170"/><line x1="528" y1="170" x2="617" y2="170"/>
+  </g>
+  <rect x="618" y="145" width="195" height="50" rx="5" fill="var(--surface)" stroke="var(--rule)"/>
+  <text x="715" y="166" font-size="13" font-weight="650">Other proton sinks</text><text x="715" y="184" font-size="11" fill="var(--muted)">ATP synthase, leak, transporters...</text>
+  <text x="460" y="35" font-size="11" fill="var(--muted)">Each arrow is a separate conversion or inference</text>
+  <text x="460" y="229" font-size="11" fill="var(--muted)">PR and motor share a membrane state; no dedicated route is implied by this diagram</text>
+</g>
+</svg>
+<figcaption><strong>Figure 1.</strong> The relevant chain contains several independently limiting steps. A shared PMF is a state variable of the membrane, not a labeled packet of energy traveling along a private cable to the motor.</figcaption>
+</figure>
+
+<div class="part"><span class="kicker">Approach</span><h2 id="ledger">A proton and power ledger</h2><p>Use a carrier-specific model before asking whether an auxiliary source is useful.</p></div>
+<p>For a proton moving from outside to inside, its electrochemical potential change per mole can be written as</p>
+<div class="eq"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>Δμ</mi><msub><mi>H</mi><mo>in</mo></msub><mo>=</mo><mi>RT</mi><mi>ln</mi><mo>(</mo><mfrac><msub><mi>c</mi><mi>in</mi></msub><msub><mi>c</mi><mi>out</mi></msub></mfrac><mo>)</mo><mo>+</mo><mi>F</mi><mo>(</mo><msub><mi>ψ</mi><mi>in</mi></msub><mo>−</mo><msub><mi>ψ</mi><mi>out</mi></msub><mo>)</mo></mrow></math></div>
+<p>Here <i>c</i> denotes proton activity (often approximated by concentration in dilute-solution notation), <i>ψ</i> is electric potential, <i>R</i> is the gas constant, <i>T</i> is temperature, and <i>F</i> is Faraday's constant. The sign convention makes the direction explicit: inward proton movement is favorable when this quantity is negative. Biochemical convention often reports the same driving force as a PMF in volts; signs vary with convention, so the direction and reference sides should always be stated. PMF is not a conserved pool like ATP concentration. It is a membrane state derived from both voltage and chemical gradients.</p>
+<p>A minimal bookkeeping equation separates the source from the consumers:</p>
+<div class="eq"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mfrac><mrow><mi>d</mi><msub><mi>n</mi><mtext>H,eff</mtext></msub></mrow><mrow><mi>d</mi><mi>t</mi></mrow></mfrac><mo>=</mo><msub><mi>J</mi><mtext>PR</mtext></msub><mo>−</mo><msub><mi>J</mi><mtext>motor</mtext></msub><mo>−</mo><msub><mi>J</mi><mtext>ATPase</mtext></msub><mo>−</mo><munderover><mo>∑</mo><mtext>other</mtext><mtext>pathways</mtext></munderover><msub><mi>J</mi><mi>k</mi></msub><mo>−</mo><msub><mi>J</mi><mtext>leak</mtext></msub></math></div>
+<p>Here <i>n</i><sub>H,eff</sub> is an effective proton-equivalent bookkeeping state, not a count of free cytoplasmic protons. This is a lumped balance, not a complete membrane model: buffering, membrane capacitance, electroneutral transport, and protonation reactions determine how proton transfers change voltage and pH. It is still useful because it forbids a common shortcut: a high source flux does not imply a high motor flux when other terms or the motor's capacity set the limit.</p>
+<p>To keep dimensions straight, proton chemical power is flux times chemical potential difference. Motor mechanical power is torque times angular velocity. For rotation frequency <i>f</i>, angular velocity is <i>ω</i> = 2π<i>f</i>:</p>
+<div class="eq"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><msub><mi>P</mi><mtext>mech, light-only boundary</mtext></msub><mo>=</mo><mi>τ</mi><mi>ω</mi><mo>=</mo><mn>2</mn><mi>π</mi><mi>f</mi><mi>τ</mi><mo>≤</mo><msub><mi>P</mi><mtext>absorbed light</mtext></msub></math></div>
+<p>The inequality is an ideal energy-source ceiling only for a boundary in which absorbed light is the sole net energy input and stored energy does not decline. It does not bound total motor power in a cell also powered by respiration, and it cannot be applied directly to the difference between two mixed-source conditions: nonlinear interactions can make source attribution non-additive. Making the ceiling quantitative requires absorbed photon rate, PR pumping yield, the proton electrochemical potential, competing currents, and motor torque. The literature discussed here does not measure all of those together, so it does not support a universal numerical routing efficiency.</p>
+<div class="box caveat"><span class="tag">A route is not a wire</span><p>PR and the flagellar motor both act on the membrane's electrochemical state. That is a physically meaningful coupling, but not evidence of a private spatial channel from PR to motor. There are two distinct estimands: compare active and inactive PR at the same load while allowing PMF to change to measure the total PR effect; compare sources at matched Δψ and ΔpH and the same load to test for an additional source-specific effect beyond the shared-state account. The second comparison holds fixed the very mediator through which PR is expected to work, so it cannot estimate the total benefit.</p></div>
+
+<div class="part"><span class="kicker">Proof</span><h2 id="evidence">What the experiments actually identify</h2><p>Three layers of evidence support the story, but they do not all measure the same link.</p></div>
+<div class="tablewrap wide"><table>
+<thead><tr><th>Study and readout</th><th>Directly measured</th><th>Inference or boundary</th></tr></thead>
+<tbody>
+<tr><td>Walter et al. (2007)<sup class="cite"><a href="#r-walter">[1]</a></sup></td><td>Swimming speed and tethered-cell rotation during light and respiratory perturbations</td><td>Supports conditional PR-dependent motility rescue. Their circuit account of the PMF threshold is a model, not a direct proton-current measurement.</td></tr>
+<tr><td>Gabel &amp; Berg (2003)<sup class="cite"><a href="#r-gabel">[2]</a></sup></td><td>Motor speed under heavy and light loads while PMF was varied</td><td>Speed tracked inferred PMF across the measured range. Torque still depends on load and speed; rotation frequency alone is not mechanical power.</td></tr>
+<tr><td>Bianchi et al. (2026)<sup class="cite"><a href="#r-bianchi">[3]</a></sup></td><td>Swimming-speed response to light intensity and relaxation after light changes</td><td>Motor-sink comparison and proton-discharge parameters are model-dependent inferences from speed proxies and a circuit description.</td></tr>
+</tbody></table></div>
+<p>Gabel and Berg provide an important bridge: under their controlled conditions, motor speed was proportional to inferred PMF over the accessible 0–270 Hz range. But they also emphasized that at light load and high speed torque declines rapidly and efficiency becomes small.<sup class="cite"><a href="#r-gabel">[2]</a></sup> The bridge validates speed as a useful PMF-sensitive readout in a specified setup; it does not turn speed into a direct measurement of torque, proton flux, or work.</p>
+<p>Bianchi and colleagues found that, as stators disassembled and swimming slowed substantially, the PMF discharge time remained approximately constant. They inferred that the flagellar motor was not the main proton sink in that assay, relative to other membrane channels.<sup class="cite"><a href="#r-bianchi">[3]</a></sup> This is a valuable challenge to the simple picture of the motor as the dominant load. Yet the comparison depends on a circuit model and swimming-speed proxy, in a particular engineered strain and condition. It does not mean the motor consumes no protons, or that motors are marginal sinks in every species, load, or physiological state.</p>
+
+<h2 id="saturation">A worked consequence of the light-response fit</h2>
+<p>Bianchi et al. fitted the light-dependent swimming-speed increment as Δ<i>v</i> = α<i>I</i>/(<i>I</i> + <i>I</i><sub>1/2</sub>). In the strain lacking ATP synthase, the reported fit had <i>I</i><sub>1/2</sub> = 0.42 mW/mm².<sup class="cite"><a href="#r-bianchi">[3]</a></sup> Define <i>x</i> = <i>I</i>/<i>I</i><sub>1/2</sub>; the normalized increment is then <i>y</i> = <i>x</i>/(1 + <i>x</i>).</p>
+<div class="eq"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mi>y</mi><mo>=</mo><mfrac><mi>x</mi><mrow><mn>1</mn><mo>+</mo><mi>x</mi></mrow></mfrac><mo>,</mo><mspace width="1em"/><mfrac><mrow><mi>d</mi><mi>y</mi></mrow><mrow><mi>d</mi><mi>x</mi></mrow></mfrac><mo>=</mo><mfrac><mn>1</mn><msup><mrow><mo>(</mo><mn>1</mn><mo>+</mo><mi>x</mi><mo>)</mo></mrow><mn>2</mn></msup></mfrac></math></div>
+<p>At three half-saturation intensities, <i>x</i> = 3 and the fitted response reaches 3/4, or 75%, of its maximum. The local slope is 1/16 of the initial low-light slope. In the reported Δ-<i>unc</i> condition, 3<i>I</i><sub>1/2</sub> is 1.26 mW/mm², equivalent to 126 mW/cm². These are algebraic consequences of the fitted curve, not newly digitized data points.</p>
+<div class="demo" aria-labelledby="demo-title"><h3 id="demo-title">Explore the fit, not the pump current</h3><p>Move the slider to see the fitted speed increment and its marginal slope. The vertical units are normalized; this control does not estimate proton flux or mechanical power.</p>
+<div class="controls"><label for="intensity"><span>Light intensity, <i>x</i> = <i>I</i>/<i>I</i><sub>1/2</sub></span><input id="intensity" type="range" min="0" max="8" step="0.01" value="3"><output id="xout" for="intensity">3.00</output></label></div>
+<svg id="fitplot" viewBox="0 0 760 280" role="img" aria-label="Interactive graph of normalized swimming-speed increment and normalized marginal slope" xmlns="http://www.w3.org/2000/svg">
+<g font-family="system-ui,Arial,sans-serif" fill="var(--muted)" font-size="12"><text x="52" y="20">Fitted speed increment</text><text x="532" y="20">Marginal slope</text><text x="16" y="46">1.0</text><text x="16" y="210">0</text><text x="495" y="46">1.0</text><text x="495" y="210">0</text><text x="53" y="260">0</text><text x="425" y="260">8</text><text x="532" y="260">0</text><text x="720" y="260">8</text><text x="204" y="277">Relative light intensity x</text><text x="587" y="277">x</text></g>
+<g stroke="var(--rule)" stroke-width="1"><line x1="50" y1="40" x2="440" y2="40"/><line x1="50" y1="205" x2="440" y2="205"/><line x1="530" y1="40" x2="740" y2="40"/><line x1="530" y1="205" x2="740" y2="205"/><line x1="50" y1="40" x2="50" y2="205"/><line x1="530" y1="40" x2="530" y2="205"/></g>
+<path id="curveY" fill="none" stroke="var(--teal)" stroke-width="3"/><path id="curveS" fill="none" stroke="var(--blue)" stroke-width="3"/>
+<line id="cursorY" y1="40" y2="205" stroke="var(--coral)" stroke-dasharray="4 4"/><line id="cursorS" y1="40" y2="205" stroke="var(--coral)" stroke-dasharray="4 4"/>
+<circle id="pointY" r="5" fill="var(--coral)"/><circle id="pointS" r="5" fill="var(--coral)"/>
+</svg><p class="readout" id="fitreadout" aria-live="polite"></p></div>
+<p>The nearly flat tail is a reason to ask which step has become limiting. It is not evidence that PR proton current follows this same curve: the fitted output is swimming-speed increment, and several processes separate pump activity from speed. Nor should the numerical knee be compared naively across papers. Walter et al. report irradiance in mW/cm² and estimate a model parameter near 60 mW/cm²; Bianchi's 0.42 mW/mm² is 42 mW/cm², but it comes from a different strain, protocol, and fitted output. Similar units or magnitudes do not make the parameters equivalent.<sup class="cite"><a href="#r-walter">[1]</a></sup><sup class="cite"><a href="#r-bianchi">[3]</a></sup></p>
+
+<h2 id="proxy">Why swimming speed is a useful but incomplete proxy</h2>
+<p>Swimming speed is attractive because many cells can be tracked at once. At low Reynolds number, a cell's translational speed is often related to flagellar rotation. But converting that speed into motor power requires the torque-speed relation, the flagellar bundle's geometry, hydrodynamic drag, and the load in that condition. The motor's mechanical output is τω, not ω alone. Two motors with the same rotation rate can produce different power if their torques differ.</p>
+<p>The membrane state also has more than one component. A review of bacterial flagellar motors describes load-dependent stator exchange over seconds to minutes and summarizes conditions in which voltage and ion-gradient components are not functionally interchangeable.<sup class="cite"><a href="#r-biquet">[4]</a></sup> A cross-species study of the dual-stator motor in <i>Pseudomonas aeruginosa</i> further illustrates that torque-speed curves depend on stator system and load; it is a boundary example, not evidence about PR-powered <i>E. coli</i> directly.<sup class="cite"><a href="#r-wu">[6]</a></sup></p>
+<p>Time matters as well. Frangipane et al. observed a fast response and a slower relaxation with a characteristic time of about 35 s in a particular photokinetic swimming system.<sup class="cite"><a href="#r-frangipane">[5]</a></sup> A light pulse shorter than the relevant adaptation time may change the motor differently from sustained illumination. Stator exchange, ATP synthase activity, membrane charging, and other channels can all shape the trajectory. A single steady-state speed cannot reveal these dynamics.</p>
+<div class="box caveat"><span class="tag">Strongest counterexample to a simple proxy</span><p>At high speed and light load, torque can fall even while rotation frequency rises. Therefore a light-induced increase in swimming speed is compatible with increased motor power, unchanged motor power, or an increase smaller than the speed ratio suggests. Torque or a validated load-specific torque-speed curve is needed to decide which.</p></div>
+
+<h2 id="test">A test that can locate the bottleneck</h2>
+<p>A practical next experiment should keep the claim narrow: determine whether PR activation increases motor-side work through PMF under a defined load, and whether the benefit survives the expression and physiological cost of the module. It should not promise a universal efficiency from a single readout.</p>
+<div class="tablewrap wide"><table>
+<thead><tr><th>Condition</th><th>Purpose</th><th>Key comparison</th></tr></thead>
+<tbody>
+<tr><td>Active PR + retinal, light on/off</td><td>Test the source-dependent response</td><td>Within-strain change with light; calibrate absorbed spectrum and PR abundance</td></tr>
+<tr><td>Pump-dead PR + retinal, matched expression</td><td>Control for membrane protein and expression burden</td><td>Active versus inactive pump at matched abundance and localization</td></tr>
+<tr><td>PR-negative or retinal-minus control</td><td>Test dependence on the retinal-bound pump</td><td>Light effect in the absence of functional PR</td></tr>
+<tr><td>Respiration intact and independently oxygen-limited</td><td>Test the predicted context dependence without relying on azide alone</td><td>PR benefit as endogenous energy supply falls</td></tr>
+<tr><td>Defined motor loads; stator-state measurement</td><td>Separate source response from motor mechanics</td><td>Torque-speed relation and response across a load series</td></tr>
+<tr><td>Short pulses and sustained light</td><td>Resolve transient from steady-state behavior</td><td>PMF and motor response times, recovery, and hysteresis</td></tr>
+</tbody></table></div>
+<p>For each condition, measure optical input and absorption, PR abundance, membrane voltage and pH gradient with calibrated methods, and motor rotation under a defined load. Pair motor rotation with torque measurement or a validated load-specific torque estimate. Track free-swimming trajectories as a separate population-level phenotype, not as a substitute for motor work. Measure growth, viability, and at least one pre-specified membrane-damage or resource-cost endpoint.</p>
+<p>Whole-cell proton pumping and total PMF do not identify the motor's share of proton current. A sink-specific estimate would require an additional motor perturbation or a validated motor-current measurement, with controls for the fact that removing stators can itself change membrane physiology. If that measurement is not feasible, report a causal functional rescue and a PMF-associated mechanism, but leave the route fraction unquantified.</p>
+<p>Pre-register the primary contrast as active versus pump-dead PR at matched abundance and matched light, repeated across respiratory state and at least two defined motor loads. Treat independent cultures or preparations as the biological replicates; cells tracked within one preparation are nested observations, not independent replicates. Randomize illumination order, blind image-based tracking where practical, and report effect sizes with uncertainty. The exact sample size should follow a pilot variance estimate rather than an arbitrary cell count.</p>
+<div class="tablewrap wide"><table>
+<thead><tr><th>Observed pattern</th><th>Most supported bottleneck</th><th>Next measurement</th></tr></thead>
+<tbody>
+<tr><td>More absorbed light, no PMF change</td><td>PR assembly, retinal, pump capacity, or opposing leak</td><td>Verify active PR abundance and proton pumping</td></tr>
+<tr><td>Higher PMF, no change in loaded motor work</td><td>Motor capacity, stator occupancy, ion coupling, or imposed load</td><td>Torque-speed curve and stator state</td></tr>
+<tr><td>Higher motor work, no proportional free-swim gain</td><td>Whole-cell hydrodynamics, bundle state, or behavior dynamics</td><td>Track rotation and translation simultaneously</td></tr>
+<tr><td>Higher function but lower growth or viability</td><td>Resource or damage cost offsets source benefit</td><td>Estimate the function-cost Pareto boundary</td></tr>
+</tbody></table></div>
+<p>A reproducible light response of equal size in matched pump-dead or PR-negative controls would falsify attribution of that response to active PR. Gradient collapse is a useful mechanistic control, but collapse also stops baseline motor activity; the absence of swimming after collapse is consistent with PMF dependence and is not, by itself, a unique diagnosis of the light-response mechanism. A reproducible PR-dependent motor response despite verified collapse of the relevant driving gradient would challenge the PMF-mediated account, provided alternative ion coupling and stored energy were also excluded. The clearest falsifier of a claimed motor-side work benefit would be higher swimming speed without a reproducible increase in torque-times-angular-speed under a defined load. A null result in normally respiring cells would not falsify the conditional-rescue thesis; it is already expected from the strongest existing study.</p>
+
+<div class="part"><span class="kicker">Significance</span><h2 id="meaning">An auxiliary source is useful only at the active bottleneck</h2><p>The flagellar case turns a broad engineering slogan into a testable rule.</p></div>
+<p>The literature establishes that a light-driven proton pump can restore bacterial motility under respiratory stress. It also establishes important limits: endogenous respiration can leave little detectable room for benefit; light-speed response saturates; motor torque and speed are not interchangeable; other membrane pathways can dominate PMF discharge in a particular assay; and the system can respond on multiple timescales.</p>
+<p>What remains unknown is the numerical fraction of light-derived chemical power that becomes motor mechanical work under a defined condition. That is not a weakness to hide with a convenient percentage. It is the next measurement problem. A rigorous energy-routing claim should name its carrier, source boundary, consumer, load, time window, cost constraints, and uncertainty. The design rule is simple: add power only after measuring which link is limiting, and call the intervention successful only when the target-side function improves without quietly changing the accounting boundary.</p>
+
+<h2 id="references">References</h2>
+<div class="refs"><ol>
+<li id="r-walter">Walter, J. M., Greenfield, D., Bustamante, C. &amp; Liphardt, J. Light-powering <i>Escherichia coli</i> with proteorhodopsin. <span class="venue"><i>Proceedings of the National Academy of Sciences</i> 104(7), 2408–2412 (2007).</span> <a href="https://doi.org/10.1073/pnas.0611035104">doi:10.1073/pnas.0611035104</a>. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC1892948/">Full text</a>.</li>
+<li id="r-gabel">Gabel, C. V. &amp; Berg, H. C. The speed of the flagellar rotary motor of <i>Escherichia coli</i> varies linearly with protonmotive force. <span class="venue"><i>Proceedings of the National Academy of Sciences</i> 100(15), 8748–8751 (2003).</span> <a href="https://doi.org/10.1073/pnas.1533395100">doi:10.1073/pnas.1533395100</a>. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC166384/">Full text</a>.</li>
+<li id="r-bianchi">Bianchi, S., Donini, G., Cannarsa, M. C., Frangipane, G. &amp; Di Leonardo, R. Dynamic velocity response of <i>E. coli</i> powered by proteorhodopsin. <span class="venue"><i>Biophysical Reports</i> 6(2), 100254 (2026).</span> <a href="https://doi.org/10.1016/j.bpr.2026.100254">doi:10.1016/j.bpr.2026.100254</a>. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12994061/">Full text</a>.</li>
+<li id="r-biquet">Biquet-Bisquert, A. et al. The Dynamic Ion Motive Force Powering the Bacterial Flagellar Motor. <span class="venue"><i>Frontiers in Microbiology</i> 12, 659464 (2021).</span> <a href="https://doi.org/10.3389/fmicb.2021.659464">doi:10.3389/fmicb.2021.659464</a>. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8076557/">Full text</a>.</li>
+<li id="r-frangipane">Frangipane, G. et al. Dynamic density shaping of photokinetic <i>Escherichia coli</i>. <span class="venue"><i>eLife</i> 7, e36608 (2018).</span> <a href="https://doi.org/10.7554/eLife.36608">doi:10.7554/eLife.36608</a>. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6092124/">Full text</a>.</li>
+<li id="r-wu">Wu, H. et al. Torque-speed relationship of the flagellar motor with dual-stator systems in <i>Pseudomonas aeruginosa</i>. <span class="venue"><i>mBio</i> 15, e00745-24 (2024).</span> <a href="https://doi.org/10.1128/mbio.00745-24">doi:10.1128/mbio.00745-24</a>. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11633141/">Full text</a>.</li>
+</ol></div>
+<p class="small">Evidence convention: reported numerical observations are identified as measurements; model-based explanations are attributed to the authors; the normalized saturation and slope values are algebraic derivations from the published fit. The cited studies do not jointly measure absorbed optical power, PR proton current, PMF components, motor torque, motor rotation, and cellular cost.</p>
+</main></div>
+<script>
+(function(){
+  var root=document.documentElement;
+  document.getElementById('theme').addEventListener('click',function(){
+    var current=root.getAttribute('data-theme');
+    if(!current) current=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+    root.setAttribute('data-theme',current==='dark'?'light':'dark');
+  });
+  var links=Array.prototype.slice.call(document.querySelectorAll('#toc a'));
+  var sections=links.map(function(a){return document.querySelector(a.getAttribute('href'));});
+  function updateSpy(){var y=window.scrollY+110,best=0;sections.forEach(function(s,i){if(s&&s.offsetTop<=y)best=i;});links.forEach(function(a,i){a.classList.toggle('active',i===best);});}
+  window.addEventListener('scroll',updateSpy,{passive:true});updateSpy();
+  var slider=document.getElementById('intensity');
+  var xout=document.getElementById('xout');
+  function drawFit(){
+    var x=Number(slider.value),maxX=8;
+    var y=x/(1+x),s=1/((1+x)*(1+x));
+    var pxY=50+(x/maxX)*390,pxS=530+(x/maxX)*210;
+    var pyY=205-y*165,pyS=205-s*165;
+    var pointsY=[],pointsS=[];
+    for(var i=0;i<=160;i++){
+      var q=maxX*i/160;
+      pointsY.push((50+q/maxX*390).toFixed(1)+','+(205-(q/(1+q))*165).toFixed(1));
+      pointsS.push((530+q/maxX*210).toFixed(1)+','+(205-(1/((1+q)*(1+q)))*165).toFixed(1));
+    }
+    document.getElementById('curveY').setAttribute('d','M'+pointsY.join(' L'));
+    document.getElementById('curveS').setAttribute('d','M'+pointsS.join(' L'));
+    document.getElementById('cursorY').setAttribute('x1',pxY);document.getElementById('cursorY').setAttribute('x2',pxY);
+    document.getElementById('cursorS').setAttribute('x1',pxS);document.getElementById('cursorS').setAttribute('x2',pxS);
+    document.getElementById('pointY').setAttribute('cx',pxY);document.getElementById('pointY').setAttribute('cy',pyY);
+    document.getElementById('pointS').setAttribute('cx',pxS);document.getElementById('pointS').setAttribute('cy',pyS);
+    xout.value=x.toFixed(2);xout.textContent=x.toFixed(2);
+    document.getElementById('fitreadout').innerHTML='x = <strong>'+x.toFixed(2)+'</strong> · fitted increment = <strong>'+(100*y).toFixed(1)+'%</strong> of maximum · marginal slope = <strong>'+(100*s).toFixed(2)+'%</strong> of initial slope';
+  }
+  slider.addEventListener('input',drawFit);drawFit();
+})();
+</script>
+</body>
+</html>
