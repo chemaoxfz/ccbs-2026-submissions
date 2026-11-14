@@ -1,0 +1,447 @@
+以下是修改后的完整 HTML 代码：
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lecture 15 — Extension: Report every AlphaFold seed</title>
+<meta name="author" content="liyibing">
+<meta name="week" content="unspecified">
+<meta name="lecture" content="lecture15">
+<style>
+  :root {
+    --ink:#1a1a1a;
+    --muted:#566;
+    --accent:#1f4e79;
+    --line:#d8dee4;
+    --bg:#fff;
+    --soft:#f6f8fa;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink:#e8e8e8;
+      --muted:#9aa;
+      --accent:#8ab4e8;
+      --line:#3a4652;
+      --bg:#15191d;
+      --soft:#1e242a;
+    }
+  }
+
+  * { box-sizing:border-box; }
+
+  body {
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    line-height:1.6;
+  }
+
+  .wrap {
+    max-width:760px;
+    margin:0 auto;
+    padding:40px 22px 80px;
+  }
+
+  h1 {
+    font-size:1.6rem;
+    line-height:1.25;
+    margin:0 0 6px;
+    color:var(--accent);
+  }
+
+  .meta {
+    color:var(--muted);
+    font-size:.92rem;
+    margin-bottom:26px;
+  }
+
+  h2 {
+    font-size:1.05rem;
+    color:var(--accent);
+    margin:34px 0 8px;
+    border-bottom:1px solid var(--line);
+    padding-bottom:5px;
+  }
+
+  .card {
+    background:var(--soft);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:14px 18px;
+    margin:14px 0;
+  }
+
+  .fig {
+    width:100%;
+    border:1px solid var(--line);
+    border-radius:6px;
+    margin:14px 0;
+  }
+
+  figcaption {
+    font-size:.85rem;
+    color:var(--muted);
+    margin-top:6px;
+  }
+
+  a { color:var(--accent); }
+  .src { font-size:.9rem; }
+  figure { margin:18px 0; }
+
+  svg.fig {
+    display:block;
+    height:auto;
+    background:#fff;
+  }
+
+  .equation {
+    text-align:center;
+    background:var(--soft);
+    padding:12px;
+    border-radius:6px;
+  }
+
+  .code-label {
+    font-size:.86rem;
+    color:var(--muted);
+    margin-bottom:6px;
+  }
+
+  pre {
+    margin-top:6px;
+    padding:14px;
+    overflow:auto;
+    background:var(--soft);
+    border:1px solid var(--line);
+    border-radius:6px;
+    font-size:.72rem;
+    line-height:1.5;
+  }
+
+  code {
+    font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;
+  }
+
+  .src li { margin-bottom:12px; }
+  sup { line-height:0; }
+
+  @media print {
+    pre {
+      white-space:pre-wrap;
+      overflow-wrap:anywhere;
+    }
+    a { text-decoration:none; }
+  }
+</style>
+</head>
+<body>
+<main class="wrap">
+
+<h1>Lecture 15 — Extension: Report every AlphaFold seed</h1>
+<p class="meta">Author: liyibing · Lecture 15 (2026-11-01) · CCBS 2026</p>
+
+<p class="card">
+  <strong>One sentence:</strong> When screening a designed protein with AlphaFold2,
+  report the passing fraction across a fixed seed budget, because the best run
+  alone hides how many attempts were needed to find it.
+</p>
+
+<h2>The point I am adding</h2>
+
+<div id="argument">
+  <p>
+    Lecture 15 explains how AlphaFold2 (AF2) learns to predict structure; the
+    protein-design lecture places it after RFdiffusion and ProteinMPNN as a
+    computational check.<sup><a href="#r1">1</a>,<a href="#r2">2</a></sup>
+    My question concerns that check: should a sequence count as promising if we
+    keep changing the random seed until one prediction looks good? The design
+    lecture shows that changing seeds can change even whether a predicted
+    protein is knotted.<sup><a href="#r2">2</a></sup>
+    I would therefore make the sampling budget part of the reported result.
+  </p>
+
+  <p>
+    A high score needs interpretation. pLDDT estimates local structural accuracy,
+    while PAE estimates uncertainty in relative residue placement; neither is
+    a measured binding probability.<sup><a href="#r2">2</a>,<a href="#r3">3</a></sup>
+    For a binder, I would define a screen using local confidence, interchain PAE,
+    and recovery of the intended geometry, then ask how consistently the same
+    sequence passes. This tests repeatability of the computational screen,
+    rather than treating one attractive structure as sufficient evidence.
+  </p>
+</div>
+
+<h2>Work it</h2>
+
+<div id="calculation">
+  <p>
+    Consider a hypothetical nonbinding candidate with a
+    <strong>5% chance per independent run</strong> of passing a predefined
+    computational screen. That rate is my teaching assumption, not a measured
+    AF2 error rate. If the rate stays constant, all <var>n</var> runs fail with
+    probability (1 − <var>p</var>)<sup><var>n</var></sup>, so:
+  </p>
+
+  <p class="equation">
+    P(at least one pass) = 1 − (1 − <var>p</var>)<sup><var>n</var></sup>,
+    &nbsp; <var>p</var> = 0.05.
+  </p>
+
+  <p>
+    My calculation gives <strong>64.2% for 20 seeds</strong> and
+    <strong>92.3% for 50 seeds</strong>. The candidate has not improved; we have
+    given it more opportunities to look convincing. Meanwhile, its expected
+    fraction of passing runs remains 5%. This is why I would preselect the
+    seed count and screening rules, hold the sequence, MSA, model weights,
+    recycling count, templates, and initial-guess setting fixed, and report
+    <strong><var>k</var>/<var>n</var> passes plus every run’s scores</strong>.
+  </p>
+</div>
+
+<figure>
+  <svg class="fig"
+       xmlns="http://www.w3.org/2000/svg"
+       viewBox="0 0 640 320"
+       role="img"
+       aria-labelledby="title desc">
+
+    <title id="title">A lucky pass becomes likely with more attempts</title>
+    <desc id="desc">
+      Toy model with independent runs and p=0.05.
+      At least one pass: 64.2% at 20 runs, 92.3% at 50.
+    </desc>
+
+    <rect width="640" height="320" fill="white"/>
+
+    <g font-family="Arial,sans-serif" font-size="13" fill="#273746">
+      <text x="60" y="25" font-size="16" font-weight="bold">
+        More attempts, more chances for one lucky pass
+      </text>
+      <text x="60" y="45" fill="#566573">
+        Illustrative model: independent runs; assumed p = 0.05
+      </text>
+
+      <path d="M60 260H600" stroke="#e1e6eb"/>
+      <text x="49" y="264" text-anchor="end">0%</text>
+
+      <path d="M60 208H600" stroke="#e1e6eb"/>
+      <text x="49" y="212" text-anchor="end">25%</text>
+
+      <path d="M60 156H600" stroke="#e1e6eb"/>
+      <text x="49" y="160" text-anchor="end">50%</text>
+
+      <path d="M60 104H600" stroke="#e1e6eb"/>
+      <text x="49" y="108" text-anchor="end">75%</text>
+
+      <path d="M60 52H600" stroke="#e1e6eb"/>
+      <text x="49" y="56" text-anchor="end">100%</text>
+
+      <text x="60" y="282" text-anchor="middle">0</text>
+      <text x="168" y="282" text-anchor="middle">10</text>
+      <text x="276" y="282" text-anchor="middle">20</text>
+      <text x="384" y="282" text-anchor="middle">30</text>
+      <text x="492" y="282" text-anchor="middle">40</text>
+      <text x="600" y="282" text-anchor="middle">50</text>
+
+      <path d="M60 52V260H600" fill="none" stroke="#84919d"/>
+      <text x="330" y="308" text-anchor="middle">
+        Number of seeds tried (n)
+      </text>
+
+      <path d="M70.8 249.6H600"
+            stroke="#b36a18"
+            stroke-width="2"
+            stroke-dasharray="6 4"/>
+
+      <polyline
+        fill="none"
+        stroke="#1f4e79"
+        stroke-width="3"
+        points="
+          70.80,249.60 81.60,239.72 92.40,230.33 103.20,221.42
+          114.00,212.95 124.80,204.90 135.60,197.25 146.40,189.99
+          157.20,183.09 168.00,176.54 178.80,170.31 189.60,164.39
+          200.40,158.78 211.20,153.44 222.00,148.36 232.80,143.55
+          243.60,138.97 254.40,134.62 265.20,130.49 276.00,126.57
+          286.80,122.84 297.60,119.29 308.40,115.93 319.20,112.73
+          330.00,109.70 340.80,106.81 351.60,104.07 362.40,101.47
+          373.20,98.99 384.00,96.64 394.80,94.41 405.60,92.29
+          416.40,90.28 427.20,88.36 438.00,86.55 448.80,84.82
+          459.60,83.18 470.40,81.62 481.20,80.14 492.00,78.73
+          502.80,77.39 513.60,76.12 524.40,74.92 535.20,73.77
+          546.00,72.68 556.80,71.65 567.60,70.67 578.40,69.73
+          589.20,68.85 600.00,68.00"/>
+
+      <text x="120" y="90" fill="#1f4e79">
+        Chance of at least one pass
+      </text>
+      <text x="267" y="238" fill="#945510">
+        Expected fraction of runs passing: 5%
+      </text>
+
+      <circle cx="70.8" cy="249.6" r="4" fill="#1f4e79"/>
+      <text x="78.8" y="236.6">1 seeds: 5.0%</text>
+
+      <circle cx="276" cy="126.565" r="4" fill="#1f4e79"/>
+      <text x="285" y="145.565">20 seeds: 64.2%</text>
+
+      <circle cx="600" cy="68.005" r="4" fill="#1f4e79"/>
+      <text x="591" y="57.005" text-anchor="end">50 seeds: 92.3%</text>
+    </g>
+  </svg>
+
+  <figcaption>
+    Figure 1. More attempts increase the chance of at least one misleading pass
+    (blue), while the expected passing fraction stays constant (dashed orange).
+    I generated both lines from the stated probability model using the Python
+    code below. These are exact model calculations, with no AF2 runs or
+    experimental measurements.
+  </figcaption>
+</figure>
+
+<p class="code-label">
+  Reproduce the figure and numbers: Python 3, standard library only.
+  Save as <code>seed_selection.py</code> and run
+  <code>python3 seed_selection.py</code>.
+</p>
+
+<pre><code>"""Teaching model, not AF2 measurements. Python 3, standard library only."""
+from pathlib import Path
+
+p = 0.05  # Assumed per-run pass probability for a nonbinding candidate.
+ns = range(1, 51)  # Assume independent runs with the same probability.
+q = lambda n: 1 - (1 - p) ** n
+x = lambda n: 60 + 10.8 * n
+y = lambda v: 260 - 208 * v
+
+svg = [
+    '&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 320"',
+    ' role="img" aria-labelledby="title desc"&gt;',
+    '&lt;title id="title"&gt;A lucky pass becomes likely with more attempts&lt;/title&gt;',
+    '&lt;desc id="desc"&gt;Toy model with independent runs and p=0.05. '
+    'At least one pass: 64.2% at 20 runs, 92.3% at 50.&lt;/desc&gt;',
+    '&lt;rect width="640" height="320" fill="white"/&gt;',
+    '&lt;g font-family="Arial,sans-serif" font-size="13" fill="#273746"&gt;',
+    '&lt;text x="60" y="25" font-size="16" font-weight="bold"&gt;'
+    'More attempts, more chances for one lucky pass&lt;/text&gt;',
+    '&lt;text x="60" y="45" fill="#566573"&gt;'
+    'Illustrative model: independent runs; assumed p = 0.05&lt;/text&gt;'
+]
+
+for v in (0, .25, .5, .75, 1):
+    svg += [
+        f'&lt;path d="M60 {y(v)}H600" stroke="#e1e6eb"/&gt;',
+        f'&lt;text x="49" y="{y(v)+4}" text-anchor="end"&gt;'
+        f'{v:.0%}&lt;/text&gt;'
+    ]
+
+for n in (0, 10, 20, 30, 40, 50):
+    svg += [
+        f'&lt;text x="{x(n)}" y="282" text-anchor="middle"&gt;{n}&lt;/text&gt;'
+    ]
+
+svg += [
+    '&lt;path d="M60 52V260H600" fill="none" stroke="#84919d"/&gt;',
+    '&lt;text x="330" y="308" text-anchor="middle"&gt;'
+    'Number of seeds tried (n)&lt;/text&gt;',
+    f'&lt;path d="M{x(1)} {y(p)}H600" stroke="#b36a18" '
+    'stroke-width="2" stroke-dasharray="6 4"/&gt;',
+    '&lt;polyline fill="none" stroke="#1f4e79" stroke-width="3" points="'
+    + ' '.join(f'{x(n):.2f},{y(q(n)):.2f}' for n in ns)
+    + '"/&gt;',
+    '&lt;text x="120" y="90" fill="#1f4e79"&gt;'
+    'Chance of at least one pass&lt;/text&gt;',
+    '&lt;text x="267" y="238" fill="#945510"&gt;'
+    'Expected fraction of runs passing: 5%&lt;/text&gt;'
+]
+
+for n, dx, dy, anchor in (
+    (1, 8, -13, 'start'),
+    (20, 9, 19, 'start'),
+    (50, -9, -11, 'end')
+):
+    svg += [
+        f'&lt;circle cx="{x(n)}" cy="{y(q(n))}" r="4" fill="#1f4e79"/&gt;',
+        f'&lt;text x="{x(n)+dx}" y="{y(q(n))+dy}" '
+        f'text-anchor="{anchor}"&gt;{n} seeds: {q(n):.1%}&lt;/text&gt;'
+    ]
+
+svg += ['&lt;/g&gt;&lt;/svg&gt;']
+
+out = Path(__file__).resolve().parent
+(out / 'seed-selection.svg').write_text(
+    '\n'.join(svg), encoding='utf-8'
+)
+(out / 'seed-selection.csv').write_text(
+    'seeds,at_least_one_pass,expected_pass_fraction\n'
+    + '\n'.join(f'{n},{q(n):.10f},{p}' for n in ns)
+    + '\n',
+    encoding='utf-8'
+)
+
+for n in (1, 5, 20, 50):
+    print(
+        f'{n:2d} seeds: at least one pass = {q(n):.1%}; '
+        f'expected pass fraction = {p:.1%}'
+    )
+</code></pre>
+
+<h2>What I would argue against / where this breaks</h2>
+
+<div id="limitations">
+  <p>
+    Best-of-many sampling can be useful for discovering candidates, provided
+    its budget is disclosed. My objection is to presenting its winner as
+    evidence of repeatability. The toy formula assumes independent runs;
+    actual seeds share a model and inputs, so their errors may be correlated.
+    The tutorial also supplies the design as an initial structural
+    guess.<sup><a href="#r2">2</a></sup>
+    Agreement across seeds could therefore repeat the same bias, and
+    disagreement could reflect predictor limitations rather than a bad protein.
+    The passing fraction is a diagnostic, not a probability of biological
+    success: binding still needs experimental measurement, as the lecture’s
+    validation pipeline illustrates.<sup><a href="#r2">2</a></sup>
+  </p>
+</div>
+
+<h2>Sources</h2>
+
+<ol class="src">
+  <li id="r1">
+    Li, Yibing, and Yan, Runzi.
+    <em>Lecture 15: From Sequence to Structure.</em>
+    CCBS 2026 lecture slides, 29 October 2026.
+    <a href="/Users/jessica/Desktop/course%20slide/生物计算/liyibing%26yanrunzi_lecture15_slide.pdf#page=5">
+      Supplied PDF, pp. 5–10
+    </a>.
+  </li>
+
+  <li id="r2">
+    <em>Introduction to Protein Design.</em>
+    CCBS course slides, 29 October 2026.
+    <a href="/Users/jessica/Desktop/course%20slide/生物计算/20261029%20protein%20design.pdf">
+      Supplied PDF
+    </a>.
+  </li>
+
+  <li id="r3">
+    Jumper, John, Richard Evans, Alexander Pritzel, et al.
+    “Highly accurate protein structure prediction with AlphaFold.”
+    <em>Nature</em> <strong>596</strong>, 583–589 (2021).
+    <a href="https://doi.org/10.1038/s41586-021-03819-2">
+      doi:10.1038/s41586-021-03819-2
+    </a>.
+    Figure 2c evaluates pLDDT against local structural accuracy, supporting
+    its interpretation as structural confidence rather than a binding assay.
+  </li>
+</ol>
+
+</main>
+</body>
+</html>
+```
