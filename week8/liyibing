@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 8 — Extension: A virtual cell needs a perturbation test</title>
+<meta name="author" content="liyibing">
+<meta name="week" content="week8">
+<meta name="lecture" content="lecture16">
+
+<style>
+  :root {
+    --ink:#1a1a1a;
+    --muted:#566;
+    --accent:#1f4e79;
+    --line:#d8dee4;
+    --bg:#fff;
+    --soft:#f6f8fa;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink:#e8e8e8;
+      --muted:#9aa;
+      --accent:#8ab4e8;
+      --line:#3a4652;
+      --bg:#15191d;
+      --soft:#1e242a;
+    }
+  }
+
+  * {
+    box-sizing:border-box;
+  }
+
+  body {
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    line-height:1.6;
+  }
+
+  .wrap {
+    max-width:760px;
+    margin:0 auto;
+    padding:40px 22px 80px;
+  }
+
+  h1 {
+    font-size:1.6rem;
+    line-height:1.25;
+    margin:0 0 6px;
+    color:var(--accent);
+  }
+
+  .meta {
+    color:var(--muted);
+    font-size:.92rem;
+    margin-bottom:26px;
+  }
+
+  h2 {
+    font-size:1.05rem;
+    color:var(--accent);
+    margin:34px 0 8px;
+    border-bottom:1px solid var(--line);
+    padding-bottom:5px;
+  }
+
+  .card {
+    background:var(--soft);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:14px 18px;
+    margin:14px 0;
+  }
+
+  .fig {
+    width:100%;
+    border:1px solid var(--line);
+    border-radius:6px;
+    margin:14px 0;
+  }
+
+  figcaption {
+    font-size:.85rem;
+    color:var(--muted);
+    margin-top:6px;
+  }
+
+  a {
+    color:var(--accent);
+  }
+
+  .src {
+    font-size:.9rem;
+  }
+
+  figure {
+    margin:18px 0;
+  }
+
+  svg.fig {
+    display:block;
+    height:auto;
+    background:#fff;
+  }
+
+  .equation {
+    text-align:center;
+    background:var(--soft);
+    padding:12px;
+    border-radius:6px;
+  }
+
+  .code-label {
+    font-size:.86rem;
+    color:var(--muted);
+    margin-bottom:6px;
+  }
+
+  pre {
+    margin-top:6px;
+    padding:14px;
+    overflow:auto;
+    background:var(--soft);
+    border:1px solid var(--line);
+    border-radius:6px;
+    font-size:.72rem;
+    line-height:1.5;
+  }
+
+  code {
+    font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;
+  }
+
+  .src li {
+    margin-bottom:12px;
+  }
+
+  sup {
+    line-height:0;
+  }
+
+  @media print {
+    pre {
+      white-space:pre-wrap;
+      overflow-wrap:anywhere;
+    }
+
+    a {
+      text-decoration:none;
+    }
+  }
+</style>
+</head>
+
+<body>
+<main class="wrap">
+
+<h1>Week 8 — Extension: A virtual cell needs a perturbation test</h1>
+
+<p class="meta">
+  Author: liyibing · Week 8 / Lecture 16 (2026-11-08) · CCBS 2026
+</p>
+
+<p class="card">
+  <strong>One sentence:</strong> A mechanistic virtual cell should be tested on
+  recovery from perturbations, because matching a steady state can leave its
+  biological timescales completely undetermined.
+</p>
+
+<h2>The point I am adding</h2>
+
+<div id="argument">
+  <p>
+    Lecture 16 proposes a shared mechanistic language for whole-cell models
+    and names parameter unidentifiability as an
+    obstacle.<sup><a href="#r1">1</a></sup>
+    My extension is a validation rule: before trusting a virtual cell’s
+    response to an intervention, test whether the data constrain that
+    response. A model can use the right reaction types and reproduce the
+    right molecular abundance while getting recovery time badly wrong.
+    A common language helps us write models; it does not, by itself,
+    tell us which parameter values biology uses.
+  </p>
+</div>
+
+<h2>Work it</h2>
+
+<div id="calculation">
+  <p>
+    I constructed a minimal production–removal model at fixed volume:
+    <var>dX/dt</var> = α − β<var>X</var>, where α is constant production
+    in nM/min and β is a first-order removal constant in
+    min<sup>−1</sup>. Its steady state is <var>X*</var> = α/β.
+    Model A uses (α, β) = (10, 0.1); model B uses (100, 1).
+    Both predict exactly <strong>100 nM</strong>.
+    Even a perfectly measured steady-state concentration cannot distinguish
+    them: multiplying both rates by the same factor preserves their ratio.
+    These are illustrative parameters, not fitted cell measurements.
+  </p>
+
+  <p>
+    Now imagine an ideal intervention that instantly removes half of
+    <var>X</var> without changing either rate. Starting from 50 nM,
+    the exact solution is:
+  </p>
+
+  <p class="equation">
+    <var>X(t)</var> = 100 − 50 exp(−β<var>t</var>).
+  </p>
+
+  <p>
+    My code gives <strong>69.67 nM for A</strong> and
+    <strong>99.66 nM for B</strong> after five minutes.
+    Recovering 90% of the initial deficit means reaching 95 nM;
+    this takes <var>t</var><sub>90</sub> = ln(10)/β,
+    or <strong>23.03 versus 2.30 minutes</strong>.
+    One informative time point separates these two candidates.
+    More generally, a recovery time course could constrain β,
+    and the steady-state ratio would then determine α within this model.
+    The useful next datum is therefore a trajectory, rather than another
+    copy of the same steady-state measurement.
+  </p>
+</div>
+
+<figure>
+  <svg
+    class="fig"
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 640 310"
+    role="img"
+    aria-labelledby="fig-title fig-desc">
+
+    <title id="fig-title">Same steady state, different recovery</title>
+
+    <desc id="fig-desc">
+      Both models recover from 50 toward 100 nM.
+      Model B recovers ten times faster.
+    </desc>
+
+    <rect width="640" height="310" fill="white"/>
+
+    <g font-family="Arial,sans-serif" font-size="13" fill="#273746">
+
+      <text x="62" y="25" font-size="17" font-weight="bold">
+        Same steady state does not mean the same dynamics
+      </text>
+
+      <text x="62" y="48">
+        Concentration X (nM); instantaneous reduction to 50 nM at t = 0
+      </text>
+
+      <path d="M62 246H578" stroke="#dfe5ea"/>
+      <text x="51" y="250" text-anchor="end">50</text>
+
+      <path d="M62 212H578" stroke="#dfe5ea"/>
+      <text x="51" y="216" text-anchor="end">60</text>
+
+      <path d="M62 178H578" stroke="#dfe5ea"/>
+      <text x="51" y="182" text-anchor="end">70</text>
+
+      <path d="M62 144H578" stroke="#dfe5ea"/>
+      <text x="51" y="148" text-anchor="end">80</text>
+
+      <path d="M62 110H578" stroke="#dfe5ea"/>
+      <text x="51" y="114" text-anchor="end">90</text>
+
+      <path d="M62 76H578" stroke="#dfe5ea"/>
+      <text x="51" y="80" text-anchor="end">100</text>
+
+      <text x="62" y="268" text-anchor="middle">0</text>
+      <text x="148" y="268" text-anchor="middle">5</text>
+      <text x="234" y="268" text-anchor="middle">10</text>
+      <text x="320" y="268" text-anchor="middle">15</text>
+      <text x="406" y="268" text-anchor="middle">20</text>
+      <text x="492" y="268" text-anchor="middle">25</text>
+      <text x="578" y="268" text-anchor="middle">30</text>
+
+      <path d="M62 76V246H578" fill="none" stroke="#84919d"/>
+
+      <text x="320" y="295" text-anchor="middle">
+        Time after perturbation (min)
+      </text>
+
+      <polyline
+        fill="none"
+        stroke="#1f4e79"
+        stroke-width="3"
+        points="
+          62.00,246.00 63.72,244.31 65.44,242.63 67.16,240.98
+          68.88,239.33 70.60,237.71 72.32,236.10 74.04,234.51
+          75.76,232.93 77.48,231.37 79.20,229.82 80.92,228.29
+          82.64,226.78 84.36,225.28 86.08,223.79 87.80,222.32
+          89.52,220.86 91.24,219.42 92.96,218.00 94.68,216.58
+          96.40,215.18 98.12,213.80 99.84,212.43 101.56,211.07
+          103.28,209.73 105.00,208.40 106.72,207.08 108.44,205.77
+          110.16,204.48 111.88,203.20 113.60,201.94 115.32,200.69
+          117.04,199.45 118.76,198.22 120.48,197.00 122.20,195.80
+          123.92,194.60 125.64,193.42 127.36,192.26 129.08,191.10
+          130.80,189.95 132.52,188.82 134.24,187.70 135.96,186.59
+          137.68,185.49 139.40,184.40 141.12,183.32 142.84,182.25
+          144.56,181.19 146.28,180.15 148.00,179.11 149.72,178.08
+          151.44,177.07 153.16,176.06 154.88,175.07 156.60,174.08
+          158.32,173.11 160.04,172.14 161.76,171.18 163.48,170.24
+          165.20,169.30 166.92,168.37 168.64,167.45 170.36,166.54
+          172.08,165.64 173.80,164.75 175.52,163.86 177.24,162.99
+          178.96,162.12 180.68,161.27 182.40,160.42 184.12,159.58
+          185.84,158.75 187.56,157.92 189.28,157.11 191.00,156.30
+          192.72,155.50 194.44,154.71 196.16,153.93 197.88,153.15
+          199.60,152.39 201.32,151.63 203.04,150.87 204.76,150.13
+          206.48,149.39 208.20,148.66 209.92,147.94 211.64,147.22
+          213.36,146.51 215.08,145.81 216.80,145.12 218.52,144.43
+          220.24,143.75 221.96,143.07 223.68,142.41 225.40,141.75
+          227.12,141.09 228.84,140.44 230.56,139.80 232.28,139.17
+          234.00,138.54 235.72,137.92 237.44,137.30 239.16,136.69
+          240.88,136.09 242.60,135.49 244.32,134.90 246.04,134.31
+          247.76,133.73 249.48,133.16 251.20,132.59 252.92,132.03
+          254.64,131.47 256.36,130.92 258.08,130.37 259.80,129.83
+          261.52,129.29 263.24,128.76 264.96,128.24 266.68,127.72
+          268.40,127.20 270.12,126.69 271.84,126.19 273.56,125.69
+          275.28,125.20 277.00,124.71 278.72,124.22 280.44,123.74
+          282.16,123.27 283.88,122.80 285.60,122.33 287.32,121.87
+          289.04,121.41 290.76,120.96 292.48,120.51 294.20,120.07
+          295.92,119.63 297.64,119.20 299.36,118.77 301.08,118.34
+          302.80,117.92 304.52,117.50 306.24,117.09 307.96,116.68
+          309.68,116.28 311.40,115.88 313.12,115.48 314.84,115.09
+          316.56,114.70 318.28,114.31 320.00,113.93 321.72,113.55
+          323.44,113.18 325.16,112.81 326.88,112.44 328.60,112.08
+          330.32,111.72 332.04,111.37 333.76,111.02 335.48,110.67
+          337.20,110.32 338.92,109.98 340.64,109.64 342.36,109.31
+          344.08,108.98 345.80,108.65 347.52,108.32 349.24,108.00
+          350.96,107.68 352.68,107.37 354.40,107.06 356.12,106.75
+          357.84,106.44 359.56,106.14 361.28,105.84 363.00,105.54
+          364.72,105.25 366.44,104.96 368.16,104.67 369.88,104.38
+          371.60,104.10 373.32,103.82 375.04,103.54 376.76,103.27
+          378.48,103.00 380.20,102.73 381.92,102.46 383.64,102.20
+          385.36,101.94 387.08,101.68 388.80,101.43 390.52,101.17
+          392.24,100.92 393.96,100.68 395.68,100.43 397.40,100.19
+          399.12,99.95 400.84,99.71 402.56,99.47 404.28,99.24
+          406.00,99.01 407.72,98.78 409.44,98.55 411.16,98.33
+          412.88,98.10 414.60,97.88 416.32,97.67 418.04,97.45
+          419.76,97.24 421.48,97.03 423.20,96.82 424.92,96.61
+          426.64,96.41 428.36,96.20 430.08,96.00 431.80,95.80
+          433.52,95.61 435.24,95.41 436.96,95.22 438.68,95.03
+          440.40,94.84 442.12,94.65 443.84,94.46 445.56,94.28
+          447.28,94.10 449.00,93.92 450.72,93.74 452.44,93.56
+          454.16,93.39 455.88,93.22 457.60,93.04 459.32,92.87
+          461.04,92.71 462.76,92.54 464.48,92.38 466.20,92.21
+          467.92,92.05 469.64,91.89 471.36,91.73 473.08,91.58
+          474.80,91.42 476.52,91.27 478.24,91.12 479.96,90.97
+          481.68,90.82 483.40,90.67 485.12,90.52 486.84,90.38
+          488.56,90.24 490.28,90.09 492.00,89.95 493.72,89.82
+          495.44,89.68 497.16,89.54 498.88,89.41 500.60,89.27
+          502.32,89.14 504.04,89.01 505.76,88.88 507.48,88.75
+          509.20,88.63 510.92,88.50 512.64,88.38 514.36,88.25
+          516.08,88.13 517.80,88.01 519.52,87.89 521.24,87.77
+          522.96,87.66 524.68,87.54 526.40,87.42 528.12,87.31
+          529.84,87.20 531.56,87.09 533.28,86.98 535.00,86.87
+          536.72,86.76 538.44,86.65 540.16,86.55 541.88,86.44
+          543.60,86.34 545.32,86.23 547.04,86.13 548.76,86.03
+          550.48,85.93 552.20,85.83 553.92,85.74 555.64,85.64
+          557.36,85.54 559.08,85.45 560.80,85.35 562.52,85.26
+          564.24,85.17 565.96,85.08 567.68,84.99 569.40,84.90
+          571.12,84.81 572.84,84.72 574.56,84.63 576.28,84.55
+          578.00,84.46"/>
+
+      <circle
+        cx="148"
+        cy="179.1102121511477"
+        r="4"
+        fill="#1f4e79"/>
+
+      <polyline
+        fill="none"
+        stroke="#b65b28"
+        stroke-width="3"
+        points="
+          62.00,246.00 63.72,229.82 65.44,215.18 67.16,201.94
+          68.88,189.95 70.60,179.11 72.32,169.30 74.04,160.42
+          75.76,152.39 77.48,145.12 79.20,138.54 80.92,132.59
+          82.64,127.20 84.36,122.33 86.08,117.92 87.80,113.93
+          89.52,110.32 91.24,107.06 92.96,104.10 94.68,101.43
+          96.40,99.01 98.12,96.82 99.84,94.84 101.56,93.04
+          103.28,91.42 105.00,89.95 106.72,88.63 108.44,87.42
+          110.16,86.34 111.88,85.35 113.60,84.46 115.32,83.66
+          117.04,82.93 118.76,82.27 120.48,81.67 122.20,81.13
+          123.92,80.65 125.64,80.20 127.36,79.80 129.08,79.44
+          130.80,79.11 132.52,78.82 134.24,78.55 135.96,78.31
+          137.68,78.09 139.40,77.89 141.12,77.71 142.84,77.55
+          144.56,77.40 146.28,77.27 148.00,77.15 149.72,77.04
+          151.44,76.94 153.16,76.85 154.88,76.77 156.60,76.69
+          158.32,76.63 160.04,76.57 161.76,76.51 163.48,76.47
+          165.20,76.42 166.92,76.38 168.64,76.35 170.36,76.31
+          172.08,76.28 173.80,76.26 175.52,76.23 177.24,76.21
+          178.96,76.19 180.68,76.17 182.40,76.16 184.12,76.14
+          185.84,76.13 187.56,76.11 189.28,76.10 191.00,76.09
+          192.72,76.09 194.44,76.08 196.16,76.07 197.88,76.06
+          199.60,76.06 201.32,76.05 203.04,76.05 204.76,76.04
+          206.48,76.04 208.20,76.03 209.92,76.03 211.64,76.03
+          213.36,76.03 215.08,76.02 216.80,76.02 218.52,76.02
+          220.24,76.02 221.96,76.02 223.68,76.01 225.40,76.01
+          227.12,76.01 228.84,76.01 230.56,76.01 232.28,76.01
+          234.00,76.01 235.72,76.01 237.44,76.01 239.16,76.01
+          240.88,76.01 242.60,76.00 244.32,76.00 246.04,76.00
+          247.76,76.00 249.48,76.00 251.20,76.00 252.92,76.00
+          254.64,76.00 256.36,76.00 258.08,76.00 259.80,76.00
+          261.52,76.00 263.24,76.00 264.96,76.00 266.68,76.00
+          268.40,76.00 270.12,76.00 271.84,76.00 273.56,76.00
+          275.28,76.00 277.00,76.00 278.72,76.00 280.44,76.00
+          282.16,76.00 283.88,76.00 285.60,76.00 287.32,76.00
+          289.04,76.00 290.76,76.00 292.48,76.00 294.20,76.00
+          295.92,76.00 297.64,76.00 299.36,76.00 301.08,76.00
+          302.80,76.00 304.52,76.00 306.24,76.00 307.96,76.00
+          309.68,76.00 311.40,76.00 313.12,76.00 314.84,76.00
+          316.56,76.00 318.28,76.00 320.00,76.00 321.72,76.00
+          323.44,76.00 325.16,76.00 326.88,76.00 328.60,76.00
+          330.32,76.00 332.04,76.00 333.76,76.00 335.48,76.00
+          337.20,76.00 338.92,76.00 340.64,76.00 342.36,76.00
+          344.08,76.00 345.80,76.00 347.52,76.00 349.24,76.00
+          350.96,76.00 352.68,76.00 354.40,76.00 356.12,76.00
+          357.84,76.00 359.56,76.00 361.28,76.00 363.00,76.00
+          364.72,76.00 366.44,76.00 368.16,76.00 369.88,76.00
+          371.60,76.00 373.32,76.00 375.04,76.00 376.76,76.00
+          378.48,76.00 380.20,76.00 381.92,76.00 383.64,76.00
+          385.36,76.00 387.08,76.00 388.80,76.00 390.52,76.00
+          392.24,76.00 393.96,76.00 395.68,76.00 397.40,76.00
+          399.12,76.00 400.84,76.00 402.56,76.00 404.28,76.00
+          406.00,76.00 407.72,76.00 409.44,76.00 411.16,76.00
+          412.88,76.00 414.60,76.00 416.32,76.00 418.04,76.00
+          419.76,76.00 421.48,76.00 423.20,76.00 424.92,76.00
+          426.64,76.00 428.36,76.00 430.08,76.00 431.80,76.00
+          433.52,76.00 435.24,76.00 436.96,76.00 438.68,76.00
+          440.40,76.00 442.12,76.00 443.84,76.00 445.56,76.00
+          447.28,76.00 449.00,76.00 450.72,76.00 452.44,76.00
+          454.16,76.00 455.88,76.00 457.60,76.00 459.32,76.00
+          461.04,76.00 462.76,76.00 464.48,76.00 466.20,76.00
+          467.92,76.00 469.64,76.00 471.36,76.00 473.08,76.00
+          474.80,76.00 476.52,76.00 478.24,76.00 479.96,76.00
+          481.68,76.00 483.40,76.00 485.12,76.00 486.84,76.00
+          488.56,76.00 490.28,76.00 492.00,76.00 493.72,76.00
+          495.44,76.00 497.16,76.00 498.88,76.00 500.60,76.00
+          502.32,76.00 504.04,76.00 505.76,76.00 507.48,76.00
+          509.20,76.00 510.92,76.00 512.64,76.00 514.36,76.00
+          516.08,76.00 517.80,76.00 519.52,76.00 521.24,76.00
+          522.96,76.00 524.68,76.00 526.40,76.00 528.12,76.00
+          529.84,76.00 531.56,76.00 533.28,76.00 535.00,76.00
+          536.72,76.00 538.44,76.00 540.16,76.00 541.88,76.00
+          543.60,76.00 545.32,76.00 547.04,76.00 548.76,76.00
+          550.48,76.00 552.20,76.00 553.92,76.00 555.64,76.00
+          557.36,76.00 559.08,76.00 560.80,76.00 562.52,76.00
+          564.24,76.00 565.96,76.00 567.68,76.00 569.40,76.00
+          571.12,76.00 572.84,76.00 574.56,76.00 576.28,76.00
+          578.00,76.00"/>
+
+      <circle
+        cx="148"
+        cy="77.14545098984453"
+        r="4"
+        fill="#b65b28"/>
+
+      <text x="310" y="111" fill="#b65b28">
+        B: alpha = 100; beta = 1
+      </text>
+
+      <text x="310" y="135" fill="#1f4e79">
+        A: alpha = 10; beta = 0.1
+      </text>
+
+    </g>
+  </svg>
+
+  <figcaption>
+    Figure 1. Two parameter sets share a 100 nM steady state but recover
+    at different speeds after an ideal reduction to 50 nM.
+    I generated both curves by evaluating the exact solution every
+    0.1 min; dots mark five minutes. There is no numerical integration
+    or experimental dataset. Code below reproduces the SVG, CSV,
+    and reported numbers.
+  </figcaption>
+</figure>
+
+<p class="code-label">
+  Python 3, standard library only.
+  Save as <code>recovery.py</code> and run
+  <code>python3 recovery.py</code>.
+</p>
+
+<pre><code>"""Exact recovery curves for an illustrative model, not cell measurements."""
+from math import exp, log
+from pathlib import Path
+
+models = [(10, 0.1, '#1f4e79'), (100, 1.0, '#b65b28')]
+ts = [i / 10 for i in range(301)]
+
+level = lambda t, a, b: a / b + (50 - a / b) * exp(-b * t)
+x = lambda t: 62 + 17.2 * t
+y = lambda c: 246 - 3.4 * (c - 50)
+
+svg = [
+    '&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 310"',
+    ' role="img" aria-labelledby="fig-title fig-desc"&gt;',
+    '&lt;title id="fig-title"&gt;Same steady state, different recovery&lt;/title&gt;',
+    '&lt;desc id="fig-desc"&gt;Both models recover from 50 toward 100 nM. '
+    'Model B recovers ten times faster.&lt;/desc&gt;',
+    '&lt;rect width="640" height="310" fill="white"/&gt;',
+    '&lt;g font-family="Arial,sans-serif" font-size="13" fill="#273746"&gt;',
+    '&lt;text x="62" y="25" font-size="17" font-weight="bold"&gt;'
+    'Same steady state does not mean the same dynamics&lt;/text&gt;',
+    '&lt;text x="62" y="48"&gt;Concentration X (nM); '
+    'instantaneous reduction to 50 nM at t = 0&lt;/text&gt;'
+]
+
+for c in (50, 60, 70, 80, 90, 100):
+    svg += [
+        f'&lt;path d="M62 {y(c)}H578" stroke="#dfe5ea"/&gt;',
+        f'&lt;text x="51" y="{y(c)+4}" text-anchor="end"&gt;{c}&lt;/text&gt;'
+    ]
+
+for t in (0, 5, 10, 15, 20, 25, 30):
+    svg += [
+        f'&lt;text x="{x(t)}" y="268" text-anchor="middle"&gt;{t}&lt;/text&gt;'
+    ]
+
+svg += [
+    '&lt;path d="M62 76V246H578" fill="none" stroke="#84919d"/&gt;',
+    '&lt;text x="320" y="295" text-anchor="middle"&gt;'
+    'Time after perturbation (min)&lt;/text&gt;'
+]
+
+for a, b, color in models:
+    pts = ' '.join(
+        f'{x(t):.2f},{y(level(t, a, b)):.2f}'
+        for t in ts
+    )
+    svg += [
+        f'&lt;polyline points="{pts}" fill="none" '
+        f'stroke="{color}" stroke-width="3"/&gt;',
+        f'&lt;circle cx="{x(5)}" cy="{y(level(5, a, b))}" '
+        f'r="4" fill="{color}"/&gt;'
+    ]
+
+    print(
+        f'alpha={a}, beta={b}: X*= {a/b:.1f} nM; '
+        f'X(5)={level(5, a, b):.2f} nM; '
+        f't90={log(10)/b:.2f} min'
+    )
+
+svg += [
+    '&lt;text x="310" y="111" fill="#b65b28"&gt;'
+    'B: alpha = 100; beta = 1&lt;/text&gt;',
+    '&lt;text x="310" y="135" fill="#1f4e79"&gt;'
+    'A: alpha = 10; beta = 0.1&lt;/text&gt;',
+    '&lt;/g&gt;&lt;/svg&gt;'
+]
+
+out = Path(__file__).resolve().parent
+
+(out / 'recovery.svg').write_text(
+    '\n'.join(svg),
+    encoding='utf-8'
+)
+
+(out / 'recovery.csv').write_text(
+    'time_min,A_nM,B_nM\n'
+    + '\n'.join(
+        f'{t:.1f},{level(t, 10, .1):.8f},{level(t, 100, 1):.8f}'
+        for t in ts
+    )
+    + '\n'
+)
+</code></pre>
+
+<h2>What I would argue against / where this breaks</h2>
+
+<div id="limitations">
+  <p>
+    I would argue against demanding precise values for every parameter
+    before making any prediction. Gutenkunst and colleagues show that
+    poorly constrained parameters can still yield tightly constrained
+    predictions.<sup><a href="#r2">2</a></sup>
+    My example concerns an exact ambiguity under steady-state-only
+    observations, not a claim that all uncertain models fail.
+    Real interventions may also alter production, dilution, or feedback,
+    violating my fixed-rate assumption. A successful recovery test would
+    support this particular prediction under the tested conditions;
+    it would not establish that an entire virtual cell is correct.
+  </p>
+</div>
+
+<h2>Sources</h2>
+
+<ol class="src">
+  <li id="r1">
+    CCBS 2026 course materials.
+    <em>
+      Lecture 16: Foundational virtual cells that are fully mechanistic.
+    </em>
+    Core page, 3 November 2026.
+    <a href="https://chemaoxfz.github.io/assets/ccbs/2026fall/lecture16-core.html">
+      Lecture page
+    </a>.
+  </li>
+
+  <li id="r2">
+    Gutenkunst, Ryan N., Joshua J. Waterfall, Fergal P. Casey,
+    Kevin S. Brown, Christopher R. Myers, and James P. Sethna.
+    “Universally Sloppy Parameter Sensitivities in Systems Biology Models.”
+    <em>PLoS Computational Biology</em>
+    <strong>3</strong>(10), e189 (2007).
+    <a href="https://doi.org/10.1371/journal.pcbi.0030189">
+      doi:10.1371/journal.pcbi.0030189
+    </a>.
+  </li>
+</ol>
+
+</main>
+</body>
+</html>
+```
